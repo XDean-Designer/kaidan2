@@ -4131,8 +4131,6 @@
   var nav = document.getElementById('siteNav');
   var scrim = document.getElementById('siteNavScrim');
   var stage = document.querySelector('.stage');
-  var mqNarrow = window.matchMedia('(max-width: 760px)');
-  var mqCoarse = window.matchMedia('(hover: none) and (pointer: coarse)');
 
   function queryForce() {
     try {
@@ -4143,10 +4141,24 @@
     return null;
   }
 
+  /* 仅真机 UA 自动开启。Cursor / 桌面浏览器（即使窄屏、coarse pointer）保持桌面态；
+     电脑验收请用 ?mobile=1 */
+  function isRealPhone() {
+    var ua = navigator.userAgent || '';
+    if (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
+      /* Android 平板 UA 常带 Android 但不带 Mobile，排除 */
+      if (/Android/i.test(ua) && !/Mobile/i.test(ua)) return false;
+      return true;
+    }
+    /* iPadOS 13+ 可能伪装成 Mac；有多点触控则视为移动端 */
+    if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return true;
+    return false;
+  }
+
   function shouldMobile() {
     var force = queryForce();
     if (force !== null) return force;
-    return mqNarrow.matches || mqCoarse.matches;
+    return isRealPhone();
   }
 
   function isNavOpen() {
@@ -4219,7 +4231,6 @@
       if (track.axis === 'y') { track = null; return; }
     }
     if (track.axis === 'x') {
-      /* 阻止页面横向拖动时跟着滚 */
       if (e.cancelable) e.preventDefault();
     }
   }
@@ -4240,21 +4251,12 @@
   document.addEventListener('touchend', onTouchEnd, { passive: true, capture: true });
   document.addEventListener('touchcancel', function () { track = null; }, { passive: true });
 
-  /* 桌面验收：窄窗拖拽 / ?mobile=1 */
   applyMode();
   window.addEventListener('resize', function () {
-    applyMode();
-    updateScale();
+    if (root.classList.contains('is-mobile')) updateScale();
   }, { passive: true });
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', updateScale, { passive: true });
-  }
-  if (mqNarrow.addEventListener) {
-    mqNarrow.addEventListener('change', applyMode);
-    mqCoarse.addEventListener('change', applyMode);
-  } else if (mqNarrow.addListener) {
-    mqNarrow.addListener(applyMode);
-    mqCoarse.addListener(applyMode);
   }
 })();
 </script>
