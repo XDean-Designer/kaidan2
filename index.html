@@ -2,8 +2,12 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>RTB 开单结账2.0 - 高保真交互原型</title>
+<!-- 全局字体：Noto Sans SC（含金额数字） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/v2.css">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -13,15 +17,32 @@
     --border: #D7D7D5; --border-light: #E8E8E8; --success: #2BA471; --success-soft: #E8F8F2;
     --card-divider: rgba(0, 0, 0, 0.04);
     --input-border: #D7D7D5; --input-border-focus: #C2C4CC; --input-bg: #F7F7F7;
-    --font-data: "TCloudNumber", "DIN Alternate", "Helvetica Neue", monospace;
-    --font-text: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    /* 字体：全局 Noto Sans SC（金额数字同源，配合 tabular-nums 对齐） */
+    --font-text: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+    --font-data: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+    /* 卡片内文字 Token（全站统一，禁止逐处硬编码字号） */
+    --fs-card-title: 15px; --fw-card-title: 500; --lh-card-title: 22px;
+    --fs-label: 14px;      --fw-label: 400;
+    --fs-value: 14px;      --fw-value: 400;
+    --fs-amount: 15px;     --fw-amount: 600;
+    --fs-hint: 12px;       --fw-hint: 400; --lh-hint: 18px;
+    --fs-tag: 11px;        --fw-tag: 700;
+    --fw-block-title: 500; /* 卡片内区块标题（优惠券 / 备注） */
+    --lh-text: 20px;       /* 14px 正文行高 */
+    --row-h: 40px;
+    --gap-card: 12px;      /* 卡片之间统一间距 */
     --safe-bottom: 34px;
+    /* 顶栏：伪状态栏 53 + 导航栏 44；手机模式把 --statusbar-h 置 0 即可整体上移 */
+    --statusbar-h: 53px;
+    --nav-h: 44px;
+    --chrome-top: calc(var(--statusbar-h) + var(--nav-h));
+    --mobile-scale: 1;
   }
   html, body { height:100%; }
   body {
     background:#e9e9eb;
     display:flex; align-items:flex-start;
-    font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',-apple-system,'Helvetica Neue',sans-serif;
+    font-family: var(--font-text);
   }
 
   /* ===== 左侧链路导航（N2：石墨 + 青绿） ===== */
@@ -62,14 +83,6 @@
     flex:1; min-width:0; display:flex; justify-content:center; align-items:flex-start;
     margin-left:200px; padding:24px 20px 40px;
   }
-  @media (max-width: 760px) {
-    .site-nav { display:none; }
-    .stage { margin-left:0; padding:0; }
-    #frame {
-      transform:none;
-      margin-bottom:0;
-    }
-  }
 
   /* 真机演示区：逻辑画布仍 390×844，默认 1.25× 放大显示（Z2） */
   #frame {
@@ -86,7 +99,7 @@
 
   /* ===== 可滚动内容区（用于长页面 S1/S5） ===== */
   .scroll {
-    position:absolute; top:97px; left:0; right:0; bottom:62px;
+    position:absolute; top:var(--chrome-top); left:0; right:0; bottom:62px;
     overflow-y:auto; overflow-x:hidden;
     -webkit-overflow-scrolling:touch;
     z-index:10;
@@ -96,9 +109,10 @@
 
   /* ===== 状态栏 ===== */
   .status-bar {
-    position:absolute; top:0; left:0; width:390px; height:53px;
+    position:absolute; top:0; left:0; width:390px; height:var(--statusbar-h);
     background:#fff; display:flex; align-items:flex-start; justify-content:space-between;
     padding:18px 26px 0 27px; z-index:30;
+    overflow:hidden;
   }
   .status-bar .time { font-family:'SF Pro Text','PingFang SC',sans-serif; font-weight:600; font-size:17px; letter-spacing:-.4px; color:#1a1a1a; line-height:21px; }
   .status-bar .icons { display:flex; gap:2px; align-items:flex-start; height:13px; margin-top:2px; }
@@ -106,7 +120,7 @@
 
   /* ===== 导航栏 ===== */
   .nav-bar {
-    position:absolute; top:53px; left:0; width:390px; height:44px;
+    position:absolute; top:var(--statusbar-h); left:0; width:390px; height:var(--nav-h);
     background:#fff; z-index:30;
   }
   .nav-bar .title {
@@ -122,7 +136,7 @@
 
   /* ===== 顾客卡（深色渐变卡） ===== */
   .cust-card {
-    position:absolute; left:16px; top:107px; width:358px; height:94px;
+    position:absolute; left:16px; top:calc(var(--statusbar-h) + 54px); width:358px; height:94px;
     border-radius:12px; overflow:hidden;
     background:linear-gradient(to left,#88634b 0%,#242728 100%);
     z-index:20;
@@ -488,7 +502,7 @@
 
   /* ===== 选择顾客页 ===== */
   .pick-search {
-    position:absolute; top:53px; left:0; width:390px; height:50px;
+    position:absolute; top:var(--statusbar-h); left:0; width:390px; height:50px;
     background:#fff; display:flex; align-items:center; gap:12px; padding:0 12px; z-index:20;
   }
   .pick-search .box {
@@ -499,7 +513,7 @@
   .pick-search .box span { flex:1; font-size:14px; color:#878787; white-space:nowrap; overflow:hidden; }
   .pick-search .cancel { font-size:15px; font-weight:500; color:#878787; border:none; background:none; cursor:pointer; white-space:nowrap; }
 
-  .pick-list { position:absolute; top:103px; left:0; width:390px; bottom:0; overflow:hidden; background:#fff; }
+  .pick-list { position:absolute; top:calc(var(--statusbar-h) + 50px); left:0; width:390px; bottom:0; overflow:hidden; background:#fff; }
   .pick-group-h {
     width:390px; height:28px; background:#f9f9f9;
     display:flex; align-items:center; padding:0 12px;
@@ -528,7 +542,7 @@
   .pick-row .info .line1 .phone { flex:1; text-align:right; font-size:14px; color:#888; white-space:nowrap; }
   .pick-row .info .sub { font-size:12px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .index-bar {
-    position:absolute; left:370px; top:108px; width:18px; height:600px;
+    position:absolute; left:370px; top:calc(var(--statusbar-h) + 55px); width:18px; height:600px;
     display:flex; flex-direction:column; align-items:center; gap:3px;
     font-size:10px; font-weight:700; color:#ffcc9d; line-height:14px; padding-top:80px;
     z-index:25; pointer-events:none;
@@ -591,28 +605,28 @@
   #s5.m-exp .member-card { height:200px; }
 
   /* ===== 结算页 s6 / 快捷开单结算 s7 ===== */
-  #s6 .scroll, #s7 .scroll { top:97px; bottom:72px; }
+  #s6 .scroll, #s7 .scroll { top:var(--chrome-top); bottom:72px; }
   #s6 .page, #s7 .page { position:relative; }
   #s6 .co-card, #s7 .co-card {
     position:absolute; left:12px; top:10px; width:366px; z-index:20;
   }
   #s6 .co-card .fold-btn, #s7 .co-card .fold-btn { margin-left:auto; }
   #s6 .co-manual, #s7 .co-manual {
-    position:absolute; left:0; top:119px; width:390px; height:56px;
+    position:absolute; left:0; top:calc(var(--statusbar-h) + 66px); width:390px; height:56px;
     background:#fff; display:flex; align-items:center; padding:0 16px; z-index:15;
     cursor:pointer; border-bottom:0.5px solid #e8e8e8; box-sizing:border-box;
   }
-  #s6 .co-manual .lbl, #s7 .co-manual .lbl { font-size:15px; color:#1a1a1a; white-space:nowrap; }
+  #s6 .co-manual .lbl, #s7 .co-manual .lbl { font-size:var(--fs-label); color:var(--text); white-space:nowrap; }
   #s6 .co-manual .spacer, #s7 .co-manual .spacer { flex:1; min-width:12px; }
   #s6 .co-manual.is-editing .spacer, #s7 .co-manual.is-editing .spacer,
   #s6 .co-manual.has-value .spacer, #s7 .co-manual.has-value .spacer { display:none; }
   #s6 .co-manual .hint, #s7 .co-manual .hint {
-    font-size:15px; color:#929292; white-space:nowrap; flex:none;
+    font-size:var(--fs-value); color:var(--text-sec); white-space:nowrap; flex:none;
   }
   #s6 .co-manual .hint.is-hidden, #s7 .co-manual .hint.is-hidden { display:none; }
   #s6 .co-manual input, #s7 .co-manual input {
     flex:1; margin-left:16px; border:none; outline:none;
-    font-size:15px; color:#333; background:transparent; text-align:right;
+    font-size:var(--fs-value); color:var(--text); background:transparent; text-align:right;
     display:none; min-width:0;
   }
   #s6 .co-manual.is-editing input, #s7 .co-manual.is-editing input { display:block; }
@@ -630,11 +644,11 @@
   #s6 .co-bar .btn-g.is-disabled, #s7 .co-bar .btn-g.is-disabled {
     background:#f2f2f2; color:#b2b2b2;
   }
-  #s6 .co-items, #s7 .co-items { position:absolute; left:0; top:184px; width:390px; }
+  #s6 .co-items, #s7 .co-items { position:absolute; left:0; top:calc(var(--statusbar-h) + 131px); width:390px; }
   #s6 .co-item, #s7 .co-item {
-    background:#fff; margin-bottom:9px;
+    background:#fff; margin-bottom:var(--gap-card);
   }
-  #s6 .co-item .co-top, #s7 .co-item .co-top { display:flex; align-items:flex-start; gap:9px; padding:17px 16px 12px; border-bottom:0.5px solid #e7e7e7; }
+  #s6 .co-item .co-top, #s7 .co-item .co-top { display:flex; align-items:center; gap:9px; padding:12px 16px; border-bottom:0.5px solid #e7e7e7; }
   #s6 .co-item .co-thumb, #s7 .co-item .co-thumb { width:44px; height:44px; border-radius:6px; background:#e7e7e7; flex:none; overflow:hidden; display:flex; align-items:center; justify-content:center; }
   #s6 .co-item .co-thumb img, #s7 .co-item .co-thumb img { width:44px; height:44px; object-fit:cover; display:block; }
   #s6 .co-item .co-info, #s7 .co-item .co-info { flex:1; min-width:0; }
@@ -642,7 +656,7 @@
   #s6 .co-item .co-tag, #s7 .co-item .co-tag {
     width:17px; height:17px; border-radius:2.2px; flex:none;
     display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:700; color:#fff;
+    font-size:var(--fs-tag); font-weight:var(--fw-tag); color:#fff;
   }
   #s6 .co-item .co-tag.proj, #s7 .co-item .co-tag.proj { background:#06f; }
   #s6 .co-item .co-tag.prod, #s7 .co-item .co-tag.prod { background:#f32f41; }
@@ -650,81 +664,62 @@
     width:18px; height:18px; background:transparent; border-radius:0; padding:0;
   }
   #s6 .co-item .co-tag.quick img, #s7 .co-item .co-tag.quick img { width:18px; height:18px; display:block; }
-  #s6 .co-item .co-name, #s7 .co-item .co-name { font-size:15px; font-weight:500; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  #s6 .co-item .co-price, #s7 .co-item .co-price { margin-top:5px; font-size:19.5px; font-weight:500; color:#f32f41; }
+  #s6 .co-item .co-name, #s7 .co-item .co-name {
+    font-size:var(--fs-card-title); font-weight:var(--fw-card-title); color:var(--text);
+    line-height:var(--lh-card-title); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  /* 原价：辅助信息层级，统一 12px/400 灰（与卡片内其它辅助文字一致） */
+  #s6 .co-item .co-price, #s7 .co-item .co-price {
+    margin-top:2px; font-size:var(--fs-hint); font-weight:var(--fw-hint); line-height:var(--lh-hint); color:var(--text-sec);
+  }
   #s6 .co-item .co-del, #s7 .co-item .co-del {
     width:22px; height:22px; border:none; background:none; padding:0; cursor:pointer; flex:none;
     display:flex; align-items:center; justify-content:center;
   }
   #s6 .co-item .co-del svg, #s7 .co-item .co-del svg { width:18px; height:18px; color:#1a1a1a; }
-  #s6 .co-item .co-row, #s7 .co-item .co-row { display:flex; align-items:center; min-height:48px; padding:0 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  #s6 .co-item .co-row .lbl, #s7 .co-item .co-row .lbl { font-size:15px; color:#1a1a1a; white-space:nowrap; display:flex; align-items:center; gap:4px; }
+  #s6 .co-item .co-row, #s7 .co-item .co-row { display:flex; align-items:center; min-height:var(--row-h); padding:0 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  #s6 .co-item .co-row .lbl, #s7 .co-item .co-row .lbl { font-size:var(--fs-label); color:var(--text); white-space:nowrap; display:flex; align-items:center; gap:4px; }
   #s6 .co-item .co-row .lbl .q, #s7 .co-item .co-row .lbl .q { width:16px; height:16px; display:flex; align-items:center; justify-content:center; }
   #s6 .co-item .co-row .lbl .q svg, #s7 .co-item .co-row .lbl .q svg { width:14px; height:14px; color:#929292; }
   #s6 .co-item .co-row .lbl .help, #s7 .co-item .co-row .lbl .help {
     width:14px; height:14px; border-radius:50%; border:1px solid #c7c7cc; color:#929292;
     font-size:10px; line-height:12px; text-align:center; display:inline-flex; align-items:center; justify-content:center;
   }
-  #s6 .co-item .co-row .val, #s7 .co-item .co-row .val { margin-left:auto; display:flex; align-items:center; gap:4px; font-size:15px; color:#333; white-space:nowrap; max-width:220px; overflow:hidden; }
-  #s6 .co-item .co-row .val.gray, #s7 .co-item .co-row .val.gray { color:#929292; }
+  #s6 .co-item .co-row .val, #s7 .co-item .co-row .val { margin-left:auto; display:flex; align-items:center; gap:4px; font-size:var(--fs-value); color:var(--text); white-space:nowrap; max-width:220px; overflow:hidden; }
+  #s6 .co-item .co-row .val.gray, #s7 .co-item .co-row .val.gray { color:var(--text-sec); }
   #s6 .co-item .co-row .co-arr, #s7 .co-item .co-row .co-arr { width:16px; height:16px; flex:none; display:flex; align-items:center; justify-content:center; color:#c7c7cc; }
   #s6 .co-item .co-row .co-arr svg, #s7 .co-item .co-row .co-arr svg { width:14px; height:14px; }
   #s6 .co-item .co-row .val .staff-mini, #s7 .co-item .co-row .val .staff-mini { width:16px; height:16px; border-radius:50%; overflow:hidden; flex:none; color:#929292; display:flex; align-items:center; justify-content:center; }
   #s6 .co-item .co-row .val .staff-mini svg, #s7 .co-item .co-row .val .staff-mini svg { width:14px; height:14px; }
   #s6 .co-item .co-row .val .staff-mini img, #s7 .co-item .co-row .val .staff-mini img { width:16px; height:16px; object-fit:cover; display:block; }
-  /* 员工第二行：角色标签 + 散客 */
-  #s6 .co-item .co-emp-detail, #s7 .co-item .co-emp-detail {
-    display:flex; align-items:center; gap:8px; min-height:40px; padding:0 16px 4px;
-  }
-  #s6 .co-item .co-emp-detail .role, #s7 .co-item .co-emp-detail .role {
-    background:#64b5f6; color:#fff; font-size:11px; font-weight:500;
-    padding:1px 6px; border-radius:4px; white-space:nowrap; flex:none;
-  }
-  #s6 .co-item .co-emp-detail .nm, #s7 .co-item .co-emp-detail .nm { font-size:14px; color:#333; white-space:nowrap; }
-  #s6 .co-item .co-emp-detail .unset, #s7 .co-item .co-emp-detail .unset {
-    margin-left:auto; display:flex; align-items:center; gap:6px;
-    background:#f7f7f7; border-radius:27px; padding:4px 10px; border:none; cursor:pointer;
-    font-size:14px; color:#929292; white-space:nowrap;
-  }
-  #s6 .co-item .co-emp-detail .unset .dot, #s7 .co-item .co-emp-detail .unset .dot {
-    width:14px; height:14px; border-radius:50%; border:1.5px solid #c7c7cc; flex:none; box-sizing:border-box;
-  }
-  #s6 .co-item .co-emp-detail .unset.on, #s7 .co-item .co-emp-detail .unset.on { color:#1a1a1a; background:#fff2f2; }
-  #s6 .co-item .co-emp-detail .unset.on .dot, #s7 .co-item .co-emp-detail .unset.on .dot { border-color:#f32f41; background:#f32f41; box-shadow:inset 0 0 0 2px #fff; }
+  /* 员工第二行（角色标签 + 点客/散客）已移除：结算页「服务员工」改为只读摘要 */
   #s6 .co-empty, #s7 .co-empty {
-    background:#fff; margin:12px; padding:40px 0; border-radius:12px;
-    text-align:center; color:#929292; font-size:14px;
+    background:#fff; margin:var(--gap-card); padding:40px 0; border-radius:12px;
+    text-align:center; color:var(--text-sec); font-size:var(--fs-value);
   }
   /* 会员卡展开时手工单号与明细下移 */
   #s6, #s7 { --cofold: 0px; }
   #s6.m-exp, #s7.m-exp { --cofold: 100px; }
   #s6 .co-manual, #s7 .co-manual { top:calc(119px + var(--cofold, 0px)); }
   #s6 .co-items, #s7 .co-items { top:calc(184px + var(--cofold, 0px)); }
-  /* 小计 / 应付 分行 */
+  /* 应付（小计已移除，只保留应付） */
   #s6 .co-item .co-sum-row, #s7 .co-item .co-sum-row {
-    display:flex; align-items:center; min-height:48px; padding:0 16px;
+    display:flex; align-items:center; min-height:var(--row-h); padding:0 16px;
   }
-  #s6 .co-item .co-sum-row .l, #s7 .co-item .co-sum-row .l { font-size:15px; color:#1a1a1a; white-space:nowrap; }
+  #s6 .co-item .co-sum-row .l, #s7 .co-item .co-sum-row .l { font-size:var(--fs-label); color:var(--text); white-space:nowrap; }
   #s6 .co-item .co-sum-row .r, #s7 .co-item .co-sum-row .r {
-    margin-left:auto; display:flex; align-items:center; gap:6px; color:#1a1a1a; font-weight:500;
+    margin-left:auto; display:flex; align-items:center; gap:6px; color:var(--text);
   }
   #s6 .co-item .co-sum-row .amt, #s7 .co-item .co-sum-row .amt {
     display:inline-flex; align-items:baseline; gap:1px; white-space:nowrap;
   }
-  #s6 .co-item .co-sum-row .yen, #s7 .co-item .co-sum-row .yen { font-size:12px; font-weight:500; line-height:1; }
-  #s6 .co-item .co-sum-row .num, #s7 .co-item .co-sum-row .num { font-size:15px; font-weight:500; line-height:1; }
-  #s6 .co-item .co-sum-row .r input, #s7 .co-item .co-sum-row .r input {
-    width:4.8em; border:none; outline:none; background:transparent; text-align:left;
-    font-size:15px; color:#1a1a1a; font-weight:500; font-family:inherit; padding:0; margin:0;
+  #s6 .co-item .co-sum-row .yen, #s7 .co-item .co-sum-row .yen { font-size:var(--fs-hint); font-weight:500; line-height:1; }
+  #s6 .co-item .co-sum-row .num, #s7 .co-item .co-sum-row .num {
+    font-size:var(--fs-amount); font-weight:var(--fw-amount); line-height:1;
+    font-family:var(--font-data); font-variant-numeric:tabular-nums;
   }
-  /* S6/S7 小计金额右移贴近笔形图标 */
-  #s6 .co-item .co-sum-row .r, #s7 .co-item .co-sum-row .r { gap:2px; }
-  #s6 .co-item .co-sum-row .r input, #s7 .co-item .co-sum-row .r input { text-align:right; width:4.2em; }
   #s7 .co-item .co-thumb img { width:33px; height:33px; object-fit:contain; margin:auto; }
-  #s6 .co-item .co-sum-row .pen, #s7 .co-item .co-sum-row .pen { width:16px; height:16px; color:#c7c7cc; display:flex; align-items:center; justify-content:center; }
-  #s6 .co-item .co-sum-row .pen svg, #s7 .co-item .co-sum-row .pen svg { width:14px; height:14px; }
-  #s6 .co-item .co-sum-row.pay, #s7 .co-item .co-sum-row.pay { padding-bottom:0; }
-  #s7 .co-item .co-sum-row.pay { padding-bottom:0; }
+  #s6 .co-item .co-sum-row.pay, #s7 .co-item .co-sum-row.pay { padding-bottom:4px; }
   #s7 .co-item .co-note-row { padding-bottom:12px; }
   /* 内嵌员工选择 */
   #s6 .co-staff-embed, #s7 .co-staff-embed {
@@ -745,9 +740,9 @@
   #s6 .co-bar .btn-c, #s7 .co-bar .btn-c { width:104px; height:46px; border:none; border-radius:6.5px; background:#f42f41; color:#fff; font-size:17px; cursor:pointer; }
 
   /* ===== 门店流水 s8 ===== */
-  #s8 .scroll { top:148px; bottom:0; background:#f7f7f7; }
+  #s8 .scroll { top:calc(var(--statusbar-h) + 95px); bottom:0; background:#f7f7f7; }
   #s8 .flow-tabs {
-    position:absolute; left:0; top:100px; width:390px; height:48px;
+    position:absolute; left:0; top:calc(var(--statusbar-h) + 47px); width:390px; height:48px;
     background:#fff; display:flex; align-items:stretch; border-bottom:0.5px solid #eee; z-index:10;
   }
   #s8 .flow-tabs .tab {
@@ -801,7 +796,7 @@
 
   /* ===== 选择退款项目 s9 ===== */
   #s9 { background:#f9f9f9; }
-  #s9 .scroll { top:101px; bottom:89px; background:#f9f9f9; display:flex; flex-direction:column; }
+  #s9 .scroll { top:calc(var(--statusbar-h) + 48px); bottom:89px; background:#f9f9f9; display:flex; flex-direction:column; }
   #s9 .rf-tip {
     padding:16px 26px; font-size:14px; line-height:21px; color:#333; background:#f9f9f9; flex:none;
   }
@@ -851,10 +846,10 @@
     border:none; background:none; cursor:pointer;
   }
   #s10 .pset-tabs, #s11 .pset-tabs {
-    position:absolute; left:0; top:97px; width:390px; height:48px; background:#fff;
+    position:absolute; left:0; top:var(--chrome-top); width:390px; height:48px; background:#fff;
     display:flex; align-items:flex-start; justify-content:center; gap:61px; padding-top:13px; z-index:10;
   }
-  #s11 .pset-tabs { top:161px; }
+  #s11 .pset-tabs { top:calc(var(--statusbar-h) + 108px); }
   #s10 .pset-tabs button, #s11 .pset-tabs button {
     display:flex; flex-direction:column; align-items:center; gap:9px;
     border:none; background:none; cursor:pointer; font-size:16px; color:#999; padding:0;
@@ -867,16 +862,16 @@
   #s10 .pset-div, #s11 .pset-div {
     position:absolute; left:0; width:390px; height:0.5px; background:#eee; z-index:10;
   }
-  #s10 .pset-div { top:145px; }
-  #s11 .pset-div { top:209px; }
+  #s10 .pset-div { top:calc(var(--statusbar-h) + 92px); }
+  #s11 .pset-div { top:calc(var(--statusbar-h) + 156px); }
   #s10 .pset-tip {
-    position:absolute; left:0; top:146px; width:390px; height:34px; background:#fff2f2;
+    position:absolute; left:0; top:calc(var(--statusbar-h) + 93px); width:390px; height:34px; background:#fff2f2;
     display:flex; align-items:center; gap:6.5px; padding:0 13px; z-index:10;
   }
   #s10 .pset-tip img { width:14px; height:14px; display:block; }
   #s10 .pset-tip span { font-size:13px; color:#f32f41; white-space:nowrap; }
-  #s10 .pset-cols { top:180px; }
-  #s11 .pset-cols { top:210px; }
+  #s10 .pset-cols { top:calc(var(--statusbar-h) + 127px); }
+  #s11 .pset-cols { top:calc(var(--statusbar-h) + 157px); }
   #s10 .pset-cols, #s11 .pset-cols {
     position:absolute; left:0; bottom:0; width:390px;
     display:flex; align-items:stretch; background:#fff; z-index:10;
@@ -916,7 +911,7 @@
   #s10 .perf-card .trow .cv { flex:1; text-align:center; font-size:12px; font-weight:700; color:#424242; }
   #s10 .perf-card .trow.head .cv { font-size:13px; font-weight:400; color:#999; }
   #s11 .plan-hd {
-    position:absolute; left:0; top:97px; width:390px; height:64px; background:#f6f6f6;
+    position:absolute; left:0; top:var(--chrome-top); width:390px; height:64px; background:#f6f6f6;
     display:flex; align-items:center; justify-content:space-between; padding:10px 16px; z-index:10;
   }
   #s11 .plan-hd .info { display:flex; flex-direction:column; gap:8px; width:252px; }
@@ -954,22 +949,22 @@
   .benefit-sheet .benefit-item.disabled .type { color:#929292; border-color:#d8d8d8; }
 
   /* ===== 快捷开单/去收款页 顶部卡片按身份切换 ===== */
-  .screen .gcard, .screen .mcard { position:absolute; left:12px; top:107px; z-index:20; }
+  .screen .gcard, .screen .mcard { position:absolute; left:12px; top:calc(var(--statusbar-h) + 54px); z-index:20; }
   #s6 .gcard, #s6 .mcard, #s7 .gcard, #s7 .mcard { top:10px; }
   .screen.cust-guest .gcard { display:block; }
   .screen.cust-guest .mcard { display:none; }
   .screen.cust-member .gcard { display:none; }
   .screen.cust-member .mcard { display:block; }
   /* a1=开单内容 a2=收款金额 a3=员工 */
-  .amt-card.a1 { top:213px; height:76px; }
-  .amt-card.a2 { top:297px; height:95px; }
-  .amt-card.a3 { top:400px; height:44px; }
-  .screen.cust-member .amt-card.a1 { top:213px; }
-  .screen.cust-member .amt-card.a2 { top:297px; }
-  .screen.cust-member .amt-card.a3 { top:400px; }
-  .screen.cust-member.m-exp .amt-card.a1 { top:321px; }
-  .screen.cust-member.m-exp .amt-card.a2 { top:405px; }
-  .screen.cust-member.m-exp .amt-card.a3 { top:508px; }
+  .amt-card.a1 { top:calc(var(--statusbar-h) + 160px); height:76px; }
+  .amt-card.a2 { top:calc(var(--statusbar-h) + 244px); height:95px; }
+  .amt-card.a3 { top:calc(var(--statusbar-h) + 347px); height:44px; }
+  .screen.cust-member .amt-card.a1 { top:calc(var(--statusbar-h) + 160px); }
+  .screen.cust-member .amt-card.a2 { top:calc(var(--statusbar-h) + 244px); }
+  .screen.cust-member .amt-card.a3 { top:calc(var(--statusbar-h) + 347px); }
+  .screen.cust-member.m-exp .amt-card.a1 { top:calc(var(--statusbar-h) + 268px); }
+  .screen.cust-member.m-exp .amt-card.a2 { top:calc(var(--statusbar-h) + 352px); }
+  .screen.cust-member.m-exp .amt-card.a3 { top:calc(var(--statusbar-h) + 455px); }
 
   /* ===== 通用 ===== */
   /* ===== 添加项目/产品 sheet 弹窗 ===== */
@@ -1114,6 +1109,13 @@
     will-change: transform, width;
   }
   .staff-card.is-dim { opacity: .36; pointer-events: none; filter: saturate(.85); }
+  /* 服务员工已达上限：未选中的员工置灰且不可选 */
+  .staff-card.is-limit { opacity: .4; filter: saturate(.6); }
+  .staff-card.is-limit .staff-card__panel {
+    cursor: not-allowed; background: #FAFAFA; border-style: dashed; border-color: #DCDCDC;
+  }
+  .staff-card.is-limit .staff-card__panel:active { transform: none; }
+  .staff-card.is-limit .staff-card__title--pick { color: #B0B0B0; }
   .detail-item__staff-block--cards.is-picking { overflow: visible; }
   .detail-item__staff-block--cards.is-picking .staff-grid { overflow: visible; pointer-events: none; }
   .staff-card.is-editing { z-index: 6; pointer-events: auto; opacity: 1; filter: none; }
@@ -1270,10 +1272,67 @@
     from { opacity:0; }
     to { opacity:1; }
   }
+
+  /* ===== 手机预览模式（html.is-mobile） ===== */
+  .site-nav-scrim {
+    display:none; position:fixed; inset:0; z-index:250;
+    background:rgba(0,0,0,.42); -webkit-tap-highlight-color:transparent;
+  }
+  html.is-mobile {
+    --statusbar-h: 0px;
+  }
+  html.is-mobile, html.is-mobile body {
+    height:100%;
+    overflow:hidden;
+  }
+  html.is-mobile body {
+    background:#000;
+    padding:
+      env(safe-area-inset-top, 0px)
+      env(safe-area-inset-right, 0px)
+      env(safe-area-inset-bottom, 0px)
+      env(safe-area-inset-left, 0px);
+    box-sizing:border-box;
+  }
+  html.is-mobile .status-bar { display:none !important; }
+  html.is-mobile .stage {
+    margin-left:0; padding:0; width:100%; height:100%;
+    align-items:center; justify-content:center; overflow:hidden;
+  }
+  html.is-mobile #frame {
+    transform:scale(var(--mobile-scale));
+    transform-origin:center center;
+    margin:0;
+    box-shadow:none;
+  }
+  html.is-mobile .site-nav {
+    display:flex;
+    transform:translateX(-105%);
+    transition:transform .28s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change:transform;
+    box-shadow:8px 0 28px rgba(0,0,0,.28);
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+  }
+  html.is-mobile.is-nav-open .site-nav {
+    transform:translateX(0);
+  }
+  html.is-mobile .site-nav-scrim {
+    display:block;
+    opacity:0; pointer-events:none;
+    transition:opacity .22s ease;
+  }
+  html.is-mobile.is-nav-open .site-nav-scrim {
+    opacity:1; pointer-events:auto;
+  }
+  html.is-mobile #toast {
+    /* toast 仍在 #frame 内，保持原样 */
+  }
 </style>
 </head>
 <body>
-<aside class="site-nav">
+<div class="site-nav-scrim" id="siteNavScrim" aria-hidden="true"></div>
+<aside class="site-nav" id="siteNav">
   <div class="nav-brand">
     <div class="t">RTB 开单结账2.0</div>
     <div class="s">高保真交互原型</div>
@@ -2414,6 +2473,7 @@
       document.querySelectorAll('.site-nav .nav-item').forEach(function(n){
         n.classList.toggle('on', n.getAttribute('data-target') === id);
       });
+      if (typeof window.closeSiteNav === 'function') window.closeSiteNav();
     }
 
     function go(id) {
@@ -2898,6 +2958,8 @@
   ];
   var STAFF_ROLE_PICK_ORDER = ['junior', 'mid', 'senior'];
   var STAFF_ROLE_DEFAULT = 'senior';
+  /* 单个开单行最多可选服务员工数 */
+  var STAFF_MAX_PICK = 3;
 
   var STAFFS = [
     { id: 'st0', name: '顾清扬', short: '顾', role: '店主', avatar: 'assets/emp-avatars/man-e.jpg' },
@@ -2967,6 +3029,8 @@
       var done = staffRow.staffIds.indexOf(st.id) >= 0;
       var isEdit = !!(edit && edit.staffId === st.id);
       var dim = !!(edit && !isEdit);
+      /* 已达上限时，未选中的员工不可再选 */
+      var locked = staffRow.staffIds.length >= STAFF_MAX_PICK && !done && !isEdit;
       var origin = staffCardOrigin(index);
       var originSide = index % 3 === 0 ? 'left' : index % 3 === 2 ? 'right' : 'center';
       var body = '';
@@ -3002,14 +3066,26 @@
           '<div class="staff-card__panel" data-face="' + edit.face + '">' + body + '</div>' +
           '</div>';
       }
-      return '<div class="staff-card' + (done ? ' is-done' : '') + (dim ? ' is-dim' : '') + '"' +
+      var panel;
+      if (locked) {
+        body = staffAvatarHtml(st) +
+          '<div class="staff-card__name">' + escapeHtml(st.name) + '</div>' +
+          '<div class="staff-card__title staff-card__title--pick">已达上限</div>';
+        panel = '<button type="button" class="staff-card__panel" data-staff-limit ' +
+          'data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '" ' +
+          'aria-label="' + escapeHtml(st.name) + '（已达上限）">' + body + '</button>';
+      } else {
+        panel = '<button type="button" class="staff-card__panel" data-staff-card-hit ' +
+          'data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '" ' +
+          'aria-label="' + escapeHtml(st.name) + '">' + body + '</button>';
+      }
+      return '<div class="staff-card' + (done ? ' is-done' : '') + (dim ? ' is-dim' : '') +
+        (locked ? ' is-limit' : '') + '"' +
         ' style="--staff-origin:' + origin + '"' +
         ' data-origin="' + originSide + '"' +
         ' data-staff-card data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">' +
         clearBtn +
-        '<button type="button" class="staff-card__panel" data-staff-card-hit data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '" aria-label="' + escapeHtml(st.name) + '">' +
-        body +
-        '</button>' +
+        panel +
         '</div>';
     }).join('');
     return '<div class="detail-item__staff-block detail-item__staff-block--cards' + (edit ? ' is-picking' : '') + '">' +
@@ -3219,7 +3295,14 @@
       var rSid = roleOpt.getAttribute('data-staff-id');
       if (!staffCardEdit || staffCardEdit.staffId !== rSid) return;
       ensureStaffState();
-      if (staffRow.staffIds.indexOf(rSid) < 0) staffRow.staffIds.push(rSid);
+      if (staffRow.staffIds.indexOf(rSid) < 0) {
+        if (staffRow.staffIds.length >= STAFF_MAX_PICK) {
+          toast('最多可选 ' + STAFF_MAX_PICK + ' 位服务员工');
+          staffCardEdit = null;
+          return;
+        }
+        staffRow.staffIds.push(rSid);
+      }
       staffRow.staffDesignated[rSid] = !!staffCardEdit.draftDesignated;
       staffRow.staffRoles[rSid] = roleOpt.getAttribute('data-staff-opt-role') || STAFF_ROLE_DEFAULT;
       staffCardEdit = null;
@@ -3229,10 +3312,20 @@
       rerender();
       return;
     }
+    var limitHit = e.target.closest('[data-staff-limit]');
+    if (limitHit) {
+      e.preventDefault(); e.stopPropagation();
+      toast('最多可选 ' + STAFF_MAX_PICK + ' 位服务员工');
+      return;
+    }
     var staffHit = e.target.closest('[data-staff-card-hit]');
     if (staffHit) {
       e.preventDefault();
       var hitSid = staffHit.getAttribute('data-staff-id');
+      if (staffRow.staffIds.indexOf(hitSid) < 0 && staffRow.staffIds.length >= STAFF_MAX_PICK) {
+        toast('最多可选 ' + STAFF_MAX_PICK + ' 位服务员工');
+        return;
+      }
       if (staffCardEdit && staffCardEdit.staffId === hitSid) {
         staffCardEdit = null;
       } else {
@@ -3576,47 +3669,38 @@
       var primaryName = primarySt ? primarySt.name : (primarySid || '');
       var primaryRole = staffRoleLabel(it.staff.staffRoles[primarySid]);
       var designated = !!(it.staff.staffDesignated && it.staff.staffDesignated[primarySid]);
-      var staffNames = it.staff.staffIds.map(function(sid) {
-        var st = STAFFS.find(function(s) { return s.id === sid; });
-        return st ? st.name : sid;
-      }).join('、');
-      var staffCell = '<div class="co-row" onclick="toggleCoStaff(' + i + ')">' +
-        '<span class="lbl">选择员工</span>' +
-        '<span class="val">' +
-          '<span class="staff-mini">' + empSvg + '</span>' +
-          '<span>' + escapeHtml(staffNames) + '</span>' +
-          '<span class="co-arr">' + coArrowSvg + '</span>' +
+      /* 只读摘要：每名员工一行「姓名 · 工位 · 点客/散客」 */
+      var staffCell = '<div class="co-row" data-ro="1">' +
+        '<span class="lbl">服务员工</span>' +
+        '<span class="co-staff-list">' +
+          it.staff.staffIds.map(function(sid) {
+            var st = STAFFS.find(function(s) { return s.id === sid; });
+            var role = staffRoleLabel(it.staff.staffRoles && it.staff.staffRoles[sid]);
+            var des = !!(it.staff.staffDesignated && it.staff.staffDesignated[sid]);
+            var meta = [];
+            if (role) meta.push(role);
+            meta.push(des ? '点客' : '散客');
+            return '<span class="co-staff-line">' +
+              '<span class="nm">' + escapeHtml(st ? st.name : sid) + '</span>' +
+              '<span class="sep">·</span>' +
+              '<span class="dim">' + escapeHtml(meta.join(' · ')) + '</span></span>';
+          }).join('') +
         '</span></div>';
-      var staffDetail = '<div class="co-emp-detail">' +
-        '<span class="role">' + escapeHtml(primaryRole || '大工') + '</span>' +
-        '<span class="nm">' + escapeHtml(primaryName) + '</span>' +
-        '<button type="button" class="unset' + (designated ? ' on' : '') + '" onclick="event.stopPropagation();toggleCoDesignated(' + i + ')">' +
-          '<span class="dot"></span>' + (designated ? '点客' : '散客') +
-        '</button></div>';
-      // 员工内嵌面板
-      var staffEmbed = '';
-      if (it._staffOpen) {
-        staffEmbed = '<div class="co-staff-embed" data-staff-root data-ctx="co" data-idx="' + i + '">' +
-          renderStaffPickerHtmlForRow(it.staff) + '</div>';
-      }
       // 权益：改价商品锁定
       var benCell = '';
       if (it.discounted) {
-        benCell = '<div class="co-row" onclick="toast(\'改价商品不可用权益\')"><span class="lbl">权益<span class="help">?</span></span>' +
+        benCell = '<div class="co-row" data-ro="1"><span class="lbl">权益<span class="help">?</span></span>' +
           '<span class="val gray">改价商品不可用权益</span></div>';
       } else {
-        benCell = '<div class="co-row" onclick="openBenefit(' + i + ')"><span class="lbl">权益<span class="help">?</span></span>' +
+        benCell = '<div class="co-row" data-benefit="1" onclick="openBenefit(' + i + ')">' +
+          '<span class="lbl">权益<span class="help">?</span></span>' +
           '<span class="val' + (it.benefit ? '' : ' gray') + '">' +
           (it.benefit ? escapeHtml(it.benefit.name) : '无卡权益') +
           '<span class="co-arr">' + coArrowSvg + '</span></span></div>';
       }
+      /* 小计已移除，只保留「应付」（只读） */
       var sumRows = '' +
-        '<div class="co-sum-row" onclick="focusCoSub(' + i + ')">' +
-          '<span class="l">小计</span>' +
-          '<span class="r"><span class="amt"><span class="yen">¥</span><input id="coSub' + i + '" type="text" inputmode="decimal" value="' + it.receivable.toFixed(2) + '" onclick="event.stopPropagation()" onchange="editCoSub(' + i + ', this.value)" onblur="editCoSub(' + i + ', this.value)"></span>' +
-          '<span class="pen">' + penSvg + '</span></span>' +
-        '</div>' +
-        '<div class="co-sum-row pay">' +
+        '<div class="co-sum-row pay" data-ro="1">' +
           '<span class="l">应付</span>' +
           '<span class="r"><span class="amt"><span class="yen">¥</span><span class="num">' + it.actual.toFixed(2) + '</span></span></span>' +
         '</div>';
@@ -3631,8 +3715,6 @@
             '<button class="co-del" onclick="delCoItem(' + i + ')"><img src="assets/ic_trash_figma.svg" style="width:18px;height:18px;display:block;pointer-events:none;" alt=""></button>' +
           '</div>' +
           staffCell +
-          staffDetail +
-          staffEmbed +
           benCell +
           sumRows +
         '</div>';
@@ -3642,10 +3724,6 @@
     // 动态撑高页面，保证滚动到底
     var pg = document.querySelector('#s6 .page');
     if (pg) pg.style.height = (box.offsetTop + box.offsetHeight + 28) + 'px';
-    // 内嵌员工网格动画
-    box.querySelectorAll('.co-staff-embed').forEach(function(em) {
-      afterStaffPickerPaint(em);
-    });
   }
 
   var empSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>';
@@ -3858,46 +3936,37 @@
     var primaryName = primarySt ? primarySt.name : (primarySid || '');
     var primaryRole = staffRoleLabel(it.staff.staffRoles[primarySid]);
     var designated = !!(it.staff.staffDesignated && it.staff.staffDesignated[primarySid]);
-    var staffNames = it.staff.staffIds.map(function(sid) {
-      var st = STAFFS.find(function(s) { return s.id === sid; });
-      return st ? st.name : sid;
-    }).join('、');
-
-    var staffCell = '<div class="co-row" onclick="toggleQcoStaff()">' +
-      '<span class="lbl">选择员工</span>' +
-      '<span class="val">' +
-        '<span class="staff-mini">' + empSvg + '</span>' +
-        '<span>' + escapeHtml(staffNames) + '</span>' +
-        '<span class="co-arr">' + coArrowSvg + '</span>' +
+    /* 只读摘要：每名员工一行「姓名 · 工位 · 点客/散客」 */
+    var staffCell = '<div class="co-row" data-ro="1">' +
+      '<span class="lbl">服务员工</span>' +
+      '<span class="co-staff-list">' +
+        it.staff.staffIds.map(function(sid) {
+          var st = STAFFS.find(function(s) { return s.id === sid; });
+          var role = staffRoleLabel(it.staff.staffRoles && it.staff.staffRoles[sid]);
+          var des = !!(it.staff.staffDesignated && it.staff.staffDesignated[sid]);
+          var meta = [];
+          if (role) meta.push(role);
+          meta.push(des ? '点客' : '散客');
+          return '<span class="co-staff-line">' +
+            '<span class="nm">' + escapeHtml(st ? st.name : sid) + '</span>' +
+            '<span class="sep">·</span>' +
+            '<span class="dim">' + escapeHtml(meta.join(' · ')) + '</span></span>';
+        }).join('') +
       '</span></div>';
-    var staffDetail = '<div class="co-emp-detail">' +
-      '<span class="role">' + escapeHtml(primaryRole || '大工') + '</span>' +
-      '<span class="nm">' + escapeHtml(primaryName) + '</span>' +
-      '<button type="button" class="unset' + (designated ? ' on' : '') + '" onclick="event.stopPropagation();toggleQcoDesignated()">' +
-        '<span class="dot"></span>' + (designated ? '点客' : '散客') +
-      '</button></div>';
-    var staffEmbed = '';
-    if (it._staffOpen) {
-      staffEmbed = '<div class="co-staff-embed" data-staff-root data-ctx="qco" data-idx="0">' +
-        renderStaffPickerHtmlForRow(it.staff) + '</div>';
-    }
     var benCell;
     if (it.discounted) {
-      benCell = '<div class="co-row" onclick="toast(\'改价商品不可用权益\')"><span class="lbl">权益<span class="help">?</span></span>' +
+      benCell = '<div class="co-row" data-ro="1"><span class="lbl">权益<span class="help">?</span></span>' +
         '<span class="val gray">改价商品不可用权益</span></div>';
     } else {
-      benCell = '<div class="co-row" onclick="openQcoBenefit()"><span class="lbl">权益<span class="help">?</span></span>' +
+      benCell = '<div class="co-row" data-benefit="1" onclick="openQcoBenefit()">' +
+        '<span class="lbl">权益<span class="help">?</span></span>' +
         '<span class="val' + (it.benefit ? '' : ' gray') + '">' +
         (it.benefit ? escapeHtml(it.benefit.name) : '无卡权益') +
         '<span class="co-arr">' + coArrowSvg + '</span></span></div>';
     }
+    /* 小计已移除，只保留「应付」（只读） */
     var sumRows = '' +
-      '<div class="co-sum-row" onclick="qcoFocusSub()">' +
-        '<span class="l">小计</span>' +
-        '<span class="r"><span class="amt"><span class="yen">¥</span><input id="qcoSub" type="text" inputmode="decimal" value="' + it.receivable.toFixed(2) + '" onclick="event.stopPropagation()" onchange="editQcoSub(this.value)" onblur="editQcoSub(this.value)"></span>' +
-        '<span class="pen">' + penSvg + '</span></span>' +
-      '</div>' +
-      '<div class="co-sum-row pay">' +
+      '<div class="co-sum-row pay" data-ro="1">' +
         '<span class="l">应付</span>' +
         '<span class="r"><span class="amt"><span class="yen">¥</span><span class="num">' + it.actual.toFixed(2) + '</span></span></span>' +
       '</div>';
@@ -3912,13 +3981,11 @@
           '</div>' +
           '<button class="co-del" onclick="qcoDelete()"><img src="assets/ic_trash_figma.svg" style="width:18px;height:18px;display:block;pointer-events:none;" alt=""></button>' +
         '</div>' +
-        staffCell + staffDetail + staffEmbed + benCell + sumRows +
+        staffCell + benCell + sumRows +
       '</div>';
 
     var pg = document.querySelector('#s7 .page');
     if (pg) pg.style.height = (box.offsetTop + box.offsetHeight + 28) + 'px';
-    var em = box.querySelector('.co-staff-embed');
-    if (em) afterStaffPickerPaint(em);
   }
 
   function toggleQcoStaff() {
@@ -4054,5 +4121,142 @@
   })();
 </script>
 <script src="assets/v2.js"></script>
+<script>
+/* ===== 手机预览模式：全屏真机区 + 左缘右滑唤出链路导航 ===== */
+(function () {
+  var root = document.documentElement;
+  var EDGE = 24;
+  var OPEN_DX = 56;
+  var CLOSE_DX = -48;
+  var nav = document.getElementById('siteNav');
+  var scrim = document.getElementById('siteNavScrim');
+  var stage = document.querySelector('.stage');
+  var mqNarrow = window.matchMedia('(max-width: 760px)');
+  var mqCoarse = window.matchMedia('(hover: none) and (pointer: coarse)');
+
+  function queryForce() {
+    try {
+      var q = new URLSearchParams(location.search).get('mobile');
+      if (q === '1' || q === 'true') return true;
+      if (q === '0' || q === 'false') return false;
+    } catch (e) {}
+    return null;
+  }
+
+  function shouldMobile() {
+    var force = queryForce();
+    if (force !== null) return force;
+    return mqNarrow.matches || mqCoarse.matches;
+  }
+
+  function isNavOpen() {
+    return root.classList.contains('is-nav-open');
+  }
+
+  function openSiteNav() {
+    if (!root.classList.contains('is-mobile')) return;
+    root.classList.add('is-nav-open');
+    if (scrim) scrim.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeSiteNav() {
+    root.classList.remove('is-nav-open');
+    if (scrim) scrim.setAttribute('aria-hidden', 'true');
+  }
+
+  window.openSiteNav = openSiteNav;
+  window.closeSiteNav = closeSiteNav;
+
+  function updateScale() {
+    if (!root.classList.contains('is-mobile') || !stage) return;
+    var w = stage.clientWidth || window.innerWidth;
+    var h = stage.clientHeight || window.innerHeight;
+    var scale = Math.min(w / 390, h / 844);
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+    root.style.setProperty('--mobile-scale', String(Math.round(scale * 1000) / 1000));
+  }
+
+  function applyMode() {
+    var on = shouldMobile();
+    root.classList.toggle('is-mobile', on);
+    if (!on) {
+      closeSiteNav();
+      root.style.removeProperty('--mobile-scale');
+      return;
+    }
+    updateScale();
+  }
+
+  if (scrim) {
+    scrim.addEventListener('click', function () { closeSiteNav(); });
+  }
+
+  /* 左缘右滑开 / 打开后左滑关 */
+  var track = null;
+  function onTouchStart(e) {
+    if (!root.classList.contains('is-mobile')) return;
+    if (e.touches.length !== 1) return;
+    var t = e.touches[0];
+    var open = isNavOpen();
+    if (!open && t.clientX > EDGE) return;
+    track = {
+      x0: t.clientX,
+      y0: t.clientY,
+      open: open,
+      locked: false,
+      axis: null
+    };
+  }
+  function onTouchMove(e) {
+    if (!track) return;
+    var t = e.touches[0];
+    var dx = t.clientX - track.x0;
+    var dy = t.clientY - track.y0;
+    if (!track.locked) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      track.axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
+      track.locked = true;
+      if (track.axis === 'y') { track = null; return; }
+    }
+    if (track.axis === 'x') {
+      /* 阻止页面横向拖动时跟着滚 */
+      if (e.cancelable) e.preventDefault();
+    }
+  }
+  function onTouchEnd(e) {
+    if (!track) return;
+    var t = (e.changedTouches && e.changedTouches[0]) || null;
+    var dx = t ? (t.clientX - track.x0) : 0;
+    var open = track.open;
+    var axis = track.axis;
+    track = null;
+    if (axis !== 'x') return;
+    if (!open && dx >= OPEN_DX) openSiteNav();
+    else if (open && dx <= CLOSE_DX) closeSiteNav();
+  }
+
+  document.addEventListener('touchstart', onTouchStart, { passive: true, capture: true });
+  document.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+  document.addEventListener('touchend', onTouchEnd, { passive: true, capture: true });
+  document.addEventListener('touchcancel', function () { track = null; }, { passive: true });
+
+  /* 桌面验收：窄窗拖拽 / ?mobile=1 */
+  applyMode();
+  window.addEventListener('resize', function () {
+    applyMode();
+    updateScale();
+  }, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateScale, { passive: true });
+  }
+  if (mqNarrow.addEventListener) {
+    mqNarrow.addEventListener('change', applyMode);
+    mqCoarse.addEventListener('change', applyMode);
+  } else if (mqNarrow.addListener) {
+    mqNarrow.addListener(applyMode);
+    mqCoarse.addListener(applyMode);
+  }
+})();
+</script>
 </body>
 </html>

@@ -8,7 +8,7 @@
   z-index: 1;
 }
 .v2-home-head {
-  position: absolute; left: 16px; right: 16px; top: 62px; z-index: 2;
+  position: absolute; left: 16px; right: 16px; top: calc(var(--statusbar-h, 53px) + 9px); z-index: 2;
   display: flex; align-items: center; gap: 10px; color: #fff;
 }
 .v2-home-logo {
@@ -53,7 +53,7 @@
 
 /* —— 选顾客：取挂单右对齐 + 展开 #EFF0FF —— */
 .pick-holds {
-  position: absolute; left: 0; top: 103px; width: 390px; height: 40px;
+  position: absolute; left: 0; top: calc(var(--statusbar-h, 53px) + 50px); width: 390px; height: 40px;
   background: #fff; border-bottom: 1px solid #f0f0f0; z-index: 12;
   display: flex; align-items: center; justify-content: flex-end;
   padding: 0 16px; box-sizing: border-box;
@@ -65,7 +65,7 @@
 }
 .pick-holds img { width: 16px; height: 16px; display: block; }
 .pick-holds .n { color: #F32F41; }
-#s4 .pick-list { top: 143px; }
+#s4 .pick-list { top: calc(var(--statusbar-h, 53px) + 90px); }
 
 .pick-row-wrap { background: #fff; border-bottom: 1px solid #f5f5f5; }
 .pick-row-wrap .pick-row { border-bottom: 0; height: auto; min-height: 74px; }
@@ -87,7 +87,7 @@
 
 /* —— 开单页：demo 结构（无会员卡/快速消费入口） —— */
 .v2-bill-body {
-  position: absolute; left: 0; right: 0; top: 97px; bottom: 96px;
+  position: absolute; left: 0; right: 0; top: var(--chrome-top, 97px); bottom: 96px;
   overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
   background: #f7f7f7; z-index: 10;
 }
@@ -151,7 +151,7 @@
   display: flex !important; flex-direction: column; align-items: stretch; gap: 0;
 }
 .screen .gcard.v2-lite, .screen .mcard.v2-lite {
-  position: absolute !important; left: 12px !important; top: 107px !important;
+  position: absolute !important; left: 12px !important; top: calc(var(--statusbar-h, 53px) + 54px) !important;
   width: 366px !important; margin: 0 !important;
 }
 #s6 .gcard.v2-lite, #s6 .mcard.v2-lite,
@@ -163,6 +163,11 @@
 .member-card.v2-lite .ops,
 .member-card.v2-lite .cards,
 .member-card.v2-lite .card-list { display: none !important; }
+
+/* 修：v2 淡色卡的 display:flex !important 压掉了 gcard/mcard 的显隐切换，
+   导致结算页同时渲染「散客卡 + 会员卡」两张顾客卡。此处显式声明显隐。 */
+.screen.cust-guest .mcard.v2-lite { display: none !important; }
+.screen.cust-member .gcard.v2-lite { display: none !important; }
 
 .v2-page-tabs {
   display: flex; height: 48px; background: #fff; margin-top: 12px;
@@ -208,9 +213,32 @@
   display: flex; align-items: center; gap: 12px; padding: 12px 0; min-height: 56px;
 }
 .v2-cat-info { flex: 1; min-width: 0; }
-.v2-cat-name { font-size: 15px; font-weight: 500; color: #1a1a1a; line-height: 1.4; }
-.v2-cat-price { font-size: 18px; color: #1a1a1a; margin-top: 4px; font-family: var(--font-data); }
-.v2-cat-price .yen { font-size: 13px; }
+.v2-cat-name {
+  font-size: var(--fs-card-title); font-weight: var(--fw-card-title);
+  color: var(--text); line-height: var(--lh-card-title);
+}
+.v2-cat-price {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
+  font-size: var(--fs-amount); font-weight: var(--fw-amount); color: var(--text);
+  font-family: var(--font-data); font-variant-numeric: tabular-nums;
+  border-radius: 6px; box-sizing: border-box;
+}
+.v2-cat-price .yen { font-size: var(--fs-hint); font-weight: 500; }
+/* 展开态：行内价格进入可编辑态（点数值或铅笔 → 数字键盘 sheet） */
+.v2-cat-price.is-editable {
+  padding: 2px 8px; margin-left: -8px;
+  background: rgba(243, 47, 65, .07);
+  box-shadow: inset 0 -1px 0 rgba(243, 47, 65, .35);
+  cursor: pointer;
+  transition: background .18s ease, box-shadow .18s ease;
+}
+.v2-cat-price.is-editable:active { background: rgba(243, 47, 65, .14); }
+.v2-price-pen {
+  width: 16px; height: 16px; flex: none; color: var(--brand);
+  display: inline-flex; align-items: center; justify-content: center;
+  animation: v2ChipIn .26s cubic-bezier(0.34, 1.32, 0.64, 1) both;
+}
+.v2-price-pen svg { width: 14px; height: 14px; display: block; }
 .v2-cat-right { flex-shrink: 0; display: flex; align-items: center; min-width: 72px; justify-content: flex-end; }
 
 /* 添加钮 → 红圆步进器（加减同为红色圆形，展开区不再另放步进器） */
@@ -236,32 +264,37 @@
   width: 12px; height: 12px; display: block; pointer-events: none;
 }
 
-.v2-row-expand { padding: 0 0 14px; display: none; }
+.v2-row-expand { padding: 0 0 12px; display: none; }
 .v2-cat-item.is-open .v2-row-expand {
   display: block;
-  animation: v2ExpandIn .36s cubic-bezier(0.32, 0.72, 0, 1) both;
+  animation: v2SpringIn .26s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-@keyframes v2ExpandIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+/* iOS 风格快速弹性：展开时轻微过冲后回弹到位 */
+@keyframes v2SpringIn {
+  0%   { opacity: 0; transform: translateY(-8px) scale(.985); }
+  55%  { opacity: 1; transform: translateY(1.6px) scale(1.003); }
+  78%  { transform: translateY(-0.7px) scale(1); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
-.v2-row-expand .erow {
-  display: flex; align-items: center; justify-content: space-between;
-  min-height: 40px; margin-bottom: 8px;
+/* Chip / 铅笔图标入场微弹 */
+@keyframes v2ChipIn {
+  0%   { opacity: 0; transform: scale(.86); }
+  60%  { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
 }
-.v2-row-expand .elbl { font-size: 13px; color: #666; width: 72px; flex: none; }
-.v2-row-expand .eprice {
-  flex: 1; display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px;
-  text-align: right; border: 0; background: transparent; cursor: pointer;
-  font-size: 18px; font-weight: 600; font-family: var(--font-data); color: #1a1a1a;
-  padding: 4px 0;
+/* 小球飞抵购物车时，购物车图标弹性回弹 */
+@keyframes v2CartPop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.18); }
+  55%  { transform: scale(.94); }
+  75%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
-.v2-row-expand .eprice-pen {
-  width: 16px; height: 16px; color: #c7c7cc; display: inline-flex;
-  align-items: center; justify-content: center; flex: none;
+.bottom-bar .btn-add.is-pop {
+  animation: v2CartPop .22s cubic-bezier(0.3, 0.9, 0.4, 1);
+  transform-origin: 50% 50%;
 }
-.v2-row-expand .eprice-pen svg { width: 14px; height: 14px; display: block; }
-.v2-row-expand .efoot { display: flex; justify-content: flex-end; margin-top: 8px; }
+.v2-row-expand .efoot { display: flex; justify-content: flex-end; margin-top: 10px; }
 .v2-orange-cart {
   width: 44px; height: 44px; border-radius: 10px; border: 0; background: #FF8956;
   color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -270,57 +303,57 @@
 .v2-orange-cart:active { transform: scale(.92); }
 .v2-orange-cart svg { width: 22px; height: 22px; }
 
-/* 员工槽位 */
-.v2-slot-block { margin-top: 4px; margin-bottom: 4px; }
-.v2-slot-block__head { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-bottom: 8px; }
-.v2-slot-row {
-  display: flex; align-items: stretch; gap: 8px;
-  overflow-x: auto; padding-bottom: 2px; scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+/* 服务员工：标题与 Chip 同行，Chip 内完整显示 姓名 / 点客·工位，装不下自动换行 */
+.v2-staff-row {
+  display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: start;
+  min-height: var(--row-h);
 }
-.v2-slot-row::-webkit-scrollbar { display: none; }
-.v2-slot {
-  flex: 0 0 auto; min-width: 108px; max-width: 148px;
-  border-radius: 12px; box-sizing: border-box;
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 10px; position: relative;
-  font-family: inherit; text-align: left;
-  transition: transform .2s cubic-bezier(0.32, 0.72, 0, 1), background .2s ease;
+.v2-staff-row__lbl {
+  font-size: var(--fs-label); font-weight: 500; color: var(--text);
+  line-height: var(--lh-card-title); padding-top: 8px; white-space: nowrap;
 }
-.v2-slot:active { transform: scale(.97); }
-.v2-slot.is-empty {
-  min-height: 56px; border: 1px dashed #D0D0D0; background: #FAFAFA;
-  color: #929292; cursor: pointer; justify-content: center; flex-direction: column; gap: 2px;
+.v2-staff-row__chips {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; min-width: 0;
 }
-.v2-slot__plus { width: 20px; height: 20px; color: #F32F41; display: flex; }
-.v2-slot__plus svg { width: 20px; height: 20px; }
-.v2-slot__hint { font-size: 11px; color: #929292; }
-.v2-slot.is-filled {
-  background: #fff; border: 1px solid #EFEFEF; cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+.v2-staff-chip {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 100%;
+  padding: 5px 8px 5px 5px; border-radius: 14px; box-sizing: border-box;
+  border: 1px solid #EFEFEF; background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+  font-family: inherit; text-align: left; cursor: pointer;
+  transition: transform .18s cubic-bezier(0.32, 0.72, 0, 1), background .18s ease;
+  animation: v2ChipIn .26s cubic-bezier(0.34, 1.32, 0.64, 1) both;
 }
-.v2-slot__av {
-  width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex: none; background: #eee;
+.v2-staff-chip:active { transform: scale(.96); }
+.v2-staff-chip.is-empty {
+  border-style: dashed; border-color: #D0D0D0; background: #FAFAFA;
+  color: var(--text-sec); padding: 5px 10px; gap: 4px;
 }
-.v2-slot__av--ph {
+.v2-staff-chip__av {
+  width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex: none; background: #eee;
+}
+.v2-staff-chip__av--ph {
   display: inline-flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 600; color: #fff; background: #F32F41;
+  font-size: 10px; font-weight: 600; color: #fff; background: var(--brand);
 }
-.v2-slot__meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding-right: 14px; }
-.v2-slot__name {
-  font-size: 13px; font-weight: 600; color: #1a1a1a;
+.v2-staff-chip__meta { display: flex; flex-direction: column; min-width: 0; }
+.v2-staff-chip__name {
+  font-size: 12px; font-weight: 600; color: var(--text); line-height: 15px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.v2-slot__sub {
-  font-size: 11px; color: #929292;
+.v2-staff-chip__sub {
+  font-size: 10px; color: var(--text-sec); line-height: 13px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.v2-slot__x {
-  position: absolute; top: 4px; right: 4px;
-  width: 18px; height: 18px; border: 0; border-radius: 50%;
-  background: #F2F2F2; color: #666; font-size: 12px; line-height: 1;
-  cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;
+.v2-staff-chip__x {
+  width: 16px; height: 16px; flex: none; margin-left: 2px;
+  border: 0; border-radius: 50%; background: #F2F2F2; color: var(--text-mid);
+  font-size: 11px; line-height: 1; padding: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
 }
+.v2-staff-chip__plus { width: 16px; height: 16px; flex: none; color: var(--brand); display: inline-flex; }
+.v2-staff-chip__plus svg { width: 16px; height: 16px; display: block; }
+.v2-staff-chip__hint { font-size: var(--fs-hint); color: var(--text-sec); line-height: 24px; }
 
 /* 员工 sheet：普通底部弹出（可盖展开区），高度随内容、最高约 55% */
 .v2-staff-sheet-mask {
@@ -334,7 +367,7 @@
   background: #fff; border-radius: 16px 16px 0 0;
   display: flex; flex-direction: column; overflow: hidden;
   transform: translateY(100%);
-  transition: transform .38s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform .3s cubic-bezier(0.34, 1.32, 0.64, 1);
   box-shadow: 0 -8px 28px rgba(0,0,0,.12);
   flex: none;
 }
@@ -345,8 +378,10 @@
 }
 .v2-staff-sheet__hd {
   flex: none; padding: 10px 16px 12px; font-size: 16px; font-weight: 600;
-  text-align: center; color: #1a1a1a; border-bottom: 1px solid #f0f0f0;
+  text-align: center; color: var(--text); border-bottom: 1px solid #f0f0f0;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
 }
+.v2-staff-sheet__limit { font-size: var(--fs-hint); font-weight: 400; color: var(--text-sec); }
 .v2-staff-sheet__bd {
   flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
   padding: 10px 12px calc(16px + env(safe-area-inset-bottom, 0px)); background: #FAFAFA;
@@ -363,7 +398,7 @@
   width: 100%; background: #fff; border-radius: 16px 16px 0 0;
   padding: 0 16px calc(12px + env(safe-area-inset-bottom, 0px));
   transform: translateY(100%);
-  transition: transform .38s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform .3s cubic-bezier(0.34, 1.32, 0.64, 1);
   box-shadow: 0 -8px 28px rgba(0,0,0,.12);
 }
 .v2-price-sheet-mask.is-in .v2-price-sheet { transform: translateY(0); }
@@ -454,23 +489,25 @@
   z-index: 1;
 }
 
-.co-extras { padding: 8px 16px 16px; }
+.co-extras { padding: 0 0 16px; }
+/* 优惠券 / 备注：左右贴边、无圆角；内文仍保留 16px 内边距 */
 .co-coupon-row {
-  display: flex; align-items: center; height: 48px; padding: 0 14px;
-  background: #fff; border-radius: 10px; margin-bottom: 10px; cursor: pointer;
+  display: flex; align-items: center; height: 52px; padding: 0 16px;
+  background: #fff; border-radius: 0; margin-bottom: var(--gap-card); cursor: pointer;
 }
-.co-coupon-row .l { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+.co-coupon-row .l { font-size: var(--fs-label); font-weight: var(--fw-block-title); color: var(--text); line-height: var(--lh-text); }
 .co-coupon-row .r {
-  margin-left: auto; font-size: 13px; color: #929292;
+  margin-left: auto; font-size: var(--fs-value); color: var(--text-sec);
   display: flex; align-items: center; gap: 4px;
 }
-.co-coupon-row .r.has { color: #F32F41; }
+.co-coupon-row .r.has { color: var(--brand); }
 .co-remark-card {
-  background: #fff; border-radius: 8px; padding: 14px;
+  background: #fff; border-radius: 0; padding: 14px 16px;
   box-sizing: border-box;
 }
 .co-remark-card .t {
-  font-size: 13px; font-weight: 500; color: #1a1a1a; line-height: 1.2; margin-bottom: 10px;
+  font-size: var(--fs-label); font-weight: var(--fw-block-title); color: var(--text);
+  line-height: var(--lh-text); margin-bottom: 10px;
 }
 .co-remark-card .box {
   position: relative; background: #fafafa; border-radius: 8px;
@@ -478,31 +515,36 @@
 }
 .co-remark-card textarea {
   width: 100%; min-height: 64px; border: 0; background: transparent; resize: none;
-  font-family: inherit; font-size: 14px; color: #1a1a1a; outline: none;
+  font-family: inherit; font-size: var(--fs-value); color: var(--text); outline: none;
   line-height: 1.4;
 }
 .co-remark-card textarea::placeholder { color: #757575; }
 .co-remark-card .cnt {
-  position: absolute; right: 12px; bottom: 10px; font-size: 12px; color: #929292; line-height: 1;
+  position: absolute; right: 12px; bottom: 10px; font-size: var(--fs-hint);
+  color: var(--text-sec); line-height: 1;
 }
 
-.co-item.v2-compact { padding: 8px 12px 6px; margin-bottom: 8px; }
+/* 结算明细卡片：内边距收口（字号/行高由 index.html 的 #s6/#s7 Token 规则决定） */
+.co-item.v2-compact { padding: 0; }
 .co-item.v2-compact .co-thumb { display: none !important; }
-.co-item.v2-compact .co-top { display: flex; align-items: center; gap: 8px; min-height: 28px; }
-.co-item.v2-compact .co-info { flex: 1; min-width: 0; }
-.co-item.v2-compact .co-name {
-  font-size: 14px; font-weight: 500; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis;
-}
-.co-item.v2-compact .co-price { display: inline; font-size: 12px; color: #929292; margin-left: 6px; }
-.co-item.v2-compact .co-row { min-height: 28px; padding: 2px 0; font-size: 12px; }
-.co-item.v2-compact .co-emp-detail { display: none; }
-.co-item.v2-compact .co-sum-row { min-height: 24px; font-size: 12px; padding: 1px 0; }
+.co-item.v2-compact .co-emp-detail { display: none !important; }
 .co-item.v2-compact .co-sum-row input {
-  pointer-events: none; border: 0; background: transparent; width: 64px;
-  font-size: 12px; color: inherit;
+  pointer-events: none; border: 0; background: transparent; width: 64px; color: inherit;
 }
-.co-item.v2-compact .co-sum-row .pen,
+.co-item.v2-compact .co-sum-row .pen { display: none !important; }
+/* 仅「权益」行保留 ＞ 箭头（服务员工为只读摘要，无箭头） */
 .co-item.v2-compact .co-arr { display: none !important; }
-.co-item.v2-compact .co-row[data-ro="1"] { pointer-events: none; opacity: .95; }
+.co-item.v2-compact .co-row[data-benefit="1"] .co-arr { display: inline-flex !important; }
+.co-item.v2-compact .co-row[data-ro="1"] { pointer-events: none; opacity: .95; cursor: default; }
 .co-item.v2-compact .co-sum-row[data-ro="1"] { pointer-events: none; }
+
+/* 结算页：服务员工只读摘要（每名员工一行：姓名 · 工位 · 点客/散客） */
+.co-staff-list { margin-left: auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.co-staff-list .co-staff-line {
+  font-size: var(--fs-value); color: var(--text); line-height: var(--lh-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;
+  max-width: 236px;
+}
+.co-staff-list .co-staff-line .nm { font-weight: 500; }
+.co-staff-list .co-staff-line .sep { color: #d0d0d0; margin: 0 4px; }
+.co-staff-list .co-staff-line .dim { color: var(--text-sec); }

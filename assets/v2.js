@@ -7,6 +7,7 @@
   'use strict';
 
   var HOLD_COUNT = 3;
+  var MAX_STAFF = 3;
   var expandKey = null;
   var draft = null;
   var staffSheetOpen = false;
@@ -229,7 +230,8 @@
     mask.innerHTML =
       '<div class="v2-staff-sheet" role="dialog" aria-label="选择服务员工">' +
         '<div class="v2-staff-sheet__grab" aria-hidden="true"></div>' +
-        '<div class="v2-staff-sheet__hd">选择服务员工</div>' +
+        '<div class="v2-staff-sheet__hd">服务员工' +
+          '<span class="v2-staff-sheet__limit">最多 ' + MAX_STAFF + ' 位</span></div>' +
         '<div class="v2-staff-sheet__bd" data-staff-root data-ctx="v2draft"></div>' +
       '</div>';
     scr.appendChild(mask);
@@ -316,6 +318,42 @@
     paintPriceSheet();
   }
 
+  /* ===== 行内价格：展开态可编辑（数值右侧铅笔图标 → 数字键盘 sheet） ===== */
+  function catPriceEl(row) { return row ? row.querySelector('.v2-cat-price') : null; }
+
+  function pricePenHtml() { return '<span class="v2-price-pen" data-price-pen>' + PEN_SVG + '</span>'; }
+
+  function paintRowPrice(n) {
+    if (!draft || !draft.el) return;
+    var pr = catPriceEl(draft.el);
+    if (pr) pr.innerHTML = money(n) + pricePenHtml();
+  }
+
+  function setRowPriceMode(row, editing) {
+    var pr = catPriceEl(row);
+    if (!pr) return;
+    if (editing) {
+      if (pr.getAttribute('data-price-orig') == null) {
+        pr.setAttribute('data-price-orig', pr.innerHTML);
+      }
+      pr.innerHTML = money(draft.price) + pricePenHtml();
+      pr.classList.add('is-editable');
+      pr.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openPriceSheet();
+      };
+    } else {
+      var orig = pr.getAttribute('data-price-orig');
+      if (orig != null) {
+        pr.innerHTML = orig;
+        pr.removeAttribute('data-price-orig');
+      }
+      pr.classList.remove('is-editable');
+      pr.onclick = null;
+    }
+  }
+
   function openPriceSheet() {
     if (!draft) return;
     var scr = document.getElementById(draft.screenId);
@@ -341,8 +379,8 @@
       if (!isFinite(n) || n < 0) n = draft.price;
       if (n > 999999.99) n = 999999.99;
       draft.price = Math.round(n * 100) / 100;
-      var val = draft.el && draft.el.querySelector('[data-price-val]');
-      if (val) val.textContent = '¥' + draft.price.toFixed(2);
+      /* 行内价格同步（改价仅作用于本次加入购物车，不影响价目表原价） */
+      paintRowPrice(draft.price);
     }
     priceSheetOpen = false;
     $all('.v2-price-sheet-mask').forEach(function (mask) {
@@ -535,6 +573,7 @@
     window.__v2DraftStaff = draft.staffRow;
     expandKey = key;
     row.classList.add('is-open');
+    setRowPriceMode(row, true);
     renderRowRight(row, true);
     renderExpandBody(row);
     /* 仅保证展开区可见，不为 sheet 预留位移 */
@@ -548,17 +587,11 @@
   function renderExpandBody(row) {
     var box = row.querySelector('[data-expand]');
     if (!box || !draft) return;
+    /* 价格行已删除：「服务员工」与标题同行，右侧 Chip；底部仅「加入购物车」 */
     box.innerHTML =
-      '<div class="erow">' +
-        '<span class="elbl">价格（元）</span>' +
-        '<button type="button" class="eprice" data-price>' +
-          '<span data-price-val>¥' + draft.price.toFixed(2) + '</span>' +
-          '<span class="eprice-pen">' + PEN_SVG + '</span>' +
-        '</button>' +
-      '</div>' +
-      '<div class="v2-slot-block">' +
-        '<div class="v2-slot-block__head">服务员工</div>' +
-        '<div class="v2-slot-row" data-slots></div>' +
+      '<div class="v2-staff-row">' +
+        '<div class="v2-staff-row__lbl">服务员工</div>' +
+        '<div class="v2-staff-row__chips" data-slots></div>' +
       '</div>' +
       '<div class="efoot"><button type="button" class="v2-orange-cart" data-commit ' +
         'aria-label="加入购物车">' +
@@ -567,46 +600,49 @@
         '<path d="M3 4h2l2.2 11h9.6L21 8H7"/></svg></button></div>';
 
     renderSlots();
-    box.querySelector('[data-price]').onclick = function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      openPriceSheet();
-    };
     box.querySelector('[data-commit]').onclick = function (e) {
       e.stopPropagation();
       commitDraft(e.currentTarget);
     };
   }
 
+  /* 员工 Chip：头像 + 姓名 + 「点客/散客·工位」，装不下自动换行；最多 MAX_STAFF 位 */
   function renderSlots() {
     if (!draft || !draft.el) return;
     var row = draft.el.querySelector('[data-slots]');
     if (!row) return;
     var ids = draft.staffRow.staffIds || [];
     var html = ids.map(function (sid) {
-      var st = staffList().find(function (s) { return s.id === sid; }) || { name: sid, short: '?' };
+      var st = staffList().find(function (s) { return s.id === sid; }) ||
+        { name: sid, short: '?', avatar: '' };
       var des = draft.staffRow.staffDesignated && draft.staffRow.staffDesignated[sid] === true;
-      var guest = des ? '点客' : '散客';
       var role = roleLabel(draft.staffRow.staffRoles && draft.staffRow.staffRoles[sid]);
+      var sub = des ? '点客' : '散客';
+      if (role) sub += '·' + role;
       var av = st.avatar
-        ? '<img class="v2-slot__av" src="' + esc(st.avatar) + '" alt="">'
-        : '<span class="v2-slot__av v2-slot__av--ph">' + esc((st.short || st.name || '?').toString().slice(0, 2)) + '</span>';
-      return '<div class="v2-slot is-filled" data-slot-sid="' + esc(sid) + '">' +
+        ? '<img class="v2-staff-chip__av" src="' + esc(st.avatar) + '" alt="">'
+        : '<span class="v2-staff-chip__av v2-staff-chip__av--ph">' +
+          esc((st.short || st.name || '?').toString().slice(0, 2)) + '</span>';
+      return '<div class="v2-staff-chip is-filled" data-slot-sid="' + esc(sid) + '">' +
         av +
-        '<span class="v2-slot__meta">' +
-          '<span class="v2-slot__name">' + esc(st.name) + '</span>' +
-          '<span class="v2-slot__sub">' + esc(guest) + (role ? ' · ' + esc(role) : '') + '</span>' +
+        '<span class="v2-staff-chip__meta">' +
+          '<span class="v2-staff-chip__name">' + esc(st.name) + '</span>' +
+          '<span class="v2-staff-chip__sub">' + esc(sub) + '</span>' +
         '</span>' +
-        '<button type="button" class="v2-slot__x" data-slot-clear="' + esc(sid) + '" aria-label="移除">×</button>' +
+        '<button type="button" class="v2-staff-chip__x" data-slot-clear="' + esc(sid) +
+          '" aria-label="移除">×</button>' +
       '</div>';
     }).join('');
-    html += '<button type="button" class="v2-slot is-empty" data-slot-empty aria-label="添加员工">' +
-      '<span class="v2-slot__plus">' + PLUS_SVG + '</span>' +
-      '<span class="v2-slot__hint">添加</span>' +
+    if (ids.length < MAX_STAFF) {
+      html += '<button type="button" class="v2-staff-chip is-empty" data-slot-empty ' +
+        'aria-label="添加员工">' +
+        '<span class="v2-staff-chip__plus">' + PLUS_SVG + '</span>' +
+        '<span class="v2-staff-chip__hint">添加</span>' +
       '</button>';
+    }
     row.innerHTML = html;
 
-    row.querySelectorAll('.v2-slot.is-filled, [data-slot-empty]').forEach(function (el) {
+    row.querySelectorAll('.v2-staff-chip.is-filled, [data-slot-empty]').forEach(function (el) {
       el.addEventListener('click', function (e) {
         if (e.target.closest('[data-slot-clear]')) return;
         e.stopPropagation();
@@ -682,6 +718,8 @@
     closePriceSheet(false);
     closeStaffSheet();
     if (draft && draft.el) {
+      /* 收起时行内价格还原为价目表原价（改价不落到价目表） */
+      setRowPriceMode(draft.el, false);
       draft.el.classList.remove('is-open');
       var exp = draft.el.querySelector('[data-expand]');
       if (exp) exp.innerHTML = '';
@@ -772,10 +810,19 @@
     var t0 = performance.now();
     var dur = 560;
     var finished = false;
+    function popCart() {
+      var icon = document.querySelector('#' + screenId + ' .btn-add');
+      if (!icon) return;
+      icon.classList.remove('is-pop');
+      void icon.offsetWidth;
+      icon.classList.add('is-pop');
+    }
     function finish() {
       if (finished) return;
       finished = true;
       if (ball.parentNode) ball.remove();
+      /* 小球飞抵购物车 → 购物车图标快速弹性回弹 */
+      popCart();
       if (done) done();
     }
     function frame(now) {
@@ -969,7 +1016,8 @@
       $all('.co-row', el).forEach(function (row) {
         var lbl = row.querySelector('.lbl');
         var t = lbl ? lbl.textContent : '';
-        if (t.indexOf('选择员工') >= 0) {
+        /* 「服务员工」改为只读摘要，不可点不可编辑；「权益」行保持可点选 */
+        if (t.indexOf('服务员工') >= 0 || t.indexOf('选择员工') >= 0) {
           row.setAttribute('data-ro', '1');
           row.removeAttribute('onclick');
           row.onclick = null;
