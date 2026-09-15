@@ -1,0 +1,20 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<iframe id="f" src="index.html?t=__TS__" style="width:390px;height:844px;border:0;display:block"></iframe>
+<script>
+function step(){
+  var w=document.getElementById('f').contentWindow, d=w.document;
+  var btns = d.querySelectorAll('#s1 .proj-card .add');
+  btns[0].click();
+  setTimeout(function(){ w.confirmAddSheet();
+    setTimeout(function(){ btns[1].click();
+      setTimeout(function(){ w.confirmAddSheet();
+        setTimeout(function(){ w.nextStep('s1'); },300);
+      },300);
+    },300);
+  },300);
+}
+window.addEventListener('load',function(){setTimeout(step,500);});
+</script>
+</body></html>

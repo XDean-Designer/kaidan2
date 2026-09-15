@@ -1,0 +1,146 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;background:#000">
+<iframe id="f" style="width:390px;height:844px;border:0;display:block"></iframe>
+<script>
+(function(){
+  var f = document.getElementById('f');
+  f.src = 'index.html?bust=' + Date.now();
+  var out = [];
+  function ok(k, v) { out.push('PASS ' + k + '=' + v); }
+  function bad(k, v, exp) { out.push('FAIL ' + k + '=' + v + (exp !== undefined ? ' EXPECT=' + exp : '')); }
+  function check(k, cond, val, exp) { if (cond) ok(k, val); else bad(k, val, exp); }
+  f.onload = function(){
+    try {
+      var w = f.contentWindow, d = w.document;
+      if (!(d && d.querySelector('#s1 .proj-card .add'))) { document.title = 'FAIL_LOAD'; return; }
+      // ---- A. 员工面板「点客/散客」 ----
+      var s5add = d.querySelector('#s5 .proj-card .add');
+      s5add.click();
+      var firstCard = d.querySelector('#asStaffGrid [data-staff-card-hit]');
+      firstCard.click();
+      var btns = d.querySelectorAll('#asStaffGrid .staff-card__split-btn');
+      var a1 = btns.length ? btns[0].textContent.trim() : 'NONE';
+      var a2 = btns.length > 1 ? btns[1].textContent.trim() : 'NONE';
+      check('A1_split_btns_default', (a1 === '点客' && a2 === '散客') || (a1 === '散客' && a2 === '点客'), a1 + ',' + a2);
+      w.closeMask('addSheetMask');
+      w.staffRow = { id: '__t', staffIds: [w.STAFFS[0].id], staffRoles: {}, staffDesignated: {} };
+      w.staffRow.staffDesignated[w.STAFFS[0].id] = true;
+      var st1 = w.staffPickSummaryText(w.STAFFS[0].id);
+      check('A3_pickSummary_des', st1.indexOf('点客') === 0, st1);
+      w.staffRow.staffDesignated[w.STAFFS[0].id] = false;
+      var st2 = w.staffPickSummaryText(w.STAFFS[0].id);
+      check('A4_pickSummary_undes', st2.indexOf('散客') === 0, st2);
+
+      // ---- B. 划线价：散客 s1 无划线，会员 s5 划线8折 ----
+      var pr1 = d.querySelector('#s1 .proj-card .pr');
+      check('B1_guest_no_linethru', pr1 && !pr1.querySelector('.old'), pr1 ? pr1.innerHTML : 'NONE');
+      w.pickChen();
+      var pr5 = d.querySelector('#s5 .proj-card .pr');
+      var old = pr5 ? pr5.querySelector('.old') : null;
+      var sale = pr5 ? pr5.querySelector('.sale') : null;
+      var price = pr5 ? parseFloat(pr5.getAttribute('data-price')) : NaN;
+      var saleNum = sale ? parseFloat(sale.textContent.replace(/[^\d.]/g, '')) : -1;
+      check('B2_member_linethru', pr5 && old && sale, pr5 ? pr5.innerHTML : 'NONE');
+      check('B3_member_sale_price', !isNaN(price) && Math.abs(saleNum - Math.round(price * 0.8 * 100) / 100) < 0.001, saleNum, Math.round(price * 0.8 * 100) / 100);
+
+      // ---- C. 添加 sheet 应付默认 = 优惠价 ----
+      var add5 = d.querySelector('#s5 .proj-card .add');
+      add5.click();
+      var ap = d.getElementById('asPayable');
+      var asPriceEl = d.getElementById('asPrice');
+      var expectSale = Math.round(price * 0.8 * 100) / 100;
+      check('C1_sheet_payable_sale', ap && Math.abs(parseFloat(ap.value) - expectSale) < 0.001, ap ? ap.value : 'NONE', expectSale);
+      check('C2_sheet_head_sale', asPriceEl && asPriceEl.textContent.indexOf('¥') === 0 && Math.abs(parseFloat(asPriceEl.textContent.replace('¥', '')) - expectSale) < 0.001, asPriceEl ? asPriceEl.textContent : 'NONE');
+      w.confirmAddSheet();
+      var it0 = w.cartItems[0];
+      check('C3_added_not_discounted', it0 && it0.discounted === false, it0 ? String(it0.discounted) : 'NOITEM');
+      check('C4_added_actual_sale', it0 && Math.abs(it0.actual - expectSale) < 0.001, it0 ? it0.actual : 'NONE', expectSale);
+
+      // ---- D. s7 快速消费权益（默认不选 / 门槛置灰 / 选择取消） ----
+      w.go('s2');
+      w.s2val = '150'; w.renderS2();
+      w.go('s3');
+      w.s3val = '150'; w.renderS3();
+      w.goQuickCheckout();
+      var it = w.qcoItem;
+      check('D1_qco_default_no_benefit', it && !it.benefit && Math.abs(it.actual - 150) < 0.001, it ? (it.actual + '/' + (it.benefit ? it.benefit.name : 'none')) : 'NOITEM');
+      var benText = d.querySelector('#s7 .co-row .val.gray');
+      check('D2_qco_row_no_benefit', benText && benText.textContent.indexOf('无卡权益') >= 0, benText ? benText.textContent : 'NONE');
+      w.openQcoBenefit();
+      var items = d.querySelectorAll('#benefitList .benefit-item');
+      var dis = d.querySelector('#benefitList .benefit-item.disabled');
+      var disText = dis ? dis.querySelector('.nm').textContent : '';
+      var btnCoupon = null, btnDisc = null, btnMinus = null;
+      items.forEach(function(el){
+        var nm = el.querySelector('.nm').textContent;
+        if (nm === '新人8折券') btnCoupon = el;
+        if (nm === '超值折扣卡') btnDisc = el;
+        if (nm === '满200减30券') btnMinus = el;
+      });
+      check('D3_qco_200_disabled', dis === btnMinus, disText || 'NONE', '满200减30券');
+      check('D4_qco_58_enabled', btnCoupon && !btnCoupon.disabled, btnCoupon ? 'enabled' : 'NONE');
+      btnDisc.click();
+      check('D5_qco_discount_80', w.qcoItem && Math.abs(w.qcoItem.actual - 120) < 0.001, w.qcoItem ? w.qcoItem.actual : 'NONE', 120);
+      var items2 = d.querySelectorAll('#benefitList .benefit-item');
+      var btnCoupon2 = null;
+      items2.forEach(function(el){ if (el.querySelector('.nm').textContent === '新人8折券') btnCoupon2 = el; });
+      btnCoupon2.click();
+      check('D6_qco_coupon_minus10', w.qcoItem && Math.abs(w.qcoItem.actual - 140) < 0.001, w.qcoItem ? w.qcoItem.actual : 'NONE', 140);
+      var items3 = d.querySelectorAll('#benefitList .benefit-item');
+      var btnCoupon3 = null;
+      items3.forEach(function(el){ if (el.querySelector('.nm').textContent === '新人8折券') btnCoupon3 = el; });
+      btnCoupon3.click();
+      check('D7_qco_cancel_restore', w.qcoItem && Math.abs(w.qcoItem.actual - 150) < 0.001 && !w.qcoItem.benefit, w.qcoItem ? (w.qcoItem.actual + '/' + (w.qcoItem.benefit ? w.qcoItem.benefit.name : 'none')) : 'NOITEM', 150);
+      var unset = d.querySelector('#s7 .co-emp-detail .unset');
+      check('D8_qco_staff_undes', unset && unset.textContent.trim().indexOf('散客') >= 0, unset ? unset.textContent.trim() : 'NONE');
+
+      // ---- E. 男散客/女散客 文字可点击进入 s4 ----
+      var nmNodes = d.querySelectorAll('.guest-card .nm');
+      var nmClickable = nmNodes.length > 0 && Array.prototype.every.call(nmNodes, function(el){
+        return el.getAttribute('onclick') && el.getAttribute('onclick').indexOf('s4') >= 0;
+      });
+      check('E1_guest_nm_clickable', nmClickable, String(nmNodes.length));
+
+      // ---- F. 会员卡无「办卡」按钮 ----
+      var hasBanKa = d.body.textContent.indexOf('办卡') >= 0;
+      check('F1_no_banka_btn', !hasBanKa, hasBanKa ? 'FOUND' : 'none');
+
+      // ---- G. s7 会员身份下快速消费按原价、默认不选权益 ----
+      w.pickChen();
+      w.go('s2');
+      w.s2val = '150'; w.renderS2();
+      w.go('s3');
+      w.s3val = '150'; w.renderS3();
+      w.goQuickCheckout();
+      check('G1_qco_member_original', w.qcoItem && !w.qcoItem.benefit && Math.abs(w.qcoItem.actual - 150) < 0.001, w.qcoItem ? w.qcoItem.actual : 'NONE', 150);
+
+      // ---- H. s2/s3 字段顺序：开单内容 → 员工 → 收款金额 ----
+      function cardOrder(sid) {
+        var cards = d.querySelectorAll('#' + sid + ' .amt-card');
+        var labs = [];
+        cards.forEach(function(c){
+          var lbl = c.querySelector('.lbl, .row-label');
+          labs.push(lbl ? lbl.textContent.trim() : '?');
+        });
+        return labs.join('>');
+      }
+      check('H1_s2_card_order', cardOrder('s2') === '开单内容>收款金额>员工', cardOrder('s2'));
+      check('H2_s3_card_order', cardOrder('s3') === '开单内容>收款金额>员工', cardOrder('s3'));
+
+      // ---- I. s10/s11 点客/散客 ----
+      var s10labs = Array.prototype.map.call(d.querySelectorAll('#s10 .trow .c0'), function(el){ return el.textContent.trim(); }).join(',');
+      check('I1_s10_labels', s10labs.indexOf('点客') >= 0 && s10labs.indexOf('散客') >= 0 && s10labs.indexOf('指定') < 0, s10labs);
+      var s11labs = Array.prototype.map.call(d.querySelectorAll('#s11 .pair .lbl'), function(el){ return el.textContent.trim(); }).join(',');
+      check('I2_s11_labels', s11labs.indexOf('点客') >= 0 && s11labs.indexOf('散客') >= 0 && s11labs.indexOf('指定') < 0, s11labs);
+    } catch (e) {
+      out.push('EXCEPTION ' + (e && e.message));
+    }
+    var pre = document.createElement('pre');
+    pre.textContent = out.join('\n');
+    document.body.appendChild(pre);
+    document.title = out.join(' | ');
+  };
+})();
+</script>
+</body></html>

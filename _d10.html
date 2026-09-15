@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script>
+var out = [];
+var s = new URLSearchParams(location.search).get('s') || 's10';
+var f = document.createElement('iframe');
+f.src = 'index.html?bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+f.addEventListener('load', function () {
+  try {
+    var w = f.contentWindow, d = f.contentDocument;
+    if (s === '10' || s === 's10') {
+      w.go('s10');
+      out.push('s10 active=' + d.getElementById('s10').classList.contains('active'));
+      out.push('s10 title=' + d.querySelector('#s10 .title').textContent);
+      out.push('s10 tabOn=' + d.querySelector('#s10 .pset-tabs button.on span:first-child').textContent);
+      out.push('s10 tip=' + d.querySelector('#s10 .pset-tip span').textContent);
+      out.push('s10 catOn=' + d.querySelector('#s10 .pset-rail .cat.on .nm').textContent);
+      out.push('s10 cats=' + d.querySelectorAll('#s10 .pset-rail .cat').length);
+      out.push('s10 cardHd=' + d.querySelector('#s10 .perf-card .hd').textContent);
+      out.push('s10 headCols=' + Array.from(d.querySelectorAll('#s10 .trow.head .cv')).map(function(e){return e.textContent;}).join('/'));
+      out.push('s10 rows=' + Array.from(d.querySelectorAll('#s10 .trow:not(.head)')).map(function(e){return e.textContent.trim();}).join('|'));
+      var cols = d.querySelector('#s10 .pset-cols').getBoundingClientRect();
+      out.push('s10 colsTop=' + cols.top.toFixed(0) + ' bottom=' + cols.bottom.toFixed(0));
+    } else if (s === '11' || s === 's11') {
+      w.go('s11');
+      out.push('s11 active=' + d.getElementById('s11').classList.contains('active'));
+      out.push('s11 title=' + d.querySelector('#s11 .title').textContent);
+      out.push('s11 planT=' + d.querySelector('#s11 .plan-hd .info .t').textContent);
+      out.push('s11 planS=' + d.querySelector('#s11 .plan-hd .info .s').textContent);
+      out.push('s11 moreImg=' + (d.querySelector('#s11 .plan-hd .more img') ? 'yes' : 'no'));
+      out.push('s11 tabOn=' + d.querySelector('#s11 .pset-tabs button.on span:first-child').textContent);
+      out.push('s11 catOn=' + d.querySelector('#s11 .pset-rail .cat.on .nm').textContent);
+      out.push('s11 cardHd=' + d.querySelector('#s11 .perf-card .hd').textContent);
+      out.push('s11 pairs=' + Array.from(d.querySelectorAll('#s11 .perf-card .pair')).map(function(e){return e.textContent.trim();}).join('|'));
+    }
+    var pre = document.createElement('pre');
+    pre.textContent = out.join('\n');
+    document.body.appendChild(pre);
+  } catch (e) {
+    var p2 = document.createElement('pre');
+    p2.textContent = 'ERR ' + e.message;
+    document.body.appendChild(p2);
+  }
+});
+</script><iframe src="index.html?bust=1787305679937" style="width: 390px; height: 844px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none;"></iframe>
+
+<pre>s10 active=true
+s10 title=业绩设置
+s10 tabOn=劳动业绩
+s10 tip=注意此处修改业绩，而不是提成！
+s10 catOn=快速消费
+s10 cats=2
+s10 cardHd=快速消费
+s10 headCols=大工/中工/小工
+s10 rows=指定100.00%100.00%100.00%|非指定100.00%100.00%100.00%
+s10 colsTop=180 bottom=844</pre></body></html>
