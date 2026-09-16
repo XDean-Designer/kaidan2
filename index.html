@@ -541,6 +541,13 @@
   .pick-row .info .line1 .cnt { font-size:13px; color:#111; white-space:nowrap; }
   .pick-row .info .line1 .phone { flex:1; text-align:right; font-size:14px; color:#888; white-space:nowrap; }
   .pick-row .info .sub { font-size:12px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* 「添加会员」入口行（设计稿 968:370）：橙色圆形＋图标 + 灰色标题 */
+  .pick-add-av {
+    width:44px; height:44px; border-radius:50%; flex:none; background:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pick-add-av svg { width:39px; height:39px; display:block; }
+  .pick-row .info .line1 .nm.is-add { color:#929292; }
   .index-bar {
     position:absolute; left:370px; top:calc(var(--statusbar-h) + 55px); width:18px; height:600px;
     display:flex; flex-direction:column; align-items:center; gap:3px;
@@ -1792,6 +1799,19 @@
           <div class="line1">
             <span class="nm">女散客</span>
             <span class="phone">散客</span>
+          </div>
+        </div>
+      </div>
+      <div class="pick-row" data-add-member onclick="toast('新增会员')">
+        <div class="pick-add-av">
+          <svg viewBox="0 0 38.85 38.81" aria-hidden="true">
+            <circle cx="19.43" cy="19.4" r="19.43" fill="#FF8956"></circle>
+            <path d="M19.43 8.4V30.4M8.43 19.4H30.43" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm is-add">添加会员</span>
           </div>
         </div>
       </div>

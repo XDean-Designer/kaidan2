@@ -82,6 +82,13 @@
   var PEN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
   var PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
   var MINUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>';
+  /* 加入购物车：设计稿实心购物车（来自 Figma 矢量，18.36×18.53） */
+  var CART_SVG = '<svg viewBox="0 0 18.36 18.53" fill="currentColor" aria-hidden="true">' +
+    '<path d="M 17.08 13.84 L 4.67 13.84 C 4.07 13.84 3.58 13.39 3.55 12.87 L 2.83 1.88 C 2.8 1.28 2.46 0.79 1.93 0.53 L 0.81 0.04 C 0.51 -0.07 0.21 0.04 0.06 0.34 C -0.09 0.64 0.06 0.94 0.36 1.09 L 1.45 1.58 C 1.6 1.66 1.71 1.81 1.71 1.99 L 2.38 12.98 C 2.46 14.11 3.47 15.01 4.63 15.01 L 17.08 15.01 C 17.38 15.01 17.65 14.74 17.65 14.44 C 17.65 14.14 17.38 13.84 17.08 13.84 Z"/>' +
+    '<path d="M 17.95 3.38 C 17.61 3.01 17.12 2.78 16.6 2.78 L 5.12 2.78 C 4.82 2.78 4.56 3.04 4.56 3.34 C 4.56 3.64 4.82 3.91 5.12 3.91 L 16.6 3.91 C 16.78 3.91 16.97 3.98 17.08 4.13 C 17.2 4.28 17.27 4.47 17.27 4.66 L 16.37 9.61 L 16.37 9.64 C 16.33 9.98 16.07 10.21 15.73 10.24 L 5.87 10.99 C 5.57 11.03 5.35 11.29 5.35 11.59 C 5.38 11.89 5.61 12.12 5.91 12.12 L 5.95 12.12 L 15.77 11.37 C 16.63 11.29 17.35 10.66 17.42 9.79 L 18.32 4.81 L 18.32 4.77 C 18.43 4.28 18.28 3.76 17.95 3.38 Z"/>' +
+    '<path d="M 3.06 17.22 C 3.06 17.57 3.2 17.9 3.44 18.15 C 3.69 18.39 4.02 18.53 4.37 18.53 C 4.72 18.53 5.05 18.39 5.3 18.15 C 5.55 17.9 5.68 17.57 5.68 17.22 C 5.68 16.87 5.55 16.54 5.3 16.29 C 5.05 16.04 4.72 15.91 4.37 15.91 C 4.02 15.91 3.69 16.04 3.44 16.29 C 3.2 16.54 3.06 16.87 3.06 17.22 Z"/>' +
+    '<path d="M 13.56 17.22 C 13.56 17.57 13.7 17.9 13.94 18.15 C 14.19 18.39 14.52 18.53 14.87 18.53 C 15.22 18.53 15.55 18.39 15.8 18.15 C 16.05 17.9 16.18 17.57 16.18 17.22 C 16.18 16.87 16.05 16.54 15.8 16.29 C 15.55 16.04 15.22 15.91 14.87 15.91 C 14.52 15.91 14.19 16.04 13.94 16.29 C 13.7 16.54 13.56 16.87 13.56 17.22 Z"/>' +
+  '</svg>';
   var CHEV_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 
   function $(sel, root) { return (root || document).querySelector(sel); }
@@ -129,6 +136,8 @@
     if (!list || list.getAttribute('data-v2-wrapped')) return;
     list.setAttribute('data-v2-wrapped', '1');
     $all('#s4 .pick-row').forEach(function (row) {
+      /* 「添加会员」是入口行（新增会员），不参与顾客行的展开/开单逻辑 */
+      if (row.hasAttribute('data-add-member')) return;
       var wrap = document.createElement('div');
       wrap.className = 'pick-row-wrap';
       var kind = 'member';
@@ -318,40 +327,25 @@
     paintPriceSheet();
   }
 
-  /* ===== 行内价格：展开态可编辑（数值右侧铅笔图标 → 数字键盘 sheet） ===== */
+  /* ===== 价格：折叠态行内展示原价；展开态在展开卡底部「价格（元）」行内编辑（数值右侧铅笔） ===== */
   function catPriceEl(row) { return row ? row.querySelector('.v2-cat-price') : null; }
+  function pricePillEl(row) { return row ? row.querySelector('[data-price-pill]') : null; }
 
   function pricePenHtml() { return '<span class="v2-price-pen" data-price-pen>' + PEN_SVG + '</span>'; }
+
+  /* 1899 → "1899"；1899.5 → "1899.5" */
+  function pricePlain(n) {
+    var x = Number(n) || 0;
+    var t = x.toFixed(2).replace(/\.?0+$/, '');
+    return t === '' ? '0' : t;
+  }
 
   function paintRowPrice(n) {
     if (!draft || !draft.el) return;
     var pr = catPriceEl(draft.el);
-    if (pr) pr.innerHTML = money(n) + pricePenHtml();
-  }
-
-  function setRowPriceMode(row, editing) {
-    var pr = catPriceEl(row);
-    if (!pr) return;
-    if (editing) {
-      if (pr.getAttribute('data-price-orig') == null) {
-        pr.setAttribute('data-price-orig', pr.innerHTML);
-      }
-      pr.innerHTML = money(draft.price) + pricePenHtml();
-      pr.classList.add('is-editable');
-      pr.onclick = function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openPriceSheet();
-      };
-    } else {
-      var orig = pr.getAttribute('data-price-orig');
-      if (orig != null) {
-        pr.innerHTML = orig;
-        pr.removeAttribute('data-price-orig');
-      }
-      pr.classList.remove('is-editable');
-      pr.onclick = null;
-    }
+    if (pr) pr.innerHTML = money(n);
+    var val = pricePillEl(draft.el) && pricePillEl(draft.el).querySelector('[data-pill-val]');
+    if (val) val.textContent = pricePlain(n);
   }
 
   function openPriceSheet() {
@@ -573,7 +567,6 @@
     window.__v2DraftStaff = draft.staffRow;
     expandKey = key;
     row.classList.add('is-open');
-    setRowPriceMode(row, true);
     renderRowRight(row, true);
     renderExpandBody(row);
     /* 仅保证展开区可见，不为 sheet 预留位移 */
@@ -587,26 +580,42 @@
   function renderExpandBody(row) {
     var box = row.querySelector('[data-expand]');
     if (!box || !draft) return;
-    /* 价格行已删除：「服务员工」与标题同行，右侧 Chip；底部仅「加入购物车」 */
+    /* 展开卡：① 服务员工 Chip 区 ② 底部「价格（元）」+ 可编辑价格药丸 + 加入购物车 */
     box.innerHTML =
       '<div class="v2-staff-row">' +
         '<div class="v2-staff-row__lbl">服务员工</div>' +
         '<div class="v2-staff-row__chips" data-slots></div>' +
       '</div>' +
-      '<div class="efoot"><button type="button" class="v2-orange-cart" data-commit ' +
-        'aria-label="加入购物车">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-        '<circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/>' +
-        '<path d="M3 4h2l2.2 11h9.6L21 8H7"/></svg></button></div>';
+      '<div class="v2-expand-foot">' +
+        '<div class="v2-price-line">' +
+          '<span class="v2-price-line__lbl">价格（元）</span>' +
+          '<span class="v2-price-pill" data-price-pill role="button" tabindex="0">' +
+            '<span class="yen">¥</span>' +
+            '<span class="val" data-pill-val>' + pricePlain(draft.price) + '</span>' +
+            pricePenHtml() +
+          '</span>' +
+        '</div>' +
+        '<button type="button" class="v2-cart-pill" data-commit aria-label="加入购物车">' +
+          CART_SVG +
+        '</button>' +
+      '</div>';
 
     renderSlots();
+    var pill = box.querySelector('[data-price-pill]');
+    if (pill) {
+      pill.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openPriceSheet();
+      };
+    }
     box.querySelector('[data-commit]').onclick = function (e) {
       e.stopPropagation();
       commitDraft(e.currentTarget);
     };
   }
 
-  /* 员工 Chip：头像 + 姓名 + 「点客/散客·工位」，装不下自动换行；最多 MAX_STAFF 位 */
+  /* 员工 Chip：姓名 + 「点客/散客·工位」（设计稿去掉了头像），最多 MAX_STAFF 位 */
   function renderSlots() {
     if (!draft || !draft.el) return;
     var row = draft.el.querySelector('[data-slots]');
@@ -619,12 +628,7 @@
       var role = roleLabel(draft.staffRow.staffRoles && draft.staffRow.staffRoles[sid]);
       var sub = des ? '点客' : '散客';
       if (role) sub += '·' + role;
-      var av = st.avatar
-        ? '<img class="v2-staff-chip__av" src="' + esc(st.avatar) + '" alt="">'
-        : '<span class="v2-staff-chip__av v2-staff-chip__av--ph">' +
-          esc((st.short || st.name || '?').toString().slice(0, 2)) + '</span>';
       return '<div class="v2-staff-chip is-filled" data-slot-sid="' + esc(sid) + '">' +
-        av +
         '<span class="v2-staff-chip__meta">' +
           '<span class="v2-staff-chip__name">' + esc(st.name) + '</span>' +
           '<span class="v2-staff-chip__sub">' + esc(sub) + '</span>' +
@@ -718,8 +722,6 @@
     closePriceSheet(false);
     closeStaffSheet();
     if (draft && draft.el) {
-      /* 收起时行内价格还原为价目表原价（改价不落到价目表） */
-      setRowPriceMode(draft.el, false);
       draft.el.classList.remove('is-open');
       var exp = draft.el.querySelector('[data-expand]');
       if (exp) exp.innerHTML = '';
