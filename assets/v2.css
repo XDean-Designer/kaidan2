@@ -263,6 +263,15 @@
 }
 .v2-cart-pill:active { transform: scale(.94); }
 .v2-cart-pill svg { width: 18.4px; height: 18.5px; display: block; pointer-events: none; }
+
+/* 展开卡分段：商品信息行 / 服务员工行 / 价格行，段间 0.5px 发丝线，左右各内缩 16 */
+.v2-cat-item.is-open .v2-cat-main,
+.v2-cat-item.is-open .v2-staff-row { position: relative; }
+.v2-cat-item.is-open .v2-cat-main::after,
+.v2-cat-item.is-open .v2-staff-row::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+  height: .5px; background: #E7E7E7; pointer-events: none;
+}
 .v2-cat-right { flex-shrink: 0; display: flex; align-items: center; min-width: 72px; justify-content: flex-end; }
 
 /* 添加钮 → 红圆步进器（加减同为红色圆形，展开区不再另放步进器） */

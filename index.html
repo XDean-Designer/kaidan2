@@ -410,7 +410,9 @@
   }
   .cart-sheet__row {
     padding:12px 20px 16px; display:flex; flex-direction:column; gap:8px;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
   }
+  .cart-sheet__row:active { background:#FAFAFA; }
   .cart-sheet__name {
     font-size:14px; font-weight:500; color:#1a1a1a; line-height:1.35;
     word-break:break-word;
@@ -515,7 +517,8 @@
   .pick-search .box span { flex:1; font-size:14px; color:#878787; white-space:nowrap; overflow:hidden; }
   .pick-search .cancel { font-size:15px; font-weight:500; color:#878787; border:none; background:none; cursor:pointer; white-space:nowrap; }
 
-  .pick-list { position:absolute; top:calc(var(--statusbar-h) + 50px); left:0; width:390px; bottom:0; overflow:hidden; background:#fff; }
+  .pick-list { position:absolute; top:calc(var(--statusbar-h) + 50px); left:0; width:390px; bottom:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; background:#fff; }
+  .pick-list::-webkit-scrollbar { width:0; height:0; }
   .pick-group-h {
     width:390px; height:28px; background:#f9f9f9;
     display:flex; align-items:center; padding:0 12px;
@@ -550,6 +553,39 @@
   }
   .pick-add-av svg { width:44px; height:44px; display:block; }
   .pick-row .info .line1 .nm.is-add { color:#929292; }
+
+  /* 「添加会员」行下展：快捷添加会员表单（姓名* / 手机号 / 性别*） */
+  .pick-add-wrap { background:#fff; border-bottom:1px solid #f5f5f5; }
+  .pick-add-wrap .pick-row { border-bottom:0; }
+  .pick-add-panel { display:none; padding:0 16px 14px; }
+  .pick-add-wrap.is-open .pick-add-panel { display:block; }
+  .pa-field { display:flex; align-items:flex-start; gap:10px; padding:8px 0; }
+  .pa-lbl { width:56px; flex:none; font-size:14px; font-weight:500; color:#1a1a1a; line-height:40px; }
+  .pa-lbl .req { color:#F32F41; font-style:normal; margin-left:2px; }
+  .pa-ctl { flex:1; min-width:0; }
+  .pa-input {
+    width:100%; height:40px; box-sizing:border-box; border:1px solid transparent; border-radius:8px;
+    background:#F7F7F7; padding:0 12px; font-family:inherit; font-size:14px; color:#1a1a1a; outline:none;
+  }
+  .pa-input::placeholder { color:#B5B5B5; }
+  .pa-input:focus { border-color:#C2C4CC; background:#fff; }
+  .pa-input.is-err { border-color:#F32F41; background:#FFF7F7; }
+  .pa-err { display:none; margin-top:6px; font-size:12px; line-height:16px; color:#F32F41; }
+  .pa-err.show { display:block; }
+  .pa-gender { display:flex; gap:10px; }
+  .pa-g {
+    min-width:72px; height:40px; padding:0 16px; border-radius:8px; box-sizing:border-box;
+    border:1px solid #E5E5E5; background:#fff; font-family:inherit; font-size:14px; color:#1a1a1a;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  .pa-g.on { border-color:#F32F41; background:#FFF2F2; color:#F32F41; font-weight:500; }
+  .pa-foot { display:flex; justify-content:flex-end; gap:10px; padding-top:12px; }
+  .pa-btn {
+    height:36px; min-width:84px; padding:0 16px; border:0; border-radius:8px;
+    font-family:inherit; font-size:14px; font-weight:500; cursor:pointer;
+  }
+  .pa-btn.cancel { background:#F2F2F2; color:#666; }
+  .pa-btn.ok { background:#F32F41; color:#fff; }
   .index-bar {
     position:absolute; left:370px; top:calc(var(--statusbar-h) + 55px); bottom:12px; width:18px;
     display:flex; flex-direction:column; align-items:center; gap:3px;
@@ -1825,16 +1861,47 @@
           </div>
         </div>
       </div>
-      <div class="pick-row" data-add-member onclick="toast('新增会员')">
-        <div class="pick-add-av">
-          <svg viewBox="0 0 44 44" aria-hidden="true">
-            <path d="M22 5C12.6112 5 5 12.6112 5 22C5 31.3889 12.6112 39 22 39C31.3888 39 39 31.3888 39 22C39 12.6112 31.3888 5 22 5ZM22 37.8409C13.2513 37.8409 6.15906 30.7487 6.15906 22C6.15906 13.2513 13.2513 6.15909 22 6.15909C30.7487 6.15909 37.8409 13.2513 37.8409 22C37.8409 30.7487 30.7487 37.8409 22 37.8409Z" fill="#FF8956"></path>
-            <path d="M28.8095 20.3602H23.6205V15.1864C23.6205 14.4503 23.0237 13.8534 22.2875 13.8534H21.7001C20.9639 13.8534 20.3671 14.4503 20.3671 15.1864V20.3602H15.1781C14.4418 20.3602 13.8451 20.957 13.8451 21.6932V22.2959C13.8451 23.0321 14.4419 23.6289 15.1781 23.6289H20.3671V28.8026C20.3671 29.5389 20.9639 30.1357 21.7001 30.1357H22.2875C23.0237 30.1357 23.6205 29.5389 23.6205 28.8026V23.6289H28.8095C29.5457 23.6289 30.1425 23.0321 30.1425 22.2959V21.6932C30.1425 20.957 29.5457 20.3602 28.8095 20.3602Z" fill="#FF8956"></path>
-          </svg>
+      <div class="pick-add-wrap" data-add-wrap>
+        <div class="pick-row" data-add-member>
+          <div class="pick-add-av">
+            <svg viewBox="0 0 44 44" aria-hidden="true">
+              <path d="M22 5C12.6112 5 5 12.6112 5 22C5 31.3889 12.6112 39 22 39C31.3888 39 39 31.3888 39 22C39 12.6112 31.3888 5 22 5ZM22 37.8409C13.2513 37.8409 6.15906 30.7487 6.15906 22C6.15906 13.2513 13.2513 6.15909 22 6.15909C30.7487 6.15909 37.8409 13.2513 37.8409 22C37.8409 30.7487 30.7487 37.8409 22 37.8409Z" fill="#FF8956"></path>
+              <path d="M28.8095 20.3602H23.6205V15.1864C23.6205 14.4503 23.0237 13.8534 22.2875 13.8534H21.7001C20.9639 13.8534 20.3671 14.4503 20.3671 15.1864V20.3602H15.1781C14.4418 20.3602 13.8451 20.957 13.8451 21.6932V22.2959C13.8451 23.0321 14.4419 23.6289 15.1781 23.6289H20.3671V28.8026C20.3671 29.5389 20.9639 30.1357 21.7001 30.1357H22.2875C23.0237 30.1357 23.6205 29.5389 23.6205 28.8026V23.6289H28.8095C29.5457 23.6289 30.1425 23.0321 30.1425 22.2959V21.6932C30.1425 20.957 29.5457 20.3602 28.8095 20.3602Z" fill="#FF8956"></path>
+            </svg>
+          </div>
+          <div class="info">
+            <div class="line1">
+              <span class="nm is-add">添加会员</span>
+            </div>
+          </div>
         </div>
-        <div class="info">
-          <div class="line1">
-            <span class="nm is-add">添加会员</span>
+        <!-- 行下展：快捷添加会员（姓名* / 手机号 / 性别*） -->
+        <div class="pick-add-panel" data-add-panel>
+          <div class="pa-field">
+            <div class="pa-lbl">姓名<i class="req">*</i></div>
+            <div class="pa-ctl">
+              <input class="pa-input" data-am-name type="text" maxlength="20" placeholder="请输入姓名">
+            </div>
+          </div>
+          <div class="pa-field">
+            <div class="pa-lbl">手机号</div>
+            <div class="pa-ctl">
+              <input class="pa-input" data-am-phone type="tel" inputmode="numeric" maxlength="11" placeholder="请输入手机号（选填）">
+              <div class="pa-err" data-am-phone-err>手机号格式不正确</div>
+            </div>
+          </div>
+          <div class="pa-field">
+            <div class="pa-lbl">性别<i class="req">*</i></div>
+            <div class="pa-ctl">
+              <div class="pa-gender">
+                <button type="button" class="pa-g" data-am-gender="male">男</button>
+                <button type="button" class="pa-g" data-am-gender="female">女</button>
+              </div>
+            </div>
+          </div>
+          <div class="pa-foot">
+            <button type="button" class="pa-btn cancel" data-am-cancel>取消</button>
+            <button type="button" class="pa-btn ok" data-am-confirm>确认添加</button>
           </div>
         </div>
       </div>
@@ -3475,7 +3542,8 @@
         thumb: asData.thumb || '',
         staff: staffObj,
         benefit: null,
-        _benefitCleared: false
+        _benefitCleared: false,
+        _uid: (typeof window.__v2NextCartUid === 'function') ? window.__v2NextCartUid() : ''
       });
     }
     if (asData.kind === 'member') {
@@ -3516,18 +3584,23 @@
       var parts = String(priceHtml).split('.');
       var priceEl = '<span class="sym">¥</span><span class="num">' + escapeHtml(parts[0]) +
         (parts[1] ? '<span style="font-size:12px">.' + escapeHtml(parts[1]) + '</span>' : '') + '</span>';
-      return '<div class="cart-sheet__row">' +
+      return '<div class="cart-sheet__row" onclick="cartSheetJumpRow(event,' + i + ')">' +
         '<div class="cart-sheet__name">' + escapeHtml(it.name) + '</div>' +
         '<div class="cart-sheet__staff">' + escapeHtml(cartStaffSummaryText(it.staff)) + '</div>' +
         '<div class="cart-sheet__meta">' +
           '<div class="cart-sheet__price">' + priceEl + '</div>' +
           '<div class="cart-sheet__step">' +
-            '<button type="button" class="st st--minus" onclick="cartSheetStep(' + i + ',-1)" aria-label="减少">' + cartMinusSvg + '</button>' +
+            '<button type="button" class="st st--minus" onclick="event.stopPropagation();cartSheetStep(' + i + ',-1)" aria-label="减少">' + cartMinusSvg + '</button>' +
             '<span class="n">' + (parseInt(it.qty, 10) || 1) + '</span>' +
-            '<button type="button" class="st st--plus" onclick="cartSheetStep(' + i + ',1)" aria-label="增加">' + cartPlusSvg + '</button>' +
+            '<button type="button" class="st st--plus" onclick="event.stopPropagation();cartSheetStep(' + i + ',1)" aria-label="增加">' + cartPlusSvg + '</button>' +
           '</div>' +
         '</div></div>';
     }).join('');
+  }
+  /* 点击明细 → 跳到开单页对应行、自动展开并回填保存的数据（可再编辑） */
+  function cartSheetJumpRow(e, idx) {
+    if (e && e.target && e.target.closest('.cart-sheet__step')) return;
+    if (typeof window.__v2JumpToCartItem === 'function') window.__v2JumpToCartItem(idx);
   }
   function cartSheetStep(idx, delta) {
     var it = cartItems[idx];

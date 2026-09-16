@@ -138,51 +138,62 @@
     $all('#s4 .pick-row').forEach(function (row) {
       /* 「添加会员」是入口行（新增会员），不参与顾客行的展开/开单逻辑 */
       if (row.hasAttribute('data-add-member')) return;
-      var wrap = document.createElement('div');
-      wrap.className = 'pick-row-wrap';
-      var kind = 'member';
-      var key = 'x';
-      var oc = row.getAttribute('onclick') || '';
-      var nmEl = row.querySelector('.nm');
-      var nm = nmEl ? nmEl.textContent.trim() : '';
-      if (oc.indexOf("pickGuest('male')") >= 0) { kind = 'guest'; key = 'male'; }
-      else if (oc.indexOf("pickGuest('female')") >= 0) { kind = 'guest'; key = 'female'; }
-      else if (oc.indexOf('pickChen') >= 0 || nm === '陈女士') key = 'chen';
-      else if (nm === '陈昕然') key = 'chenxr';
-      else if (nm === '高海泉') key = 'gao';
-      else if (nm === '李女士') key = 'li';
-      else if (nm === '马婷') key = 'ma';
-      else key = nm || 'member';
-      row.removeAttribute('onclick');
-      row.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var open = wrap.classList.contains('is-open');
-        $all('.pick-row-wrap.is-open').forEach(function (w) {
-          w.classList.remove('is-open');
-        });
-        if (!open) wrap.classList.add('is-open');
-      });
-      var actions = document.createElement('div');
-      actions.className = 'pick-row-actions';
-      actions.innerHTML =
-        '<button type="button" class="pick-act bill" data-a="bill">开单</button>' +
-        '<button type="button" class="pick-act quick" data-a="quick">直接收款</button>';
-      actions.onclick = function (e) {
-        var b = e.target.closest('[data-a]');
-        if (!b) return;
-        e.stopPropagation();
-        applyPick(kind, key, b.getAttribute('data-a'), nm);
-      };
-      row.parentNode.insertBefore(wrap, row);
-      wrap.appendChild(row);
-      wrap.appendChild(actions);
+      wrapOnePickRow(row);
     });
   }
 
-  function applyPick(kind, key, act, displayName) {
+  /* 把单个顾客行包成「行 + 开单/直接收款操作区」，返回 wrap（已插入 DOM） */
+  function wrapOnePickRow(row) {
+    if (!row) return null;
+    if (row.parentNode && row.parentNode.classList &&
+        row.parentNode.classList.contains('pick-row-wrap')) return row.parentNode;
+    var wrap = document.createElement('div');
+    wrap.className = 'pick-row-wrap';
+    var kind = 'member';
+    var key = 'x';
+    var oc = row.getAttribute('onclick') || '';
+    var nmEl = row.querySelector('.nm');
+    var nm = nmEl ? nmEl.textContent.trim() : '';
+    if (oc.indexOf("pickGuest('male')") >= 0) { kind = 'guest'; key = 'male'; }
+    else if (oc.indexOf("pickGuest('female')") >= 0) { kind = 'guest'; key = 'female'; }
+    else if (oc.indexOf('pickChen') >= 0 || nm === '陈女士') key = 'chen';
+    else if (nm === '陈昕然') key = 'chenxr';
+    else if (nm === '高海泉') key = 'gao';
+    else if (nm === '李女士') key = 'li';
+    else if (nm === '马婷') key = 'ma';
+    else key = nm || 'member';
+    row.removeAttribute('onclick');
+    row.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = wrap.classList.contains('is-open');
+      $all('.pick-row-wrap.is-open').forEach(function (w) {
+        w.classList.remove('is-open');
+      });
+      if (typeof closeAddMember === 'function') closeAddMember();
+      if (!open) wrap.classList.add('is-open');
+    });
+    var actions = document.createElement('div');
+    actions.className = 'pick-row-actions';
+    actions.innerHTML =
+      '<button type="button" class="pick-act bill" data-a="bill">开单</button>' +
+      '<button type="button" class="pick-act quick" data-a="quick">直接收款</button>';
+    actions.onclick = function (e) {
+      var b = e.target.closest('[data-a]');
+      if (!b) return;
+      e.stopPropagation();
+      applyPick(kind, key, b.getAttribute('data-a'), nm, row.getAttribute('data-gender') || '');
+    };
+    row.parentNode && row.parentNode.insertBefore(wrap, row);
+    wrap.appendChild(row);
+    wrap.appendChild(actions);
+    return wrap;
+  }
+
+  function applyPick(kind, key, act, displayName, gender) {
     $all('.pick-row-wrap.is-open').forEach(function (w) {
       w.classList.remove('is-open');
     });
+    closeAddMember();
     if (kind === 'guest') {
       if (window.setGuestGender) window.setGuestGender(key);
       if (window.setCust) window.setCust('guest');
@@ -196,12 +207,250 @@
         $all('#s5 .v2-ccard__name-text').forEach(function (el) {
           el.textContent = nm;
         });
+        /* 新建会员带性别：同步顶部卡头像 */
+        if (gender === 'male' || gender === 'female') {
+          var src = gender === 'male' ? 'assets/avatar_male2.png' : 'assets/avatar_card_female.png';
+          $all('#s5 .v2-ccard__avatar').forEach(function (img) { img.src = src; });
+        }
       }, 40);
     }
     if (act === 'quick') { go('s2'); return; }
     var sid = kind === 'guest' ? 's1' : 's5';
     go(sid);
     setTimeout(function () { rebuildBill(sid); }, 30);
+  }
+
+  /* ========== 「添加会员」行下展：快捷添加会员 ========== */
+  /* 姓氏拼音首字母（覆盖常见姓氏；未收录的落到「#」分组） */
+  var PY_SURNAMES = {
+    A: '安艾敖',
+    B: '白包鲍毕卞柏边别薄步巴贝班暴',
+    C: '陈曹蔡崔常程楚储褚从池车岑柴晁成迟',
+    D: '邓丁董杜戴段窦狄刁东都岱',
+    E: '鄂恩',
+    F: '范方房费冯符傅樊丰封付伏凤',
+    G: '高甘干郜戈葛耿弓龚勾古谷顾关管桂郭国苟巩贡',
+    H: '韩郝何贺侯胡花华黄霍洪怀惠扈海哈',
+    I: '伊依',
+    J: '纪季贾简江姜蒋焦金靳经井居鞠吉计嵇',
+    K: '康柯孔寇匡邝阚',
+    L: '李黎梁廖林凌刘柳龙楼卢鲁陆吕罗骆雷冷连廉蔺娄路栾蓝郎赖乐',
+    M: '马麦毛梅孟苗莫穆牟米闵明慕',
+    N: '倪聂宁牛农那南能',
+    O: '欧',
+    P: '潘庞裴彭皮平蒲濮逄',
+    Q: '戚齐钱强乔秦邱丘裘屈曲权覃全祁',
+    R: '冉任荣阮芮饶',
+    S: '萨桑沙山单尚邵沈盛施石史舒帅司宋苏孙索宿',
+    T: '谭汤唐陶田童涂屠邰台谈滕',
+    U: '乌',
+    V: '万',
+    W: '汪王危韦卫魏温文翁邬吴伍武巫闻',
+    X: '奚习夏鲜向项萧肖谢辛邢幸熊徐许宣薛荀席郗',
+    Y: '严言阎颜晏杨姚叶易殷尹应尤游于余俞虞禹郁喻元袁岳云燕阴',
+    Z: '臧曾詹张章赵甄郑支钟周朱诸祝庄卓宗邹祖左翟湛'
+  };
+  var PY_MAP = (function () {
+    var m = {};
+    Object.keys(PY_SURNAMES).forEach(function (k) {
+      PY_SURNAMES[k].split('').forEach(function (ch) { if (!m[ch]) m[ch] = k; });
+    });
+    return m;
+  })();
+  var PY_ORDER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
+  function pinyinInitial(name) {
+    var ch = String(name || '').charAt(0);
+    if (!ch) return '#';
+    if (/[A-Za-z]/.test(ch)) return ch.toUpperCase();
+    return PY_MAP[ch] || '#';
+  }
+  function letterOrder(l) {
+    var i = PY_ORDER.indexOf(l);
+    return i < 0 ? PY_ORDER.length : i;
+  }
+  function isLetterHead(el) {
+    var t = el && el.textContent ? el.textContent.trim() : '';
+    return t.length === 1 && /[A-Z#]/.test(t);
+  }
+
+  function addMemberWrap() { return $('#s4 [data-add-wrap]'); }
+
+  function setAddMemberGender(wrap, g) {
+    if (!wrap) return;
+    wrap.setAttribute('data-gender', g || '');
+    $all('[data-am-gender]', wrap).forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-am-gender') === g);
+    });
+  }
+  function setPhoneErr(wrap, on) {
+    if (!wrap) return;
+    var input = wrap.querySelector('[data-am-phone]');
+    var err = wrap.querySelector('[data-am-phone-err]');
+    if (input) input.classList.toggle('is-err', !!on);
+    if (err) err.classList.toggle('show', !!on);
+  }
+  function validPhone(v) { return /^1[3-9]\d{9}$/.test(v); }
+
+  function resetAddMemberForm(wrap) {
+    if (!wrap) return;
+    var name = wrap.querySelector('[data-am-name]');
+    var phone = wrap.querySelector('[data-am-phone]');
+    if (name) { name.value = ''; name.classList.remove('is-err'); }
+    if (phone) phone.value = '';
+    setAddMemberGender(wrap, '');
+    setPhoneErr(wrap, false);
+  }
+
+  /* 收起「添加会员」面板（不保存数据） */
+  function closeAddMember() {
+    var wrap = addMemberWrap();
+    if (!wrap) return;
+    wrap.classList.remove('is-open');
+    resetAddMemberForm(wrap);
+  }
+
+  function scrollPickListTo(el) {
+    var list = $('#s4 .pick-list');
+    if (!list || !el) return;
+    var top = el.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop - 8;
+    try { list.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); }
+    catch (e) { list.scrollTop = Math.max(0, top); }
+  }
+
+  function toggleAddMember() {
+    var wrap = addMemberWrap();
+    if (!wrap) return;
+    var open = wrap.classList.contains('is-open');
+    $all('.pick-row-wrap.is-open').forEach(function (w) { w.classList.remove('is-open'); });
+    if (open) { closeAddMember(); return; }
+    resetAddMemberForm(wrap);
+    wrap.classList.add('is-open');
+    scrollPickListTo(wrap);
+  }
+
+  /* 新建会员行：按姓氏拼音归入字母分组（不存在则新建组头），返回行元素 */
+  function insertMemberRow(display, phone, gender) {
+    var list = $('#s4 .pick-list');
+    if (!list) return null;
+    var letter = pinyinInitial(display);
+    var heads = $all('#s4 .pick-list > .pick-group-h');
+    var head = null;
+    heads.forEach(function (h) {
+      if (isLetterHead(h) && h.textContent.trim() === letter) head = h;
+    });
+    var row = document.createElement('div');
+    row.className = 'pick-row';
+    row.setAttribute('data-gender', gender);
+    row.setAttribute('data-new-member', '1');
+    row.innerHTML =
+      '<div class="avatar"><img src="' +
+        (gender === 'male' ? 'assets/avatar_male2.png' : 'assets/avatar_female2.png') +
+        '" alt=""></div>' +
+      '<div class="info">' +
+        '<div class="line1"><span class="nm">' + esc(display) + '</span>' +
+          (phone ? '<span class="phone">' + esc(phone) + '</span>' : '') +
+        '</div>' +
+        '<div class="sub">最近消费：未消费</div>' +
+      '</div>';
+    var wrap = wrapOnePickRow(row);
+    if (head) {
+      /* 追加到该字母分组末尾 */
+      var last = head;
+      var next = head.nextElementSibling;
+      while (next && !(next.classList && next.classList.contains('pick-group-h'))) {
+        last = next;
+        next = next.nextElementSibling;
+      }
+      last.parentNode.insertBefore(wrap, last.nextSibling);
+      return row;
+    }
+    /* 新建分组头：按字母序插到第一个更靠后的字母组之前（始终排在「散客」等非字母组之后） */
+    var myOrder = letterOrder(letter);
+    var beforeHead = null;
+    heads.forEach(function (h) {
+      if (!isLetterHead(h)) return;
+      if (beforeHead) return;
+      if (letterOrder(h.textContent.trim()) > myOrder) beforeHead = h;
+    });
+    head = document.createElement('div');
+    head.className = 'pick-group-h';
+    head.textContent = letter;
+    if (beforeHead) {
+      beforeHead.parentNode.insertBefore(head, beforeHead);
+      head.parentNode.insertBefore(wrap, head.nextSibling);
+    } else {
+      list.appendChild(head);
+      list.appendChild(wrap);
+    }
+    return row;
+  }
+
+  function confirmAddMember() {
+    var wrap = addMemberWrap();
+    if (!wrap) return;
+    var nameInp = wrap.querySelector('[data-am-name]');
+    var phoneInp = wrap.querySelector('[data-am-phone]');
+    var name = ((nameInp && nameInp.value) || '').trim();
+    var phone = ((phoneInp && phoneInp.value) || '').trim();
+    var gender = wrap.getAttribute('data-gender') || '';
+    if (!name) { toast('请输入姓名'); return; }
+    if (phone && !validPhone(phone)) {
+      setPhoneErr(wrap, true);
+      toast('手机号格式不正确');
+      return;
+    }
+    setPhoneErr(wrap, false);
+    if (!gender) { toast('请选择性别'); return; }
+    /* 只填姓（1 个字）+ 已选性别 → 自动识别为「*先生 / *小姐」 */
+    var display = name.length === 1 ? name + (gender === 'male' ? '先生' : '小姐') : name;
+    var row = insertMemberRow(display, phone, gender);
+    closeAddMember();
+    if (!row) return;
+    var w = row.closest ? row.closest('.pick-row-wrap') : null;
+    $all('.pick-row-wrap.is-open').forEach(function (x) { x.classList.remove('is-open'); });
+    if (w) w.classList.add('is-open');
+    scrollPickListTo(w || row);
+    toast('已添加会员 · ' + display);
+  }
+
+  function wireAddMember() {
+    var wrap = addMemberWrap();
+    if (!wrap || wrap.getAttribute('data-wired') === '1') return;
+    wrap.setAttribute('data-wired', '1');
+    var row = wrap.querySelector('[data-add-member]');
+    if (row) {
+      row.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleAddMember();
+      });
+    }
+    $all('[data-am-gender]', wrap).forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var g = b.getAttribute('data-am-gender');
+        var cur = wrap.getAttribute('data-gender');
+        setAddMemberGender(wrap, cur === g ? '' : g);
+      });
+    });
+    var nameInp = wrap.querySelector('[data-am-name]');
+    var phoneInp = wrap.querySelector('[data-am-phone]');
+    if (nameInp) {
+      nameInp.addEventListener('input', function () { nameInp.classList.remove('is-err'); });
+    }
+    if (phoneInp) {
+      phoneInp.addEventListener('input', function () {
+        phoneInp.value = phoneInp.value.replace(/\D/g, '').slice(0, 11);
+        setPhoneErr(wrap, false);
+      });
+      phoneInp.addEventListener('blur', function () {
+        var v = phoneInp.value.trim();
+        setPhoneErr(wrap, !!v && !validPhone(v));
+      });
+    }
+    var cancel = wrap.querySelector('[data-am-cancel]');
+    if (cancel) cancel.addEventListener('click', function (e) { e.stopPropagation(); closeAddMember(); });
+    var ok = wrap.querySelector('[data-am-confirm]');
+    if (ok) ok.addEventListener('click', function (e) { e.stopPropagation(); confirmAddMember(); });
   }
 
   /* ========== 开单页 ========== */
@@ -531,7 +780,11 @@
       b.onclick = function (e) {
         e.stopPropagation();
         var d = parseInt(b.getAttribute('data-q'), 10);
-        draft.qty = Math.max(1, Math.min(99, draft.qty + d));
+        if (!draft) return;
+        var next = draft.qty + d;
+        /* 步进器归零 → 收起该行（服务员工/价格等未提交数据一并丢弃） */
+        if (next <= 0) { closeExpand(); return; }
+        draft.qty = Math.min(99, next);
         right.querySelector('[data-qty]').textContent = String(draft.qty);
       };
     });
@@ -546,7 +799,7 @@
     };
   }
 
-  function openExpand(row) {
+  function openExpand(row, prefill) {
     var screen = row.closest('.screen');
     var screenId = screen ? screen.id : 's1';
     var key = row.getAttribute('data-ikey');
@@ -564,6 +817,24 @@
       screenId: screenId,
       el: row
     };
+    /* 从购物车明细跳回：回填保存的数据（单价 / 数量 / 服务员工），可继续编辑 */
+    if (prefill) {
+      var p = parseFloat(prefill.price);
+      if (isFinite(p) && p >= 0) draft.price = Math.round(p * 100) / 100;
+      var b = parseFloat(prefill.base);
+      if (isFinite(b) && b >= 0) draft.base = Math.round(b * 100) / 100;
+      var q = parseInt(prefill.qty, 10);
+      if (isFinite(q) && q > 0) draft.qty = Math.min(99, q);
+      if (prefill.staff) {
+        draft.staffRow = {
+          id: '__v2edit__' + Date.now(),
+          staffIds: (prefill.staff.staffIds || []).slice(),
+          staffRoles: Object.assign({}, prefill.staff.staffRoles || {}),
+          staffDesignated: Object.assign({}, prefill.staff.staffDesignated || {})
+        };
+      }
+      if (prefill.editUid) draft.editUid = prefill.editUid;
+    }
     window.__v2DraftStaff = draft.staffRow;
     expandKey = key;
     row.classList.add('is-open');
@@ -749,7 +1020,8 @@
       staffRoles: Object.assign({}, draft.staffRow.staffRoles),
       staffDesignated: Object.assign({}, draft.staffRow.staffDesignated)
     };
-    window.cartItems.push({
+    var discounted = Math.abs(payable - basePay) > 0.001;
+    var record = {
       name: draft.name,
       price: draft.price,
       salePrice: draft.base,
@@ -757,7 +1029,7 @@
       payable: payable,
       receivable: payable,
       actual: payable,
-      discounted: Math.abs(payable - basePay) > 0.001,
+      discounted: discounted,
       isProd: draft.isProd,
       kind: kind,
       group: draft.group,
@@ -765,7 +1037,26 @@
       staff: staffObj,
       benefit: null,
       _benefitCleared: false
-    });
+    };
+    /* 从购物车明细跳回再提交 → 替换原条目（不新增） */
+    var editUid = draft.editUid || '';
+    var editIdx = editUid ? cartIndexOfUid(editUid) : -1;
+    if (editIdx >= 0) {
+      var old = window.cartItems[editIdx] || {};
+      record._uid = editUid;
+      /* 改价商品沿用「权益锁定」；未改价则保留原权益 */
+      if (discounted) {
+        record.benefit = null;
+        record._benefitCleared = true;
+      } else {
+        record.benefit = old.benefit || null;
+        record._benefitCleared = !!old._benefitCleared;
+      }
+      window.cartItems[editIdx] = record;
+    } else {
+      record._uid = nextCartUid();
+      window.cartItems.push(record);
+    }
     if (typeof window.recalcOrderAmounts === 'function') window.recalcOrderAmounts();
     if (typeof window.updateCartBadge === 'function') window.updateCartBadge();
     else refreshCartUI();
@@ -773,11 +1064,62 @@
     var btn = fromBtn;
     var sid = draft.screenId;
     var startRect = btn ? btn.getBoundingClientRect() : null;
+    var replaced = editIdx >= 0;
     closeExpand();
     flyToCart(startRect, sid, function () {
-      toast('已加入购物车');
+      toast(replaced ? '已更新该笔' : '已加入购物车');
     });
   }
+
+  /* 购物车明细唯一标识（用于「跳回原行编辑」时精确替换，避免下标漂移） */
+  var cartSeq = 0;
+  function nextCartUid() {
+    cartSeq += 1;
+    return 'c' + Date.now().toString(36) + '_' + cartSeq;
+  }
+  window.__v2NextCartUid = nextCartUid;
+  function cartIndexOfUid(uid) {
+    var list = window.cartItems || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] && list[i]._uid === uid) return i;
+    }
+    return -1;
+  }
+
+  /* 购物车明细点击 → 跳到开单页对应行、自动展开并回填保存的数据，可再编辑 */
+  window.__v2JumpToCartItem = function (index) {
+    var list = window.cartItems || [];
+    var it = list[index];
+    if (!it) return false;
+    var sid = it.kind === 'member' ? 's5' : 's1';
+    if (typeof window.closeCartSheet === 'function') window.closeCartSheet();
+    if (typeof window.setCust === 'function') window.setCust(it.kind === 'member' ? 'member' : 'guest');
+    billTab[sid] = it.isProd ? 'product' : 'project';
+    billGroup[sid] = '全部';
+    go(sid); /* onGoHook 会重建开单页，等待重建完成后再定位 */
+    var payload = {
+      price: it.price,
+      base: (it.salePrice != null ? it.salePrice : it.price),
+      qty: it.qty,
+      staff: it.staff,
+      editUid: it._uid || ''
+    };
+    var tries = 0;
+    function seek() {
+      var body = document.getElementById(sid + 'BillBody');
+      var rows = body ? $all('.v2-cat-item', body) : [];
+      var row = null;
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].getAttribute('data-name') === it.name &&
+            (rows[i].getAttribute('data-prod') === '1') === !!it.isProd) { row = rows[i]; break; }
+      }
+      if (!row && tries < 12) { tries += 1; setTimeout(seek, 50); return; }
+      if (!row) { toast('该价目已变更，无法定位'); return; }
+      openExpand(row, payload);
+    }
+    setTimeout(seek, 80);
+    return true;
+  };
 
   function refreshCartUI() {
     var total = 0;
@@ -1185,6 +1527,7 @@
   function boot() {
     syncHold();
     wrapPickRows();
+    wireAddMember();
     forceNext();
     wireHome();
     patchNav();
