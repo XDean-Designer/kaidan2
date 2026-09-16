@@ -30,6 +30,37 @@
     return (el && el.getAttribute('data-g')) || 'default';
   }
 
+  /* ========== 会员档案（顶部会员卡数据源） ========== */
+  var MEMBER_DEFAULT = {
+    name: '陈女士', gender: 'female', avatar: 'assets/avatar_female3.png',
+    lastVisit: '2026-08-15', cards: '3', balance: '2049', discount: '8.0', isNew: false
+  };
+  /* 当前顾客是否为会员（由 index.html 的 setCust 同步；s5 恒为会员页） */
+  var custIsMember = false;
+  function memberProfile() { return window.__v2Member || MEMBER_DEFAULT; }
+  function todayISO() {
+    var d = new Date();
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+  /* isNew=true：本次新注册会员（无卡无权益、上次到店=今天） */
+  function setMemberProfile(name, gender, avatar, isNew) {
+    var g = (gender === 'male' || gender === 'female') ? gender : 'female';
+    window.__v2Member = {
+      name: name,
+      gender: g,
+      avatar: avatar || (g === 'male' ? 'assets/avatar_male2.png' : 'assets/avatar_card_female.png'),
+      lastVisit: isNew ? todayISO() : MEMBER_DEFAULT.lastVisit,
+      cards: isNew ? '0' : MEMBER_DEFAULT.cards,
+      balance: isNew ? '0' : MEMBER_DEFAULT.balance,
+      discount: isNew ? '—' : MEMBER_DEFAULT.discount,
+      isNew: !!isNew
+    };
+    /* 新注册会员无任何卡/权益 → 不参与会员折扣 */
+    window.__v2MemberNoBenefit = !!isNew;
+    return window.__v2Member;
+  }
+
   /* card/demo.html 价目 · 美发相关（不含美容/美甲/美睫；隐藏&下架不展示） */
   var CATALOG = {
     project: {
@@ -90,6 +121,11 @@
     '<path d="M 13.56 17.22 C 13.56 17.57 13.7 17.9 13.94 18.15 C 14.19 18.39 14.52 18.53 14.87 18.53 C 15.22 18.53 15.55 18.39 15.8 18.15 C 16.05 17.9 16.18 17.57 16.18 17.22 C 16.18 16.87 16.05 16.54 15.8 16.29 C 15.55 16.04 15.22 15.91 14.87 15.91 C 14.52 15.91 14.19 16.04 13.94 16.29 C 13.7 16.54 13.56 16.87 13.56 17.22 Z"/>' +
   '</svg>';
   var CHEV_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  /* 「添加会员」图标（与 s4 顾客列表同款） */
+  var ADD_MEMBER_SVG = '<svg viewBox="0 0 44 44" aria-hidden="true">' +
+    '<path d="M22 5C12.6112 5 5 12.6112 5 22C5 31.3889 12.6112 39 22 39C31.3888 39 39 31.3888 39 22C39 12.6112 31.3888 5 22 5ZM22 37.8409C13.2513 37.8409 6.15906 30.7487 6.15906 22C6.15906 13.2513 13.2513 6.15909 22 6.15909C30.7487 6.15909 37.8409 13.2513 37.8409 22C37.8409 30.7487 30.7487 37.8409 22 37.8409Z" fill="#FF8956"></path>' +
+    '<path d="M28.8095 20.3602H23.6205V15.1864C23.6205 14.4503 23.0237 13.8534 22.2875 13.8534H21.7001C20.9639 13.8534 20.3671 14.4503 20.3671 15.1864V20.3602H15.1781C14.4418 20.3602 13.8451 20.957 13.8451 21.6932V22.2959C13.8451 23.0321 14.4419 23.6289 15.1781 23.6289H20.3671V28.8026C20.3671 29.5389 20.9639 30.1357 21.7001 30.1357H22.2875C23.0237 30.1357 23.6205 29.5389 23.6205 28.8026V23.6289H28.8095C29.5457 23.6289 30.1425 23.0321 30.1425 22.2959V21.6932C30.1425 20.957 29.5457 20.3602 28.8095 20.3602Z" fill="#FF8956"></path>' +
+    '</svg>';
 
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $all(sel, root) {
@@ -189,6 +225,20 @@
     return wrap;
   }
 
+  /* 从 s4 列表取该会员行的头像（顶部卡沿用列表头像） */
+  function pickListAvatar(nm) {
+    var found = '';
+    $all('#s4 .pick-row').forEach(function (row) {
+      if (found) return;
+      var nmEl = row.querySelector('.nm');
+      if (nmEl && nmEl.textContent.trim() === nm) {
+        var img = row.querySelector('.avatar img') || row.querySelector('img');
+        if (img) found = img.getAttribute('src') || '';
+      }
+    });
+    return found;
+  }
+
   function applyPick(kind, key, act, displayName, gender) {
     $all('.pick-row-wrap.is-open').forEach(function (w) {
       w.classList.remove('is-open');
@@ -198,24 +248,22 @@
       if (window.setGuestGender) window.setGuestGender(key);
       if (window.setCust) window.setCust('guest');
     } else {
-      if (window.setCust) window.setCust('member');
       var map = {
         chen: '陈女士', chenxr: '陈昕然', gao: '高海泉', li: '李女士', ma: '马婷'
       };
       var nm = map[key] || displayName || '会员';
-      setTimeout(function () {
-        $all('#s5 .v2-ccard__name-text').forEach(function (el) {
-          el.textContent = nm;
-        });
-        /* 新建会员带性别：同步顶部卡头像 */
-        if (gender === 'male' || gender === 'female') {
-          var src = gender === 'male' ? 'assets/avatar_male2.png' : 'assets/avatar_card_female.png';
-          $all('#s5 .v2-ccard__avatar').forEach(function (img) { img.src = src; });
-        }
-      }, 40);
+      var g = (gender === 'male' || gender === 'female') ? gender
+        : (nm.indexOf('先生') >= 0 ? 'male' : 'female');
+      setMemberProfile(nm, g, pickListAvatar(nm), false);
+      if (window.setCust) window.setCust('member');
     }
-    if (act === 'quick') { go('s2'); return; }
     var sid = kind === 'guest' ? 's1' : 's5';
+    if (act === 'quick') {
+      /* 直接收款：会员卡与散客卡都要按最新档案渲染 */
+      paintMemberCards();
+      go('s2');
+      return;
+    }
     go(sid);
     setTimeout(function () { rebuildBill(sid); }, 30);
   }
@@ -656,38 +704,253 @@
         root.classList.toggle('is-open');
       };
     }
+    wireCardAddMember(root);
+  }
+
+  /* 卡内注册面板展开时按当前散客性别预选性别（男散客→男 / 女散客→女） */
+  function cardDefaultGender(card) {
+    var g = card.getAttribute('data-g') || currentGuestG();
+    return (g === 'male' || g === 'female') ? g : '';
+  }
+  /* 点图标：展开 / 收起（展开时重置表单并按散客性别预选） */
+  function toggleCardAddMember(card) {
+    var open = card.classList.contains('is-open');
+    resetAddMemberForm(card);
+    if (!open) setAddMemberGender(card, cardDefaultGender(card));
+    card.classList.toggle('is-open', !open);
+  }
+
+  /* ========== 散客卡「添加会员」入口：卡内快捷注册会员 ========== */
+  /* 注意：淡色卡会整体重绘 innerHTML，故按「元素」而非按「卡」判断是否已绑定 */
+  function wireCardAddMember(card) {
+    if (!card) return;
+    var panel = card.querySelector('[data-addmem-panel]');
+    if (!panel) return;
+    var btn = card.querySelector('[data-addmem-toggle]');
+    if (btn && btn.getAttribute('data-wired') !== '1') {
+      btn.setAttribute('data-wired', '1');
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        toggleCardAddMember(card);
+      };
+    }
+    if (panel.getAttribute('data-wired') === '1') return;
+    panel.setAttribute('data-wired', '1');
+    /* 性别为必填单选：点击即选中，不因重复点击而取消（已有默认值，避免误点后变空） */
+    $all('[data-am-gender]', panel).forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        setAddMemberGender(card, b.getAttribute('data-am-gender'));
+      });
+    });
+    var nameInp = panel.querySelector('[data-am-name]');
+    if (nameInp) {
+      nameInp.addEventListener('click', function (e) { e.stopPropagation(); });
+    }
+    var phoneInp = panel.querySelector('[data-am-phone]');
+    if (phoneInp) {
+      phoneInp.addEventListener('click', function (e) { e.stopPropagation(); });
+      phoneInp.addEventListener('input', function () {
+        phoneInp.value = phoneInp.value.replace(/\D/g, '').slice(0, 11);
+        setPhoneErr(card, false);
+      });
+    }
+    var cancel = panel.querySelector('[data-am-cancel]');
+    if (cancel) {
+      cancel.addEventListener('click', function (e) {
+        e.stopPropagation();
+        resetAddMemberForm(card);
+        card.classList.remove('is-open');
+      });
+    }
+    var ok = panel.querySelector('[data-am-confirm]');
+    if (ok) {
+      ok.addEventListener('click', function (e) {
+        e.stopPropagation();
+        confirmCardAddMember(card);
+      });
+    }
+  }
+
+  /* 卡内注册成功：收起面板 → 顶部卡就地变会员卡（档案=刚注册，上次到店=今天） */
+  function confirmCardAddMember(card) {
+    var nameInp = card.querySelector('[data-am-name]');
+    var phoneInp = card.querySelector('[data-am-phone]');
+    var name = ((nameInp && nameInp.value) || '').trim();
+    var phone = ((phoneInp && phoneInp.value) || '').trim();
+    var gender = card.getAttribute('data-gender') || '';
+    if (!name) { toast('请输入姓名'); return; }
+    if (phone && !validPhone(phone)) {
+      setPhoneErr(card, true);
+      toast('手机号格式不正确');
+      return;
+    }
+    setPhoneErr(card, false);
+    if (!gender) { toast('请选择性别'); return; }
+    /* 只填姓（1 个字）+ 已选性别 → 自动识别为「*先生 / *小姐」 */
+    var display = name.length === 1 ? name + (gender === 'male' ? '先生' : '小姐') : name;
+    resetAddMemberForm(card);
+    card.classList.remove('is-open');
+    registerCardMember(display, phone, gender);
+    toast('已添加会员 · ' + display);
+  }
+
+  /* 顾客身份变化：清掉「自动匹配」的权益，让结算页按新身份重新匹配（手动选择的权益不动） */
+  function refreshAutoBenefits() {
+    var list = window.cartItems || [];
+    var touched = false;
+    list.forEach(function (it) {
+      if (it && it._benefitAuto) {
+        it.benefit = null;
+        it._benefitCleared = false;
+        it._benefitAuto = false;
+        touched = true;
+      }
+    });
+    if (!touched) return;
+    var active = document.querySelector('.screen.active');
+    var id = active ? active.id : '';
+    if (id === 's6' && window.renderCo) window.renderCo();
+    if (id === 's7' && window.renderQco) window.renderQco();
+  }
+
+  /* 注册为会员：写入档案 + 切会员身份 + 全端重绘顶部卡 */
+  function registerCardMember(display, phone, gender) {
+    setMemberProfile(display, gender, '', true);
+    var m = memberProfile();
+    m.phone = phone || '';
+    custIsMember = true;
+    if (window.setCust) window.setCust('member');
+    if (window.setCoCust) window.setCoCust('member');
+    if (window.setQcoCust) window.setQcoCust('member');
+    repaintAllCards();
+    refreshAutoBenefits();
+  }
+
+  /* 依据档案重绘所有会员卡（含 s1/s5 顶部卡与 s2/s3/s6/s7 淡色卡） */
+  function paintMemberCards() {
+    $all('.member-card[data-v2-lite="1"]').forEach(function (card) {
+      card.classList.remove('is-open');
+      card.classList.add('v2-ccard', 'v2-ccard--member');
+      card.innerHTML = memberCardInnerHtml();
+      wireCcard(card);
+    });
+  }
+  function repaintBillCard(id) {
+    var body = document.getElementById(id + 'BillBody');
+    if (!body) return;
+    var old = body.querySelector('[data-bill-card]');
+    if (!old) return;
+    var member = (id === 's5') || custIsMember;
+    var tmp = document.createElement('div');
+    tmp.innerHTML = member ? memberCardHtml() : guestCardHtml(currentGuestG());
+    var fresh = tmp.firstChild;
+    old.parentNode.replaceChild(fresh, old);
+    wireCcard(fresh);
+  }
+  function repaintAllCards() {
+    paintMemberCards();
+    syncGuestLite(currentGuestG());
+    repaintBillCard('s1');
+    repaintBillCard('s5');
+  }
+
+  /* 会员身份变化（选会员/注册会员）时同步淡色卡与 s6/s7 结算页身份 */
+  function hookCust() {
+    if (window.setCust && !window.setCust._v2m) {
+      var _sc = window.setCust;
+      window.setCust = function (type) {
+        var was = custIsMember;
+        _sc.apply(this, arguments);
+        custIsMember = (type === 'member');
+        paintMemberCards();
+        if (was !== custIsMember) refreshAutoBenefits();
+      };
+      window.setCust._v2m = true;
+    }
+    /* 散客页注册会员后 → 结算页（含「下一步」里按开单页推导身份的旧逻辑）保持会员身份 */
+    if (window.setCoCust && !window.setCoCust._v2m) {
+      var _scc = window.setCoCust;
+      window.setCoCust = function (type) {
+        return _scc.call(this, (custIsMember && type === 'guest') ? 'member' : type);
+      };
+      window.setCoCust._v2m = true;
+    }
+  }
+
+  /* 会员卡内容（顶部卡 · 权益指标随档案：新注册会员为 0 / 0 / —） */
+  function memberMetricHtml(val, label) {
+    return '<div class="v2-ccard__metric"><div class="v2-ccard__metric-val">' + esc(val) +
+      '</div><div class="v2-ccard__metric-label">' + label + '</div></div>';
+  }
+  function memberCardInnerHtml() {
+    var m = memberProfile();
+    return '<div class="v2-ccard__row" style="width:100%">' +
+        '<img class="v2-ccard__avatar" src="' + m.avatar + '" alt="">' +
+        '<div class="v2-ccard__info">' +
+          '<div class="v2-ccard__name">' +
+            '<span class="v2-ccard__name-text nm">' + esc(m.name) + '</span>' +
+            '<img class="v2-ccard__vip" src="assets/ic_vip.svg" alt="VIP">' +
+          '</div>' +
+          '<div class="v2-ccard__sub last">上次到店' + esc(m.lastVisit) + '</div>' +
+        '</div>' +
+        '<button type="button" class="v2-ccard__chev" data-ccard-toggle aria-label="展开权益">' +
+          CHEV_SVG + '</button>' +
+      '</div>' +
+      '<div class="v2-ccard__metrics">' +
+        memberMetricHtml(m.cards, '会员卡') +
+        memberMetricHtml(m.balance, '储值余额') +
+        memberMetricHtml(m.discount, '折扣') +
+      '</div>';
+  }
+  function memberCardHtml() {
+    return '<div class="v2-ccard v2-ccard--member" data-bill-card>' +
+      memberCardInnerHtml() + '</div>';
+  }
+
+  /* 卡内快捷注册会员面板（复用 s4 的 .pa-* 字段样式） */
+  function addMemPanelHtml() {
+    return '<div class="v2-ccard__addpanel" data-addmem-panel>' +
+        '<div class="pa-field"><div class="pa-lbl">姓名<i class="req">*</i></div>' +
+          '<div class="pa-ctl"><input class="pa-input" data-am-name type="text" maxlength="20" ' +
+            'placeholder="请输入姓名"></div></div>' +
+        '<div class="pa-field"><div class="pa-lbl">手机号</div>' +
+          '<div class="pa-ctl"><input class="pa-input" data-am-phone type="tel" inputmode="numeric" ' +
+            'maxlength="11" placeholder="请输入手机号（选填）">' +
+            '<div class="pa-err" data-am-phone-err>手机号格式不正确</div></div></div>' +
+        '<div class="pa-field"><div class="pa-lbl">性别<i class="req">*</i></div>' +
+          '<div class="pa-ctl"><div class="pa-gender">' +
+            '<button type="button" class="pa-g" data-am-gender="male">男</button>' +
+            '<button type="button" class="pa-g" data-am-gender="female">女</button>' +
+          '</div></div></div>' +
+        '<div class="pa-foot">' +
+          '<button type="button" class="pa-btn cancel" data-am-cancel>取消</button>' +
+          '<button type="button" class="pa-btn ok" data-am-confirm>确认添加</button>' +
+        '</div>' +
+      '</div>';
+  }
+  /* 散客卡内容：男/女散客右侧带「添加会员」入口，点击卡内下展快捷注册 */
+  function guestCardInnerHtml(g) {
+    var canAdd = (g === 'male' || g === 'female');
+    return '<div class="v2-ccard__row" style="width:100%">' +
+        '<img class="v2-ccard__avatar" data-v2-guest-av src="' + guestAvatarSrc(g) + '" alt="">' +
+        '<div class="v2-ccard__info">' +
+          '<div class="v2-ccard__name"><span class="v2-ccard__name-text nm">' +
+            guestDisplayName(g) + '</span></div>' +
+        '</div>' +
+        (canAdd ? '<button type="button" class="v2-ccard__addmem" data-addmem-toggle ' +
+          'aria-label="添加会员">' + ADD_MEMBER_SVG + '</button>' : '') +
+      '</div>' +
+      (canAdd ? addMemPanelHtml() : '');
+  }
+  function guestCardHtml(g) {
+    return '<div class="v2-ccard" data-bill-card data-g="' + esc(g || 'default') + '">' +
+      guestCardInnerHtml(g) + '</div>';
   }
 
   function customerHtml(screenId) {
-    if (screenId === 's5') {
-      return '<div class="v2-ccard v2-ccard--member">' +
-        '<div class="v2-ccard__row">' +
-          '<img class="v2-ccard__avatar" src="assets/avatar_female3.png" alt="">' +
-          '<div class="v2-ccard__info"><div class="v2-ccard__name">' +
-            '<span class="v2-ccard__name-text">陈女士</span>' +
-            '<img class="v2-ccard__vip" src="assets/ic_vip.svg" alt="VIP">' +
-          '</div>' +
-          '<div class="v2-ccard__sub">上次到店2026-08-15</div></div>' +
-          '<button type="button" class="v2-ccard__chev" data-ccard-toggle aria-label="展开权益">' +
-            CHEV_SVG + '</button>' +
-        '</div>' +
-        '<div class="v2-ccard__metrics">' +
-          '<div class="v2-ccard__metric"><div class="v2-ccard__metric-val">3</div>' +
-            '<div class="v2-ccard__metric-label">会员卡</div></div>' +
-          '<div class="v2-ccard__metric"><div class="v2-ccard__metric-val">2049</div>' +
-            '<div class="v2-ccard__metric-label">储值余额</div></div>' +
-          '<div class="v2-ccard__metric"><div class="v2-ccard__metric-val">8.0</div>' +
-            '<div class="v2-ccard__metric-label">折扣</div></div>' +
-        '</div></div>';
-    }
-    var g = currentGuestG();
-    return '<div class="v2-ccard">' +
-      '<div class="v2-ccard__row">' +
-        '<img class="v2-ccard__avatar" src="' + guestAvatarSrc(g) + '" alt="">' +
-        '<div class="v2-ccard__info"><div class="v2-ccard__name">' +
-          '<span class="v2-ccard__name-text nm">' + guestDisplayName(g) + '</span></div>' +
-        '</div>' +
-      '</div></div>';
+    if (screenId === 's5' || custIsMember) return memberCardHtml();
+    return guestCardHtml(currentGuestG());
   }
 
   function rebuildBill(screenId) {
@@ -1047,10 +1310,12 @@
     if (editIdx >= 0) {
       var old = window.cartItems[editIdx] || {};
       record._uid = editUid;
+      record._benefitAuto = !!old._benefitAuto;
       /* 改价商品沿用「权益锁定」；未改价则保留原权益 */
       if (discounted) {
         record.benefit = null;
         record._benefitCleared = true;
+        record._benefitAuto = false;
       } else {
         record.benefit = old.benefit || null;
         record._benefitCleared = !!old._benefitCleared;
@@ -1423,67 +1688,37 @@
     $all('.guest-card').forEach(function (card) {
       if (card.getAttribute('data-v2-lite') === '1') {
         card.classList.add('v2-lite');
-        var oldSub = card.querySelector('.v2-ccard__sub');
-        if (oldSub) oldSub.remove();
         var gg = card.getAttribute('data-g') || 'default';
-        var nmKeep = card.querySelector('.nm');
-        if (nmKeep) nmKeep.textContent = guestDisplayName(gg);
+        card.classList.remove('is-open');
+        card.innerHTML = guestCardInnerHtml(gg);
         wireCcard(card);
         return;
       }
       var g = card.getAttribute('data-g') || 'default';
-      var av = guestAvatarSrc(g);
       var keep = [];
       if (card.classList.contains('gcard')) keep.push('gcard');
       if (card.classList.contains('co-gcard')) keep.push('co-gcard');
       card.className = ('guest-card v2-lite ' + keep.join(' ')).trim();
       card.setAttribute('data-v2-lite', '1');
       card.setAttribute('data-g', g);
-      card.innerHTML =
-        '<div class="v2-ccard__row" style="width:100%">' +
-          '<img class="v2-ccard__avatar" data-v2-guest-av src="' + av + '" alt="">' +
-          '<div class="v2-ccard__info">' +
-            '<div class="v2-ccard__name"><span class="v2-ccard__name-text nm">' +
-              guestDisplayName(g) + '</span></div>' +
-          '</div>' +
-        '</div>';
+      card.innerHTML = guestCardInnerHtml(g);
       wireCcard(card);
     });
 
     $all('.member-card').forEach(function (card) {
       if (card.getAttribute('data-v2-lite') === '1') {
-        card.classList.add('v2-lite');
+        card.classList.add('v2-lite', 'v2-ccard', 'v2-ccard--member');
         wireCcard(card);
         return;
       }
-      var nmEl = card.querySelector('.nm');
-      var nm = nmEl ? nmEl.textContent.trim() : '陈女士';
       var keep = [];
       if (card.classList.contains('mcard')) keep.push('mcard');
       if (card.classList.contains('co-mcard')) keep.push('co-mcard');
       card.className = ('member-card v2-lite ' + keep.join(' ')).trim();
       card.setAttribute('data-v2-lite', '1');
-      card.innerHTML =
-        '<div class="v2-ccard__row" style="width:100%">' +
-          '<img class="v2-ccard__avatar" src="assets/avatar_female3.png" alt="">' +
-          '<div class="v2-ccard__info">' +
-            '<div class="v2-ccard__name"><span class="v2-ccard__name-text nm">' + esc(nm) + '</span>' +
-              '<img class="v2-ccard__vip" src="assets/ic_vip.svg" alt="VIP"></div>' +
-            '<div class="v2-ccard__sub last">上次到店2026-08-15</div>' +
-          '</div>' +
-          '<button type="button" class="v2-ccard__chev" data-ccard-toggle aria-label="展开权益">' +
-            CHEV_SVG + '</button>' +
-        '</div>' +
-        '<div class="v2-ccard__metrics">' +
-          '<div class="v2-ccard__metric"><div class="v2-ccard__metric-val">3</div>' +
-            '<div class="v2-ccard__metric-label">会员卡</div></div>' +
-          '<div class="v2-ccard__metric"><div class="v2-ccard__metric-val">2049</div>' +
-            '<div class="v2-ccard__metric-label">储值余额</div></div>' +
-          '<div class="v2-ccard__metric"><div class="v2-ccard__metric-val">8.0</div>' +
-            '<div class="v2-ccard__metric-label">折扣</div></div>' +
-        '</div>';
       /* 复用折叠样式：member-card 当容器，内部用 v2-ccard 结构 */
       card.classList.add('v2-ccard', 'v2-ccard--member');
+      card.innerHTML = memberCardInnerHtml();
       wireCcard(card);
     });
 
@@ -1512,6 +1747,13 @@
     var src = guestAvatarSrc(g);
     $all('.guest-card').forEach(function (card) {
       card.setAttribute('data-g', g);
+      /* 淡色卡整体重绘：男/女散客带「添加会员」入口 */
+      if (card.getAttribute('data-v2-lite') === '1') {
+        card.classList.remove('is-open');
+        card.innerHTML = guestCardInnerHtml(g);
+        wireCcard(card);
+        return;
+      }
       var av = card.querySelector('[data-v2-guest-av], .v2-ccard__avatar');
       if (av) av.src = src;
       var nm = card.querySelector('.nm');
@@ -1519,18 +1761,14 @@
       var sub = card.querySelector('.v2-ccard__sub');
       if (sub) sub.remove();
     });
-    $all('#s1 .v2-ccard:not(.v2-ccard--member) .v2-ccard__name-text').forEach(function (el) {
-      el.textContent = name;
-    });
-    $all('#s1 .v2-ccard:not(.v2-ccard--member) .v2-ccard__avatar').forEach(function (el) {
-      el.src = src;
-    });
+    if (!custIsMember) repaintBillCard('s1');
   }
 
   function boot() {
     syncHold();
     wrapPickRows();
     wireAddMember();
+    hookCust();
     forceNext();
     wireHome();
     patchNav();

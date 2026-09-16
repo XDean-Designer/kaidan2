@@ -2624,8 +2624,12 @@
     return h;
   }
   // 价目卡片价格渲染：会员持有折扣权益时显示划线原价 + 红色优惠价
+  // 本次新注册的会员无任何卡/权益 → 不参与折扣
+  function memberBenefitOn() {
+    return currentCust === 'member' && !window.__v2MemberNoBenefit;
+  }
   function applyPriceTags() {
-    var member = currentCust === 'member';
+    var member = memberBenefitOn();
     document.querySelectorAll('.proj-card').forEach(function(card) {
       var pr = card.querySelector('.pr');
       if (!pr) return;
@@ -2974,7 +2978,7 @@
     var name = nameEl.textContent.replace(/\s+/g, ' ').trim();
     var price = parseFloat(prEl.getAttribute('data-price'));
     if (isNaN(price)) price = parseFloat(prEl.textContent.replace(/[^\d.]/g, ''));
-    var sale = (currentCust === 'member') ? salePrice(price) : price;
+    var sale = memberBenefitOn() ? salePrice(price) : price;
     var isProd = card.getAttribute('data-cat') === 'prod';
     var group = card.getAttribute('data-group');
     var thumbEl = card.querySelector('.thumb img');
@@ -3760,7 +3764,9 @@
   }
   function autoBenefit() {
     // 会员自动匹配其持有的最优全场折扣权益（演示：超值折扣卡 8 折，与价目划线价同源）；散客自动填充首张优惠券
-    return coCust === 'member' ? BENEFITS[2] : BENEFITS[3];
+    // 本次新注册的会员无任何卡/权益 → 不自动套用权益
+    if (coCust === 'member') return window.__v2MemberNoBenefit ? null : BENEFITS[2];
+    return BENEFITS[3];
   }
 
   // ---- s6 渲染 ----
@@ -3780,7 +3786,11 @@
 
     box.innerHTML = cartItems.map(function(it, i) {
       // 权益自动填充（仅未改价，且首次；用户取消后不再覆盖）
-      if (!it.discounted && !it.benefit && !it._benefitCleared) it.benefit = autoBenefit();
+      if (!it.discounted && !it.benefit && !it._benefitCleared) {
+        it.benefit = autoBenefit();
+        /* 标记为「自动匹配」：顾客身份变化时按新身份重新匹配 */
+        it._benefitAuto = !!it.benefit;
+      }
       total += it.actual;
       // 员工：默认自动填充首位员工
       if (!it.staff.staffIds.length) {
@@ -3959,10 +3969,12 @@
     if (it.benefit && it.benefit.type === b.type && it.benefit.name === b.name) {
       it.benefit = null;
       it._benefitCleared = true;
+      it._benefitAuto = false;
       if (isQuick) { it.actual = it.price; it.receivable = it.actual; }
     } else {
       it.benefit = { type: b.type, name: b.name, val: b.val, _rule: b.qr };
       it._benefitCleared = false;
+      it._benefitAuto = false;
       if (isQuick) { it.actual = qcoApplyBenefit(it); it.receivable = it.actual; }
     }
     renderBenefitList();

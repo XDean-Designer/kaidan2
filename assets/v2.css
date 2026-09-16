@@ -138,6 +138,38 @@
 .v2-ccard__metric-val { font-size: 14px; font-weight: 500; color: #751616; font-family: var(--font-data); }
 .v2-ccard__metric-label { font-size: 10px; color: #751616; opacity: .65; margin-top: 2px; }
 
+/* 淡色卡（s2/s3/s6/s7）散客姓名：与会员卡统一 —— 字色 #751616、正常流排布（随头像中轴居中），
+   压掉旧版 .guest-card .nm 的白色字 / 绝对定位（旧规则优先级更高，故此处提高选择器权重） */
+.guest-card.v2-lite .v2-ccard__name-text.nm {
+  position: static; left: auto; top: auto;
+  color: #751616; font-size: 16px; font-weight: 500; line-height: 20px;
+}
+
+/* 散客卡右侧「添加会员」入口（与 s4 顾客列表同款图标） */
+.v2-ccard__addmem {
+  width: 32px; height: 32px; flex: 0 0 32px; padding: 0; border: 0;
+  background: transparent; display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.v2-ccard__addmem svg { width: 32px; height: 32px; display: block; }
+.v2-ccard__addmem:active { opacity: .72; }
+
+/* 卡内快捷注册会员面板（字段沿用 s4 的 .pa-* 样式） */
+[data-addmem-panel] { display: none; }
+.v2-ccard.is-open > [data-addmem-panel],
+.guest-card.is-open > [data-addmem-panel] { display: block; }
+/* 卡内注册输入框：失焦态也为白底（不再用浅灰），报错态仍走 .pa-input.is-err */
+.v2-ccard__addpanel .pa-input { background: #fff; }
+.v2-ccard > [data-addmem-panel],
+.guest-card.v2-lite > [data-addmem-panel] {
+  margin-top: 12px; padding-top: 4px;
+  border-top: .5px solid rgba(117,22,22,.12);
+}
+/* 展开时浮在价目列表之上（s2/s3 淡色卡为绝对定位叠层） */
+.v2-ccard.is-open, .guest-card.v2-lite.is-open {
+  z-index: 8; box-shadow: 0 8px 24px rgba(0,0,0,.10), inset 0 1px 0 #fff;
+}
+
 /* 全页：黑卡改淡色（保留 gcard/mcard 显隐） */
 .guest-card.v2-lite,
 .member-card.v2-lite {
@@ -234,8 +266,9 @@
   gap: 8px; padding-top: 10px; min-height: 54px; box-sizing: border-box;
 }
 .v2-price-line { display: flex; align-items: center; min-width: 0; }
+/* 「价格（元）」行标签：14/500（行高仍 22，与右侧价格药丸同高，行盒高度不变） */
 .v2-price-line__lbl {
-  font-size: 15px; font-weight: 500; color: var(--text); line-height: 22px; white-space: nowrap;
+  font-size: 14px; font-weight: 500; color: var(--text); line-height: 22px; white-space: nowrap;
 }
 .v2-price-pill {
   display: inline-flex; align-items: center; gap: 2px;
@@ -264,10 +297,11 @@
 .v2-cart-pill:active { transform: scale(.94); }
 .v2-cart-pill svg { width: 18.4px; height: 18.5px; display: block; pointer-events: none; }
 
-/* 展开卡分段：仅保留「服务员工行」与「价格（元）行」之间的 0.5px 发丝线，左右各内缩 16 */
+/* 展开卡分段：仅保留「服务员工行」与「价格（元）行」之间的 0.5px 发丝线，左右各内缩 16；
+   线位于员工行下沿**再下移 2px**处（bottom: -2px），与「价格（元）」行视觉分组更松弛 */
 .v2-cat-item.is-open .v2-staff-row { position: relative; }
 .v2-cat-item.is-open .v2-staff-row::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+  content: ''; position: absolute; left: 0; right: 0; bottom: -2px;
   height: .5px; background: #E7E7E7; pointer-events: none;
 }
 .v2-cat-right { flex-shrink: 0; display: flex; align-items: center; min-width: 72px; justify-content: flex-end; }
