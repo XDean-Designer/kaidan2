@@ -4260,5 +4260,146 @@
   }
 })();
 </script>
+
+<style>
+/* ===== Figma 抓取模式（?capture=xxx）：仅在截图时生效，不影响正常演示 ===== */
+html.capture-figma .site-nav,
+html.capture-figma .site-nav-scrim { display:none !important; }
+html.capture-figma .stage { margin-left:0 !important; padding:0 !important; justify-content:flex-start !important; }
+html.capture-figma #frame { transform:none !important; margin-bottom:0 !important; }
+html.capture-figma #toast { display:none !important; }
+</style>
+<script>
+/* ===== Run to Figma 抓取路由：?capture=<id> 切页并演示到目标状态 ===== */
+(function () {
+  var cap = null;
+  try { cap = new URLSearchParams(location.search).get('capture'); } catch (e) {}
+  if (!cap) return;
+  document.documentElement.classList.add('capture-figma');
+
+  /* 展开区预置服务员工（林屿森=点客·大工 / 何苏叶=散客·中工） */
+  var DRAFT_STAFF = {
+    ids: ['st1', 'st2'],
+    roles: { st1: 'senior', st2: 'mid' },
+    des: { st1: true }
+  };
+
+  function waitFor(fn, cb, tries) {
+    tries = tries == null ? 120 : tries;
+    if (fn()) { cb(); return; }
+    if (tries <= 0) { cb(new Error('capture waitFor timeout')); return; }
+    setTimeout(function () { waitFor(fn, cb, tries - 1); }, 50);
+  }
+  function fillStaff() {
+    var d = window.__v2DraftStaff;
+    if (!d) return;
+    d.staffIds = DRAFT_STAFF.ids.slice();
+    d.staffRoles = Object.assign({}, DRAFT_STAFF.roles);
+    d.staffDesignated = Object.assign({}, DRAFT_STAFF.des);
+    if (typeof window.__v2OnDraftStaffChange === 'function') window.__v2OnDraftStaffChange();
+  }
+  function addBtns(screen) {
+    return document.querySelectorAll('#' + screen + ' .v2-cat-item [data-add]');
+  }
+  function openItem(screen, idx, cb) {
+    waitFor(function () { return addBtns(screen).length > 0; }, function (err) {
+      if (err) { cb(err); return; }
+      var btns = addBtns(screen);
+      var b = btns[Math.min(idx, btns.length - 1)];
+      if (!b) { cb(new Error('capture: 找不到添加按钮')); return; }
+      b.click();
+      waitFor(function () {
+        return !!document.querySelector('#' + screen + ' [data-commit]');
+      }, function () {
+        fillStaff();
+        setTimeout(cb, 700);
+      });
+    });
+  }
+  function commitCurrent(screen, cb) {
+    var btn = document.querySelector('#' + screen + ' [data-commit]');
+    if (!btn) { cb(new Error('capture: 找不到加入购物车按钮')); return; }
+    btn.click();
+    setTimeout(cb, 900);
+  }
+  function pickRowWrap(name) {
+    var wraps = document.querySelectorAll('#s4 .pick-row-wrap');
+    for (var i = 0; i < wraps.length; i++) {
+      if (wraps[i].textContent.indexOf(name) >= 0) return wraps[i];
+    }
+    return null;
+  }
+  function goPickMemberRow(name, cb) {
+    go('s4');
+    waitFor(function () { return document.querySelectorAll('#s4 .pick-row-wrap').length > 0; }, function (err) {
+      if (err) { cb(err); return; }
+      var wrap = pickRowWrap(name) || document.querySelector('#s4 .pick-row-wrap');
+      if (!wrap) { cb(new Error('capture: 顾客行缺失')); return; }
+      wrap.querySelector('.pick-row').click();
+      waitFor(function () { return wrap.classList.contains('is-open'); }, function () { cb(null, wrap); });
+    });
+  }
+
+  var FLOWS = {
+    /* S4 选择顾客：展开一行，露出「开单 / 直接收款」 */
+    's4-expand': function (done) {
+      goPickMemberRow('陈女士', function (err) {
+        if (err) { done(err); return; }
+        setTimeout(done, 600);
+      });
+    },
+    /* S1 散客开单：男散客 + 首行展开（服务员工已选） */
+    's1-expand': function (done) {
+      if (window.pickGuest) window.pickGuest('male'); else go('s1');
+      setTimeout(function () { openItem('s1', 0, done); }, 600);
+    },
+    /* S5 会员开单：选陈女士 → 开单 → 首行展开 */
+    's5-expand': function (done) {
+      goPickMemberRow('陈女士', function (err, wrap) {
+        if (err) { done(err); return; }
+        wrap.querySelector('[data-a="bill"]').click();
+        setTimeout(function () { openItem('s5', 2, done); }, 600);
+      });
+    },
+    /* S6 开单结算：加 2 条商品 → 进入结算页 */
+    's6-items': function (done) {
+      FLOWS['s5-expand'](function (err) {
+        if (err) { done(err); return; }
+        commitCurrent('s5', function (e1) {
+          if (e1) { done(e1); return; }
+          openItem('s5', 0, function (e2) {
+            if (e2) { done(e2); return; }
+            commitCurrent('s5', function (e3) {
+              if (e3) { done(e3); return; }
+              setTimeout(function () {
+                if (typeof window.setCust === 'function') window.setCust('member');
+                if (typeof window.setCoCust === 'function') window.setCoCust('member');
+                go('s6');
+                waitFor(function () {
+                  return document.querySelectorAll('#coItems .co-item').length > 0;
+                }, function () { setTimeout(done, 400); });
+              }, 500);
+            });
+          });
+        });
+      });
+    }
+  };
+
+  window.addEventListener('load', function () {
+    var flow = FLOWS[cap];
+    if (!flow) {
+      if (document.getElementById(cap)) go(cap);
+      return;
+    }
+    setTimeout(function () {
+      flow(function (err) {
+        if (err) console.warn('[capture] ' + cap + ' 失败:', err.message || err);
+        else console.log('[capture] ' + cap + ' 就绪');
+      });
+    }, 200);
+  });
+})();
+</script>
 </body>
 </html>

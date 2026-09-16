@@ -1,0 +1,39 @@
+{
+  "fileKey": "Qb2Jcn0E9NllrGE7vdbH8q",
+  "nodeId": "861:186",
+  "port": 8770,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "bitmapPlaceholder": "#E8E8E8",
+  "iconsMustBeSvg": true,
+  "sliceBitmapsOnlyWhenUserAsks": true,
+  "screens": [
+    {
+      "capture": "s4-expand",
+      "name": "S4-选择顾客",
+      "captureId": "1a419cfe-7456-46e6-9b05-badc339fcbda",
+      "delay": 3000
+    },
+    {
+      "capture": "s1-expand",
+      "name": "S1-散客开单（展开）",
+      "captureId": "b2398fd7-f424-4a2a-ad91-c78539111378",
+      "delay": 5000
+    },
+    {
+      "capture": "s5-expand",
+      "name": "S5-会员开单（展开）",
+      "captureId": "86408b5d-3aff-44ba-9c89-0838b0c7294d",
+      "delay": 6000
+    },
+    {
+      "capture": "s6-items",
+      "name": "S6-开单结算",
+      "captureId": "a0bc3b03-80b5-47e6-8f13-dac96245000c",
+      "delay": 10000
+    }
+  ]
+}
