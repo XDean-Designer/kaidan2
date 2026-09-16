@@ -673,6 +673,11 @@
     if (staffSheetOpen) paintStaffSheet();
   };
 
+  /* 供外部（员工选择组件）调用：新增员工成功后收起 sheet，需再次点「添加」才弹出 */
+  window.__v2CloseStaffSheet = function () {
+    closeStaffSheet();
+  };
+
   /* —— 员工 sheet：普通底部弹出 —— */
   function paintStaffSheet() {
     if (!draft) return;

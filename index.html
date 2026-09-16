@@ -543,12 +543,12 @@
   .pick-row .info .line1 .cnt { font-size:13px; color:#111; white-space:nowrap; }
   .pick-row .info .line1 .phone { flex:1; text-align:right; font-size:14px; color:#888; white-space:nowrap; }
   .pick-row .info .sub { font-size:12px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  /* 「添加会员」入口行（设计稿 968:370）：橙色圆形＋图标 + 灰色标题 */
+  /* 「添加会员」入口行（设计稿 968:371）：44×44 细描边圆环＋圆角＋（#FF8956）+ 灰色标题 */
   .pick-add-av {
     width:44px; height:44px; border-radius:50%; flex:none; background:#fff;
     display:flex; align-items:center; justify-content:center;
   }
-  .pick-add-av svg { width:39px; height:39px; display:block; }
+  .pick-add-av svg { width:44px; height:44px; display:block; }
   .pick-row .info .line1 .nm.is-add { color:#929292; }
   .index-bar {
     position:absolute; left:370px; top:calc(var(--statusbar-h) + 55px); bottom:12px; width:18px;
@@ -660,7 +660,7 @@
   #s6 .co-item, #s7 .co-item {
     background:#fff; margin-bottom:var(--gap-card);
   }
-  #s6 .co-item .co-top, #s7 .co-item .co-top { display:flex; align-items:center; gap:9px; padding:12px 16px; border-bottom:0.5px solid #e7e7e7; }
+  #s6 .co-item .co-top, #s7 .co-item .co-top { display:flex; align-items:center; gap:9px; padding:12px 16px; }
   #s6 .co-item .co-thumb, #s7 .co-item .co-thumb { width:44px; height:44px; border-radius:6px; background:#e7e7e7; flex:none; overflow:hidden; display:flex; align-items:center; justify-content:center; }
   #s6 .co-item .co-thumb img, #s7 .co-item .co-thumb img { width:44px; height:44px; object-fit:cover; display:block; }
   #s6 .co-item .co-info, #s7 .co-item .co-info { flex:1; min-width:0; }
@@ -733,6 +733,21 @@
   #s7 .co-item .co-thumb img { width:33px; height:33px; object-fit:contain; margin:auto; }
   #s6 .co-item .co-sum-row.pay, #s7 .co-item .co-sum-row.pay { padding-bottom:4px; }
   #s7 .co-item .co-note-row { padding-bottom:12px; }
+  /* 明细内分隔线：商品头下沿 + 「服务员工/权益/应付」行间，发丝浅灰 0.5px，左右各内缩 16 */
+  #s6 .co-item .co-top, #s7 .co-item .co-top,
+  #s6 .co-item .co-row, #s7 .co-item .co-row,
+  #s6 .co-item .co-sum-row, #s7 .co-item .co-sum-row { position:relative; }
+  #s6 .co-item .co-top::after, #s7 .co-item .co-top::after,
+  #s6 .co-item .co-row + .co-row::before, #s7 .co-item .co-row + .co-row::before,
+  #s6 .co-item .co-row + .co-sum-row::before, #s7 .co-item .co-row + .co-sum-row::before {
+    content:''; position:absolute; left:16px; right:16px; height:0.5px;
+    background:#E7E7E7; pointer-events:none;
+  }
+  #s6 .co-item .co-top::after, #s7 .co-item .co-top::after { bottom:0; }
+  #s6 .co-item .co-row + .co-row::before,
+  #s7 .co-item .co-row + .co-row::before,
+  #s6 .co-item .co-row + .co-sum-row::before,
+  #s7 .co-item .co-row + .co-sum-row::before { top:0; }
   /* 内嵌员工选择 */
   #s6 .co-staff-embed, #s7 .co-staff-embed {
     background:#FAFAFA; border-radius:12px; padding:12px 10px 4px; margin-bottom:4px;
@@ -1812,9 +1827,9 @@
       </div>
       <div class="pick-row" data-add-member onclick="toast('新增会员')">
         <div class="pick-add-av">
-          <svg viewBox="0 0 38.85 38.81" aria-hidden="true">
-            <circle cx="19.43" cy="19.4" r="19.43" fill="#FF8956"></circle>
-            <path d="M19.43 8.4V30.4M8.43 19.4H30.43" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round"></path>
+          <svg viewBox="0 0 44 44" aria-hidden="true">
+            <path d="M22 5C12.6112 5 5 12.6112 5 22C5 31.3889 12.6112 39 22 39C31.3888 39 39 31.3888 39 22C39 12.6112 31.3888 5 22 5ZM22 37.8409C13.2513 37.8409 6.15906 30.7487 6.15906 22C6.15906 13.2513 13.2513 6.15909 22 6.15909C30.7487 6.15909 37.8409 13.2513 37.8409 22C37.8409 30.7487 30.7487 37.8409 22 37.8409Z" fill="#FF8956"></path>
+            <path d="M28.8095 20.3602H23.6205V15.1864C23.6205 14.4503 23.0237 13.8534 22.2875 13.8534H21.7001C20.9639 13.8534 20.3671 14.4503 20.3671 15.1864V20.3602H15.1781C14.4418 20.3602 13.8451 20.957 13.8451 21.6932V22.2959C13.8451 23.0321 14.4419 23.6289 15.1781 23.6289H20.3671V28.8026C20.3671 29.5389 20.9639 30.1357 21.7001 30.1357H22.2875C23.0237 30.1357 23.6205 29.5389 23.6205 28.8026V23.6289H28.8095C29.5457 23.6289 30.1425 23.0321 30.1425 22.2959V21.6932C30.1425 20.957 29.5457 20.3602 28.8095 20.3602Z" fill="#FF8956"></path>
           </svg>
         </div>
         <div class="info">
@@ -3324,7 +3339,8 @@
       var rSid = roleOpt.getAttribute('data-staff-id');
       if (!staffCardEdit || staffCardEdit.staffId !== rSid) return;
       ensureStaffState();
-      if (staffRow.staffIds.indexOf(rSid) < 0) {
+      var isNewAdd = staffRow.staffIds.indexOf(rSid) < 0;
+      if (isNewAdd) {
         if (staffRow.staffIds.length >= STAFF_MAX_PICK) {
           toast('最多可选 ' + STAFF_MAX_PICK + ' 位服务员工');
           staffCardEdit = null;
@@ -3335,6 +3351,10 @@
       staffRow.staffDesignated[rSid] = !!staffCardEdit.draftDesignated;
       staffRow.staffRoles[rSid] = roleOpt.getAttribute('data-staff-opt-role') || STAFF_ROLE_DEFAULT;
       staffCardEdit = null;
+      /* 成功新增一名员工：收起员工 sheet，需用户再次点「添加」才重新弹出 */
+      if (isNewAdd && ctx === 'v2draft' && typeof window.__v2CloseStaffSheet === 'function') {
+        window.__v2CloseStaffSheet();
+      }
       if (ctx === 'quick') renderQuickStaff();
       if (ctx === 'co') { renderCo(); return; }
       if (ctx === 'qco') { renderQco(); return; }
