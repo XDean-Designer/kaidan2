@@ -551,9 +551,9 @@
     var mask = document.createElement('div');
     mask.className = 'v2-price-sheet-mask';
     mask.innerHTML =
-      '<div class="v2-price-sheet" role="dialog" aria-label="价格（元）">' +
+      '<div class="v2-price-sheet" role="dialog" aria-label="单价（元）">' +
         '<div class="v2-price-sheet__grab" aria-hidden="true"></div>' +
-        '<div class="v2-price-sheet__hd">价格（元）</div>' +
+        '<div class="v2-price-sheet__hd">单价（元）</div>' +
         '<div class="v2-price-sheet__val" data-price-disp>¥0.00</div>' +
         '<div class="v2-price-keys">' +
           '<button type="button" data-pk="1">1</button><button type="button" data-pk="2">2</button><button type="button" data-pk="3">3</button>' +
@@ -1114,7 +1114,7 @@
   function renderExpandBody(row) {
     var box = row.querySelector('[data-expand]');
     if (!box || !draft) return;
-    /* 展开卡：① 服务员工 Chip 区 ② 底部「价格（元）」+ 可编辑价格药丸 + 加入购物车 */
+    /* 展开卡：① 服务员工 Chip 区 ② 底部「单价（元）」+ 可编辑价格药丸 + 加入购物车 */
     box.innerHTML =
       '<div class="v2-staff-row">' +
         '<div class="v2-staff-row__lbl">服务员工</div>' +
@@ -1122,7 +1122,7 @@
       '</div>' +
       '<div class="v2-expand-foot">' +
         '<div class="v2-price-line">' +
-          '<span class="v2-price-line__lbl">价格（元）</span>' +
+          '<span class="v2-price-line__lbl">单价（元）</span>' +
           '<span class="v2-price-pill" data-price-pill role="button" tabindex="0">' +
             '<span class="yen">¥</span>' +
             '<span class="val" data-pill-val>' + pricePlain(draft.price) + '</span>' +

@@ -488,16 +488,19 @@
   will-change: left, top, transform, background;
 }
 
-/* 底栏安全区 */
+/* 底栏安全区：内容区仍 62px；购物车/金额与右侧按钮共用 top:10 + 高 42，中轴对齐 */
 .bottom-bar.v2-safe {
   height: 96px; padding-bottom: 34px; box-sizing: border-box;
 }
-.bottom-bar.v2-safe .cart-hot,
 .bottom-bar.v2-safe .btn-guadan,
-.bottom-bar.v2-safe .btn-next,
-.bottom-bar.v2-safe .btn-add,
-.bottom-bar.v2-safe .amount { top: 10px; }
-.bottom-bar.v2-safe .cart-hot { bottom: 34px; }
+.bottom-bar.v2-safe .btn-next { top: 10px; }
+/* cart-hot 贴顶，避免子元素再叠一层 top:10 导致购物车/金额整体偏下 */
+.bottom-bar.v2-safe .cart-hot { top: 0; bottom: 34px; }
+.bottom-bar.v2-safe .btn-add { top: 10px; }
+.bottom-bar.v2-safe .amount {
+  top: 10px; bottom: auto; height: 42px;
+  display: flex; align-items: center;
+}
 .cart-sheet-mask .cart-sheet { bottom: 96px; }
 
 /* —— 结算文档流：顾客卡→单号→明细→券→备注 —— */
