@@ -37,6 +37,7 @@
     --nav-h: 44px;
     --chrome-top: calc(var(--statusbar-h) + var(--nav-h));
     --mobile-scale: 1;
+    --mobile-h: 844px;
   }
   html, body { height:100%; }
   body {
@@ -87,6 +88,7 @@
   /* 真机演示区：逻辑画布仍 390×844，默认 1.25× 放大显示（Z2） */
   #frame {
     position:relative; width:390px; height:844px;
+    flex:none; /* 手机模式窄视口下不被 flex 收缩，保证逻辑宽恒为 390 */
     background:#f7f7f7;
     overflow:hidden;
     box-shadow:0 0 40px rgba(0,0,0,.25);
@@ -549,11 +551,14 @@
   .pick-add-av svg { width:39px; height:39px; display:block; }
   .pick-row .info .line1 .nm.is-add { color:#929292; }
   .index-bar {
-    position:absolute; left:370px; top:calc(var(--statusbar-h) + 55px); width:18px; height:600px;
+    position:absolute; left:370px; top:calc(var(--statusbar-h) + 55px); bottom:12px; width:18px;
     display:flex; flex-direction:column; align-items:center; gap:3px;
-    font-size:10px; font-weight:700; color:#ffcc9d; line-height:14px; padding-top:80px;
+    font-size:10px; font-weight:700; color:#ffcc9d; line-height:14px;
     z-index:25; pointer-events:none;
   }
+  /* 顶部弹性留白（原 padding-top:80px）：画布变矮时先压缩这段，字母索引不被截断。
+     77 + 列间距 3 = 80，与原 padding-top 视觉一致 */
+  .index-bar__gap { display:block; flex:0 1 77px; min-height:0; }
   .index-bar span { display:block; }
 
   /* ===== 会员开单 信息卡 ===== */
@@ -1304,12 +1309,15 @@
   html.is-mobile .status-bar { display:none !important; }
   html.is-mobile .stage {
     margin-left:0; padding:0; width:100%; height:100%;
-    align-items:center; justify-content:center; overflow:hidden;
+    align-items:flex-start; justify-content:center; overflow:hidden;
   }
+  /* 手机模式：宽度按视口铺满（两侧贴边），画布逻辑高度随可视高度自适应，
+     内容继续在内层 .scroll 区滚动，底栏/浮层贴真实底部（--mobile-h 由 JS 计算） */
   html.is-mobile #frame {
     transform:scale(var(--mobile-scale));
-    transform-origin:center center;
+    transform-origin:top center;
     margin:0;
+    height:var(--mobile-h, 844px);
     box-shadow:none;
   }
   html.is-mobile .site-nav {
@@ -1875,6 +1883,7 @@
       </div>
     </div>
     <div class="index-bar">
+      <i class="index-bar__gap" aria-hidden="true"></i>
       <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span><span>I</span><span>J</span><span>K</span><span>L</span><span>M</span><span>N</span><span>O</span><span>P</span><span>Q</span><span>R</span><span>S</span><span>T</span><span>U</span><span>V</span><span>W</span><span>X</span><span>Y</span><span>Z</span><span>#</span>
     </div>
   </div>
@@ -4203,9 +4212,18 @@
     if (!root.classList.contains('is-mobile') || !stage) return;
     var w = stage.clientWidth || window.innerWidth;
     var h = stage.clientHeight || window.innerHeight;
-    var scale = Math.min(w / 390, h / 844);
+    /* 手机模式：宽度适配（390 逻辑宽铺满视口，两侧贴边）；
+       画布逻辑高度 = 可视高度 / 缩放，内容在内层滚动区自适应 */
+    var scale = w / 390;
+    var logicalH = scale > 0 ? h / scale : h;
+    /* 兜底：极矮视口（如横屏）回退等比铺满，避免内部固定布局被压坏 */
+    if (!isFinite(logicalH) || logicalH < 500) {
+      scale = Math.min(w / 390, h / 844);
+      logicalH = 844;
+    }
     if (!isFinite(scale) || scale <= 0) scale = 1;
     root.style.setProperty('--mobile-scale', String(Math.round(scale * 1000) / 1000));
+    root.style.setProperty('--mobile-h', Math.round(logicalH) + 'px');
   }
 
   function applyMode() {
@@ -4214,6 +4232,7 @@
     if (!on) {
       closeSiteNav();
       root.style.removeProperty('--mobile-scale');
+      root.style.removeProperty('--mobile-h');
       return;
     }
     updateScale();
