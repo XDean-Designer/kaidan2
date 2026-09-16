@@ -482,9 +482,11 @@
   }
   .amt-card .quick-note-input::placeholder { color:#b2b2b2; }
 
-  /* ===== 数字键盘 ===== */
+  /* ===== 数字键盘（含 34px 底部安全区：键盘同底色延伸，视觉无缝） ===== */
   .keypad {
-    position:absolute; left:0; bottom:0; width:390px; height:292px;
+    position:absolute; left:0; bottom:0; width:390px;
+    height:calc(292px + var(--safe-bottom));
+    padding-bottom:var(--safe-bottom);
     background:#e5e5e8; z-index:20;
   }
   .keypad .key {
@@ -517,7 +519,8 @@
   .pick-search .box span { flex:1; font-size:14px; color:#878787; white-space:nowrap; overflow:hidden; }
   .pick-search .cancel { font-size:15px; font-weight:500; color:#878787; border:none; background:none; cursor:pointer; white-space:nowrap; }
 
-  .pick-list { position:absolute; top:calc(var(--statusbar-h) + 50px); left:0; width:390px; bottom:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; background:#fff; }
+  /* 底部安全区 34：列表可视区让出 band，避免最后一行被 Home 指示条遮挡 */
+  .pick-list { position:absolute; top:calc(var(--statusbar-h) + 50px); left:0; width:390px; bottom:var(--safe-bottom); overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; background:#fff; }
   .pick-list::-webkit-scrollbar { width:0; height:0; }
   .pick-group-h {
     width:390px; height:28px; background:#f9f9f9;
@@ -653,7 +656,7 @@
   #s5.m-exp .member-card { height:200px; }
 
   /* ===== 结算页 s6 / 快捷开单结算 s7 ===== */
-  #s6 .scroll, #s7 .scroll { top:var(--chrome-top); bottom:72px; }
+  #s6 .scroll, #s7 .scroll { top:var(--chrome-top); bottom:calc(72px + var(--safe-bottom)); }
   #s6 .page, #s7 .page { position:relative; }
   #s6 .co-card, #s7 .co-card {
     position:absolute; left:12px; top:10px; width:366px; z-index:20;
@@ -789,11 +792,14 @@
     background:#FAFAFA; border-radius:12px; padding:12px 10px 4px; margin-bottom:4px;
   }
   #s6 .co-staff-embed .staff-grid, #s7 .co-staff-embed .staff-grid { padding-top:0; }
-  /* 底部结算栏（贴底固定） */
+  /* 底部结算栏（贴底固定）+ 34px 底部安全区 */
   #s6 .co-bar, #s7 .co-bar {
-    position:absolute; left:0; bottom:0; width:390px; height:72px;
+    position:absolute; left:0; bottom:0; width:390px;
+    height:calc(72px + var(--safe-bottom));
+    padding-bottom:var(--safe-bottom);
     background:#fff; z-index:30;
     display:flex; align-items:center; gap:11px; padding-left:16px; padding-right:11px;
+    box-sizing:border-box;
   }
   #s6 .co-bar .pay, #s7 .co-bar .pay { display:flex; align-items:baseline; color:#f32f41; font-weight:500; white-space:nowrap; }
   #s6 .co-bar .pay .l, #s7 .co-bar .pay .l { font-size:15px; }

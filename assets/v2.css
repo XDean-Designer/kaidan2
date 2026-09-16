@@ -65,6 +65,8 @@
 }
 .pick-holds img { width: 16px; height: 16px; display: block; }
 .pick-holds .n { color: #F32F41; }
+/* s4 底部 34px 安全区露出的底色跟随列表（白），避免出现灰色分带 */
+#s4 { background: #fff; }
 #s4 .pick-list { top: calc(var(--statusbar-h, 53px) + 90px); }
 
 .pick-row-wrap { background: #fff; border-bottom: 1px solid #f5f5f5; }
