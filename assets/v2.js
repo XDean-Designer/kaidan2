@@ -956,8 +956,9 @@
     var root = screen && screen.querySelector('.v2-staff-sheet__bd');
     if (!root) return;
     window.__v2DraftStaff = draft.staffRow;
+    /* 始终按当前项目的草稿行渲染，避免读到上一次操作残留的全局员工行 */
     if (typeof renderStaffInto === 'function') {
-      renderStaffInto(root);
+      renderStaffInto(root, draft.staffRow);
     } else if (typeof renderStaffPickerHtmlForRow === 'function') {
       root.innerHTML = renderStaffPickerHtmlForRow(draft.staffRow);
       if (typeof afterStaffPickerPaint === 'function') afterStaffPickerPaint(root);
@@ -971,6 +972,8 @@
     ensureStaffSheetHost(screen);
     var mask = screen.querySelector('.v2-staff-sheet-mask');
     if (!mask) return;
+    /* 每次打开都是「未设置、可重新设置」：清掉上一次残留的卡片翻牌编辑态 */
+    if (typeof window.__staffPickResetEdit === 'function') window.__staffPickResetEdit();
     paintStaffSheet();
     staffSheetOpen = true;
     mask._v2CloseGen = (mask._v2CloseGen || 0) + 1;

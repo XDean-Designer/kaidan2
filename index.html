@@ -3324,9 +3324,10 @@
   }
 
   // 员工选择内嵌组件：渲染到指定容器
-  function renderStaffInto(root) {
+  // row 可选：显式指定员工数据行（如开单页展开区的草稿行），避免误用全局 staffRow 造成跨项目串数据
+  function renderStaffInto(root, row) {
     if (!root) return;
-    root.innerHTML = renderStaffPickerHtml();
+    root.innerHTML = row ? renderStaffPickerHtmlForRow(row) : renderStaffPickerHtml();
     afterStaffPickerPaint(root);
   }
   // 用指定员工数据行渲染（不污染全局 staffRow）
@@ -3337,6 +3338,10 @@
     staffRow = saved;
     return html;
   }
+  // 供开单页（v2）调用：清空卡片翻牌编辑态，保证每次打开 sheet 都是干净状态
+  window.__staffPickResetEdit = function () {
+    staffCardEdit = null;
+  };
 
   // 员工卡片交互（document 级事件委托：内嵌容器以 [data-staff-root] 标记）
   document.addEventListener('click', function(e) {
