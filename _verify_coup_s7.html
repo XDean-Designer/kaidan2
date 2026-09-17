@@ -1,0 +1,49 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script>
+/* 定位：s7 快捷开单下确认优惠券后抵扣丢失 */
+var log = [];
+function P(k, v) { log.push(k + ' = ' + v); }
+var f = document.createElement('iframe');
+f.src = 'index.html?bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+var w, d;
+function q(s) { return d.querySelector(s); }
+function qa(s) { return Array.prototype.slice.call(d.querySelectorAll(s)); }
+function pay() { return q('#qcoPay').textContent; }
+function st(tag) {
+  P(tag, 'cartItems=' + w.cartItems.length + ' qcoItem=' + (w.qcoItem ? w.qcoItem.actual.toFixed(2) : '-') +
+    ' coupon=' + (w.__v2OrderCoupon ? w.__v2OrderCoupon.name.slice(0, 8) : 'null') +
+    ' touched=' + String(w.__v2OrderCouponTouched) +
+    ' cut=' + w.orderCouponCut(w.orderPayableSum()).toFixed(2) +
+    ' qcoCut=' + w.orderCouponCut(w.qcoItem.actual).toFixed(2) +
+    ' qcoPay=' + pay());
+}
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  function finish() { var pre = document.createElement('pre'); pre.textContent = log.join('\n'); document.body.appendChild(pre); }
+  setTimeout(function () {
+    try { run(); } catch (e) { log.push('ERR ' + e.message); finish(); }
+  }, 800);
+  function run() {
+    w.setCust('guest'); w.setQcoCust('guest');
+    w.goQuickCheckout();
+    st('1 进 s7');
+    q('#s7 [data-coupon-val]').click();
+    P('2 进 s13', [].slice.call(document.querySelectorAll('.screen')).filter(function (s) { return getComputedStyle(s).display !== 'none'; }).map(function (s) { return s.id; }).join(','));
+    qa('#cpList .cp-card')[0].click();
+    P('3 选中状态', qa('#cpList .cp-none, #cpList .cp-card .cp-rd').map(function (x) { var im = x.querySelector('img'); return im && /ic_radio_on/.test(im.getAttribute('src')) ? 1 : 0; }).join(''));
+    w.__origRenderCo = w.renderCo;
+    w.renderCo = function () { log.push('   >> renderCo called, cartItems=' + w.cartItems.length + ' couponBefore=' + (w.__v2OrderCoupon ? 'set' : 'null')); var r = w.__origRenderCo.apply(this, arguments); log.push('   >> renderCo done, couponAfter=' + (w.__v2OrderCoupon ? 'set' : 'null')); return r; };
+    q('#s13 .pick-foot .ok').click();
+    st('4 确认回 s7');
+    w.renderCo(); st('5 手动 renderCo 后');
+    w.renderQco(); st('6 手动 renderQco 后');
+    w.__v2OrderCoupon = w.COUPONS[0]; w.renderQco(); st('7 重新置券后 renderQco');
+    finish();
+  }
+});
+</script>
+</body></html>

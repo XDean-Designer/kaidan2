@@ -1503,6 +1503,107 @@
   html.is-mobile #toast {
     /* toast 仍在 #frame 内，保持原样 */
   }
+
+  /* ===== 页面12「选择权益」/ 页面13「选择优惠券」公共骨架 =====
+     两页均来自 Figma「开单结账-ZM」：状态栏 53 + 导航栏 44（--chrome-top），
+     列表自 107(=--chrome-top+10) 起，底部白色操作条 74 + 34 安全区 */
+  #s12, #s13 { background:#f7f7f7; }
+  #s12 .pick-foot, #s13 .pick-foot {
+    position:absolute; left:0; bottom:0; width:390px; z-index:20;
+    height:calc(74px + var(--safe-bottom)); padding-bottom:var(--safe-bottom);
+    background:#fff; box-sizing:border-box;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #s12 .pick-foot .ok, #s13 .pick-foot .ok {
+    width:358px; height:48px; border:none; border-radius:12px;
+    background:#f32f41; color:#fff; font-size:16px; font-weight:600;
+    font-family:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  #s12 .pick-tip {
+    position:absolute; left:0; right:0; z-index:20;
+    bottom:calc(74px + var(--safe-bottom) + 10px);
+    text-align:center; font-size:14px; color:#929292; line-height:20px;
+  }
+
+  /* ---- 12 选择权益：7 行单选 ---- */
+  #s12 .ben-list { position:absolute; left:0; top:calc(var(--chrome-top, 97px) + 10px); width:390px; }
+  #s12 .ben-row {
+    display:flex; align-items:center; box-sizing:border-box;
+    width:390px; height:60px; padding:0 16px; margin-bottom:8px;
+    background:#fff; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  #s12 .ben-row .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
+  #s12 .ben-row .rd { margin-left:auto; width:20px; height:20px; flex:none; }
+  #s12 .ben-row .rd img { width:20px; height:20px; display:block; }
+
+  /* ---- 13 选择优惠券：不使用行 + 券卡列表 ---- */
+  #s13 .cp-list {
+    position:absolute; left:0; top:calc(var(--chrome-top, 97px) + 10px);
+    width:390px; bottom:calc(74px + var(--safe-bottom)); overflow-y:auto;
+  }
+  #s13 .cp-none {
+    display:flex; align-items:center; box-sizing:border-box;
+    height:60px; padding:0 16px; margin:0 12px 12px;
+    background:#fff; border-radius:8px; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #s13 .cp-none .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
+  #s13 .cp-none .rd { margin-left:auto; width:20px; height:20px; flex:none; }
+  #s13 .cp-none .rd img { width:20px; height:20px; display:block; }
+  #s13 .cp-card {
+    position:relative; background:#fff; border-radius:8px;
+    margin:0 12px 12px; overflow:hidden;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  /* 「满减券」角标：左上/右下 8px 圆角，与卡片左上圆角对齐 */
+  #s13 .cp-badge {
+    position:absolute; left:0; top:0; width:38px; height:18px;
+    border-radius:8px 0 8px 0;
+    background:linear-gradient(-53.9deg,#ff2316 14.67%,#ff6901 86.57%);
+    color:#fff; font-size:10px; font-weight:500; line-height:18px; text-align:center;
+  }
+  #s13 .cp-hd { box-sizing:border-box; height:84px; padding:24px 16px 0; }
+  #s13 .cp-title {
+    width:209px; font-size:15px; font-weight:500; color:#1a1a1a; line-height:21px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #s13 .cp-sub { margin-top:5px; font-size:12px; color:#666; line-height:15px; }
+  /* 卡内分隔线：0.5px 浅灰虚线（左右内缩 16） */
+  #s13 .cp-div {
+    height:1px; margin:0 16px;
+    background-image:repeating-linear-gradient(to right,#ededed 0 2px,transparent 2px 4px);
+  }
+  #s13 .cp-rule {
+    display:flex; align-items:center; gap:2px;
+    padding:8px 16px 16px; font-size:11px; color:#b2b2b2; line-height:16px;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  #s13 .cp-rule .chev { width:16px; height:16px; flex:none; transition:transform .18s ease; }
+  #s13 .cp-rule .chev img { width:16px; height:16px; display:block; }
+  #s13 .cp-card.is-open .cp-rule { padding-bottom:4px; }
+  #s13 .cp-card.is-open .cp-rule .chev { transform:rotate(180deg); }
+  #s13 .cp-rules { padding:0 16px 11px; font-size:11px; color:#666; line-height:19px; }
+  #s13 .cp-amt {
+    position:absolute; right:16px; top:18px;
+    display:flex; align-items:baseline; color:#f32f41;
+  }
+  #s13 .cp-amt .cur { font-size:13px; line-height:1; }
+  #s13 .cp-amt .num { font-size:26px; font-weight:400; line-height:1; font-family:var(--font-data); }
+  #s13 .cp-limit { position:absolute; right:16px; top:53px; font-size:11px; color:#f32f41; line-height:14px; }
+  #s13 .cp-rd { position:absolute; right:16px; top:78px; width:20px; height:20px; }
+  #s13 .cp-rd img { width:20px; height:20px; display:block; }
+
+  /* 结算页「权益」行：仅右侧「值 + ›」为热区 */
+  #s6 .co-item .co-row[data-benefit="1"] .val,
+  #s7 .co-item .co-row[data-benefit="1"] .val { cursor:pointer; border-radius:6px; }
+  #s6 .co-item .co-row[data-benefit="1"],
+  #s7 .co-item .co-row[data-benefit="1"] { cursor:default; }
+  /* 结算页页级「优惠券」行：同样仅右侧「值 + ›」为热区 */
+  .co-coupon-row { cursor:default; }
+  .co-coupon-row [data-coupon-val] { cursor:pointer; }
+  /* 不满门槛的券：整体降饱和，右侧单选圈置灰不可选 */
+  #s13 .cp-card.is-off { opacity:.45; cursor:not-allowed; }
+  #s13 .cp-card.is-off .cp-rule { cursor:pointer; }
 </style>
 </head>
 <body>
@@ -1535,6 +1636,8 @@
     <button class="nav-item" data-target="s9" onclick="go('s9')"><span class="idx">9</span>选择退款项目</button>
     <button class="nav-item" data-target="s10" onclick="go('s10')"><span class="idx">10</span>业绩设置</button>
     <button class="nav-item" data-target="s11" onclick="go('s11')"><span class="idx">11</span>提成方案</button>
+    <button class="nav-item" data-target="s12" onclick="go('s12')"><span class="idx">12</span>选择权益</button>
+    <button class="nav-item" data-target="s13" onclick="go('s13')"><span class="idx">13</span>选择优惠券</button>
   </div>
   <div class="nav-group grow">
     <div class="g-t">文档</div>
@@ -2614,6 +2717,47 @@
     </div>
   </div>
 
+  <!-- ============ 页面12 选择权益（会员卡权益，来自 Figma「选择权益」） ============ -->
+  <div class="screen" id="s12" data-name="选择权益">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
+      <div class="title">选择权益</div>
+    </div>
+    <div class="ben-list" id="benList"></div>
+    <div class="pick-tip">确认并设为本单默认支付方式</div>
+    <div class="pick-foot">
+      <button class="ok" type="button" onclick="confirmBenefitPick()">确认</button>
+    </div>
+  </div>
+
+  <!-- ============ 页面13 选择优惠券（订单级，来自 Figma「顾客-优惠券」） ============ -->
+  <div class="screen" id="s13" data-name="选择优惠券">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
+      <div class="title">选择优惠券</div>
+    </div>
+    <div class="cp-list" id="cpList"></div>
+    <div class="pick-foot">
+      <button class="ok" type="button" onclick="confirmCouponPick()">确认</button>
+    </div>
+  </div>
+
   <div class="addsheet-mask" id="benefitSheetMask">
     <div class="addsheet">
       <div class="addsheet__head">
@@ -2741,6 +2885,8 @@
       activate(id);
       if (id === 's6') renderCo();
       if (id === 's7') renderQco();
+      if (id === 's12') renderBenPickList();
+      if (id === 's13') renderCoupList();
     }
 
     function goBack() {
@@ -3803,6 +3949,9 @@
     updateSideBadges('s1');
     updateSideBadges('s5');
     cartItems = [];
+    window.__v2OrderCoupon = null;          // 清空购物车同时清掉订单级优惠券
+    window.__v2OrderCouponTouched = false;
+    if (typeof window.__v2RenderCouponRows === 'function') window.__v2RenderCouponRows();
     recalcOrderAmounts();
     updateCartBadge();
     closeClearCartConfirm();
@@ -3902,20 +4051,90 @@
     { type: '优惠券', name: '新人8折券', val: '满58减10', qr: { kind: 'minus', min: 58, amount: 10 } },
     { type: '优惠券', name: '满200减30券', val: '满200减30', qr: { kind: 'minus', min: 200, amount: 30 } }
   ];
+
+  /* ===== 页面12「选择权益」数据（会员卡权益，按 Figma「选择权益」稿 7 行） =====
+     rule: discount 按比例折 / fixed 固定金额 / none 计次核销不抵扣金额 / null 不使用权益 */
+  var CARD_BENEFITS = [
+    { name: '不使用权益', rule: null },
+    { name: '5.0折（5折卡）', rule: { kind: 'discount', rate: 0.5 } },
+    { name: '计次卡抵扣', rule: { kind: 'none' } },
+    { name: '充值金额所有项目5.0折(铂金卡)', rule: { kind: 'discount', rate: 0.5 } },
+    { name: '折扣卡', rule: { kind: 'discount', rate: 0.8 } },
+    { name: '充值金额所有项目8.0折(金卡)', rule: { kind: 'discount', rate: 0.8 } },
+    { name: '固定金额98元（美发卡3000元）', rule: { kind: 'fixed', amount: 98 } }
+  ];
+  /* 会员自动匹配的最优折扣权益（8 折，与价目划线价 MEMBER_BENEFIT_DISCOUNT 同源） */
+  var AUTO_CARD_BENEFIT = 4;   // CARD_BENEFITS[4] = 折扣卡（8.0 折）
+
+  /* ===== 页面13「选择优惠券」数据（订单级，按 Figma「顾客-优惠券」稿） ===== */
+  var COUPONS = [
+    { name: '店长洗剪吹新人优惠券，洗剪吹套餐立减10元', tag: '满减券', scope: '项目通用',
+      limit: '无门槛', amount: 10, min: 0,
+      rules: ['有效期：15天', '适用门店：右尚造型(周浦店)', '测试用账号：18297402934'] },
+    { name: '全场通用满200减30元优惠券', tag: '满减券', scope: '全场通用',
+      limit: '满200可用', amount: 30, min: 200,
+      rules: ['有效期：30天', '适用门店：右尚造型(周浦店)', '不与其他优惠同享'] },
+    { name: '烫染项目立减50元代金券', tag: '代金券', scope: '项目通用',
+      limit: '满300可用', amount: 50, min: 300,
+      rules: ['有效期：60天', '适用门店：右尚造型(周浦店)', '限烫染类项目使用'] }
+  ];
+
+  // 权益规则 → 应付金额（base 为原价合计）
+  function benefitRuleOf(benefit) {
+    if (!benefit) return null;
+    return benefit._rule || benefit.rule || null;   // 自动匹配的卡用 rule，手工选的用 _rule
+  }
+  function benefitPayable(base, rule) {
+    if (!rule) return base;
+    if (rule.kind === 'discount') return Math.round(base * rule.rate * 100) / 100;
+    if (rule.kind === 'fixed') return Math.min(base, rule.amount);
+    return base;   // 计次卡：仅核销次数，不抵扣金额
+  }
+  // 把明细的应付按「权益」重算（改价明细权益锁定，沿用改价后的应付）
+  function applyItemBenefit(it) {
+    if (!it) return;
+    if (it.discounted) {
+      // 改价明细：权益不可用，沿用改价后的应付（qcoItem 无 payable，退回 receivable）
+      it.actual = (it.payable != null ? it.payable : it.receivable);
+      return;
+    }
+    var base = Math.round((it.price || 0) * (it.qty || 1) * 100) / 100;
+    it.actual = benefitPayable(base, benefitRuleOf(it.benefit));
+  }
   // 快捷开单应用权益后的应付金额
   function qcoApplyBenefit(it) {
-    var amt = it.price;
-    var rule = it.benefit && it.benefit._rule;
-    if (!rule) return amt;
-    if (rule.kind === 'discount') return Math.round(amt * rule.rate * 100) / 100;
-    if (rule.kind === 'minus') return Math.max(0, Math.round((amt - rule.amount) * 100) / 100);
-    return amt; // 计次卡：仅核销次数，不抵扣金额
+    var amt = Math.round((it.price || 0) * (it.qty || 1) * 100) / 100;
+    return benefitPayable(amt, benefitRuleOf(it.benefit));
   }
-  function autoBenefit() {
-    // 会员自动匹配其持有的最优全场折扣权益（演示：超值折扣卡 8 折，与价目划线价同源）；散客自动填充首张优惠券
-    // 本次新注册的会员无任何卡/权益 → 不自动套用权益
-    if (coCust === 'member') return window.__v2MemberNoBenefit ? null : BENEFITS[2];
-    return BENEFITS[3];
+  // 会员自动匹配其持有的最优折扣卡（8 折，与价目划线价同源）；散客「无卡权益」
+  // 本次新注册的会员无任何卡/权益 → 不自动套用权益
+  function autoBenefitFor(cust) {
+    if (cust === 'member') return window.__v2MemberNoBenefit ? null : CARD_BENEFITS[AUTO_CARD_BENEFIT];
+    return null;
+  }
+  function autoBenefit() { return autoBenefitFor(coCust); }
+
+  /* ===== 订单级优惠券（与 v2.js 注入的「优惠券」行共用同一状态） ===== */
+  window.__v2OrderCoupon = null;
+  // 当前订单应付合计（各项权益后的应付之和）
+  function orderPayableSum() {
+    var s = 0;
+    cartItems.forEach(function(it) { s += it.actual; });
+    return Math.round(s * 100) / 100;
+  }
+  // 优惠券实际抵扣额（不满门槛则不可用，抵扣不超过应付合计）
+  function orderCouponCut(sum) {
+    var c = window.__v2OrderCoupon;
+    if (!c) return 0;
+    var base = (sum == null) ? orderPayableSum() : sum;
+    if (c.min && base < c.min) return 0;
+    return Math.min(c.amount, base);
+  }
+  // 券是否满足门槛（s13 展示可用状态）
+  function couponUsable(c, sum) {
+    if (!c) return true;
+    var base = (sum == null) ? (qcoItem ? qcoItem.actual : orderPayableSum()) : sum;
+    return !c.min || base >= c.min;
   }
 
   // ---- s6 渲染 ----
@@ -3929,8 +4148,21 @@
 
     if (!cartItems.length) {
       box.innerHTML = '<div class="co-empty">暂无结算项目，请返回开单页添加项目或产品</div>';
+      /* s6 明细清空 → 订单级券失效；注意：s7 快捷开单的券是同一份全局状态，
+         不能在 s6 被渲染（如确认券后的连带渲染）时误清 */
+      if (navStack[navStack.length - 1] === 's6') window.__v2OrderCoupon = null;
       pay.textContent = '0.00';
+      if (typeof window.__v2RenderCouponRows === 'function') window.__v2RenderCouponRows();
       return;
+    }
+
+    // 顾客身份变化：自动匹配的权益 / 自动带入的券按新身份重算（手工选择的保留）
+    if (window.__lastCoCust !== coCust) {
+      window.__lastCoCust = coCust;
+      cartItems.forEach(function(it) {
+        if (it._benefitAuto && !it.discounted) it.benefit = autoBenefit();
+      });
+      if (!window.__v2OrderCouponTouched) window.__v2OrderCoupon = null;
     }
 
     box.innerHTML = cartItems.map(function(it, i) {
@@ -3940,8 +4172,9 @@
         /* 标记为「自动匹配」：顾客身份变化时按新身份重新匹配 */
         it._benefitAuto = !!it.benefit;
       }
-      total += it.actual;
-      // 员工：默认自动填充首位员工
+      // 权益规则 → 应付（改价明细沿用改价后的应付）
+      applyItemBenefit(it);
+      total += it.actual;      // 员工：默认自动填充首位员工
       if (!it.staff.staffIds.length) {
         var _first = STAFFS[0];
         it.staff.staffIds = [_first.id];
@@ -3972,15 +4205,15 @@
               '<span class="dim">' + escapeHtml(meta.join(' · ')) + '</span></span>';
           }).join('') +
         '</span></div>';
-      // 权益：改价商品锁定
+      // 权益：改价商品锁定 / 非改价商品仅右侧「值 + ›」为热区，点击进入 s12 选择权益
       var benCell = '';
       if (it.discounted) {
         benCell = '<div class="co-row" data-ro="1"><span class="lbl">权益<span class="help">?</span></span>' +
           '<span class="val gray">改价商品不可用权益</span></div>';
       } else {
-        benCell = '<div class="co-row" data-benefit="1" onclick="openBenefit(' + i + ')">' +
+        benCell = '<div class="co-row" data-benefit="1">' +
           '<span class="lbl">权益<span class="help">?</span></span>' +
-          '<span class="val' + (it.benefit ? '' : ' gray') + '">' +
+          '<span class="val' + (it.benefit ? '' : ' gray') + '" role="button" onclick="openBenefitPage(' + i + ')">' +
           (it.benefit ? escapeHtml(it.benefit.name) : '无卡权益') +
           '<span class="co-arr">' + coArrowSvg + '</span></span></div>';
       }
@@ -4006,7 +4239,12 @@
         '</div>';
     }).join('');
 
-    pay.textContent = total.toFixed(2);
+    // 散客订单自动带入首张可用券；会员不自动带券
+    autoFillCoupon(coCust !== 'member');
+    // 自动带入 / 失效后同步「优惠券」行文案（行由 assets/v2.js 注入）
+    if (typeof window.__v2RenderCouponRows === 'function') window.__v2RenderCouponRows();
+    /* 底部应付 = 各项权益后应付之和 − 订单级优惠券抵扣（不满门槛则券不生效） */
+    pay.textContent = Math.max(0, Math.round((total - orderCouponCut(total)) * 100) / 100).toFixed(2);
     // 动态撑高页面，保证滚动到底
     var pg = document.querySelector('#s6 .page');
     if (pg) pg.style.height = (box.offsetTop + box.offsetHeight + 28) + 'px';
@@ -4078,81 +4316,153 @@
     renderCo();
   }
 
-  // ---- 权益选择 sheet ----
-  function openBenefit(idx) {
-    if (!cartItems[idx]) return;
+  /* ===== 页面12 选择权益（会员卡权益）=====
+     单选；点底部「确认」才生效并返回，直接返回不保存。
+     入口：结算页「权益」行右侧热区（商品级）。coEditIdx = -1 表示快捷开单 s7 的单条明细。 */
+  var benPickDraft = 0;     // 草稿选中项（索引 CARD_BENEFITS）
+  var benPickTarget = null; // 本次编辑的明细（引用）
+
+  function benefitIndexOf(it) {
+    if (!it || !it.benefit) return 0;   // 0 = 不使用权益
+    for (var k = 1; k < CARD_BENEFITS.length; k++) {
+      if (CARD_BENEFITS[k].name === it.benefit.name) return k;
+    }
+    return 0;
+  }
+  function openBenefitPage(idx) {
+    var it = (idx === -1) ? qcoItem : cartItems[idx];
+    if (!it) return;
     coEditIdx = idx;
-    renderBenefitList();
-    openMask('benefitSheetMask');
+    benPickTarget = it;
+    benPickDraft = benefitIndexOf(it);
+    renderBenPickList();
+    go('s12');
   }
-  // 权益门槛判断：快捷开单时，代金券/优惠券需金额满足门槛才可选
-  function benefitUsable(b, amt) {
-    var rule = b.qr;
-    if (!rule) return true;
-    if (rule.kind === 'minus' && rule.min > 0 && amt < rule.min) return false;
-    return true;
-  }
-  function renderBenefitList() {
-    var it = (coEditIdx === -1) ? qcoItem : cartItems[coEditIdx];
-    var isQuick = coEditIdx === -1;
-    var el = document.getElementById('benefitList');
-    var checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
-    el.innerHTML = BENEFITS.map(function(b, i) {
-      var on = !!(it && it.benefit && it.benefit.type === b.type && it.benefit.name === b.name);
-      var usable = isQuick ? benefitUsable(b, it ? it.price : 0) : true;
-      return '<button type="button" class="benefit-item' + (on ? ' on' : '') + (usable ? '' : ' disabled') + '"' +
-        (usable ? ' onclick="pickBenefit(' + i + ')"' : ' disabled') + '>' +
-        '<span class="type">' + escapeHtml(b.type) + '</span>' +
+  function renderBenPickList() {
+    var el = document.getElementById('benList');
+    if (!el) return;
+    el.innerHTML = CARD_BENEFITS.map(function(b, i) {
+      var on = (i === benPickDraft);
+      return '<div class="ben-row" role="button" onclick="pickBenDraft(' + i + ')">' +
         '<span class="nm">' + escapeHtml(b.name) + '</span>' +
-        '<span class="val">' + escapeHtml(b.val) + '</span>' +
-        (on ? '<span class="ck">' + checkSvg + '</span>' : '') +
-        '</button>';
+        '<span class="rd"><img src="assets/ic_radio_' + (on ? 'on' : 'off') + '.svg" alt=""></span>' +
+        '</div>';
     }).join('');
   }
-  function pickBenefit(bi) {
-    var it = (coEditIdx === -1) ? qcoItem : cartItems[coEditIdx];
-    if (!it) return;
-    var b = BENEFITS[bi];
-    var isQuick = coEditIdx === -1;
-    if (isQuick && !benefitUsable(b, it.price)) return;
-    if (it.benefit && it.benefit.type === b.type && it.benefit.name === b.name) {
-      it.benefit = null;
-      it._benefitCleared = true;
-      it._benefitAuto = false;
-      if (isQuick) { it.actual = it.price; it.receivable = it.actual; }
-    } else {
-      it.benefit = { type: b.type, name: b.name, val: b.val, _rule: b.qr };
-      it._benefitCleared = false;
-      it._benefitAuto = false;
-      if (isQuick) { it.actual = qcoApplyBenefit(it); it.receivable = it.actual; }
-    }
-    renderBenefitList();
-    renderCo();
-    if (isQuick) renderQco();
+  function pickBenDraft(i) {
+    benPickDraft = i;
+    renderBenPickList();
   }
-  document.getElementById('benefitSheetMask').addEventListener('click', function(e) {
-    if (e.target === this) closeMask('benefitSheetMask');
-  });
+  function confirmBenefitPick() {
+    var it = benPickTarget;
+    if (it) {
+      var b = CARD_BENEFITS[benPickDraft];
+      it.benefit = (benPickDraft > 0) ? { name: b.name, _rule: b.rule } : null;
+      it._benefitCleared = (benPickDraft === 0);   // 选「不使用权益」后不再自动覆盖
+      it._benefitAuto = false;
+      applyItemBenefit(it);
+      if (coEditIdx === -1 && it === qcoItem) it.receivable = it.actual;
+    }
+    benPickTarget = null;
+    renderCo();
+    renderQco();
+    recalcOrderAmounts();
+    goBack();
+  }
+
+  /* ===== 页面13 选择优惠券（订单级）=====
+     单选；点底部「确认」才生效并返回。 -1 = 不使用优惠券。 */
+  var coupPickDraft = -1;   // -1 = 不使用优惠券
+  var coupFromQuick = false; // 入口来自 s7（快捷开单）时为 true，门槛按单条明细应付判定
+  function couponIndexOf() {
+    var c = window.__v2OrderCoupon;
+    if (!c) return -1;
+    for (var k = 0; k < COUPONS.length; k++) if (COUPONS[k].name === c.name) return k;
+    return -1;
+  }
+  function openCouponPage() {
+    // 记录来源屏幕（go 之前取 navStack 顶）
+    coupFromQuick = (navStack[navStack.length - 1] === 's7');
+    coupPickDraft = couponIndexOf();
+    COUPONS.forEach(function (c) { c._open = false; });   // 每次进入，「使用规则」默认折叠
+    renderCoupList();
+    go('s13');
+  }
+  // 券门槛判定基准：快捷开单为单条明细应付，开单结算为整单应付合计
+  function couponBase() {
+    if (coupFromQuick && qcoItem) return qcoItem.actual;
+    return orderPayableSum();
+  }
+  function renderCoupList() {
+    var el = document.getElementById('cpList');
+    if (!el) return;
+    var base = couponBase();
+    var html = '<div class="cp-none" role="button" onclick="pickCoupDraft(-1)">' +
+      '<span class="nm">不使用优惠券</span>' +
+      '<span class="rd"><img src="assets/ic_radio_' + (coupPickDraft === -1 ? 'on' : 'off') + '.svg" alt=""></span>' +
+      '</div>';
+    html += COUPONS.map(function(c, i) {
+      var usable = couponUsable(c, base);
+      var open = !!c._open;
+      return '<div class="cp-card' + (open ? ' is-open' : '') + (usable ? '' : ' is-off') + '"' +
+        ' role="button" onclick="tapCoupCard(' + i + ')">' +
+        '<div class="cp-badge">' + escapeHtml(c.tag) + '</div>' +
+        '<div class="cp-hd">' +
+          '<div class="cp-title">' + escapeHtml(c.name) + '</div>' +
+          '<div class="cp-sub">' + escapeHtml(c.scope) + '</div>' +
+        '</div>' +
+        '<div class="cp-div"></div>' +
+        '<div class="cp-rule" role="button" onclick="toggleCoupRule(' + i + ', event)">' +
+          '<span>使用规则</span>' +
+          '<span class="chev"><img src="assets/ic_rule_down.svg" alt=""></span>' +
+        '</div>' +
+        (open ? '<div class="cp-rules">' + c.rules.map(escapeHtml).join('<br>') + '</div>' : '') +
+        '<div class="cp-amt"><span class="cur">¥</span><span class="num">' + c.amount + '</span></div>' +
+        '<div class="cp-limit">' + escapeHtml(c.limit) + '</div>' +
+        '<div class="cp-rd"><img src="assets/ic_radio_' + (coupPickDraft === i ? 'on' : 'off') + '.svg" alt=""></div>' +
+        '</div>';
+    }).join('');
+    el.innerHTML = html;
+  }
+  function pickCoupDraft(i) {
+    coupPickDraft = i;
+    renderCoupList();
+  }
+  // 点券卡：不满门槛的券不可选，仅提示
+  function tapCoupCard(i) {
+    var c = COUPONS[i];
+    if (!c) return;
+    if (!couponUsable(c, couponBase())) { toast('当前订单不满该券使用门槛'); return; }
+    pickCoupDraft(i);
+  }
+  function toggleCoupRule(i, ev) {
+    if (ev && ev.stopPropagation) ev.stopPropagation();
+    COUPONS[i]._open = !COUPONS[i]._open;
+    renderCoupList();
+  }
+  function confirmCouponPick() {
+    var c = (coupPickDraft >= 0) ? COUPONS[coupPickDraft] : null;
+    window.__v2OrderCoupon = c;
+    window.__v2OrderCouponTouched = true;
+    if (typeof window.__v2RenderCouponRows === 'function') window.__v2RenderCouponRows();
+    renderCo();
+    renderQco();
+    recalcOrderAmounts();
+    goBack();
+  }
+  // 散客订单自动带入首张可用券（会员不自动带券；用户手动选过「不使用」后不再自动带）
+  function autoFillCoupon(isGuest) {
+    if (!isGuest || window.__v2OrderCouponTouched || window.__v2OrderCoupon) return;
+    if (!COUPONS.length) return;
+    if (!couponUsable(COUPONS[0], couponBase())) return;
+    window.__v2OrderCoupon = COUPONS[0];
+  }
 
   // ---- 挂单 / 结账 ----
+  // 原型阶段：点「结账」只原地 toast，不再清空购物车 / 跳回开单页（线上结账流程由此进入）
   function checkoutDone() {
     if (!cartItems.length) { toast('暂无结算项目'); return; }
-    cartItems = [];
-    cartCount = {};
-    ['s1', 's5'].forEach(function(id) {
-      var el = document.getElementById(id + 'amount');
-      if (el) el.textContent = '0.00';
-      updateSideBadges(id);
-    });
-    s5total = 0;
-    updateCartBadge();
-    closeCartSheet();
-    resetOrderNo('co');
-    resetGuestDefault();
-    navStack = ['s1'];
-    activate('s1');
-    setCust('guest');
-    toast('结账成功');
+    toast('已进入线上结账流程');
   }
 
   // ===== 快捷开单结账第二步 s7 =====
@@ -4170,7 +4480,7 @@
         actual: pay,
         discounted: false,
         benefit: null,
-        _benefitCleared: true,
+        _benefitCleared: false,   // 会员进 s7 自动匹配最优折扣卡；用户选「不使用权益」后才锁定
         note: quickRemark,
         staff: { id: '__qco__', staffIds: [], staffRoles: {}, staffDesignated: {} }
       };
@@ -4209,7 +4519,21 @@
     var box = document.getElementById('qcoItems');
     var pay = document.getElementById('qcoPay');
     var it = qcoItem;
-    pay.textContent = it.actual.toFixed(2);
+    // 顾客身份变化：自动匹配的权益按新身份重算（手工选择的保留）
+    if (window.__lastQcoCust !== qcoCust) {
+      window.__lastQcoCust = qcoCust;
+      if (it._benefitAuto && !it.discounted) it.benefit = autoBenefitFor(qcoCust);
+    }
+    // 权益自动填充（未改价、未手动清除、且当前无权益）：会员=最优折扣卡，散客=无卡权益
+    if (!it.discounted && !it.benefit && !it._benefitCleared) {
+      it.benefit = autoBenefitFor(qcoCust);
+      it._benefitAuto = !!it.benefit;
+    }
+    applyItemBenefit(it);
+    autoFillCoupon(qcoCust !== 'member');
+    if (typeof window.__v2RenderCouponRows === 'function') window.__v2RenderCouponRows();
+    /* 底部应付 = 权益后应付 − 订单级优惠券抵扣（不满门槛则券不生效） */
+    pay.textContent = Math.max(0, Math.round((it.actual - orderCouponCut(it.actual)) * 100) / 100).toFixed(2);
 
     if (!it.staff.staffIds.length) {
       var _f = STAFFS[0];
@@ -4246,9 +4570,9 @@
       benCell = '<div class="co-row" data-ro="1"><span class="lbl">权益<span class="help">?</span></span>' +
         '<span class="val gray">改价商品不可用权益</span></div>';
     } else {
-      benCell = '<div class="co-row" data-benefit="1" onclick="openQcoBenefit()">' +
+      benCell = '<div class="co-row" data-benefit="1">' +
         '<span class="lbl">权益<span class="help">?</span></span>' +
-        '<span class="val' + (it.benefit ? '' : ' gray') + '">' +
+        '<span class="val' + (it.benefit ? '' : ' gray') + '" role="button" onclick="openQcoBenefitPage()">' +
         (it.benefit ? escapeHtml(it.benefit.name) : '无卡权益') +
         '<span class="co-arr">' + coArrowSvg + '</span></span></div>';
     }
@@ -4315,11 +4639,9 @@
     renderS2();
     toast('已删除');
   }
-  function openQcoBenefit() {
+  function openQcoBenefitPage() {
     if (!qcoItem) return;
-    coEditIdx = -1;
-    renderBenefitList();
-    openMask('benefitSheetMask');
+    openBenefitPage(-1);
   }
   function openQcoRemark() {
     if (!qcoItem) return;
@@ -4342,16 +4664,7 @@
   }
   function quickCheckoutDone() {
     if (!qcoItem) { toast('暂无结算项目'); return; }
-    qcoItem = null;
-    resetOrderNo('qco');
-    s2val = ''; renderS2();
-    s3val = '299'; renderS3();
-    navStack = ['s1'];
-    activate('s1');
-    resetGuestDefault();
-    setCust('guest');
-    setQcoCust('guest');
-    toast('结账成功');
+    toast('已进入线上结账流程');
   }
 
   // ---- 门店流水 s8 页签 ----

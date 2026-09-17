@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;background:#e5e5e5}iframe{display:block;width:390px;height:844px;border:0}</style></head>
+<body>
+<iframe id="f" src="index.html?capture=s6-items&t=__TS__"></iframe>
+<script>
+var target = new URLSearchParams(location.search).get('v') || 's12';
+document.getElementById('f').addEventListener('load', function () {
+  var w = this.contentWindow, d = w.document;
+  var t = 0, iv = setInterval(function () {
+    t += 100;
+    if ((d.querySelectorAll('#s6 .co-item').length > 0 && getComputedStyle(d.getElementById('s6')).display !== 'none') || t > 20000) {
+      clearInterval(iv);
+      if (target === 's12') {
+        d.querySelector('#s6 .co-item .co-row[data-benefit] .val').click();
+      } else if (target === 's13') {
+        d.querySelector('#s6 [data-coupon-val]').click();
+        setTimeout(function () {
+          var c = d.querySelectorAll('#cpList .cp-card');
+          if (c[0]) c[0].querySelector('.cp-rule').click();
+        }, 200);
+      } else if (target === 's6') {
+        /* 停在结算页 */
+      } else if (target === 's7') {
+        w.setCust('member'); w.setQcoCust('member');
+        w.goQuickCheckout();
+      }
+    }
+  }, 100);
+});
+</script>
+</body></html>

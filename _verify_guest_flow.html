@@ -1,0 +1,79 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script>
+/* 真实散客链路：s1 散客开单 → 加入购物车 → 下一步 → s6，验证「无卡权益 + 自动带券」 */
+var log = [];
+function P(k, v) { log.push(k + ' = ' + v); }
+var f = document.createElement('iframe');
+f.src = 'index.html?capture=s1-expand&bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+var w, d;
+function q(s) { return d.querySelector(s); }
+function qa(s) { return Array.prototype.slice.call(d.querySelectorAll(s)); }
+function vis() { return Array.prototype.slice.call(d.querySelectorAll('.screen')).filter(function (s) { return getComputedStyle(s).display !== 'none'; }).map(function (s) { return s.id; }); }
+function items() { return qa('#s6 .co-item'); }
+function snap(tag) {
+  P(tag + ' 权益值', qa('#s6 .co-item .co-row[data-benefit] .val').map(function (e) { return e.textContent.replace(/\s+/g, ''); }).join(','));
+  P(tag + ' 券行', (q('#s6 [data-coupon-val]') || {}).innerText.replace(/\s+/g, ''));
+  P(tag + ' 券对象', w.__v2OrderCoupon ? w.__v2OrderCoupon.name : 'null');
+  P(tag + ' touched', String(w.__v2OrderCouponTouched));
+  P(tag + ' 各项应付', qa('#s6 .co-item .co-sum-row .num').map(function (e) { return e.textContent; }).join(','));
+  P(tag + ' 底栏', (q('#coPay') || {}).textContent);
+  P(tag + ' 自动标记', w.cartItems.map(function (it) { return (it.benefit ? it.benefit.name : 'null') + '|auto=' + String(!!it._benefitAuto); }).join(' , '));
+  P(tag + ' 顾客区cls', (q('#s6 .guest-card, #s6 .member-card') || {}).className || '-');
+  P(tag + ' 页cls', d.getElementById('s6').className);
+}
+function finish() {
+  var pre = document.createElement('pre');
+  pre.textContent = log.join('\n');
+  document.body.appendChild(pre);
+}
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  var t = 0, iv = setInterval(function () {
+    t += 100;
+    var commit = q('#s1 [data-commit]');
+    if (commit || t > 15000) {
+      clearInterval(iv);
+      P('wait commitMs', t);
+      if (!commit) { P('ERR', 's1 无 [data-commit] 按钮'); finish(); return; }
+      commit.click();
+      setTimeout(function () {
+        P('购物车条数', w.cartItems.length);
+        P('购物车明细', w.cartItems.map(function (it) { return it.name + '@' + it.price; }).join(' , '));
+        w.nextStep('s1');
+        var t2 = 0, iv2 = setInterval(function () {
+          t2 += 100;
+          if ((vis().indexOf('s6') >= 0 && items().length > 0) || t2 > 15000) {
+            clearInterval(iv2);
+            P('进结算页', vis());
+            run();
+          }
+        }, 100);
+      }, 500);
+    }
+  }, 100);
+  function run() {
+    snap('A 散客进结算');
+    P('A autoBenefit()', w.autoBenefit ? String(w.autoBenefit()) : 'N/A');
+    var sum = w.orderPayableSum();
+    P('B 应付合计', sum.toFixed(2));
+    P('B 券抵扣', w.orderCouponCut(sum).toFixed(2));
+    P('B 底栏应等于', (sum - w.orderCouponCut(sum)).toFixed(2));
+    q('#s6 [data-coupon-val]').click();
+    P('C 进券页', vis());
+    P('C 单选(none+3张)', qa('#cpList .cp-none, #cpList .cp-card .cp-rd').map(function (x) { var im = x.querySelector('img'); return im && /ic_radio_on/.test(im.getAttribute('src')) ? '1' : '0'; }).join(''));
+    P('C 置灰', qa('#cpList .cp-card').map(function (x, i) { return /is-off/.test(x.className) ? i : -1; }).filter(function (i) { return i >= 0; }).join(','));
+    q('#s13 .nav-bar .btn-back').click();
+    P('D 返回后', vis());
+    q('#s6 .co-item .co-row[data-benefit] .val').click();
+    P('E s12', vis());
+    P('E s12 选中', qa('#benList .ben-row').map(function (x, i) { var im = x.querySelector('img'); return im && /ic_radio_on/.test(im.getAttribute('src')) ? i : -1; }).filter(function (i) { return i >= 0; }).join(','));
+    q('#s12 .nav-bar .btn-back').click();
+    finish();
+  }
+});
+</script>
+</body></html>

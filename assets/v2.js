@@ -1627,7 +1627,8 @@
   }
 
   /* ========== 结算文档流 ========== */
-  var orderCoupon = null;
+  /* 订单级优惠券状态由 index.html 持有（window.__v2OrderCoupon），
+     此处仅负责「优惠券」行的展示与进入 s13 选择页 */
   var orderRemark = '';
 
   function enableCheckoutFlow() {
@@ -1692,33 +1693,23 @@
           '</div>';
         items.insertAdjacentElement('afterend', extras);
 
-        extras.querySelector('[data-coupon-row]').onclick = function () {
-          var list = (window.BENEFITS || []).filter(function (b) {
-            return b.type === '优惠券';
-          });
-          if (!list.length) {
-            list = [
-              { name: '新人8折券', val: '满58减10' },
-              { name: '满200减30券', val: '满200减30' }
-            ];
-          }
-          var names = list.map(function (b, i) {
-            return (i + 1) + '. ' + b.name + '（' + (b.val || '') + '）';
-          }).join('\n');
-          var pick = prompt('选择优惠券序号：\n' + names + '\n输入 0 清除', '1');
-          if (pick == null) return;
-          var idx = parseInt(pick, 10);
-          var valEl = extras.querySelector('[data-coupon-val]');
-          if (!idx) {
-            orderCoupon = null;
-            valEl.className = 'r';
-            valEl.innerHTML = '请选择<span>›</span>';
-            return;
-          }
-          orderCoupon = list[idx - 1] || list[0];
-          valEl.className = 'r has';
-          valEl.innerHTML = esc(orderCoupon.name) + '<span>›</span>';
+        /* 「优惠券」行：仅右侧「值 + ›」为热区，点击进入 s13 选择优惠券页 */
+        extras.querySelector('[data-coupon-val]').onclick = function () {
+          if (typeof window.openCouponPage === 'function') window.openCouponPage();
         };
+        window.__v2RenderCouponRows = function () {
+          var c = window.__v2OrderCoupon || null;
+          $all('[data-coupon-val]').forEach(function (valEl) {
+            if (c) {
+              valEl.className = 'r has';
+              valEl.innerHTML = esc(c.name) + '<span>›</span>';
+            } else {
+              valEl.className = 'r';
+              valEl.innerHTML = '请选择<span>›</span>';
+            }
+          });
+        };
+        window.__v2RenderCouponRows();
 
         var ta = extras.querySelector('[data-remark]');
         var cnt = extras.querySelector('[data-remark-cnt]');

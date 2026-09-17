@@ -1,0 +1,203 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script>
+var log = [];
+function P(k, v) { log.push(k + ' = ' + v); }
+var f = document.createElement('iframe');
+f.src = 'index.html?capture=s6-items&bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+
+var w, d;
+function vis() { return Array.prototype.slice.call(d.querySelectorAll('.screen')).filter(function (s) { return getComputedStyle(s).display !== 'none'; }).map(function (s) { return s.id; }); }
+function q(s) { return d.querySelector(s); }
+function qa(s) { return Array.prototype.slice.call(d.querySelectorAll(s)); }
+function items() { return qa('#s6 .co-item'); }
+function benVals() { return qa('#s6 .co-item .co-row[data-benefit] .val').map(function (e) { return e.textContent.replace(/\s+/g, ''); }); }
+function sums() { return qa('#s6 .co-item .co-sum-row .num').map(function (e) { return e.textContent; }); }
+function payv() { return q('#coPay').textContent; }
+function coup() { return (q('#s6 [data-coupon-val]') || {}).innerText.replace(/\s+/g, ''); }
+function onRd(sel) { var r = []; qa(sel).forEach(function (x, i) { var im = x.querySelector('img'); if (im && /ic_radio_on/.test(im.getAttribute('src'))) r.push(i); }); return '[' + r.join(',') + ']'; }
+function toastTxt() { return (q('#toast') || {}).innerText; }
+function waitFor(cond, cb, ms) {
+  var t = 0, iv = setInterval(function () {
+    t += 100;
+    if (cond() || t > (ms || 20000)) { clearInterval(iv); cb(t); }
+  }, 100);
+}
+var steps = [
+  function (next) {
+    P('00 waitMs', waitT);
+    P('00 screens', vis());
+    P('01 init pay', payv());
+    P('01 init 权益', benVals());
+    P('01 init 应付', sums());
+    P('01 init 优惠券行', coup());
+    P('01 nav 12/13', qa('.nav-item').map(function (b) { return b.getAttribute('data-target'); }).filter(function (t) { return t === 's12' || t === 's13'; }).join(','));
+    next();
+  },
+  /* 右值热区：点标签不跳页，点值进 s12 */
+  function (next) {
+    var row = items()[0].querySelector('.co-row[data-benefit]');
+    var val = row.querySelector('.val');
+    P('02 权益行 onclick', row.hasAttribute('onclick'));
+    P('02 权益行 cursor', getComputedStyle(row).cursor);
+    P('02 权益值 onclick', val.hasAttribute('onclick'));
+    P('02 权益值 cursor', getComputedStyle(val).cursor);
+    row.querySelector('.lbl').click();
+    P('02 点标签后', vis());
+    val.click();
+    P('03 点值后', vis());
+    next();
+  },
+  function (next) {
+    P('04 s12 title', (q('#s12 .nav-bar .title') || {}).textContent);
+    P('04 s12 tip', (q('#s12 .pick-tip') || {}).innerText);
+    P('04 s12 rows', qa('#benList .ben-row').length);
+    P('04 s12 项名', qa('#benList .ben-row').map(function (x) { return x.textContent.trim(); }).join(' / '));
+    P('04 s12 选中', onRd('#benList .ben-row'));
+    P('04 s12 按钮', (q('#s12 .pick-foot .ok') || {}).textContent);
+    qa('#benList .ben-row')[1].click();
+    P('05 选第2行后', onRd('#benList .ben-row'));
+    q('#s12 .pick-foot .ok').click();
+    P('06 确认后', vis());
+    P('06 权益', benVals());
+    P('06 应付', sums());
+    P('06 底栏应付', payv());
+    next();
+  },
+  /* 券页 */
+  function (next) {
+    q('#s6 [data-coupon-val]').click();
+    P('07 券页', vis());
+    P('07 title', (q('#s13 .nav-bar .title') || {}).textContent);
+    P('07 不使用行', (q('#cpList .cp-none') || {}).innerText.replace(/\s+/g, ''));
+    P('07 卡片数', qa('#cpList .cp-card').length);
+    P('07 券名', qa('#cpList .cp-card .cp-title').map(function (e) { return e.textContent; }).join(' | '));
+    P('07 券额', qa('#cpList .cp-card .cp-amt').map(function (e) { return e.innerText.replace(/\s+/g, ''); }).join(' | '));
+    P('07 门槛', qa('#cpList .cp-card .cp-limit').map(function (e) { return e.textContent; }).join(' | '));
+    P('07 置灰索引', qa('#cpList .cp-card').map(function (x, i) { return /is-off/.test(x.className) ? i : -1; }).filter(function (i) { return i >= 0; }).join(','));
+    P('07 规则默认展开数', qa('#cpList .cp-rules').length);
+    P('07 单选', onRd('#cpList .cp-card .cp-rd'));
+    P('07 不使用单选', onRd('#cpList .cp-none'));
+    next();
+  },
+  function (next) {
+    qa('#cpList .cp-card')[0].querySelector('.cp-rule').click();
+    P('08 展开规则后 cards-open', qa('#cpList .cp-card.is-open').length);
+    P('08 规则内容', (q('#cpList .cp-rules') || {}).innerText.replace(/\s+/g, ' / '));
+    P('08 展开后券额仍在', qa('#cpList .cp-card .cp-amt').map(function (e) { return e.innerText.replace(/\s+/g, ''); }).join(' | '));
+    qa('#cpList .cp-card')[0].querySelector('.cp-rule').click();
+    P('09 再点收起后 cards-open', qa('#cpList .cp-card.is-open').length);
+    P('09 收起后规则块数', qa('#cpList .cp-rules').length);
+    qa('#cpList .cp-card')[0].querySelector('.cp-rule').click();
+    next();
+  },
+  /* 不满门槛券不可选 */
+  function (next) {
+    qa('#cpList .cp-card')[1].click();
+    P('10 点置灰券 toast', toastTxt());
+    P('10 点置灰券后单选', onRd('#cpList .cp-card .cp-rd'));
+    qa('#cpList .cp-card')[0].click();
+    P('11 选10元券后单选', onRd('#cpList .cp-card .cp-rd'));
+    q('#s13 .pick-foot .ok').click();
+    P('12 确认后', vis());
+    P('12 券行', coup());
+    P('12 底栏应付', payv());
+    next();
+  },
+  /* 复选态 / 不使用 */
+  function (next) {
+    q('#s6 [data-coupon-val]').click();
+    P('13 再次进入 单选', onRd('#cpList .cp-card .cp-rd'));
+    P('13 再次进入 规则展开数', qa('#cpList .cp-rules').length);
+    q('#cpList .cp-none').click();
+    P('14 选不使用 单选', onRd('#cpList .cp-card .cp-rd') + ' 不使用=' + onRd('#cpList .cp-none'));
+    q('#s13 .pick-foot .ok').click();
+    P('15 确认不使用后 券行', coup());
+    P('15 确认不使用后 底栏应付', payv());
+    next();
+  },
+  /* 权益「不使用」→ 恢复原价 */
+  function (next) {
+    q('#s6 .co-item .co-row[data-benefit] .val').click();
+    qa('#benList .ben-row')[0].click();
+    q('#s12 .pick-foot .ok').click();
+    P('16 选不使用权益 权益值', benVals());
+    P('16 选不使用权益 应付', sums());
+    P('16 选不使用权益 底栏', payv());
+    q('#s6 .co-item .co-row[data-benefit] .val').click();
+    qa('#benList .ben-row')[4].click();
+    q('#s12 .pick-foot .ok').click();
+    P('17 选回折扣卡 权益值', benVals());
+    P('17 选回折扣卡 底栏', payv());
+    next();
+  },
+  /* 返回按钮 & 导航直达 */
+  function (next) {
+    q('#s6 [data-coupon-val]').click();
+    q('#s13 .nav-bar .btn-back').click();
+    P('18 s13 返回后', vis());
+    q('#s6 .co-item .co-row[data-benefit] .val').click();
+    q('#s12 .nav-bar .btn-back').click();
+    P('19 s12 返回后', vis());
+    P('19 未确认不生效 权益值', benVals());
+    w.go('s13');
+    P('20 导航直达13', vis());
+    w.go('s12');
+    P('20 导航直达12', vis());
+    w.go('s6');
+    P('20 回6', vis());
+    next();
+  },
+  /* 身份：散客自动带券 / 会员不带券 */
+  function (next) {
+    w.setCoCust('member'); w.renderCo();
+    P('21 会员 权益', benVals());
+    P('21 会员 券行', coup());
+    P('21 会员 底栏', payv());
+    w.__v2OrderCouponTouched = false;
+    w.setCoCust('guest'); w.renderCo();
+    P('22 散客 权益', benVals());
+    P('22 散客 券行', coup());
+    P('22 散客 底栏', payv());
+    next();
+  },
+  /* 结账 → toast */
+  function (next) {
+    var btn = qa('#s6 button').filter(function (b) { return b.textContent.replace(/\s/g, '').indexOf('结账') >= 0; })[0];
+    P('23 结账按钮', btn ? btn.textContent.replace(/\s/g, '') : 'NOT FOUND');
+    btn.click();
+    P('24 toast 文案', toastTxt());
+    P('24 toast display', (q('#toast') || {}).style.display);
+    P('24 停留页', vis());
+    P('24 明细数', items().length);
+    P('24 navStack', w.navStack.join('>'));
+    P('25 s7 结账函数', /已进入线上结账流程/.test(String(w.quickCheckoutDone)) ? 'OK' : 'MISS');
+    P('25 s6 结账函数', /已进入线上结账流程/.test(String(w.checkoutDone)) ? 'OK' : 'MISS');
+    next();
+  }
+];
+var waitT = 0;
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  var i = 0;
+  function runNext() {
+    if (i >= steps.length) {
+      var pre = document.createElement('pre');
+      pre.textContent = log.join('\n');
+      document.body.appendChild(pre);
+      return;
+    }
+    var fn = steps[i++];
+    try { fn(function () { setTimeout(runNext, 120); }); }
+    catch (e) { log.push('ERR step' + i + ': ' + e.message); setTimeout(runNext, 120); }
+  }
+  waitFor(function () { return items().length > 0 && vis().indexOf('s6') >= 0; }, function (t) {
+    waitT = t;
+    try { runNext(); } catch (e) { log.push('ERR boot: ' + e.message); }
+  });
+});
+</script>
+</body></html>
