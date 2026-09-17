@@ -1379,6 +1379,8 @@
   }
   html.is-mobile .site-nav {
     display:flex;
+    /* 抽屉必须高于蒙层（.site-nav-scrim, z-index:250），否则蒙层会盖住导航无法点击 */
+    z-index:260;
     transform:translateX(-105%);
     transition:transform .28s cubic-bezier(0.22, 1, 0.36, 1);
     will-change:transform;
