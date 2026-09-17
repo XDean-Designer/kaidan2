@@ -219,10 +219,99 @@
       e.stopPropagation();
       applyPick(kind, key, b.getAttribute('data-a'), nm, row.getAttribute('data-gender') || '');
     };
+    wrap.setAttribute('data-kind', kind);
+    wrap.setAttribute('data-nm', nm);
     row.parentNode && row.parentNode.insertBefore(wrap, row);
     wrap.appendChild(row);
     wrap.appendChild(actions);
     return wrap;
+  }
+
+  /* ========== s4 搜索：姓名 + 手机号 模糊匹配（输入即筛选） ========== */
+  var S4_EMPTY_SVG =
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+    '<circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.6"/>' +
+    '<path d="M15.5 15.5L20.5 20.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' +
+    '</svg>';
+
+  function s4Norm(s) {
+    return String(s == null ? '' : s).toLowerCase().replace(/\s+/g, '');
+  }
+
+  /* 取一行顾客的可搜索文本：姓名 + 手机号 */
+  function s4RowHaystack(wrap) {
+    var nm = wrap.querySelector('.nm');
+    var ph = wrap.querySelector('.phone');
+    return s4Norm((nm ? nm.textContent : '') + ' ' + (ph ? ph.textContent : ''));
+  }
+
+  function ensurePickEmpty() {
+    var list = $('#s4 .pick-list');
+    if (!list) return null;
+    var box = list.querySelector('.pick-empty');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'pick-empty';
+      box.innerHTML =
+        '<div class="ic">' + S4_EMPTY_SVG + '</div>' +
+        '<div class="t">未找到相关顾客</div>' +
+        '<div class="s">换个姓名或手机号试试</div>';
+      list.appendChild(box);
+    }
+    return box;
+  }
+
+  function applyPickSearch() {
+    var list = $('#s4 .pick-list');
+    var inp = $('#s4 [data-pick-search]');
+    if (!list || !inp) return;
+    var q = s4Norm(inp.value);
+    if (!q) {
+      list.classList.remove('is-searching');
+      $all('#s4 .pick-row-wrap').forEach(function (w) { w.style.display = ''; });
+      return;
+    }
+    list.classList.add('is-searching');
+    var hits = 0;
+    $all('#s4 .pick-row-wrap').forEach(function (w) {
+      /* 散客组不参与搜索（搜索态由 CSS 隐藏，这里再兜一层） */
+      if (w.getAttribute('data-kind') === 'guest') { w.style.display = 'none'; return; }
+      var ok = s4RowHaystack(w).indexOf(q) >= 0;
+      w.style.display = ok ? '' : 'none';
+      if (ok) hits++;
+    });
+    var empty = ensurePickEmpty();
+    if (empty) empty.classList.toggle('show', hits === 0);
+  }
+
+  function clearPickSearch(focus) {
+    var inp = $('#s4 [data-pick-search]');
+    if (!inp) return;
+    inp.value = '';
+    applyPickSearch();
+    if (focus) inp.focus(); else inp.blur();
+  }
+
+  function wirePickSearch() {
+    var list = $('#s4 .pick-list');
+    var inp = $('#s4 [data-pick-search]');
+    var cancel = $('#s4 [data-pick-search-cancel]');
+    if (!list || !inp || list.getAttribute('data-search-wired') === '1') return;
+    list.setAttribute('data-search-wired', '1');
+    ensurePickEmpty();
+    inp.addEventListener('input', applyPickSearch);
+    /* 回车不清空、不提交 */
+    inp.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') e.preventDefault();
+    });
+    /* 「取消」= 清空 + 退出输入态（返回首页请用标题栏左侧返回键） */
+    if (cancel) {
+      cancel.onclick = function (e) {
+        e.stopPropagation();
+        clearPickSearch(false);
+      };
+    }
+    window.__v2PickSearchRefresh = applyPickSearch;
   }
 
   /* 从 s4 列表取该会员行的头像（顶部卡沿用列表头像） */
@@ -451,6 +540,8 @@
     if (!gender) { toast('请选择性别'); return; }
     /* 只填姓（1 个字）+ 已选性别 → 自动识别为「*先生 / *小姐」 */
     var display = name.length === 1 ? name + (gender === 'male' ? '先生' : '小姐') : name;
+    /* 若正在搜索，先退出搜索态，否则新行会被筛选隐藏、无法定位到该行 */
+    if ($('#s4 .pick-list').classList.contains('is-searching')) clearPickSearch(false);
     var row = insertMemberRow(display, phone, gender);
     closeAddMember();
     if (!row) return;
@@ -525,8 +616,38 @@
     var bar = scr.querySelector('.bottom-bar');
     if (bar) scr.insertBefore(body, bar);
     else scr.appendChild(body);
-    body.addEventListener('scroll', function () {}, { passive: true });
+    body.addEventListener('scroll', function () { applyBillParallax(screenId); }, { passive: true });
     return body;
+  }
+
+  /* ========== 视差：价目表上滑覆盖顾客卡片 ==========
+     顾客卡片以约 0.5× 速度上移（视差），价目表白卡以 1× 上移压在其上；
+     scrollTop 达到价目卡偏移量时价目表贴住标题栏，卡片被完全盖住；反向滚动线性还原。 */
+  var PARALLAX_RATE = 0.5;   /* 卡片速度系数（相对滚动） */
+  var parallaxRaf = {};
+
+  function applyBillParallax(screenId) {
+    if (screenId !== 's1' && screenId !== 's5') return;
+    if (parallaxRaf[screenId]) return;
+    parallaxRaf[screenId] = requestAnimationFrame(function () {
+      parallaxRaf[screenId] = 0;
+      paintBillParallax(screenId);
+    });
+  }
+
+  function paintBillParallax(screenId) {
+    var body = document.getElementById(screenId + 'BillBody');
+    if (!body) return;
+    var card = body.querySelector('.v2-ccard');
+    var price = body.querySelector('.v2-price-card');
+    if (!card || !price) return;
+    var cover = price.offsetTop;                     /* 价目卡距滚动区顶部（含卡片 12px 上边距） */
+    var st = body.scrollTop;
+    var cap = cover * (1 - PARALLAX_RATE);           /* 补偿位移上限 */
+    var y = Math.round(Math.min(st, cover) * (1 - PARALLAX_RATE));
+    if (y > cap) y = cap;
+    card.style.transform = y > 0 ? 'translateY(' + y + 'px)' : '';
+    body.classList.toggle('is-scrolled', st > 1);
   }
 
   function ensureStaffSheetHost(scr) {
@@ -995,10 +1116,14 @@
       '</div>';
     }).join('');
 
-    body.innerHTML = customerHtml(screenId) + tabsHtml +
-      '<div class="v2-group-bar"><div class="v2-group-seg"><div class="v2-group-scroll">' +
-      gTabs + '</div></div></div>' +
-      '<div class="v2-catalog">' + list + '</div>';
+    body.innerHTML = customerHtml(screenId) +
+      '<div class="v2-price-card">' +
+        '<div class="v2-price-head">' + tabsHtml +
+          '<div class="v2-group-bar"><div class="v2-group-seg"><div class="v2-group-scroll">' +
+          gTabs + '</div></div></div>' +
+        '</div>' +
+        '<div class="v2-catalog">' + list + '</div>' +
+      '</div>';
 
     wireCcard(body.querySelector('.v2-ccard'));
 
@@ -1018,6 +1143,8 @@
     body.querySelectorAll('.v2-cat-item').forEach(function (row) {
       renderRowRight(row, false);
     });
+    /* 重绘后重新应用视差位移与「已滚动」态（切 tab / 切分组 / 新增会员后不丢效果） */
+    paintBillParallax(screenId);
   }
 
   function renderRowRight(row, open) {
@@ -1764,10 +1891,135 @@
     if (!custIsMember) repaintBillCard('s1');
   }
 
+  /* ========== 标题栏日期控件：今天往前 3 个月内任选一天 ========== */
+  var dPad = function (n) { return (n < 10 ? '0' : '') + n; };
+  var dToday = (function () { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); })();
+  /* 可选范围：今天往前推 3 个月（含今天），不可选未来 */
+  var D_MAX = new Date(dToday.getFullYear(), dToday.getMonth(), dToday.getDate());
+  var D_MIN = new Date(dToday.getFullYear(), dToday.getMonth() - 3, dToday.getDate());
+  var selDate = new Date(dToday.getFullYear(), dToday.getMonth(), dToday.getDate());
+  var viewMonth = new Date(selDate.getFullYear(), selDate.getMonth(), 1);
+
+  function dSame(a, b) {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  }
+  function dIn(d) { return d.getTime() >= D_MIN.getTime() && d.getTime() <= D_MAX.getTime(); }
+  function dDot(d) { return d.getFullYear() + '.' + dPad(d.getMonth() + 1) + '.' + dPad(d.getDate()); }
+  function dKey(d) { return d.getFullYear() + '-' + dPad(d.getMonth() + 1) + '-' + dPad(d.getDate()); }
+  function dParse(key) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(key || '');
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+
+  function paintBillDates() {
+    $all('.nav-bar [data-date-ctl] .date').forEach(function (el) { el.textContent = dDot(selDate); });
+  }
+
+  /* 某年某月是否与可选范围有交集（决定上/下月按钮是否可用） */
+  function dMonthUsable(y, m) {
+    var lastDay = new Date(y, m + 1, 0).getDate();
+    return new Date(y, m, lastDay).getTime() >= D_MIN.getTime() &&
+           new Date(y, m, 1).getTime() <= D_MAX.getTime();
+  }
+
+  function renderDateGrid() {
+    var grid = document.querySelector('[data-date-grid]');
+    var lab = document.querySelector('[data-date-month]');
+    var prev = document.querySelector('[data-date-prev]');
+    var next = document.querySelector('[data-date-next]');
+    if (!grid) return;
+    var y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+    if (lab) lab.textContent = y + '年' + (m + 1) + '月';
+    var prevY = m === 0 ? y - 1 : y, prevM = m === 0 ? 11 : m - 1;
+    var nextY = m === 11 ? y + 1 : y, nextM = m === 11 ? 0 : m + 1;
+    if (prev) prev.disabled = !dMonthUsable(prevY, prevM);
+    if (next) next.disabled = !dMonthUsable(nextY, nextM);
+    /* 固定 6 行 × 7 列，弹层高度稳定 */
+    var first = new Date(y, m, 1);
+    var start = new Date(y, m, 1 - first.getDay());
+    var html = '';
+    for (var i = 0; i < 42; i++) {
+      var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      var cls = 'dp-d';
+      if (d.getMonth() !== m) cls += ' is-other';
+      if (dSame(d, dToday)) cls += ' is-today';
+      if (dSame(d, selDate)) cls += ' is-sel';
+      var dis = dIn(d) ? '' : ' disabled';
+      html += '<button type="button" class="' + cls + '"' + dis +
+        ' data-date="' + dKey(d) + '"><span class="d-num">' + d.getDate() + '</span></button>';
+    }
+    grid.innerHTML = html;
+  }
+
+  function openDatePop() {
+    var mask = document.querySelector('[data-date-mask]');
+    var pop = document.querySelector('[data-date-pop]');
+    if (!pop) return;
+    viewMonth = new Date(selDate.getFullYear(), selDate.getMonth(), 1);
+    renderDateGrid();
+    if (mask) mask.classList.add('show');
+    pop.classList.add('show');
+  }
+  function closeDatePop() {
+    var mask = document.querySelector('[data-date-mask]');
+    var pop = document.querySelector('[data-date-pop]');
+    if (mask) mask.classList.remove('show');
+    if (pop) pop.classList.remove('show');
+  }
+  function setBillDate(d) {
+    if (!d || !dIn(d)) return;
+    selDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    paintBillDates();
+    closeDatePop();
+  }
+
+  function wireDateCtl() {
+    var mask = document.querySelector('[data-date-mask]');
+    var pop = document.querySelector('[data-date-pop]');
+    paintBillDates();
+    if (mask) mask.addEventListener('click', closeDatePop);
+    /* 标题栏日期控件（6 个页面）→ 展开浮层 */
+    document.addEventListener('click', function (e) {
+      var ctl = e.target.closest && e.target.closest('[data-date-ctl]');
+      if (!ctl) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (pop && pop.classList.contains('show')) closeDatePop(); else openDatePop();
+    });
+    if (!pop) return;
+    pop.addEventListener('click', function (e) {
+      var nav = e.target.closest('[data-date-prev], [data-date-next]');
+      if (nav) {
+        e.stopPropagation();
+        if (nav.disabled) return;
+        viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + (nav.hasAttribute('data-date-prev') ? -1 : 1), 1);
+        renderDateGrid();
+        return;
+      }
+      var q = e.target.closest('[data-date-quick]');
+      if (q) {
+        e.stopPropagation();
+        var kind = q.getAttribute('data-date-quick');
+        var d = new Date(dToday.getFullYear(), dToday.getMonth(), dToday.getDate() - (kind === 'yesterday' ? 1 : 0));
+        setBillDate(d);
+        return;
+      }
+      var day = e.target.closest('[data-date]');
+      if (day) {
+        e.stopPropagation();
+        if (day.disabled) return;
+        setBillDate(dParse(day.getAttribute('data-date')));
+      }
+    });
+    window.__v2BillDate = function () { return dKey(selDate); };
+  }
+
   function boot() {
     syncHold();
     wrapPickRows();
     wireAddMember();
+    wirePickSearch();
+    wireDateCtl();
     hookCust();
     forceNext();
     wireHome();

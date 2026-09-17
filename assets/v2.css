@@ -53,7 +53,7 @@
 
 /* —— 选顾客：取挂单右对齐 + 展开 #EFF0FF —— */
 .pick-holds {
-  position: absolute; left: 0; top: calc(var(--statusbar-h, 53px) + 50px); width: 390px; height: 40px;
+  position: absolute; left: 0; top: calc(var(--chrome-top, 97px) + 50px); width: 390px; height: 40px;
   background: #fff; border-bottom: 1px solid #f0f0f0; z-index: 12;
   display: flex; align-items: center; justify-content: flex-end;
   padding: 0 16px; box-sizing: border-box;
@@ -67,7 +67,9 @@
 .pick-holds .n { color: #F32F41; }
 /* s4 底部 34px 安全区露出的底色跟随列表（白），避免出现灰色分带 */
 #s4 { background: #fff; }
-#s4 .pick-list { top: calc(var(--statusbar-h, 53px) + 90px); }
+#s4 .pick-list { top: calc(var(--chrome-top, 97px) + 90px); }
+/* 搜索态：隐藏右侧 A-Z 索引条 */
+#s4 .pick-list.is-searching ~ .index-bar { display: none; }
 
 .pick-row-wrap { background: #fff; border-bottom: 1px solid #f5f5f5; }
 .pick-row-wrap .pick-row { border-bottom: 0; height: auto; min-height: 74px; }
@@ -203,10 +205,24 @@
 .screen.cust-guest .mcard.v2-lite { display: none !important; }
 .screen.cust-member .gcard.v2-lite { display: none !important; }
 
-.v2-page-tabs {
-  display: flex; height: 48px; background: #fff; margin-top: 12px;
-  border-bottom: 0; flex-shrink: 0;
+/* —— 价目表白卡：整块（tab + 分类 chips + 列表）为一张卡，视差时压住顾客卡片 —— */
+.v2-price-card {
+  position: relative; z-index: 2;
+  margin-top: 12px; background: #fff;
   border-radius: 12px 12px 0 0;
+}
+/* tab + chips 一起吸顶：贴住标题栏后仅商品列表滚动 */
+.v2-price-head {
+  position: sticky; top: 0; z-index: 3;
+  background: #fff; border-radius: 12px 12px 0 0; overflow: hidden;
+}
+/* 视差滚动中：顾客卡片降到价目白卡之下，才能被「盖住」 */
+.v2-bill-body.is-scrolled .v2-ccard { z-index: 1; }
+
+.v2-page-tabs {
+  display: flex; height: 48px; background: #fff; margin-top: 0;
+  border-bottom: 0; flex-shrink: 0;
+  border-radius: 0;
   overflow: hidden;
 }
 .v2-page-tabs button {

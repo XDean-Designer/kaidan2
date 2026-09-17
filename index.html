@@ -131,6 +131,16 @@
     white-space:nowrap;
   }
   .nav-bar .date { position:absolute; left:294px; top:14px; font-size:12px; font-weight:500; color:#1a1a1a; white-space:nowrap; }
+  /* 日期控件：日期文本 + 日历图标为一组可点区域，点击展开日期浮层 */
+  .nav-bar .date-ctl {
+    position:absolute; right:10px; top:10px; height:24px;
+    display:flex; align-items:center; gap:10px;
+    border:0; background:none; padding:0; margin:0; cursor:pointer;
+    font-family:inherit; -webkit-tap-highlight-color:transparent;
+  }
+  .nav-bar .date-ctl .date { position:static; left:auto; top:auto; font-size:12px; font-weight:500; color:#1a1a1a; white-space:nowrap; }
+  .nav-bar .date-ctl .ic-cal { width:16px; height:16px; display:block; flex:none; }
+  .nav-bar .date-ctl:active { opacity:.55; }
   .nav-bar .btn-back { position:absolute; left:10px; top:10px; width:24px; height:24px; border:none; background:none; padding:0; cursor:pointer; }
   .nav-bar .btn-back img { width:24px; height:24px; display:block; }
   .nav-bar .ic-right { position:absolute; left:364px; top:14px; width:16px; height:16px; }
@@ -508,16 +518,44 @@
 
   /* ===== 选择顾客页 ===== */
   .pick-search {
-    position:absolute; top:var(--statusbar-h); left:0; width:390px; height:50px;
+    position:absolute; top:var(--chrome-top); left:0; width:390px; height:50px;
     background:#fff; display:flex; align-items:center; gap:12px; padding:0 12px; z-index:20;
   }
   .pick-search .box {
     flex:1; height:32px; background:#f5f5f5; border-radius:16px;
     display:flex; align-items:center; gap:8px; padding:0 12px;
   }
-  .pick-search .box img { width:16px; height:16px; }
+  .pick-search .box img { width:16px; height:16px; flex:none; }
   .pick-search .box span { flex:1; font-size:14px; color:#878787; white-space:nowrap; overflow:hidden; }
-  .pick-search .cancel { font-size:15px; font-weight:500; color:#878787; border:none; background:none; cursor:pointer; white-space:nowrap; }
+  /* 真输入框：占满胶囊剩余宽度，去掉浏览器默认外观 */
+  .pick-search .pick-inp {
+    flex:1; min-width:0; height:100%;
+    border:0; background:transparent; padding:0; margin:0;
+    font-family:inherit; font-size:14px; color:#1a1a1a; outline:none;
+    -webkit-appearance:none; appearance:none;
+  }
+  .pick-search .pick-inp::-webkit-search-cancel-button,
+  .pick-search .pick-inp::-webkit-search-decoration { -webkit-appearance:none; display:none; }
+  .pick-search .pick-inp::placeholder { color:#878787; opacity:1; }
+  .pick-search .cancel { font-size:15px; font-weight:500; color:#878787; border:none; background:none; cursor:pointer; white-space:nowrap; padding:0; }
+
+  /* 搜索态：平铺结果 —— 隐藏字母分组头 / 散客组 / 添加会员行（A-Z 索引条由 v2.css 处理） */
+  #s4 .pick-list.is-searching .pick-group-h { display:none; }
+  #s4 .pick-list.is-searching .pick-row-wrap[data-kind="guest"] { display:none; }
+  #s4 .pick-list.is-searching .pick-add-wrap { display:none; }
+  /* 无结果空状态 */
+  .pick-empty {
+    display:none; flex-direction:column; align-items:center; justify-content:center;
+    padding:88px 32px 0; text-align:center;
+  }
+  #s4 .pick-list.is-searching .pick-empty.show { display:flex; }
+  .pick-empty .ic {
+    width:64px; height:64px; border-radius:50%; background:#F5F5F5;
+    display:flex; align-items:center; justify-content:center; margin-bottom:16px;
+  }
+  .pick-empty .ic svg { width:28px; height:28px; display:block; color:#C4C4C4; }
+  .pick-empty .t { font-size:15px; font-weight:500; color:#1a1a1a; }
+  .pick-empty .s { font-size:13px; color:#929292; margin-top:6px; }
 
   /* 底部安全区 34：列表可视区让出 band，避免最后一行被 Home 指示条遮挡 */
   .pick-list { position:absolute; top:calc(var(--statusbar-h) + 50px); left:0; width:390px; bottom:var(--safe-bottom); overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; background:#fff; }
@@ -590,7 +628,7 @@
   .pa-btn.cancel { background:#F2F2F2; color:#666; }
   .pa-btn.ok { background:#F32F41; color:#fff; }
   .index-bar {
-    position:absolute; left:370px; top:calc(var(--statusbar-h) + 55px); bottom:12px; width:18px;
+    position:absolute; left:370px; top:calc(var(--chrome-top) + 55px); bottom:12px; width:18px;
     display:flex; flex-direction:column; align-items:center; gap:3px;
     font-size:10px; font-weight:700; color:#ffcc9d; line-height:14px;
     z-index:25; pointer-events:none;
@@ -772,15 +810,23 @@
   #s7 .co-item .co-thumb img { width:33px; height:33px; object-fit:contain; margin:auto; }
   #s6 .co-item .co-sum-row.pay, #s7 .co-item .co-sum-row.pay { padding-bottom:4px; }
   #s7 .co-item .co-note-row { padding-bottom:12px; }
-  /* 明细内分隔线：商品头下沿 + 「服务员工/权益/应付」行间，发丝浅灰 0.5px，左右各内缩 16 */
+  /* 明细内分隔线：商品头下沿 + 「服务员工/权益/应付」行间，左右各内缩 16
+     商品头下沿（上面第 1 根）：发丝浅灰 0.5px 实线
+     「服务员工→权益」「权益→应付」（下面 2 根）：改为虚线（0.5px 实线做不到清晰虚线，用 1px 渐变实现） */
   #s6 .co-item .co-top, #s7 .co-item .co-top,
   #s6 .co-item .co-row, #s7 .co-item .co-row,
   #s6 .co-item .co-sum-row, #s7 .co-item .co-sum-row { position:relative; }
-  #s6 .co-item .co-top::after, #s7 .co-item .co-top::after,
-  #s6 .co-item .co-row + .co-row::before, #s7 .co-item .co-row + .co-row::before,
-  #s6 .co-item .co-row + .co-sum-row::before, #s7 .co-item .co-row + .co-sum-row::before {
+  #s6 .co-item .co-top::after, #s7 .co-item .co-top::after {
     content:''; position:absolute; left:16px; right:16px; height:0.5px;
     background:#E7E7E7; pointer-events:none;
+  }
+  #s6 .co-item .co-row + .co-row::before,
+  #s7 .co-item .co-row + .co-row::before,
+  #s6 .co-item .co-row + .co-sum-row::before,
+  #s7 .co-item .co-row + .co-sum-row::before {
+    content:''; position:absolute; left:16px; right:16px; height:1px;
+    background-image:repeating-linear-gradient(to right,#E7E7E7 0 4px,transparent 4px 8px);
+    pointer-events:none;
   }
   #s6 .co-item .co-top::after, #s7 .co-item .co-top::after { bottom:0; }
   #s6 .co-item .co-row + .co-row::before,
@@ -1342,6 +1388,61 @@
     to { opacity:1; }
   }
 
+  /* ===== 日期选择浮层（标题栏日期控件下拉） ===== */
+  .date-mask {
+    position:absolute; inset:0; background:rgba(0,0,0,.28);
+    z-index:55; display:none; -webkit-tap-highlight-color:transparent;
+  }
+  .date-mask.show { display:block; }
+  .date-pop {
+    position:absolute; top:var(--chrome-top); right:12px; width:296px;
+    background:#fff; border-radius:14px; box-sizing:border-box;
+    padding:10px 12px 10px; z-index:56; display:none;
+    box-shadow:0 12px 32px rgba(0,0,0,.18), 0 0 0 .5px rgba(0,0,0,.04);
+  }
+  .date-pop.show { display:block; }
+  .dp-hd { display:flex; align-items:center; justify-content:space-between; height:32px; }
+  .dp-m { font-size:15px; font-weight:600; color:#1a1a1a; font-family:var(--font-data); }
+  .dp-nav {
+    width:32px; height:32px; border:0; background:none; padding:0; cursor:pointer;
+    color:#1a1a1a; display:flex; align-items:center; justify-content:center;
+    border-radius:8px; -webkit-tap-highlight-color:transparent;
+  }
+  .dp-nav svg { width:16px; height:16px; display:block; }
+  .dp-nav:active { background:#f2f2f2; }
+  .dp-nav[disabled] { color:#D8D8D8; cursor:default; }
+  .dp-nav[disabled]:active { background:none; }
+  .dp-wk {
+    display:grid; grid-template-columns:repeat(7, 1fr); margin-top:2px;
+    font-size:11px; color:#929292; text-align:center; line-height:22px;
+  }
+  .dp-grid { display:grid; grid-template-columns:repeat(7, 1fr); row-gap:2px; }
+  .dp-d {
+    height:34px; border:0; background:none; padding:0; cursor:pointer;
+    font-family:var(--font-data); font-size:14px; color:#1a1a1a;
+    display:flex; align-items:center; justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .dp-d .d-num {
+    width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dp-d.is-other { color:#C4C4C4; }
+  .dp-d.is-today .d-num { color:#F32F41; font-weight:600; }
+  .dp-d.is-sel .d-num { background:#F32F41; color:#fff; font-weight:600; }
+  .dp-d[disabled] { color:#D8D8D8; cursor:default; background:none; }
+  .dp-d[disabled] .d-num { color:#D8D8D8; }
+  .dp-ft {
+    display:flex; gap:10px; margin-top:8px; padding-top:10px;
+    border-top:.5px solid #f0f0f0;
+  }
+  .dp-quick {
+    flex:1; height:34px; border:0; border-radius:9px; background:#F5F5F5;
+    color:#1a1a1a; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .dp-quick:active { background:#ebebeb; }
+
   /* ===== 手机预览模式（html.is-mobile） ===== */
   .site-nav-scrim {
     display:none; position:fixed; inset:0; z-index:250;
@@ -1498,8 +1599,10 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="go('s4')"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
-      <div class="date">2026.04.27</div>
-      <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+      <button class="date-ctl" type="button" data-date-ctl>
+        <span class="date">2026.09.17</span>
+        <img class="ic-cal" src="assets/ic_nav_right.svg" alt="">
+      </button>
     </div>
 
     <div class="scroll">
@@ -1629,8 +1732,10 @@
       <div class="nav-bar">
         <button class="btn-back" onclick="go('s1')"><img src="assets/ic_back.svg"></button>
         <div class="title">直接收款</div>
-        <div class="date">2026.04.27</div>
-        <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+        <button class="date-ctl" type="button" data-date-ctl>
+          <span class="date">2026.09.17</span>
+          <img class="ic-cal" src="assets/ic_nav_right.svg" alt="">
+        </button>
       </div>
 
       <div class="guest-card gcard" data-g="default">
@@ -1736,8 +1841,10 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="go('s2')"><img src="assets/ic_back.svg"></button>
       <div class="title">收款</div>
-      <div class="date">2026.04.27</div>
-      <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+      <button class="date-ctl" type="button" data-date-ctl>
+        <span class="date">2026.09.17</span>
+        <img class="ic-cal" src="assets/ic_nav_right.svg" alt="">
+      </button>
     </div>
 
     <div class="guest-card gcard" data-g="default">
@@ -1839,9 +1946,17 @@
         <img src="assets/ic_battery.svg" height="13">
       </div>
     </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="go('s0')"><img src="assets/ic_back.svg"></button>
+      <div class="title">选择顾客</div>
+    </div>
     <div class="pick-search">
-      <div class="box"><span>输入顾客姓名/手机号/编号/备注</span><img src="assets/ic_search.svg"></div>
-      <button class="cancel" onclick="go('s0')">取消</button>
+      <div class="box">
+        <input class="pick-inp" type="search" data-pick-search autocomplete="off"
+               enterkeyhint="search" placeholder="输入顾客姓名/手机号/编号/备注">
+        <img src="assets/ic_search.svg" alt="">
+      </div>
+      <button class="cancel" type="button" data-pick-search-cancel>取消</button>
     </div>
     <div class="pick-holds">
       <button type="button" data-hold-entry>
@@ -1851,7 +1966,7 @@
     </div>
     <div class="pick-list">
       <div class="pick-group-h">散客</div>
-      <div class="pick-row" onclick="pickGuest('male')">
+      <div class="pick-row" data-s4-guest onclick="pickGuest('male')">
         <div class="avatar"><img src="assets/avatar_male2.png"></div>
         <div class="info">
           <div class="line1">
@@ -1860,7 +1975,7 @@
           </div>
         </div>
       </div>
-      <div class="pick-row" onclick="pickGuest('female')">
+      <div class="pick-row" data-s4-guest onclick="pickGuest('female')">
         <div class="avatar"><img src="assets/avatar_card_female.png"></div>
         <div class="info">
           <div class="line1">
@@ -1991,8 +2106,10 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="go('s4')"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
-      <div class="date">2026.04.27</div>
-      <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+      <button class="date-ctl" type="button" data-date-ctl>
+        <span class="date">2026.09.17</span>
+        <img class="ic-cal" src="assets/ic_nav_right.svg" alt="">
+      </button>
     </div>
 
     <div class="scroll">
@@ -2149,8 +2266,10 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
-      <div class="date">2026.04.27</div>
-      <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+      <button class="date-ctl" type="button" data-date-ctl>
+        <span class="date">2026.09.17</span>
+        <img class="ic-cal" src="assets/ic_nav_right.svg" alt="">
+      </button>
     </div>
 
     <div class="scroll">
@@ -2208,7 +2327,7 @@
         <div class="co-manual" id="coManual" onclick="startEditOrderNo('co')">
           <span class="lbl">单号</span>
           <span class="spacer"></span>
-          <span class="hint" id="coManualHint">结账后自动生成</span>
+          <span class="hint" id="coManualHint">自动生成·点击可修改</span>
           <input id="coManualNo" type="text" value="" placeholder="请输入单号" onclick="event.stopPropagation()" onblur="finishEditOrderNo('co')" oninput="syncOrderNoUI('co')">
           <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
         </div>
@@ -2239,8 +2358,10 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
-      <div class="date">2026.04.27</div>
-      <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+      <button class="date-ctl" type="button" data-date-ctl>
+        <span class="date">2026.09.17</span>
+        <img class="ic-cal" src="assets/ic_nav_right.svg" alt="">
+      </button>
     </div>
 
     <div class="scroll">
@@ -2298,7 +2419,7 @@
         <div class="co-manual" id="qcoManual" onclick="startEditOrderNo('qco')">
           <span class="lbl">单号</span>
           <span class="spacer"></span>
-          <span class="hint" id="qcoManualHint">结账后自动生成</span>
+          <span class="hint" id="qcoManualHint">自动生成·点击可修改</span>
           <input id="qcoManualNo" type="text" value="" placeholder="请输入单号" onclick="event.stopPropagation()" onblur="finishEditOrderNo('qco')" oninput="syncOrderNoUI('qco')">
           <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
         </div>
@@ -2580,6 +2701,26 @@
   </div>
 
   <div id="toast"></div>
+
+  <!-- 日期选择浮层（从标题栏日期控件位置下拉，覆盖范围：今天往前 3 个月） -->
+  <div class="date-mask" data-date-mask></div>
+  <div class="date-pop" data-date-pop role="dialog" aria-label="选择开单日期">
+    <div class="dp-hd">
+      <button type="button" class="dp-nav" data-date-prev aria-label="上一月">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="dp-m" data-date-month></div>
+      <button type="button" class="dp-nav" data-date-next aria-label="下一月">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="dp-wk"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+    <div class="dp-grid" data-date-grid></div>
+    <div class="dp-ft">
+      <button type="button" class="dp-quick" data-date-quick="today">今天</button>
+      <button type="button" class="dp-quick" data-date-quick="yesterday">昨天</button>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -3707,7 +3848,7 @@
     s6.classList.toggle('cust-guest', type !== 'member');
   }
 
-  // ---- 单号：默认「结账后自动生成」，点击可手动输入 ----
+  // ---- 单号：默认显示「自动生成·点击可修改」，点击可手动输入 ----
   function orderNoEls(kind) {
     var prefix = kind === 'qco' ? 'qco' : 'co';
     return {
