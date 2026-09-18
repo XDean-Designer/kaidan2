@@ -6,9 +6,7 @@
 var log = [];
 function P(k, v) { log.push(k + ' = ' + v); }
 var f = document.createElement('iframe');
-f.src = 'index.html?capture=s1-expand&bust=' + Date.now();
 f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
-document.body.appendChild(f);
 var w, d;
 function q(s) { return d.querySelector(s); }
 function qa(s) { return Array.prototype.slice.call(d.querySelectorAll(s)); }
@@ -30,15 +28,29 @@ function finish() {
   pre.textContent = log.join('\n');
   document.body.appendChild(pre);
 }
-f.addEventListener('load', function () {
-  w = f.contentWindow; d = f.contentDocument;
+f.addEventListener('load', function () { startWhenReady(); });
+/* 注意：同源 iframe 可能在本脚本执行前就完成 load，故同时用轮询兜底 */
+var started = false;
+function startWhenReady() {
+  try { w = f.contentWindow; d = w ? w.document : null; } catch (e) { return; }
+  if (started || !w || !d || !w.go || !d.querySelector || !d.querySelector('.screen') ||
+      typeof w.__v2SyncHold !== 'function') return;
+  started = true;
+  setTimeout(function () {
+    body();
+  }, 700);
+}
+setInterval(startWhenReady, 120);
+function body() {
   var t = 0, iv = setInterval(function () {
     t += 100;
-    var commit = q('#s1 [data-commit]');
+    var mask = q('#addSheetMask');
+    var commit = (mask && mask.classList.contains('show') && w.__v2DraftStaff)
+      ? mask.querySelector('.addsheet__foot .btn-confirm') : null;
     if (commit || t > 15000) {
       clearInterval(iv);
       P('wait commitMs', t);
-      if (!commit) { P('ERR', 's1 无 [data-commit] 按钮'); finish(); return; }
+      if (!commit) { P('ERR', '「设置内容」sheet 未打开（找不到确定按钮）'); finish(); return; }
       commit.click();
       setTimeout(function () {
         P('购物车条数', w.cartItems.length);
@@ -56,6 +68,14 @@ f.addEventListener('load', function () {
     }
   }, 100);
   function run() {
+    try {
+      runBody();
+    } catch (e) {
+      P('ERR run', e.message);
+    }
+    finish();
+  }
+  function runBody() {
     snap('A 散客进结算');
     P('A autoBenefit()', w.autoBenefit ? String(w.autoBenefit()) : 'N/A');
     var sum = w.orderPayableSum();
@@ -72,8 +92,10 @@ f.addEventListener('load', function () {
     P('E s12', vis());
     P('E s12 选中', qa('#benList .ben-row').map(function (x, i) { var im = x.querySelector('img'); return im && /ic_radio_on/.test(im.getAttribute('src')) ? i : -1; }).filter(function (i) { return i >= 0; }).join(','));
     q('#s12 .nav-bar .btn-back').click();
-    finish();
   }
-});
+}
+/* 先挂载监听/轮询，再设置 src 并插入 */
+f.src = 'index.html?capture=s1-expand&bust=' + Date.now();
+document.body.appendChild(f);
 </script>
 </body></html>

@@ -172,10 +172,14 @@ var steps = [
     P('24 toast 文案', toastTxt());
     P('24 toast display', (q('#toast') || {}).style.display);
     P('24 停留页', vis());
-    P('24 明细数', items().length);
+    P('24 明细数(数据 cartItems)', w.cartItems.length, '/ 角标=' + (function () {
+      var e = q('#s1 [data-cart-badge]');
+      return e ? e.textContent + (e.classList.contains('show') ? '/show' : '/hide') : 'N/A';
+    })() + ' / s6 DOM 行(隐藏页残留)=' + items().length);
     P('24 navStack', w.navStack.join('>'));
-    P('25 s7 结账函数', /已进入线上结账流程/.test(String(w.quickCheckoutDone)) ? 'OK' : 'MISS');
-    P('25 s6 结账函数', /已进入线上结账流程/.test(String(w.checkoutDone)) ? 'OK' : 'MISS');
+    P('25 s15 成功页 金额/日期/单号', [(q('#sucAmt') || {}).textContent, (q('#sucDate') || {}).textContent,
+      JSON.stringify((q('#sucNo') || {}).textContent), 'sucInfo.no=' + JSON.stringify((w.sucInfo || {}).no)].join(' | '));
+    P('25 结账后已离开结算页', /s15/.test(vis()) ? 'OK(s15)' : 'MISS:' + vis());
     next();
   }
 ];

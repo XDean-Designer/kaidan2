@@ -1,0 +1,48 @@
+﻿<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script>
+var log = [];
+var f = document.createElement('iframe');
+f.src = 'index.html?bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+f.addEventListener('load', function () {
+  var w = f.contentWindow, d = f.contentDocument;
+  setTimeout(run, 600);
+  function info(el, tag) {
+    if (!el) { log.push(tag + ' N/A'); return; }
+    var c = getComputedStyle(el);
+    log.push(tag + ' rect=' + el.getBoundingClientRect().width.toFixed(1) + 'x' + el.getBoundingClientRect().height.toFixed(1) +
+      ' offset=' + el.offsetWidth + 'x' + el.offsetHeight +
+      ' cs=' + c.width + '/' + c.height);
+  }
+  function run() {
+    w.__v2Member = { name: '陈女士', gender: 'female', avatar: 'assets/avatar_card_female.png',
+      lastVisit: '2026-09-01', cards: '10', balance: '2049', discount: '8', isNew: false };
+    w.setCust('member');
+    w.go('s5');
+    setTimeout(function () {
+      info(d.querySelector('#s5 .nav-cust .ic-mem'), 's5 会员icon img');
+      info(d.querySelector('#s5 .nav-cust'), 's5 会员icon 按钮');
+      w.setCust('guest'); w.go('s4');
+      setTimeout(function () {
+        info(d.querySelector('#s4 .pick-row-wrap svg'), 's4 列表添加会员图标');
+        if (w.setGuestGender) w.setGuestGender('male');
+        w.go('s1');
+        setTimeout(function () {
+          d.querySelector('#s1 .nav-cust').click();
+          setTimeout(function () {
+            info(d.querySelector('#s1 .v2-ccard__addmem svg'), '开单页卡片 添加会员图标');
+            info(d.querySelector('#s1 .v2-ccard__addmem'), '开单页卡片 添加会员按钮');
+            var pre = document.createElement('pre');
+            pre.textContent = log.join('\n');
+            document.body.appendChild(pre);
+          }, 700);
+        }, 300);
+      }, 300);
+    }, 500);
+  }
+});
+</script>
+</body></html>

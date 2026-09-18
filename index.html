@@ -141,6 +141,28 @@
   .nav-bar .date-ctl .date { position:static; left:auto; top:auto; font-size:12px; font-weight:500; color:#1a1a1a; white-space:nowrap; }
   .nav-bar .date-ctl .ic-cal { width:16px; height:16px; display:block; flex:none; }
   .nav-bar .date-ctl:active { opacity:.55; }
+  /* 「取挂单（N）」：选择顾客页标题栏右侧入口（挂单列表） */
+  .nav-bar .nav-hold {
+    position:absolute; right:10px; top:10px; height:24px;
+    display:flex; align-items:center; gap:6px;
+    border:0; background:none; padding:0; margin:0; cursor:pointer;
+    font-family:inherit; font-size:14px; font-weight:500; color:#1a1a1a;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .nav-bar .nav-hold img { width:16px; height:16px; display:block; flex:none; }
+  .nav-bar .nav-hold .n { color:#F32F41; }
+  .nav-bar .nav-hold:active { opacity:.55; }
+  /* 开单页标题栏右侧「顾客」入口：会员 = icon + 姓名；散客 = 仅文字。点击展开/收起顾客卡片 */
+  .nav-bar .nav-cust {
+    position:absolute; right:10px; top:10px; height:24px;
+    display:flex; align-items:center; gap:4px;
+    border:0; background:none; padding:0; margin:0; cursor:pointer;
+    font-family:inherit; font-size:14px; font-weight:500; color:#1a1a1a;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .nav-bar .nav-cust .ic-mem { width:20px; height:20px; display:block; flex:none; }
+  .nav-bar .nav-cust span { max-width:96px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .nav-bar .nav-cust:active { opacity:.55; }
   .nav-bar .btn-back { position:absolute; left:10px; top:10px; width:24px; height:24px; border:none; background:none; padding:0; cursor:pointer; }
   .nav-bar .btn-back img { width:24px; height:24px; display:block; }
   .nav-bar .ic-right { position:absolute; left:364px; top:14px; width:16px; height:16px; }
@@ -279,7 +301,7 @@
   }
   .search .go-btn { position:absolute; left:318px; top:11px; font-size:14px; color:#929292; border:none; background:none; cursor:pointer; padding:0; }
 
-  /* ===== 快捷开单行（已移除入口，样式保留备用） ===== */
+  /* ===== 直接收款行（已移除入口，样式保留备用） ===== */
   .quick-row { display:none; }
 
   /* ===== 左侧分类栏 ===== */
@@ -587,12 +609,13 @@
   .pick-row .info .line1 .cnt { font-size:13px; color:#111; white-space:nowrap; }
   .pick-row .info .line1 .phone { flex:1; text-align:right; font-size:14px; color:#888; white-space:nowrap; }
   .pick-row .info .sub { font-size:12px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  /* 「添加会员」入口行（设计稿 968:371）：44×44 细描边圆环＋圆角＋（#FF8956）+ 灰色标题 */
+  /* 「添加会员」入口行（设计稿 968:371）：图标 36×36（#FF8956 实心图形）+ 灰色标题
+     外层保持 44×44，使图标与其它行的 44 头像同中轴、行高一致 */
   .pick-add-av {
     width:44px; height:44px; border-radius:50%; flex:none; background:#fff;
     display:flex; align-items:center; justify-content:center;
   }
-  .pick-add-av svg { width:44px; height:44px; display:block; }
+  .pick-add-av svg { width:36px; height:36px; display:block; }
   .pick-row .info .line1 .nm.is-add { color:#929292; }
 
   /* 「添加会员」行下展：快捷添加会员表单（姓名* / 手机号 / 性别*） */
@@ -693,43 +716,13 @@
   #s5 .page { transition: padding-top .18s ease; }
   #s5.m-exp .member-card { height:200px; }
 
-  /* ===== 结算页 s6 / 快捷开单结算 s7 ===== */
+  /* ===== 结算页 s6 / 直接收款结算 s7 ===== */
   #s6 .scroll, #s7 .scroll { top:var(--chrome-top); bottom:calc(72px + var(--safe-bottom)); }
   #s6 .page, #s7 .page { position:relative; }
   #s6 .co-card, #s7 .co-card {
     position:absolute; left:12px; top:10px; width:366px; z-index:20;
   }
   #s6 .co-card .fold-btn, #s7 .co-card .fold-btn { margin-left:auto; }
-  #s6 .co-manual, #s7 .co-manual {
-    position:absolute; left:0; top:calc(var(--statusbar-h) + 66px); width:390px; height:56px;
-    background:#fff; display:flex; align-items:center; padding:0 16px; z-index:15;
-    cursor:pointer; border-bottom:0.5px solid #e8e8e8; box-sizing:border-box;
-  }
-  #s6 .co-manual .lbl, #s7 .co-manual .lbl { font-size:var(--fs-label); color:var(--text); white-space:nowrap; }
-  #s6 .co-manual .spacer, #s7 .co-manual .spacer { flex:1; min-width:12px; }
-  #s6 .co-manual.is-editing .spacer, #s7 .co-manual.is-editing .spacer,
-  #s6 .co-manual.has-value .spacer, #s7 .co-manual.has-value .spacer { display:none; }
-  #s6 .co-manual .hint, #s7 .co-manual .hint {
-    font-size:var(--fs-value); color:var(--text-sec); white-space:nowrap; flex:none;
-  }
-  #s6 .co-manual .hint.is-hidden, #s7 .co-manual .hint.is-hidden { display:none; }
-  #s6 .co-manual input, #s7 .co-manual input {
-    flex:1; margin-left:16px; border:none; outline:none;
-    font-size:var(--fs-value); color:var(--text); background:transparent; text-align:right;
-    display:none; min-width:0;
-  }
-  #s6 .co-manual.is-editing input, #s7 .co-manual.is-editing input { display:block; }
-  #s6 .co-manual.is-editing .hint, #s7 .co-manual.is-editing .hint { display:none; }
-  #s6 .co-manual.has-value .hint, #s7 .co-manual.has-value .hint { display:none; }
-  #s6 .co-manual.has-value:not(.is-editing) input, #s7 .co-manual.has-value:not(.is-editing) input {
-    display:block; pointer-events:none;
-  }
-  #s6 .co-manual input::placeholder, #s7 .co-manual input::placeholder { color:#929292; }
-  #s6 .co-manual .arrow, #s7 .co-manual .arrow {
-    width:16px; height:16px; margin-left:8px; flex:none;
-    display:flex; align-items:center; justify-content:center; color:#c7c7cc;
-  }
-  #s6 .co-manual .arrow svg, #s7 .co-manual .arrow svg { width:14px; height:14px; }
   #s6 .co-bar .btn-g.is-disabled, #s7 .co-bar .btn-g.is-disabled {
     background:#f2f2f2; color:#b2b2b2;
   }
@@ -789,7 +782,6 @@
   /* 会员卡展开时手工单号与明细下移 */
   #s6, #s7 { --cofold: 0px; }
   #s6.m-exp, #s7.m-exp { --cofold: 100px; }
-  #s6 .co-manual, #s7 .co-manual { top:calc(119px + var(--cofold, 0px)); }
   #s6 .co-items, #s7 .co-items { top:calc(184px + var(--cofold, 0px)); }
   /* 应付（小计已移除，只保留应付） */
   #s6 .co-item .co-sum-row, #s7 .co-item .co-sum-row {
@@ -1063,7 +1055,7 @@
   .benefit-sheet .benefit-item.disabled { cursor:not-allowed; opacity:0.4; }
   .benefit-sheet .benefit-item.disabled .type { color:#929292; border-color:#d8d8d8; }
 
-  /* ===== 快捷开单/去收款页 顶部卡片按身份切换 ===== */
+  /* ===== 直接收款/去收款页 顶部卡片按身份切换 ===== */
   .screen .gcard, .screen .mcard { position:absolute; left:12px; top:calc(var(--statusbar-h) + 54px); z-index:20; }
   #s6 .gcard, #s6 .mcard, #s7 .gcard, #s7 .mcard { top:10px; }
   .screen.cust-guest .gcard { display:block; }
@@ -1101,7 +1093,6 @@
     border-radius:16px 16px 0 0;
   }
   .addsheet__title { font-size:17px; font-weight:600; color:#1a1a1a; line-height:24px; }
-  .addsheet__price { font-size:15px; font-weight:500; color:#f32f41; margin-top:2px; }
 
   /* 四宫格 */
   .addsheet-grid {
@@ -1142,7 +1133,7 @@
   .staff-embed .detail-item__staff-block { margin:0; }
   .staff-embed .staff-grid { padding-top:0; }
 
-  /* 快捷开单 员工内嵌面板 */
+  /* 直接收款 员工内嵌面板 */
   .quick-staff-panel {
     position:absolute; left:16px; width:358px; z-index:26;
     background:#FAFAFA; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,.14);
@@ -1604,6 +1595,119 @@
   /* 不满门槛的券：整体降饱和，右侧单选圈置灰不可选 */
   #s13 .cp-card.is-off { opacity:.45; cursor:not-allowed; }
   #s13 .cp-card.is-off .cp-rule { cursor:pointer; }
+
+  /* ===== 页面14 挂单列表（占位） ===== */
+  #s14 { background:#f7f7f7; }
+  #s14 .hold-list {
+    position:absolute; left:0; top:var(--chrome-top); width:390px; bottom:0;
+    overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+    padding:12px 16px calc(var(--safe-bottom) + 20px); box-sizing:border-box;
+  }
+  #s14 .hold-list::-webkit-scrollbar { width:0; height:0; }
+  #s14 .hold-card {
+    background:#fff; border-radius:12px; padding:14px 16px; margin-bottom:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+  }
+  #s14 .hold-card .hd { display:flex; align-items:center; gap:6px; }
+  #s14 .hold-card .hd .nm { font-size:16px; font-weight:700; color:#1a1a1a; }
+  #s14 .hold-card .hd .vip { font-size:10px; padding:2px 5px; border-radius:2px; background:#333; color:#fff; font-weight:700; }
+  #s14 .hold-card .hd .tm { margin-left:auto; font-size:12px; color:#929292; font-family:var(--font-data); }
+  #s14 .hold-card .items { font-size:13px; color:#666; line-height:19px; margin-top:8px; }
+  #s14 .hold-card .ft { display:flex; align-items:center; margin-top:12px; }
+  #s14 .hold-card .ft .amt { font-size:18px; font-weight:500; color:#1a1a1a; font-family:var(--font-data); }
+  #s14 .hold-card .ft .amt .cur { font-size:12px; margin-right:1px; }
+  #s14 .hold-card .ft .btn-take {
+    margin-left:auto; height:32px; padding:0 16px; border:0; border-radius:8px;
+    background:#F32F41; color:#fff; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #s14 .hold-card .ft .btn-take:active { opacity:.85; }
+  #s14 .hold-empty { padding-top:140px; text-align:center; font-size:14px; color:#929292; }
+  #s14 .hold-tip { padding:0 4px; font-size:12px; color:#929292; line-height:18px; }
+
+  /* ===== 页面15 开单成功（Figma「开单成功」151:7794） ===== */
+  #s15 { background:#f7f7f7; }
+  #s15 .status-bar, #s15 .nav-bar { background:transparent; }
+  #s15 .nav-bar .title { left:0; width:390px; font-size:16px; font-weight:500; top:12px; }
+  #s15 .suc-bg {
+    position:absolute; left:0; top:0; width:390px; height:328px; z-index:1;
+    background:linear-gradient(180deg,#FBE075 0%, #F7F3E2 100%);
+  }
+  #s15 .suc-bg-mask {
+    position:absolute; left:0; top:0; width:390px; height:281px; z-index:1;
+    pointer-events:none;
+  }
+  #s15 .suc-bg-mask img { width:390px; height:281px; display:block; }
+  /* 「开单成功」徽标行：对勾 20×20 + 17px Semibold */
+  #s15 .suc-head {
+    position:absolute; left:0; top:107px; width:390px; height:24px; z-index:2;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  #s15 .suc-head img { width:20px; height:20px; display:block; flex:none; }
+  #s15 .suc-head .t { font-size:17px; font-weight:600; color:#1a1a1a; }
+  /* 内容区胶囊按钮行：改日期 / 改单号 / 看流水 */
+  #s15 .suc-acts {
+    position:absolute; left:16px; right:16px; top:143px; height:30px; z-index:2;
+    display:flex; gap:8px;
+  }
+  #s15 .suc-act {
+    flex:1; height:30px; border-radius:4px; border:.5px solid #C2C4CC; background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:inherit; font-size:13px; color:#6C7279; cursor:pointer; padding:0;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #s15 .suc-act:active { background:#F7F7F7; }
+  /* 半透明白卡 */
+  #s15 .suc-card {
+    position:absolute; left:16px; top:193px; width:358px; height:236px; z-index:2;
+    box-sizing:border-box; border-radius:16px; background:rgba(255,255,255,.6);
+  }
+  /* 无「剩余」行（非会员卡支付）时，卡内底部次要字段整体上移、卡高收窄 */
+  #s15 .suc-card.no-rest { height:210px; }
+  #s15 .suc-amt {
+    position:absolute; left:0; right:0; top:36px; text-align:center;
+    font-family:var(--font-data); color:#1a1a1a; line-height:1.2;
+  }
+  #s15 .suc-amt .cur { font-size:30px; }
+  #s15 .suc-amt .num { font-size:44px; }
+  #s15 .suc-line { position:absolute; left:16px; top:125px; width:326px; height:.5px; }
+  #s15 .suc-line img { width:326px; height:.5px; display:block; }
+  #s15 .suc-row {
+    position:absolute; left:16px; right:16px; display:flex; align-items:center;
+  }
+  #s15 .suc-row.r1 { top:141px; height:20px; font-size:14px; color:#1a1a1a; }
+  #s15 .suc-row.r2 { top:169px; height:18px; font-size:12px; color:#929292; }
+  #s15 .suc-row .l { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #s15 .suc-row .r { font-family:var(--font-data); }
+  #s15 .suc-row.r1 .r { font-weight:500; color:#1a1a1a; }
+  /* 卡内底部次要字段：开单日期 · 单号（发丝线 + 居中一行 12px 灰字） */
+  #s15 .suc-line2 { position:absolute; left:16px; top:199px; width:326px; height:.5px; }
+  #s15 .suc-line2 img { width:326px; height:.5px; display:block; }
+  #s15 .suc-card.no-rest .suc-line2 { top:173px; }
+  #s15 .suc-submeta {
+    position:absolute; left:16px; right:16px; top:209px; height:17px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; color:#929292; font-family:var(--font-data);
+  }
+  #s15 .suc-card.no-rest .suc-submeta { top:183px; }
+  /* 底部操作条：返回首页(图标) + 客户签字 + 客户详情 + 继续开单 */
+  #s15 .suc-bar {
+    position:absolute; left:0; right:0; bottom:0; height:calc(64px + var(--safe-bottom));
+    background:#fff; z-index:30; padding:16px 16px 0; box-sizing:border-box;
+    display:flex; align-items:flex-start; gap:8px;
+  }
+  #s15 .suc-bar button {
+    height:48px; border:0; border-radius:12px; font-family:inherit; font-size:16px; font-weight:500;
+    cursor:pointer; padding:0; -webkit-tap-highlight-color:transparent;
+  }
+  #s15 .suc-bar .ico-home {
+    width:48px; flex:none; background:#FFF2F2;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #s15 .suc-bar .ico-home img { width:20px; height:20px; display:block; }
+  #s15 .suc-bar .b-sec { flex:none; width:88px; background:#FFF2F2; color:#F32F41; }
+  #s15 .suc-bar .b-main { flex:1; background:#F32F41; color:#fff; }
+  #s15 .suc-bar button:active { opacity:.85; }
 </style>
 </head>
 <body>
@@ -1623,6 +1727,8 @@
     <button class="nav-item" data-target="s5" onclick="go('s5')"><span class="idx">5</span>开单（会员）</button>
     <div class="nav-arrow">↓</div>
     <button class="nav-item" data-target="s6" onclick="go('s6')"><span class="idx">6</span>开单结算</button>
+    <div class="nav-arrow">↓</div>
+    <button class="nav-item" data-target="s15" onclick="go('s15')"><span class="idx">15</span>开单成功</button>
   </div>
   <div class="nav-group">
     <div class="g-t">直接收款</div>
@@ -1638,6 +1744,7 @@
     <button class="nav-item" data-target="s11" onclick="go('s11')"><span class="idx">11</span>提成方案</button>
     <button class="nav-item" data-target="s12" onclick="go('s12')"><span class="idx">12</span>选择权益</button>
     <button class="nav-item" data-target="s13" onclick="go('s13')"><span class="idx">13</span>选择优惠券</button>
+    <button class="nav-item" data-target="s14" onclick="openHoldList()"><span class="idx">14</span>挂单列表</button>
   </div>
   <div class="nav-group grow">
     <div class="g-t">文档</div>
@@ -1679,6 +1786,10 @@
         <div class="s">办卡 / 充值</div>
       </button>
     </div>
+    <button type="button" class="v2-home-hold" onclick="openHoldList()">
+      <img src="assets/ic_hold_take.svg" alt="">
+      <span>取挂单（<span class="n" data-hold-count>3</span>）</span>
+    </button>
     <p class="v2-home-hint">从「开单」进入选择顾客，再开单或直接收款。本页为 2.0 简化首页（问卷 A2）。</p>
     <div class="v2-home-tabs" aria-hidden="true">
       <div class="ti on"><span class="ic">⌂</span>首页</div>
@@ -1702,9 +1813,9 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="go('s4')"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
-      <button class="date-ctl" type="button" data-date-ctl>
-        <span class="date">2026.09.17</span>
-        <img class="ic-cal" src="assets/ic_nav_right.svg" alt="">
+      <button class="nav-cust" type="button" data-nav-cust>
+        <img class="ic-mem" src="assets/ic_member_head.svg" alt="">
+        <span data-nav-cust-name>散客</span>
       </button>
     </div>
 
@@ -2052,6 +2163,10 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="go('s0')"><img src="assets/ic_back.svg"></button>
       <div class="title">选择顾客</div>
+      <button class="nav-hold" type="button" data-hold-entry onclick="openHoldList()">
+        <img src="assets/ic_hold_take.svg" alt="">
+        <span>取挂单（<span class="n" data-hold-count>3</span>）</span>
+      </button>
     </div>
     <div class="pick-search">
       <div class="box">
@@ -2060,12 +2175,6 @@
         <img src="assets/ic_search.svg" alt="">
       </div>
       <button class="cancel" type="button" data-pick-search-cancel>取消</button>
-    </div>
-    <div class="pick-holds">
-      <button type="button" data-hold-entry>
-        <img src="assets/ic_hold_take.svg" alt="">
-        <span>取挂单（<span class="n" data-hold-count>3</span>）</span>
-      </button>
     </div>
     <div class="pick-list">
       <div class="pick-group-h">散客</div>
@@ -2090,9 +2199,8 @@
       <div class="pick-add-wrap" data-add-wrap>
         <div class="pick-row" data-add-member>
           <div class="pick-add-av">
-            <svg viewBox="0 0 44 44" aria-hidden="true">
-              <path d="M22 5C12.6112 5 5 12.6112 5 22C5 31.3889 12.6112 39 22 39C31.3888 39 39 31.3888 39 22C39 12.6112 31.3888 5 22 5ZM22 37.8409C13.2513 37.8409 6.15906 30.7487 6.15906 22C6.15906 13.2513 13.2513 6.15909 22 6.15909C30.7487 6.15909 37.8409 13.2513 37.8409 22C37.8409 30.7487 30.7487 37.8409 22 37.8409Z" fill="#FF8956"></path>
-              <path d="M28.8095 20.3602H23.6205V15.1864C23.6205 14.4503 23.0237 13.8534 22.2875 13.8534H21.7001C20.9639 13.8534 20.3671 14.4503 20.3671 15.1864V20.3602H15.1781C14.4418 20.3602 13.8451 20.957 13.8451 21.6932V22.2959C13.8451 23.0321 14.4419 23.6289 15.1781 23.6289H20.3671V28.8026C20.3671 29.5389 20.9639 30.1357 21.7001 30.1357H22.2875C23.0237 30.1357 23.6205 29.5389 23.6205 28.8026V23.6289H28.8095C29.5457 23.6289 30.1425 23.0321 30.1425 22.2959V21.6932C30.1425 20.957 29.5457 20.3602 28.8095 20.3602Z" fill="#FF8956"></path>
+            <svg viewBox="0 0 200 200" aria-hidden="true">
+              <path d="M185.47 160.61C184.426 161.622 183.036 162.2 181.581 162.226H166.954V175.88C166.947 178.781 164.418 181.147 161.314 181.154H161.307C158.203 181.148 155.674 178.781 155.674 175.879V162.226H141.087C139.61 162.234 138.185 161.683 137.097 160.684C136.581 160.208 136.168 159.631 135.884 158.989C135.6 158.347 135.451 157.653 135.447 156.951C135.447 154.043 137.976 151.676 141.08 151.676H155.674V138.023C155.674 135.115 158.203 132.748 161.307 132.748C164.418 132.748 166.954 135.115 166.954 138.023V151.676H181.493C184.557 151.764 186.985 154.036 187.045 156.843C187.06 157.546 186.928 158.244 186.656 158.893C186.385 159.542 185.981 160.126 185.47 160.61ZM147.248 121.184C145.818 121.195 144.434 120.68 143.359 119.737L143.075 119.507C129.839 110.146 114.012 105.149 97.7998 105.211C56.3181 105.211 22.5663 136.792 22.5663 175.616C22.5526 178.537 20.0099 180.904 16.8923 180.904C13.7748 180.904 11.2254 178.53 11.2186 175.602C11.2254 158.892 16.6353 142.864 26.8469 129.245C36.8352 115.936 50.6579 105.833 66.8408 100.024L72.0276 98.1573L67.8078 94.7692C57.5556 86.539 51.6723 74.6032 51.6723 62.018C51.6723 38.2139 72.3657 18.8525 97.7998 18.8525C123.241 18.8525 143.934 38.2139 143.934 62.018C143.934 74.6032 138.05 86.5392 127.792 94.7692L123.572 98.1639L128.766 100.024C136.001 102.614 142.886 106.151 149.236 110.533L150.778 111.716C151.437 112.192 151.974 112.817 152.347 113.539C152.719 114.262 152.916 115.062 152.921 115.875C152.921 118.797 150.379 121.177 147.248 121.184ZM132.586 62.018C132.586 44.0703 116.978 29.4698 97.7998 29.4698C78.6278 29.4698 63.0198 44.0703 63.0198 62.018C63.0198 79.9657 78.6278 94.5596 97.7998 94.5596C116.978 94.5596 132.586 79.9659 132.586 62.018Z" fill="#FF8956"></path>
             </svg>
           </div>
           <div class="info">
@@ -2209,9 +2317,9 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="go('s4')"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
-      <button class="date-ctl" type="button" data-date-ctl>
-        <span class="date">2026.09.17</span>
-        <img class="ic-cal" src="assets/ic_nav_right.svg" alt="">
+      <button class="nav-cust" type="button" data-nav-cust>
+        <img class="ic-mem" src="assets/ic_member_head.svg" alt="">
+        <span data-nav-cust-name>散客</span>
       </button>
     </div>
 
@@ -2369,10 +2477,6 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
-      <button class="date-ctl" type="button" data-date-ctl>
-        <span class="date">2026.09.17</span>
-        <img class="ic-cal" src="assets/ic_nav_right.svg" alt="">
-      </button>
     </div>
 
     <div class="scroll">
@@ -2425,14 +2529,6 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="co-manual" id="coManual" onclick="startEditOrderNo('co')">
-          <span class="lbl">单号</span>
-          <span class="spacer"></span>
-          <span class="hint" id="coManualHint">自动生成·点击可修改</span>
-          <input id="coManualNo" type="text" value="" placeholder="请输入单号" onclick="event.stopPropagation()" onblur="finishEditOrderNo('co')" oninput="syncOrderNoUI('co')">
-          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
         </div>
 
         <div class="co-items" id="coItems"></div>
@@ -2448,7 +2544,7 @@
     </div>
   </div>
 
-  <!-- ============ 页面7 快捷开单开单结账（第二步） ============ -->
+  <!-- ============ 页面7 直接收款结账（第二步） ============ -->
   <div class="screen" id="s7" data-name="开单结算">
     <div class="status-bar">
       <div class="time">9:41</div>
@@ -2461,10 +2557,6 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
-      <button class="date-ctl" type="button" data-date-ctl>
-        <span class="date">2026.09.17</span>
-        <img class="ic-cal" src="assets/ic_nav_right.svg" alt="">
-      </button>
     </div>
 
     <div class="scroll">
@@ -2519,14 +2611,6 @@
           </div>
         </div>
 
-        <div class="co-manual" id="qcoManual" onclick="startEditOrderNo('qco')">
-          <span class="lbl">单号</span>
-          <span class="spacer"></span>
-          <span class="hint" id="qcoManualHint">自动生成·点击可修改</span>
-          <input id="qcoManualNo" type="text" value="" placeholder="请输入单号" onclick="event.stopPropagation()" onblur="finishEditOrderNo('qco')" oninput="syncOrderNoUI('qco')">
-          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
-        </div>
-
         <div class="co-items" id="qcoItems"></div>
       </div>
     </div>
@@ -2540,7 +2624,7 @@
     </div>
   </div>
 
-  <!-- ============ 页面8 门店流水（快捷开单展示） ============ -->
+  <!-- ============ 页面8 门店流水（直接收款展示） ============ -->
   <div class="screen" id="s8" data-name="门店流水">
     <div class="status-bar">
       <div class="time">9:41</div>
@@ -2577,7 +2661,7 @@
           <div class="g-main">
             <div class="g-line">
               <span class="bolt"><img src="assets/ic_lightning.svg" alt=""></span>
-              <span class="name">快捷开单</span>
+              <span class="name">直接收款</span>
               <span class="amt">¥ 491.00</span>
             </div>
             <div class="svc">服务人 <span class="sep">|</span> 刘敏</div>
@@ -2594,7 +2678,7 @@
     </div>
   </div>
 
-  <!-- ============ 页面9 选择退款项目（快捷开单） ============ -->
+  <!-- ============ 页面9 选择退款项目（直接收款） ============ -->
   <div class="screen" id="s9" data-name="选择退款项目">
     <div class="status-bar">
       <div class="time">9:41</div>
@@ -2616,7 +2700,7 @@
           <div class="main">
             <div class="nm-line">
               <span class="bolt"><img src="assets/ic_lightning.svg" alt=""></span>
-              <span class="name">快捷开单</span>
+              <span class="name">直接收款</span>
             </div>
             <div class="price-line">
               <span class="o">原价:¥ 158.00</span>
@@ -2635,7 +2719,7 @@
     </div>
   </div>
 
-  <!-- ============ 页面10 业绩设置（劳动业绩-快捷开单） ============ -->
+  <!-- ============ 页面10 业绩设置（劳动业绩-直接收款） ============ -->
   <div class="screen" id="s10" data-name="业绩设置">
     <div class="status-bar">
       <div class="time">9:41</div>
@@ -2658,12 +2742,12 @@
     <div class="pset-tip"><img src="assets/ic_info_red.svg" alt=""><span>注意此处修改业绩，而不是提成！</span></div>
     <div class="pset-cols">
       <div class="pset-rail">
-        <button class="cat on" type="button"><span class="ind"></span><span class="nm">快捷开单</span></button>
+        <button class="cat on" type="button"><span class="ind"></span><span class="nm">直接收款</span></button>
         <button class="cat" type="button" onclick="toast('洗吹')"><span class="ind"></span><span class="nm">洗吹</span></button>
       </div>
       <div class="pset-panel">
         <div class="perf-card">
-          <div class="hd">快捷开单</div>
+          <div class="hd">直接收款</div>
           <div class="table">
             <div class="trow head"><span class="c0"></span><span class="cv">大工</span><span class="cv">中工</span><span class="cv">小工</span></div>
             <div class="trow"><span class="c0">点客</span><span class="cv">100.00%</span><span class="cv">100.00%</span><span class="cv">100.00%</span></div>
@@ -2674,7 +2758,7 @@
     </div>
   </div>
 
-  <!-- ============ 页面11 提成方案（劳动提成-快捷开单） ============ -->
+  <!-- ============ 页面11 提成方案（劳动提成-直接收款） ============ -->
   <div class="screen" id="s11" data-name="提成方案">
     <div class="status-bar">
       <div class="time">9:41</div>
@@ -2702,12 +2786,12 @@
     <div class="pset-div"></div>
     <div class="pset-cols">
       <div class="pset-rail">
-        <button class="cat on" type="button"><span class="ind"></span><span class="nm">快捷开单</span></button>
+        <button class="cat on" type="button"><span class="ind"></span><span class="nm">直接收款</span></button>
         <button class="cat" type="button" onclick="toast('洗吹')"><span class="ind"></span><span class="nm">洗吹</span></button>
       </div>
       <div class="pset-panel">
         <div class="perf-card">
-          <div class="hd">快捷开单</div>
+          <div class="hd">直接收款</div>
           <div class="rows">
             <div class="pair"><span class="lbl">点客</span><span class="val">100.00%</span></div>
             <div class="pair"><span class="lbl">散客</span><span class="val">100.00%</span></div>
@@ -2758,6 +2842,65 @@
     </div>
   </div>
 
+  <!-- ============ 页面14 挂单列表（占位） ============ -->
+  <div class="screen" id="s14" data-name="挂单列表">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
+      <div class="title">挂单列表</div>
+    </div>
+    <div class="hold-list" id="holdList"></div>
+  </div>
+
+  <!-- ============ 页面15 开单成功（Figma「开单成功」151:7794） ============ -->
+  <div class="screen" id="s15" data-name="开单成功">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="suc-bg" aria-hidden="true"></div>
+    <div class="suc-bg-mask" aria-hidden="true"><img src="assets/suc_bg_mask.svg" alt=""></div>
+    <div class="nav-bar">
+      <div class="title">支付</div>
+    </div>
+    <div class="suc-head">
+      <img src="assets/suc_check.svg" alt="">
+      <span class="t">开单成功</span>
+    </div>
+    <div class="suc-acts">
+      <button type="button" class="suc-act" data-suc-act="date" onclick="sucChangeDate()">改日期</button>
+      <button type="button" class="suc-act" data-suc-act="no" onclick="sucChangeNo()">改单号</button>
+      <button type="button" class="suc-act" data-suc-act="flow" onclick="sucViewFlow()">看流水</button>
+    </div>
+    <div class="suc-card" id="sucCard">
+      <div class="suc-amt"><span class="cur">¥</span><span class="num" id="sucAmt">529</span></div>
+      <div class="suc-line" aria-hidden="true"><img src="assets/suc_line.svg" alt=""></div>
+      <div class="suc-row r1"><span class="l" id="sucPayName">美发卡3000元</span><span class="r" id="sucPayAmt">¥931</span></div>
+      <div class="suc-row r2" id="sucRestRow"><span class="l">剩余</span><span class="r" id="sucRest">¥2069</span></div>
+      <div class="suc-line2" aria-hidden="true"><img src="assets/suc_line.svg" alt=""></div>
+      <div class="suc-submeta">开单日期 <span id="sucDate">2026.09.17</span> · 单号 <span id="sucNo">20260917001</span></div>
+    </div>
+    <div class="suc-bar">
+      <button type="button" class="ico-home" data-suc-home onclick="go('s0')" aria-label="返回首页">
+        <img src="assets/suc_home.svg" alt="">
+      </button>
+      <button type="button" class="b-sec" data-suc-sign onclick="toast('已进入电子签字流程')">客户签字</button>
+      <button type="button" class="b-sec" data-suc-cust onclick="toast('查看客户详情')">客户详情</button>
+      <button type="button" class="b-main" data-suc-continue onclick="sucContinue()">继续开单</button>
+    </div>
+  </div>
+
   <div class="addsheet-mask" id="benefitSheetMask">
     <div class="addsheet">
       <div class="addsheet__head">
@@ -2799,16 +2942,15 @@
     <div class="addsheet">
       <div class="addsheet__head">
         <div class="addsheet__title" id="asTitle">高级设计师洗吹+造型</div>
-        <div class="addsheet__price" id="asPrice">¥58.9</div>
       </div>
       <div class="addsheet__body">
         <div class="addsheet-grid">
           <div class="addsheet-cell">
             <div class="lbl">数量</div>
             <div class="stepper">
-              <button type="button" class="st-btn" onclick="asStep(-1)">−</button>
+              <button type="button" class="st-btn" data-sq="-1">−</button>
               <div class="st-val" id="asQty">1</div>
-              <button type="button" class="st-btn" onclick="asStep(1)">+</button>
+              <button type="button" class="st-btn" data-sq="1">+</button>
             </div>
           </div>
           <div class="addsheet-cell">
@@ -2816,17 +2958,37 @@
             <div class="pay-row">
               <input class="num act" id="asPayable" type="number" inputmode="decimal" value="58.9"
                      oninput="fixAmountOnInput(this)" onfocus="asPayableFocus(this)" onblur="asPayableBlur(this)">
-              <span class="pen" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+              <span class="pen" role="button" tabindex="0" aria-label="编辑应付金额"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
             </div>
           </div>
         </div>
         <div class="addsheet-staff-embed">
           <div class="staff-embed__head"><span id="asStaffLabel">服务员工</span></div>
-          <div class="staff-embed" id="asStaffGrid" data-staff-root data-ctx="add"></div>
+          <div class="staff-embed" id="asStaffGrid" data-staff-root data-ctx="v2draft"></div>
         </div>
       </div>
       <div class="addsheet__foot">
-        <button type="button" class="btn-confirm" onclick="confirmAddSheet()">确定</button>
+        <button type="button" class="btn-confirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 成功页「改单号」底部 sheet -->
+  <div class="addsheet-mask" id="sucNoMask">
+    <div class="addsheet" role="dialog" aria-label="修改单号">
+      <div class="addsheet__head">
+        <div class="addsheet__title">修改单号</div>
+      </div>
+      <div class="addsheet__body">
+        <div class="sucno-field">
+          <span class="lbl">单号</span>
+          <input id="sucNoInput" type="text" inputmode="numeric" maxlength="20" placeholder="请输入单号">
+        </div>
+        <div class="sucno-tip">单号仅支持数字，长度 1-20 位；留空则恢复系统自动生成。</div>
+      </div>
+      <div class="addsheet__foot">
+        <button type="button" class="btn-cancel" id="sucNoCancel" onclick="closeSucNo()">取消</button>
+        <button type="button" class="btn-confirm" id="sucNoOk" onclick="confirmSucNo()">确定</button>
       </div>
     </div>
   </div>
@@ -2898,13 +3060,15 @@
   function toast(msg) {
     var t = document.getElementById('toast');
     t.textContent = msg;
+    /* 全局 toast 序号：飞购物车等「延迟 toast」靠它判断期间是否已被更新的提示覆盖 */
+    window.__toastSeq = (window.__toastSeq || 0) + 1;
     clearTimeout(toastTimer);
     t.style.display = 'block';
     void t.offsetWidth; // 重触发动画
     toastTimer = setTimeout(function(){ t.style.display='none'; }, 1400);
   }
 
-  // ---- 快捷开单/去收款页 顾客身份切换 ----
+  // ---- 直接收款/去收款页 顾客身份切换 ----
   var currentCust = 'guest';
   // 会员持有权益对价目的优惠（演示：陈女士持有「超值折扣卡 8.0折」为全场最优折扣）
   var MEMBER_BENEFIT_DISCOUNT = 0.8;
@@ -3019,7 +3183,7 @@
   }
   setCust('guest');
 
-  // ---- 快捷开单 键盘输入 ----
+  // ---- 直接收款 键盘输入 ----
   var s2val = '';
   function renderS2() {
     var ph = document.getElementById('s2moneyPh');
@@ -3088,7 +3252,7 @@
   }
   function delKey3() { s3val = s3val.slice(0,-1) || '0'; renderS3(); }
 
-  // ---- 快捷开单 员工/备注（s2/s3 共享状态） ----
+  // ---- 直接收款 员工/备注（s2/s3 共享状态） ----
   var quickStaffRow = { id: '__quick__', staffIds: [], staffRoles: {}, staffDesignated: {} };
   var quickRemark = '';
   var quickStaffOpen = '';   // 当前展开的员工面板 id（'' 表示收起）
@@ -3156,7 +3320,7 @@
   function addCartM(btn) { openAddSheet(btn, 'member'); }
   function addCart(btn) { openAddSheet(btn, 'guest'); }
 
-  // ---- 下一步 / 快捷开单主按钮 ----
+  // ---- 下一步 / 直接收款主按钮 ----
   function onPrimaryAction(screenId) {
     if (!cartItems.length) {
       toast('请先添加项目或产品');
@@ -3175,14 +3339,47 @@
   }
   function tryHangOrder(ctx) {
     if (ctx === 's7') {
-      toast('快捷开单不可挂单');
+      toast('直接收款不可挂单');
       return;
     }
     if (!cartItems.length) {
       toast('请先添加项目或产品');
       return;
     }
-    toast('已挂单');
+    /* 挂单：明细存入挂单列表（演示），当前单据清空后跳转挂单列表页 */
+    holdOrders.unshift({
+      id: 'h' + Date.now(),
+      cust: holdCustName(),
+      vip: currentCust === 'member',
+      time: '刚刚',
+      items: cartItems.map(function (it) {
+        return { name: it.name, price: it.price, qty: it.qty, isProd: !!it.isProd, group: it.group || '' };
+      })
+    });
+    cartItems.length = 0;
+    window.__v2OrderCoupon = null;
+    window.__v2OrderCouponTouched = false;
+    window.__lastCoCust = null;
+    resetOrderNo('co');
+    resetOrderNo('qco');
+    var rk = document.getElementById('remarkInput');
+    if (rk) rk.value = '';
+    syncHoldCount();
+    recalcOrderAmounts();
+    updateCartBadge();
+    toast('挂单成功');
+    renderHoldList();
+    go('s14');
+  }
+  /* 挂单展示的顾客名：会员用会员姓名，散客按性别显示 */
+  function holdCustName() {
+    if (currentCust === 'member') {
+      var m = window.__v2Member;
+      return (m && m.name) ? m.name : '陈女士';
+    }
+    var el = document.querySelector('.v2-ccard[data-g]');
+    var g = (el && el.getAttribute('data-g')) || 'default';
+    return g === 'male' ? '男散客' : (g === 'female' ? '女散客' : '散客');
   }
   function syncHangAndNextUI() {
     var empty = !cartItems.length;
@@ -3283,7 +3480,6 @@
     staffRow = addStaffRow;
     staffCardEdit = null;
     document.getElementById('asTitle').textContent = name;
-    document.getElementById('asPrice').textContent = '¥' + sale;
     document.getElementById('asQty').textContent = '1';
     document.getElementById('asPayable').value = sale;
     document.getElementById('asStaffLabel').textContent = isProd ? '销售人员' : '服务员工';
@@ -4042,7 +4238,7 @@
   }
 
   // ---- 权益数据 ----
-  // 快捷开单可选权益类型：会员卡储值金额 / 全场项目计次或折扣 / 全场项目或产品通用优惠券 / 满足金额门槛的代金券
+  // 直接收款可选权益类型：会员卡储值金额 / 全场项目计次或折扣 / 全场项目或产品通用优惠券 / 满足金额门槛的代金券
   // qr 规则：discount=按比例折；minus=满 min 减 amount；none=计次核销不抵扣金额
   var BENEFITS = [
     { type: '会员卡', name: '九折储值卡', val: '余额2049.00元', qr: { kind: 'discount', rate: 0.9 } },
@@ -4101,7 +4297,7 @@
     var base = Math.round((it.price || 0) * (it.qty || 1) * 100) / 100;
     it.actual = benefitPayable(base, benefitRuleOf(it.benefit));
   }
-  // 快捷开单应用权益后的应付金额
+  // 直接收款应用权益后的应付金额
   function qcoApplyBenefit(it) {
     var amt = Math.round((it.price || 0) * (it.qty || 1) * 100) / 100;
     return benefitPayable(amt, benefitRuleOf(it.benefit));
@@ -4148,7 +4344,7 @@
 
     if (!cartItems.length) {
       box.innerHTML = '<div class="co-empty">暂无结算项目，请返回开单页添加项目或产品</div>';
-      /* s6 明细清空 → 订单级券失效；注意：s7 快捷开单的券是同一份全局状态，
+      /* s6 明细清空 → 订单级券失效；注意：s7 直接收款的券是同一份全局状态，
          不能在 s6 被渲染（如确认券后的连带渲染）时误清 */
       if (navStack[navStack.length - 1] === 's6') window.__v2OrderCoupon = null;
       pay.textContent = '0.00';
@@ -4318,7 +4514,7 @@
 
   /* ===== 页面12 选择权益（会员卡权益）=====
      单选；点底部「确认」才生效并返回，直接返回不保存。
-     入口：结算页「权益」行右侧热区（商品级）。coEditIdx = -1 表示快捷开单 s7 的单条明细。 */
+     入口：结算页「权益」行右侧热区（商品级）。coEditIdx = -1 表示直接收款 s7 的单条明细。 */
   var benPickDraft = 0;     // 草稿选中项（索引 CARD_BENEFITS）
   var benPickTarget = null; // 本次编辑的明细（引用）
 
@@ -4373,7 +4569,7 @@
   /* ===== 页面13 选择优惠券（订单级）=====
      单选；点底部「确认」才生效并返回。 -1 = 不使用优惠券。 */
   var coupPickDraft = -1;   // -1 = 不使用优惠券
-  var coupFromQuick = false; // 入口来自 s7（快捷开单）时为 true，门槛按单条明细应付判定
+  var coupFromQuick = false; // 入口来自 s7（直接收款）时为 true，门槛按单条明细应付判定
   function couponIndexOf() {
     var c = window.__v2OrderCoupon;
     if (!c) return -1;
@@ -4388,7 +4584,7 @@
     renderCoupList();
     go('s13');
   }
-  // 券门槛判定基准：快捷开单为单条明细应付，开单结算为整单应付合计
+  // 券门槛判定基准：直接收款为单条明细应付，开单结算为整单应付合计
   function couponBase() {
     if (coupFromQuick && qcoItem) return qcoItem.actual;
     return orderPayableSum();
@@ -4459,19 +4655,245 @@
   }
 
   // ---- 挂单 / 结账 ----
-  // 原型阶段：点「结账」只原地 toast，不再清空购物车 / 跳回开单页（线上结账流程由此进入）
-  function checkoutDone() {
-    if (!cartItems.length) { toast('暂无结算项目'); return; }
-    toast('已进入线上结账流程');
+  /* ===== 页面14 挂单列表（占位页 + 演示数据；「取挂单」可把明细取回当前单据） ===== */
+  var holdOrders = [
+    { id: 'h1001', cust: '陈女士', vip: true, time: '今天 10:24',
+      items: [{ name: '洗剪吹', price: 68, qty: 1 }, { name: '深层滋养', price: 198, qty: 1 }] },
+    { id: 'h1002', cust: '男散客', vip: false, time: '今天 09:58',
+      items: [{ name: '染发', price: 358, qty: 1 }] },
+    { id: 'h1003', cust: '李女士', vip: true, time: '昨天 19:32',
+      items: [{ name: '时尚造型', price: 128, qty: 2 },
+              { name: '剑琅修护洗发水', price: 128, qty: 1, isProd: true }] }
+  ];
+  function holdCount() { return holdOrders.length; }
+  window.holdCount = holdCount;
+  function syncHoldCount() {
+    if (typeof window.__v2SyncHold === 'function') { window.__v2SyncHold(); return; }
+    var n = holdCount();
+    document.querySelectorAll('[data-hold-count]').forEach(function (el) { el.textContent = String(n); });
+  }
+  function holdAmount(h) {
+    var s = 0;
+    (h.items || []).forEach(function (it) { s += (it.price || 0) * (it.qty || 1); });
+    return Math.round(s * 100) / 100;
+  }
+  function holdTipHtml() {
+    return '<div class="hold-tip">挂单列表为占位页（演示数据）。点「取挂单」会把该笔明细取回并进入结算页；' +
+      '开单页点「挂单」成功后也会回到本页。</div>';
+  }
+  function renderHoldList() {
+    var box = document.getElementById('holdList');
+    if (!box) return;
+    if (!holdOrders.length) {
+      box.innerHTML = '<div class="hold-empty">暂无挂单</div>' + holdTipHtml();
+      return;
+    }
+    box.innerHTML = holdOrders.map(function (h, i) {
+      var brief = (h.items || []).map(function (it) {
+        return escapeHtml(it.name) + ' ×' + (it.qty || 1);
+      }).join('，');
+      return '<div class="hold-card">' +
+          '<div class="hd">' +
+            '<span class="nm">' + escapeHtml(h.cust) + '</span>' +
+            (h.vip ? '<span class="vip">VIP</span>' : '') +
+            '<span class="tm">' + escapeHtml(h.time) + '</span>' +
+          '</div>' +
+          '<div class="items">' + brief + '</div>' +
+          '<div class="ft">' +
+            '<span class="amt"><span class="cur">¥</span>' + fmtCartPrice(holdAmount(h)) + '</span>' +
+            '<button type="button" class="btn-take" onclick="takeHold(' + i + ')">取挂单</button>' +
+          '</div>' +
+        '</div>';
+    }).join('') + holdTipHtml();
+  }
+  function openHoldList() {
+    renderHoldList();
+    go('s14');
+  }
+  window.openHoldList = openHoldList;
+  function takeHold(i) {
+    var h = holdOrders[i];
+    if (!h) return;
+    holdOrders.splice(i, 1);
+    var kind = h.vip ? 'member' : 'guest';
+    setCust(kind);
+    setCoCust(kind);
+    setQcoCust(kind);
+    (h.items || []).forEach(function (it) {
+      var amt = Math.round((it.price || 0) * (it.qty || 1) * 100) / 100;
+      cartItems.push({
+        name: it.name, price: it.price, salePrice: it.price, qty: it.qty || 1,
+        payable: amt, receivable: amt, actual: amt, discounted: false,
+        isProd: !!it.isProd, kind: kind, group: it.group || '', thumb: '',
+        staff: { id: '__hold__', staffIds: [], staffRoles: {}, staffDesignated: {} },
+        benefit: null, _benefitCleared: false,
+        _uid: (typeof window.__v2NextCartUid === 'function') ? window.__v2NextCartUid() : ''
+      });
+    });
+    window.__lastCoCust = null;   /* 让结算页按新身份重新匹配权益/券 */
+    syncHoldCount();
+    recalcOrderAmounts();
+    updateCartBadge();
+    toast('已取回「' + h.cust + '」的挂单');
+    go('s6');
   }
 
-  // ===== 快捷开单结账第二步 s7 =====
-  var qcoItem = null;       // 当前快捷开单明细
+  /* ===== 页面15 开单成功 ===== */
+  var sucInfo = { amount: 0, payName: '', payAmt: 0, rest: null, date: '', no: '' };
+  function setText(id, txt) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = txt;
+  }
+  function money2(n) { return (Math.round((parseFloat(n) || 0) * 100) / 100).toFixed(2); }
+  function todayDot() {
+    var d = new Date();
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '.' + p(d.getMonth() + 1) + '.' + p(d.getDate());
+  }
+  /* 本单应付合计（权益后 − 订单级优惠券） */
+  function currentPayable() {
+    var sum = orderPayableSum();
+    return Math.max(0, Math.round((sum - orderCouponCut(sum)) * 100) / 100);
+  }
+  /* 会员卡余额（演示）扣减后的剩余 */
+  function memberRestAfter(pay) {
+    var m = window.__v2Member;
+    var bal = m ? parseFloat(m.balance) : NaN;
+    if (!isFinite(bal)) bal = 2049;
+    return Math.max(0, Math.round((bal - pay) * 100) / 100);
+  }
+  function firstItemBenefit() {
+    for (var i = 0; i < cartItems.length; i++) {
+      if (cartItems[i] && cartItems[i].benefit) return cartItems[i].benefit;
+    }
+    return null;
+  }
+  /* 结账支付信息：会员用卡权益结算 → 显示卡名 + 扣减/剩余；否则线上支付 */
+  function payInfoOf(kind) {
+    if (kind === 'qco') {
+      var base = qcoItem ? Math.round(qcoItem.actual * 100) / 100 : 0;
+      /* 与 s7 底栏一致：权益后应付 − 订单级优惠券 */
+      var amt = Math.max(0, Math.round((base - orderCouponCut(base)) * 100) / 100);
+      var b = qcoItem && qcoItem.benefit;
+      var isCard = !!(b && qcoCust === 'member');
+      return {
+        amount: amt,
+        payName: isCard ? b.name : '线上支付（微信/支付宝）',
+        payAmt: amt,
+        rest: isCard ? memberRestAfter(amt) : null
+      };
+    }
+    var total = currentPayable();
+    var ben = (coCust === 'member') ? firstItemBenefit() : null;
+    return {
+      amount: total,
+      payName: ben ? ben.name : '线上支付（微信/支付宝）',
+      payAmt: total,
+      rest: ben ? memberRestAfter(total) : null
+    };
+  }
+  function paintSuccessPage() {
+    setText('sucAmt', money2(sucInfo.amount).replace(/\.00$/, ''));
+    setText('sucDate', sucInfo.date);
+    setText('sucNo', sucInfo.no);
+    setText('sucPayName', sucInfo.payName);
+    setText('sucPayAmt', '¥' + money2(sucInfo.payAmt));
+    var row = document.getElementById('sucRestRow');
+    var card = document.getElementById('sucCard');
+    if (row) {
+      if (sucInfo.rest == null) {
+        row.style.display = 'none';
+        if (card) card.classList.add('no-rest');
+      } else {
+        row.style.display = '';
+        if (card) card.classList.remove('no-rest');
+        setText('sucRest', '¥' + money2(sucInfo.rest));
+      }
+    }
+  }
+  /* 结账成功 → 成功页（toast 占位原「支付中→支付成功」弹窗后直接进入） */
+  function checkoutToSuccess(kind) {
+    var info = payInfoOf(kind);
+    var billDate = (typeof window.__v2BillDate === 'function') ? window.__v2BillDate() : '';
+    sucInfo = {
+      amount: info.amount,
+      payName: info.payName,
+      payAmt: info.payAmt,
+      rest: info.rest,
+      date: (billDate ? billDate.replace(/-/g, '.') : todayDot()),
+      no: genCoManual()
+    };
+    /* 本单已结：清空明细 / 券 / 角标，回到开单页即为新单 */
+    cartItems.length = 0;
+    if (kind === 'qco') qcoItem = null;
+    window.__v2OrderCoupon = null;
+    window.__v2OrderCouponTouched = false;
+    window.__lastCoCust = null;
+    var rk = document.getElementById('remarkInput');
+    if (rk) rk.value = '';
+    recalcOrderAmounts();
+    updateCartBadge();
+    paintSuccessPage();
+    toast('支付成功');
+    go('s15');
+  }
+  function checkoutDone() {
+    if (!cartItems.length) { toast('暂无结算项目'); return; }
+    checkoutToSuccess('co');
+  }
+  function sucChangeDate() {
+    if (typeof window.__v2OpenDatePop === 'function') window.__v2OpenDatePop();
+  }
+  /* 日期浮层确认后同步成功页「开单日期」 */
+  window.__v2OnBillDateChange = function (key) {
+    sucInfo.date = String(key || '').replace(/-/g, '.');
+    setText('sucDate', sucInfo.date);
+  };
+  function sucChangeNo() {
+    var inp = document.getElementById('sucNoInput');
+    if (inp) inp.value = sucInfo.no || '';
+    openMask('sucNoMask');
+    setTimeout(function () {
+      if (!inp) return;
+      inp.focus();
+      if (inp.select) inp.select();
+    }, 30);
+  }
+  function closeSucNo() { closeMask('sucNoMask'); }
+  function confirmSucNo() {
+    var inp = document.getElementById('sucNoInput');
+    var v = (inp ? inp.value : '').replace(/[^\d]/g, '').slice(0, 20);
+    if (!v) v = genCoManual();
+    sucInfo.no = v;
+    setText('sucNo', v);
+    closeSucNo();
+    toast('单号已更新');
+  }
+  function sucViewFlow() {
+    toast('查看该笔流水');
+    go('s8');
+  }
+  /* 继续开单：清空当前单据（明细 / 券 / 单号）后回到开单页 */
+  function sucContinue() {
+    cartItems.length = 0;
+    window.__v2OrderCoupon = null;
+    window.__v2OrderCouponTouched = false;
+    window.__lastCoCust = null;
+    resetOrderNo('co');
+    resetOrderNo('qco');
+    recalcOrderAmounts();
+    updateCartBadge();
+    toast('已开始新的一单');
+    go(currentCust === 'member' ? 's5' : 's1');
+  }
+
+  // ===== 直接收款结账第二步 s7 =====
+  var qcoItem = null;       // 当前直接收款明细
   var qcoCust = 'guest';    // s7 顾客身份
 
   function qcoBuildItem() {
     var amt = parseFloat(s3val) || 0;
-    var pay = amt;   // 快捷开单按原价，不做身份折扣
+    var pay = amt;   // 直接收款按原价，不做身份折扣
     if (!qcoItem) {
       qcoItem = {
         name: '直接收款',
@@ -4664,7 +5086,7 @@
   }
   function quickCheckoutDone() {
     if (!qcoItem) { toast('暂无结算项目'); return; }
-    toast('已进入线上结账流程');
+    checkoutToSuccess('qco');
   }
 
   // ---- 门店流水 s8 页签 ----
@@ -4919,16 +5341,20 @@ html.capture-figma #toast { display:none !important; }
       var b = btns[Math.min(idx, btns.length - 1)];
       if (!b) { cb(new Error('capture: 找不到添加按钮')); return; }
       b.click();
+      /* 新交互：点「＋」弹底部「设置内容」sheet（#addSheetMask） */
       waitFor(function () {
-        return !!document.querySelector('#' + screen + ' [data-commit]');
-      }, function () {
+        var m = document.getElementById('addSheetMask');
+        return !!(m && m.classList.contains('show') && window.__v2DraftStaff);
+      }, function (e2) {
+        if (e2) { cb(e2); return; }
         fillStaff();
         setTimeout(cb, 700);
       });
     });
   }
   function commitCurrent(screen, cb) {
-    var btn = document.querySelector('#' + screen + ' [data-commit]');
+    var mask = document.getElementById('addSheetMask');
+    var btn = mask ? mask.querySelector('.btn-confirm') : null;
     if (!btn) { cb(new Error('capture: 找不到加入购物车按钮')); return; }
     btn.click();
     setTimeout(cb, 900);

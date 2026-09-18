@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script>
+/* v3b 验收：价目表为空 → 隐藏对应 tab（演示开关）；首页/选择顾客页「取挂单（N）」入口 */
+var log = [];
+function P() { log.push(Array.prototype.slice.call(arguments).join(' ')); }
+function makeFrame(qs, cb) {
+  var f = document.createElement('iframe');
+  f.src = 'index.html?' + qs + '&bust=' + Date.now();
+  f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+  document.body.appendChild(f);
+  f.addEventListener('load', function () {
+    var w = f.contentWindow, d = f.contentDocument;
+    setTimeout(function () { cb(w, d, f); }, 500);
+  });
+}
+function caseTabs(tag, qs, cb) {
+  makeFrame(qs, function (w, d) {
+    w.setCust('guest');
+    w.go('s1');
+    setTimeout(function () {
+      var tabs = Array.prototype.map.call(d.querySelectorAll('#s1 [data-btab]'), function (b) {
+        return b.textContent.replace(/\s+/g, '') + '(' + getComputedStyle(b).display + ')';
+      });
+      P(tag, 'tabs=' + tabs.join(','),
+        '空提示=' + d.querySelectorAll('#s1 .v2-cat-empty').length,
+        '行数=' + d.querySelectorAll('#s1 .v2-cat-item').length);
+      cb && cb(w, d);
+    }, 300);
+  });
+}
+var queue = [];
+function step(fn) { queue.push(fn); }
+function run() {
+  if (!queue.length) {
+    var pre = document.createElement('pre');
+    pre.textContent = log.join('\n');
+    document.body.appendChild(pre);
+    return;
+  }
+  var f = queue.shift();
+  setTimeout(function () { f(); }, 400);
+}
+/* 首页 / 选择顾客页入口 + 计数 */
+step(function () {
+  makeFrame('', function (w, d) {
+    w.go('s0');
+    setTimeout(function () {
+      P('s0 取挂单按钮', (d.querySelector('.v2-home-hold') || {}).textContent.replace(/\s+/g, ''),
+        '图标=' + (d.querySelector('.v2-home-hold img') ? Math.round(d.querySelector('.v2-home-hold img').getBoundingClientRect().width) : 'N/A'));
+      P('s4 标题栏入口', (d.querySelector('#s4 .nav-hold') || {}).textContent.replace(/\s+/g, ''),
+        '旧挂单条=' + d.querySelectorAll('#s4 .pick-holds').length,
+        '日期入口(s0)=' + d.querySelectorAll('#s0 [data-date-ctl]').length);
+      w.openHoldList();
+      setTimeout(function () {
+        P('点 s0 入口 →', Array.prototype.filter.call(d.querySelectorAll('.screen'), function (s) {
+          return getComputedStyle(s).display !== 'none';
+        }).map(function (s) { return s.id; }).join(','), 'toast=' + d.querySelector('#toast').textContent);
+        run();
+      }, 300);
+    }, 300);
+  });
+});
+step(function () { caseTabs('默认', '', run); });
+step(function () { caseTabs('产品为空', 'noProduct=1', run); });
+step(function () { caseTabs('项目为空', 'noProject=1', run); });
+step(function () { caseTabs('两个都空', 'noProduct=1&noProject=1', run); });
+run();
+</script>
+
+<iframe src="index.html?&amp;bust=1789721972950" style="width: 390px; height: 844px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none;"></iframe><iframe src="index.html?&amp;bust=1789721974470" style="width: 390px; height: 844px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none;"></iframe><iframe src="index.html?noProduct=1&amp;bust=1789721975680" style="width: 390px; height: 844px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none;"></iframe><iframe src="index.html?noProject=1&amp;bust=1789721976900" style="width: 390px; height: 844px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none;"></iframe><iframe src="index.html?noProduct=1&amp;noProject=1&amp;bust=1789721978110" style="width: 390px; height: 844px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none;"></iframe><pre>s0 取挂单按钮 取挂单（3） 图标=20
+s4 标题栏入口 取挂单（3） 旧挂单条=0 日期入口(s0)=0
+点 s0 入口 → s14 toast=
+默认 tabs=项目(block),产品(block) 空提示=0 行数=16
+产品为空 tabs=项目(block) 空提示=0 行数=16
+项目为空 tabs=产品(block) 空提示=0 行数=16
+两个都空 tabs=项目(block),产品(block) 空提示=1 行数=0</pre></body></html>

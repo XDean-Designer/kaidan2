@@ -1,0 +1,54 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script>
+var log = [];
+var f = document.createElement('iframe');
+f.src = 'index.html?bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+var w, d;
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  setTimeout(run, 500);
+  function run() {
+    w.__v2Member = { name: '陈女士', gender: 'female', avatar: '', lastVisit: '2026-09-01',
+      cards: '10', balance: '2049', discount: '8', isNew: false };
+    w.setCust('member');
+    w.go('s5');
+    setTimeout(function () {
+      var im = d.querySelector('#s5 .nav-cust .ic-mem');
+      var cs = getComputedStyle(im);
+      log.push('s5 ic-mem: computed w/h=' + cs.width + '/' + cs.height + ' display=' + cs.display +
+        ' rect=' + Math.round(im.getBoundingClientRect().width) + 'x' + Math.round(im.getBoundingClientRect().height) +
+        ' natural=' + im.naturalWidth + 'x' + im.naturalHeight +
+        ' complete=' + im.complete);
+      var im1 = d.querySelector('#s1 .nav-cust .ic-mem');
+      var c1 = getComputedStyle(im1);
+      log.push('s1 ic-mem: computed w/h=' + c1.width + '/' + c1.height + ' rect=' + Math.round(im1.getBoundingClientRect().width));
+      /* 命中规则 */
+      log.push('matched rules:');
+      try {
+        Object.values(im1.ownerDocument.styleSheets).forEach(function (ss) {
+          var rules; try { rules = ss.cssRules; } catch (e) { return; }
+          if (!rules) return;
+          Array.prototype.forEach.call(rules, function (r) {
+            if (r.selectorText && /ic-mem|nav-cust/.test(r.selectorText)) {
+              log.push('  ' + r.selectorText + ' { ' + r.style.cssText.slice(0, 90) + ' }');
+            }
+          });
+        });
+      } catch (e) { log.push('  ERR ' + e.message); }
+      /* 添加会员图标尺寸（s4 列表行 44，顾客卡 32） */
+      var add1 = d.querySelector('#s4 .pick-row-wrap .ic-add-mem, #s4 .pick-row .ic-add-mem, #s4 .pick-row-wrap svg');
+      var add2 = d.querySelector('#s1 [data-ccard-wrap] .v2-ccard__addmem svg, #s5 [data-ccard-wrap] .v2-ccard__addmem svg');
+      log.push('s4 添加会员图标 rect=' + (add1 ? Math.round(add1.getBoundingClientRect().width) + 'x' + Math.round(add1.getBoundingClientRect().height) + ' cls=' + add1.className : 'N/A'));
+      log.push('开单页添加会员图标 rect=' + (add2 ? Math.round(add2.getBoundingClientRect().width) + 'x' + Math.round(add2.getBoundingClientRect().height) : 'N/A'));
+      var pre = document.createElement('pre');
+      pre.textContent = log.join('\n');
+      document.body.appendChild(pre);
+    }, 500);
+  }
+});
+</script>
+</body></html>

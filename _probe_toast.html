@@ -1,0 +1,59 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script>
+var log = [];
+var f = document.createElement('iframe');
+f.src = 'index.html?bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+var w, d;
+function q(s) { return d.querySelector(s); }
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  setTimeout(run, 500);
+  function run() {
+    w.setCust('guest'); w.go('s1');
+    setTimeout(function () {
+      /* ---- 1. 顾客卡展开后的 opacity/transform 随时间 ---- */
+      var body = d.getElementById('s1BillBody');
+      var card = body.querySelector('.v2-ccard');
+      q('#s1 .nav-cust').click();
+      [0, 60, 160, 300, 500, 900].forEach(function (t, i) {
+        setTimeout(function () {
+          log.push('T+' + t + 'ms cust-open=' + body.classList.contains('cust-open') +
+            ' wrapH=' + Math.round(body.querySelector('[data-ccard-wrap]').getBoundingClientRect().height) +
+            ' opacity=' + getComputedStyle(card).opacity + ' transform=' + getComputedStyle(card).transform);
+        }, t);
+      });
+      /* ---- 2. 挂单 toast 时序 ---- */
+      setTimeout(function () {
+        var b = q('#s1 .v2-cat-item .v2-add-btn');
+        b.click();
+        setTimeout(function () {
+          q('#addSheetMask .addsheet__foot .btn-confirm').click();
+          log.push('after confirm toast=' + q('#toast').textContent);
+          setTimeout(function () {
+            log.push('before guard click toast=' + q('#toast').textContent + ' cart=' + w.cartItems.length);
+            q('#s1 [data-guadan="s1"]').click();
+            log.push('immediately after guard click: toast=' + q('#toast').textContent +
+              ' display=' + q('#toast').style.display + ' cart=' + w.cartItems.length +
+              ' screen=' + (function () { return Array.prototype.filter.call(d.querySelectorAll('.screen'), function (s) { return getComputedStyle(s).display !== 'none'; }).map(function (s) { return s.id; }).join(','); })());
+            [50, 200, 600, 1200, 1600].forEach(function (t) {
+              setTimeout(function () {
+                log.push('guard T+' + t + 'ms toast=' + q('#toast').textContent + ' display=' + q('#toast').style.display);
+              }, t);
+            });
+            setTimeout(function () {
+              var pre = document.createElement('pre');
+              pre.textContent = log.join('\n');
+              document.body.appendChild(pre);
+            }, 1800);
+          }, 400);
+        }, 400);
+      }, 1200);
+    }, 600);
+  }
+});
+</script>
+</body></html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<iframe id="f" style="width:390px;height:844px;border:0"></iframe>
+<pre id="out">pending</pre>
+<script>
+var f = document.getElementById('f');
+var out = document.getElementById('out');
+var t0 = Date.now();
+var done = false;
+var iv = setInterval(function () {
+  var w, d;
+  try { w = f.contentWindow; d = w ? w.document : null; } catch (e) { return; }
+  if (done || !w || !d || typeof w.__v2SyncHold !== 'function') return;
+  if (Date.now() - t0 < 2500) return;
+  done = true;
+  var mask = d.getElementById('addSheetMask');
+  var btn = mask ? mask.querySelector('.addsheet__foot .btn-confirm') : null;
+  var before = w.cartItems.length;
+  var log = ['sheet=' + (mask ? mask.className : '-'), 'btn=' + (btn ? btn.textContent : 'none'), 'cartBefore=' + before];
+  if (btn) {
+    btn.click();
+    log.push('cartAfterClick=' + w.cartItems.length);
+    log.push('items=' + w.cartItems.map(function (it) { return it.name + 'x' + it.qty + '@' + it.price; }).join('|'));
+  }
+  setTimeout(function () {
+    log.push('+600ms cart=' + w.cartItems.length);
+    log.push('badge=' + (d.querySelector('#s1 [data-cart-badge]') || {}).textContent);
+    log.push('toast=' + (d.getElementById('toast') || {}).textContent);
+    log.push('nextBtn=' + ((d.querySelector('[data-next="s1"]') || {}).className || '-'));
+    try {
+      w.nextStep('s1');
+      setTimeout(function () {
+        log.push('after nextStep visible=' + Array.prototype.filter.call(d.querySelectorAll('.screen'), function (s) {
+          return getComputedStyle(s).display !== 'none';
+        }).map(function (s) { return s.id; }).join(','));
+        log.push('s6 items=' + d.querySelectorAll('#s6 .co-item').length + ' coPay=' + ((d.getElementById('coPay') || {}).textContent));
+        out.textContent = log.join('\n');
+      }, 700);
+    } catch (e) { log.push('ERR nextStep ' + e.message); out.textContent = log.join('\n'); }
+  }, 600);
+}, 200);
+f.src = 'index.html?capture=s1-expand&bust=' + Date.now();
+</script>
+</body></html>

@@ -7,13 +7,7 @@
   'use strict';
 
   var HOLD_COUNT = 3;
-  var MAX_STAFF = 3;
-  var expandKey = null;
   var draft = null;
-  var staffSheetOpen = false;
-  var priceSheetOpen = false;
-  var priceBuf = '';
-  var IOS_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
 
   function guestDisplayName(g) {
     if (g === 'male') return '男散客';
@@ -110,21 +104,11 @@
   var billTab = { s1: 'project', s5: 'project' };
   var billGroup = { s1: '全部', s5: '全部' };
 
-  var PEN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
   var PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
-  var MINUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>';
-  /* 加入购物车：设计稿实心购物车（来自 Figma 矢量，18.36×18.53） */
-  var CART_SVG = '<svg viewBox="0 0 18.36 18.53" fill="currentColor" aria-hidden="true">' +
-    '<path d="M 17.08 13.84 L 4.67 13.84 C 4.07 13.84 3.58 13.39 3.55 12.87 L 2.83 1.88 C 2.8 1.28 2.46 0.79 1.93 0.53 L 0.81 0.04 C 0.51 -0.07 0.21 0.04 0.06 0.34 C -0.09 0.64 0.06 0.94 0.36 1.09 L 1.45 1.58 C 1.6 1.66 1.71 1.81 1.71 1.99 L 2.38 12.98 C 2.46 14.11 3.47 15.01 4.63 15.01 L 17.08 15.01 C 17.38 15.01 17.65 14.74 17.65 14.44 C 17.65 14.14 17.38 13.84 17.08 13.84 Z"/>' +
-    '<path d="M 17.95 3.38 C 17.61 3.01 17.12 2.78 16.6 2.78 L 5.12 2.78 C 4.82 2.78 4.56 3.04 4.56 3.34 C 4.56 3.64 4.82 3.91 5.12 3.91 L 16.6 3.91 C 16.78 3.91 16.97 3.98 17.08 4.13 C 17.2 4.28 17.27 4.47 17.27 4.66 L 16.37 9.61 L 16.37 9.64 C 16.33 9.98 16.07 10.21 15.73 10.24 L 5.87 10.99 C 5.57 11.03 5.35 11.29 5.35 11.59 C 5.38 11.89 5.61 12.12 5.91 12.12 L 5.95 12.12 L 15.77 11.37 C 16.63 11.29 17.35 10.66 17.42 9.79 L 18.32 4.81 L 18.32 4.77 C 18.43 4.28 18.28 3.76 17.95 3.38 Z"/>' +
-    '<path d="M 3.06 17.22 C 3.06 17.57 3.2 17.9 3.44 18.15 C 3.69 18.39 4.02 18.53 4.37 18.53 C 4.72 18.53 5.05 18.39 5.3 18.15 C 5.55 17.9 5.68 17.57 5.68 17.22 C 5.68 16.87 5.55 16.54 5.3 16.29 C 5.05 16.04 4.72 15.91 4.37 15.91 C 4.02 15.91 3.69 16.04 3.44 16.29 C 3.2 16.54 3.06 16.87 3.06 17.22 Z"/>' +
-    '<path d="M 13.56 17.22 C 13.56 17.57 13.7 17.9 13.94 18.15 C 14.19 18.39 14.52 18.53 14.87 18.53 C 15.22 18.53 15.55 18.39 15.8 18.15 C 16.05 17.9 16.18 17.57 16.18 17.22 C 16.18 16.87 16.05 16.54 15.8 16.29 C 15.55 16.04 15.22 15.91 14.87 15.91 C 14.52 15.91 14.19 16.04 13.94 16.29 C 13.7 16.54 13.56 16.87 13.56 17.22 Z"/>' +
-  '</svg>';
   var CHEV_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
-  /* 「添加会员」图标（与 s4 顾客列表同款） */
-  var ADD_MEMBER_SVG = '<svg viewBox="0 0 44 44" aria-hidden="true">' +
-    '<path d="M22 5C12.6112 5 5 12.6112 5 22C5 31.3889 12.6112 39 22 39C31.3888 39 39 31.3888 39 22C39 12.6112 31.3888 5 22 5ZM22 37.8409C13.2513 37.8409 6.15906 30.7487 6.15906 22C6.15906 13.2513 13.2513 6.15909 22 6.15909C30.7487 6.15909 37.8409 13.2513 37.8409 22C37.8409 30.7487 30.7487 37.8409 22 37.8409Z" fill="#FF8956"></path>' +
-    '<path d="M28.8095 20.3602H23.6205V15.1864C23.6205 14.4503 23.0237 13.8534 22.2875 13.8534H21.7001C20.9639 13.8534 20.3671 14.4503 20.3671 15.1864V20.3602H15.1781C14.4418 20.3602 13.8451 20.957 13.8451 21.6932V22.2959C13.8451 23.0321 14.4419 23.6289 15.1781 23.6289H20.3671V28.8026C20.3671 29.5389 20.9639 30.1357 21.7001 30.1357H22.2875C23.0237 30.1357 23.6205 29.5389 23.6205 28.8026V23.6289H28.8095C29.5457 23.6289 30.1425 23.0321 30.1425 22.2959V21.6932C30.1425 20.957 29.5457 20.3602 28.8095 20.3602Z" fill="#FF8956"></path>' +
+  /* 「添加会员」图标（与 s4 顾客列表同款，Figma 746:222，保持橙色 #FF8956） */
+  var ADD_MEMBER_SVG = '<svg viewBox="0 0 200 200" aria-hidden="true">' +
+    '<path d="M185.47 160.61C184.426 161.622 183.036 162.2 181.581 162.226H166.954V175.88C166.947 178.781 164.418 181.147 161.314 181.154H161.307C158.203 181.148 155.674 178.781 155.674 175.879V162.226H141.087C139.61 162.234 138.185 161.683 137.097 160.684C136.581 160.208 136.168 159.631 135.884 158.989C135.6 158.347 135.451 157.653 135.447 156.951C135.447 154.043 137.976 151.676 141.08 151.676H155.674V138.023C155.674 135.115 158.203 132.748 161.307 132.748C164.418 132.748 166.954 135.115 166.954 138.023V151.676H181.493C184.557 151.764 186.985 154.036 187.045 156.843C187.06 157.546 186.928 158.244 186.656 158.893C186.385 159.542 185.981 160.126 185.47 160.61ZM147.248 121.184C145.818 121.195 144.434 120.68 143.359 119.737L143.075 119.507C129.839 110.146 114.012 105.149 97.7998 105.211C56.3181 105.211 22.5663 136.792 22.5663 175.616C22.5526 178.537 20.0099 180.904 16.8923 180.904C13.7748 180.904 11.2254 178.53 11.2186 175.602C11.2254 158.892 16.6353 142.864 26.8469 129.245C36.8352 115.936 50.6579 105.833 66.8408 100.024L72.0276 98.1573L67.8078 94.7692C57.5556 86.539 51.6723 74.6032 51.6723 62.018C51.6723 38.2139 72.3657 18.8525 97.7998 18.8525C123.241 18.8525 143.934 38.2139 143.934 62.018C143.934 74.6032 138.05 86.5392 127.792 94.7692L123.572 98.1639L128.766 100.024C136.001 102.614 142.886 106.151 149.236 110.533L150.778 111.716C151.437 112.192 151.974 112.817 152.347 113.539C152.719 114.262 152.916 115.062 152.921 115.875C152.921 118.797 150.379 121.177 147.248 121.184ZM132.586 62.018C132.586 44.0703 116.978 29.4698 97.7998 29.4698C78.6278 29.4698 63.0198 44.0703 63.0198 62.018C63.0198 79.9657 78.6278 94.5596 97.7998 94.5596C116.978 94.5596 132.586 79.9659 132.586 62.018Z" fill="#FF8956"></path>' +
     '</svg>';
 
   function $(sel, root) { return (root || document).querySelector(sel); }
@@ -154,18 +138,17 @@
   }
 
   /* ========== 选顾客 ========== */
-  function syncHold() {
-    $all('[data-hold-count]').forEach(function (el) {
-      el.textContent = String(HOLD_COUNT);
-    });
-    var btn = $('[data-hold-entry]');
-    if (btn && !btn._v2) {
-      btn._v2 = 1;
-      btn.onclick = function () {
-        toast('示意：当前有 ' + HOLD_COUNT + ' 笔挂单');
-      };
-    }
+  /* 挂单条数：以 index.html 的 holdOrders 为准（演示数据 3 笔），无则回落到本地常量 */
+  function holdCountNow() {
+    return (typeof window.holdCount === 'function') ? window.holdCount() : HOLD_COUNT;
   }
+  function syncHold() {
+    var n = holdCountNow();
+    $all('[data-hold-count]').forEach(function (el) {
+      el.textContent = String(n);
+    });
+  }
+  window.__v2SyncHold = syncHold;
 
   function wrapPickRows() {
     var list = $('#s4 .pick-list');
@@ -607,7 +590,6 @@
     var scr = document.getElementById(screenId);
     if (!scr) return null;
     hideLegacyScroll(screenId);
-    ensureStaffSheetHost(scr);
     var body = scr.querySelector('.v2-bill-body');
     if (body) return body;
     body = document.createElement('div');
@@ -616,194 +598,89 @@
     var bar = scr.querySelector('.bottom-bar');
     if (bar) scr.insertBefore(body, bar);
     else scr.appendChild(body);
-    body.addEventListener('scroll', function () { applyBillParallax(screenId); }, { passive: true });
+    /* 列表滚动：仅切换「已滚动」态（顾客卡片不再随滚动位移，视差方案已取消） */
+    body.addEventListener('scroll', function () {
+      body.classList.toggle('is-scrolled', body.scrollTop > 1);
+    }, { passive: true });
     return body;
   }
 
-  /* ========== 视差：价目表上滑覆盖顾客卡片 ==========
-     顾客卡片以约 0.5× 速度上移（视差），价目表白卡以 1× 上移压在其上；
-     scrollTop 达到价目卡偏移量时价目表贴住标题栏，卡片被完全盖住；反向滚动线性还原。 */
-  var PARALLAX_RATE = 0.5;   /* 卡片速度系数（相对滚动） */
-  var parallaxRaf = {};
+  /* ========== 顾客卡片：默认收起，从标题栏右侧入口展开/收起（iOS 动效） ==========
+     收起后价目表大卡片直接上移贴住标题栏；展开由卡片自身高度撑开，价目表随之下移。 */
+  function ccardWrap(body) { return body ? body.querySelector('[data-ccard-wrap]') : null; }
+  function ccardEl(body) { return body ? body.querySelector('.v2-ccard') : null; }
+  var custOpen = { s1: false, s5: false };
+  var custAnim = {};
+  function isCustOpen(screenId) { return !!custOpen[screenId]; }
 
-  function applyBillParallax(screenId) {
-    if (screenId !== 's1' && screenId !== 's5') return;
-    if (parallaxRaf[screenId]) return;
-    parallaxRaf[screenId] = requestAnimationFrame(function () {
-      parallaxRaf[screenId] = 0;
-      paintBillParallax(screenId);
-    });
-  }
-
-  function paintBillParallax(screenId) {
+  function custCardOpen(screenId, on) {
     var body = document.getElementById(screenId + 'BillBody');
     if (!body) return;
-    var card = body.querySelector('.v2-ccard');
-    var price = body.querySelector('.v2-price-card');
-    if (!card || !price) return;
-    var cover = price.offsetTop;                     /* 价目卡距滚动区顶部（含卡片 12px 上边距） */
-    var st = body.scrollTop;
-    var cap = cover * (1 - PARALLAX_RATE);           /* 补偿位移上限 */
-    var y = Math.round(Math.min(st, cover) * (1 - PARALLAX_RATE));
-    if (y > cap) y = cap;
-    card.style.transform = y > 0 ? 'translateY(' + y + 'px)' : '';
-    body.classList.toggle('is-scrolled', st > 1);
-  }
+    var wrap = ccardWrap(body);
+    var card = ccardEl(body);
+    if (!wrap || !card) return;
+    custOpen[screenId] = !!on;
+    body.classList.toggle('cust-open', !!on);
+    paintNavCust(screenId);
 
-  function ensureStaffSheetHost(scr) {
-    if (scr.querySelector('.v2-staff-sheet-mask')) return;
-    var mask = document.createElement('div');
-    mask.className = 'v2-staff-sheet-mask';
-    mask.innerHTML =
-      '<div class="v2-staff-sheet" role="dialog" aria-label="选择服务员工">' +
-        '<div class="v2-staff-sheet__grab" aria-hidden="true"></div>' +
-        '<div class="v2-staff-sheet__hd">服务员工' +
-          '<span class="v2-staff-sheet__limit">最多 ' + MAX_STAFF + ' 位</span></div>' +
-        '<div class="v2-staff-sheet__bd" data-staff-root data-ctx="v2draft"></div>' +
-      '</div>';
-    scr.appendChild(mask);
-    mask.addEventListener('click', function (e) {
-      if (e.target === mask) closeStaffSheet();
-    });
-  }
-
-  function ensurePriceSheetHost(scr) {
-    if (scr.querySelector('.v2-price-sheet-mask')) return;
-    var mask = document.createElement('div');
-    mask.className = 'v2-price-sheet-mask';
-    mask.innerHTML =
-      '<div class="v2-price-sheet" role="dialog" aria-label="单价（元）">' +
-        '<div class="v2-price-sheet__grab" aria-hidden="true"></div>' +
-        '<div class="v2-price-sheet__hd">单价（元）</div>' +
-        '<div class="v2-price-sheet__val" data-price-disp>¥0.00</div>' +
-        '<div class="v2-price-keys">' +
-          '<button type="button" data-pk="1">1</button><button type="button" data-pk="2">2</button><button type="button" data-pk="3">3</button>' +
-          '<button type="button" data-pk="4">4</button><button type="button" data-pk="5">5</button><button type="button" data-pk="6">6</button>' +
-          '<button type="button" data-pk="7">7</button><button type="button" data-pk="8">8</button><button type="button" data-pk="9">9</button>' +
-          '<button type="button" data-pk=".">.</button><button type="button" data-pk="0">0</button><button type="button" data-pk="del">⌫</button>' +
-        '</div>' +
-        '<button type="button" class="v2-price-ok" data-pk-ok>确定</button>' +
-      '</div>';
-    scr.appendChild(mask);
-    mask.addEventListener('click', function (e) {
-      if (e.target === mask) closePriceSheet(false);
-    });
-    mask.querySelectorAll('[data-pk]').forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        pushPriceKey(btn.getAttribute('data-pk'));
-      });
-    });
-    mask.querySelector('[data-pk-ok]').addEventListener('click', function (e) {
-      e.stopPropagation();
-      closePriceSheet(true);
-    });
-  }
-
-  function formatPriceBuf(buf) {
-    if (!buf) return '0.00';
-    if (buf.charAt(buf.length - 1) === '.') return buf;
-    if (buf.indexOf('.') >= 0) {
-      var parts = buf.split('.');
-      return parts[0] + '.' + (parts[1] || '').slice(0, 2);
+    var anim = custAnim[screenId];
+    var from = wrap.getBoundingClientRect().height;
+    if (on) {
+      /* 展开：先量出目标高度，再 0 → H 过渡（卡片同时从右上角放大淡入） */
+      wrap.style.height = 'auto';
+      var to = wrap.getBoundingClientRect().height;
+      wrap.style.height = from + 'px';
+      void wrap.offsetWidth;
+      clearTimeout(anim);
+      wrap.style.height = to + 'px';
+      custAnim[screenId] = setTimeout(function () {
+        if (!isCustOpen(screenId)) return;
+        wrap.style.height = 'auto';
+        wrap.style.transition = '';
+      }, 400);
+    } else {
+      wrap.style.height = from + 'px';
+      void wrap.offsetWidth;
+      clearTimeout(anim);
+      wrap.style.height = '0px';
+      custAnim[screenId] = setTimeout(function () {
+        if (isCustOpen(screenId)) return;
+        wrap.style.height = '0px';
+        wrap.style.transition = '';
+      }, 400);
     }
-    return buf;
   }
 
-  function paintPriceSheet() {
-    if (!draft) return;
-    var scr = document.getElementById(draft.screenId);
-    var disp = scr && scr.querySelector('[data-price-disp]');
-    if (disp) disp.textContent = '¥' + formatPriceBuf(priceBuf);
+  function toggleCustCard(screenId) {
+    custCardOpen(screenId, !isCustOpen(screenId));
   }
 
-  function pushPriceKey(k) {
-    if (k === 'del') {
-      priceBuf = priceBuf.slice(0, -1);
-      paintPriceSheet();
-      return;
-    }
-    if (k === '.') {
-      if (priceBuf.indexOf('.') >= 0) return;
-      priceBuf = priceBuf ? priceBuf + '.' : '0.';
-      paintPriceSheet();
-      return;
-    }
-    if (priceBuf.indexOf('.') >= 0) {
-      var dec = priceBuf.split('.')[1] || '';
-      if (dec.length >= 2) return;
-      priceBuf += k;
-      paintPriceSheet();
-      return;
-    }
-    var intp = priceBuf.replace(/^0+/, '');
-    if (intp.length >= 6) return;
-    if (priceBuf === '0') priceBuf = k;
-    else priceBuf += k;
-    var n = parseFloat(priceBuf);
-    if (n > 999999.99) priceBuf = '999999.99';
-    paintPriceSheet();
-  }
-
-  /* ===== 价格：折叠态行内展示原价；展开态在展开卡底部「价格（元）」行内编辑（数值右侧铅笔） ===== */
-  function catPriceEl(row) { return row ? row.querySelector('.v2-cat-price') : null; }
-  function pricePillEl(row) { return row ? row.querySelector('[data-price-pill]') : null; }
-
-  function pricePenHtml() { return '<span class="v2-price-pen" data-price-pen>' + PEN_SVG + '</span>'; }
-
-  /* 1899 → "1899"；1899.5 → "1899.5" */
-  function pricePlain(n) {
-    var x = Number(n) || 0;
-    var t = x.toFixed(2).replace(/\.?0+$/, '');
-    return t === '' ? '0' : t;
-  }
-
-  function paintRowPrice(n) {
-    if (!draft || !draft.el) return;
-    var pr = catPriceEl(draft.el);
-    if (pr) pr.innerHTML = money(n);
-    var val = pricePillEl(draft.el) && pricePillEl(draft.el).querySelector('[data-pill-val]');
-    if (val) val.textContent = pricePlain(n);
-  }
-
-  function openPriceSheet() {
-    if (!draft) return;
-    var scr = document.getElementById(draft.screenId);
+  /* 标题栏右侧入口：会员 = 头像 icon + 姓名；散客 = 仅「散客」文字 */
+  function paintNavCust(screenId) {
+    var scr = document.getElementById(screenId);
     if (!scr) return;
-    closeStaffSheet();
-    ensurePriceSheetHost(scr);
-    var mask = scr.querySelector('.v2-price-sheet-mask');
-    if (!mask) return;
-    var p = draft.price;
-    priceBuf = (Math.round(p * 100) / 100).toFixed(2).replace(/\.?0+$/, '');
-    if (priceBuf === '') priceBuf = '0';
-    paintPriceSheet();
-    priceSheetOpen = true;
-    mask._v2CloseGen = (mask._v2CloseGen || 0) + 1;
-    mask.classList.add('show');
-    void mask.offsetWidth;
-    mask.classList.add('is-in');
+    var btn = scr.querySelector('[data-nav-cust]');
+    if (!btn) return;
+    var member = (screenId === 's5') || custIsMember;
+    var m = memberProfile();
+    var nm = btn.querySelector('[data-nav-cust-name]');
+    var ic = btn.querySelector('.ic-mem');
+    if (nm) nm.textContent = member ? m.name : guestDisplayName(currentGuestG());
+    if (ic) ic.style.display = member ? '' : 'none';
+    btn.classList.toggle('is-member', member);
+    btn.setAttribute('aria-expanded', isCustOpen(screenId) ? 'true' : 'false');
   }
 
-  function closePriceSheet(apply) {
-    if (apply && draft) {
-      var n = parseFloat(priceBuf);
-      if (!isFinite(n) || n < 0) n = draft.price;
-      if (n > 999999.99) n = 999999.99;
-      draft.price = Math.round(n * 100) / 100;
-      /* 行内价格同步（改价仅作用于本次加入购物车，不影响价目表原价） */
-      paintRowPrice(draft.price);
-    }
-    priceSheetOpen = false;
-    $all('.v2-price-sheet-mask').forEach(function (mask) {
-      mask.classList.remove('is-in');
-      var gen = (mask._v2CloseGen || 0) + 1;
-      mask._v2CloseGen = gen;
-      setTimeout(function () {
-        if (mask._v2CloseGen !== gen) return;
-        if (priceSheetOpen) return;
-        mask.classList.remove('show');
-      }, 380);
+  function wireNavCust(screenId) {
+    var scr = document.getElementById(screenId);
+    if (!scr) return;
+    var btn = scr.querySelector('[data-nav-cust]');
+    if (!btn || btn.getAttribute('data-wired') === '1') return;
+    btn.setAttribute('data-wired', '1');
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleCustCard(screenId);
     });
   }
 
@@ -999,30 +876,48 @@
     }
   }
 
-  /* 会员卡内容（顶部卡 · 权益指标随档案：新注册会员为 0 / 0 / —） */
-  function memberMetricHtml(val, label) {
-    return '<div class="v2-ccard__metric"><div class="v2-ccard__metric-val">' + esc(val) +
-      '</div><div class="v2-ccard__metric-label">' + label + '</div></div>';
+  /* 会员卡内容（顶部卡 · 展开区展示持卡列表：卡类型 + 卡名 + 剩余权益；
+     展示内容与线上现有版本一致，原型用演示数据） */
+  /* 演示用持卡列表（陈女士）：储值卡 / 计次卡 / 折扣卡各一张 */
+  var MEMBER_CARDS = [
+    { type: '储值卡', name: '美发卡2000元', rest: '余额1900.00元' },
+    { type: '计次卡', name: '染烫10次卡', rest: '余4次' },
+    { type: '折扣卡', name: '超值折扣卡', rest: '8.0折' }
+  ];
+  /* 本次新注册会员（无卡无权益）→ 空列表，展开区显示空态 */
+  function memberCardList() {
+    var m = memberProfile();
+    if (m.isNew || window.__v2MemberNoBenefit) return [];
+    return MEMBER_CARDS;
+  }
+  function memberCardRowHtml(c) {
+    return '<div class="v2-ccard__mc">' +
+        '<span class="v2-ccard__mc-type">' + esc(c.type) + '</span>' +
+        '<span class="v2-ccard__mc-name">' + esc(c.name) + '</span>' +
+        '<span class="v2-ccard__mc-rest">' + esc(c.rest) + '</span>' +
+      '</div>';
+  }
+  function memberCardsHtml() {
+    var list = memberCardList();
+    if (!list.length) {
+      return '<div class="v2-ccard__cards is-empty">暂无会员卡</div>';
+    }
+    return '<div class="v2-ccard__cards">' + list.map(memberCardRowHtml).join('') + '</div>';
   }
   function memberCardInnerHtml() {
-    var m = memberProfile();
     return '<div class="v2-ccard__row" style="width:100%">' +
-        '<img class="v2-ccard__avatar" src="' + m.avatar + '" alt="">' +
+        '<img class="v2-ccard__avatar" src="' + memberProfile().avatar + '" alt="">' +
         '<div class="v2-ccard__info">' +
           '<div class="v2-ccard__name">' +
-            '<span class="v2-ccard__name-text nm">' + esc(m.name) + '</span>' +
+            '<span class="v2-ccard__name-text nm">' + esc(memberProfile().name) + '</span>' +
             '<img class="v2-ccard__vip" src="assets/ic_vip.svg" alt="VIP">' +
           '</div>' +
-          '<div class="v2-ccard__sub last">上次到店' + esc(m.lastVisit) + '</div>' +
+          '<div class="v2-ccard__sub last">上次到店' + esc(memberProfile().lastVisit) + '</div>' +
         '</div>' +
         '<button type="button" class="v2-ccard__chev" data-ccard-toggle aria-label="展开权益">' +
           CHEV_SVG + '</button>' +
       '</div>' +
-      '<div class="v2-ccard__metrics">' +
-        memberMetricHtml(m.cards, '会员卡') +
-        memberMetricHtml(m.balance, '储值余额') +
-        memberMetricHtml(m.discount, '折扣') +
-      '</div>';
+      memberCardsHtml();
   }
   function memberCardHtml() {
     return '<div class="v2-ccard v2-ccard--member" data-bill-card>' +
@@ -1077,9 +972,17 @@
   function rebuildBill(screenId) {
     var body = ensureBillBody(screenId);
     if (!body) return;
-    closeStaffSheet();
     closeExpand();
+    /* 价目表为空 → 隐藏对应 tab；两个都空 → 两个 tab 都显示并给出管理入口（本期仅说明） */
+    var projEmpty = !CATALOG.project.items.length;
+    var prodEmpty = !CATALOG.product.items.length;
+    var bothEmpty = projEmpty && prodEmpty;
+    var hideProj = projEmpty && !bothEmpty;
+    var hideProd = prodEmpty && !bothEmpty;
     var tab = billTab[screenId] || 'project';
+    if (tab === 'project' && hideProj) tab = 'product';
+    if (tab === 'product' && hideProd) tab = 'project';
+    billTab[screenId] = tab;
     var cat = CATALOG[tab];
     var groups = ['全部'].concat(cat.groups);
     if (!billGroup[screenId] || groups.indexOf(billGroup[screenId]) < 0) {
@@ -1087,11 +990,12 @@
     }
     var g = billGroup[screenId];
 
+    /* 两个都空：两个 tab 都保留（价目表管理入口本期仅以文案说明） */
     var tabsHtml = '<div class="v2-page-tabs">' +
-      '<button type="button" class="' + (tab === 'project' ? 'on' : '') +
-        '" data-btab="project">项目</button>' +
-      '<button type="button" class="' + (tab === 'product' ? 'on' : '') +
-        '" data-btab="product">产品</button></div>';
+      (hideProj ? '' : '<button type="button" class="' + (tab === 'project' ? 'on' : '') +
+        '" data-btab="project">项目</button>') +
+      (hideProd ? '' : '<button type="button" class="' + (tab === 'product' ? 'on' : '') +
+        '" data-btab="product">产品</button>') + '</div>';
 
     var gTabs = groups.map(function (name) {
       return '<button type="button" class="v2-group-tab' +
@@ -1112,20 +1016,32 @@
           '</div><div class="v2-cat-price">' + money(it.price) + '</div></div>' +
           '<div class="v2-cat-right" data-right></div>' +
         '</div>' +
-        '<div class="v2-row-expand" data-expand></div>' +
       '</div>';
     }).join('');
 
-    body.innerHTML = customerHtml(screenId) +
+    body.innerHTML =
+      '<div class="v2-ccard-wrap" data-ccard-wrap' +
+        (isCustOpen(screenId) ? ' data-open="1"' : '') + '>' +
+        customerHtml(screenId) +
+      '</div>' +
       '<div class="v2-price-card">' +
         '<div class="v2-price-head">' + tabsHtml +
           '<div class="v2-group-bar"><div class="v2-group-seg"><div class="v2-group-scroll">' +
           gTabs + '</div></div></div>' +
         '</div>' +
-        '<div class="v2-catalog">' + list + '</div>' +
+        '<div class="v2-catalog">' + list +
+          (bothEmpty
+            ? '<div class="v2-cat-empty">暂无价目表，请先在「管理价目表」中添加项目或产品</div>'
+            : '') +
+        '</div>' +
       '</div>';
 
     wireCcard(body.querySelector('.v2-ccard'));
+    /* 默认收起：价目表大卡片上移贴住标题栏；载入时按当前状态直接定位（不做过渡） */
+    var wrap = ccardWrap(body);
+    if (wrap) wrap.style.height = isCustOpen(screenId) ? 'auto' : '0px';
+    body.classList.toggle('cust-open', isCustOpen(screenId));
+    paintNavCust(screenId);
 
     body.querySelectorAll('[data-btab]').forEach(function (b) {
       b.onclick = function () {
@@ -1141,43 +1057,24 @@
       };
     });
     body.querySelectorAll('.v2-cat-item').forEach(function (row) {
-      renderRowRight(row, false);
+      renderRowRight(row);
     });
-    /* 重绘后重新应用视差位移与「已滚动」态（切 tab / 切分组 / 新增会员后不丢效果） */
-    paintBillParallax(screenId);
+    /* 重绘后同步标题栏入口（切 tab / 切换顾客身份后不丢状态） */
+    wireNavCust(screenId);
+    paintNavCust(screenId);
   }
 
-  function renderRowRight(row, open) {
+  /* 行右侧：仅「＋」——点击弹出底部「设置内容」sheet（不再行内展开） */
+  function renderRowRight(row) {
     var right = row.querySelector('[data-right]');
     if (!right) return;
-    if (!open) {
-      right.innerHTML =
-        '<button type="button" class="v2-add-btn" data-add aria-label="添加">' +
-        PLUS_SVG + '</button>';
-      right.querySelector('[data-add]').onclick = function (e) {
-        e.stopPropagation();
-        openExpand(row);
-      };
-      return;
-    }
     right.innerHTML =
-      '<div class="v2-round-step">' +
-        '<button type="button" class="minus" data-q="-1" aria-label="减">' + MINUS_SVG + '</button>' +
-        '<span data-qty>' + draft.qty + '</span>' +
-        '<button type="button" class="plus" data-q="1" aria-label="加">' + PLUS_SVG + '</button>' +
-      '</div>';
-    right.querySelectorAll('[data-q]').forEach(function (b) {
-      b.onclick = function (e) {
-        e.stopPropagation();
-        var d = parseInt(b.getAttribute('data-q'), 10);
-        if (!draft) return;
-        var next = draft.qty + d;
-        /* 步进器归零 → 收起该行（服务员工/价格等未提交数据一并丢弃） */
-        if (next <= 0) { closeExpand(); return; }
-        draft.qty = Math.min(99, next);
-        right.querySelector('[data-qty]').textContent = String(draft.qty);
-      };
-    });
+      '<button type="button" class="v2-add-btn" data-add aria-label="添加">' +
+      PLUS_SVG + '</button>';
+    right.querySelector('[data-add]').onclick = function (e) {
+      e.stopPropagation();
+      openItemSheet(row);
+    };
   }
 
   function emptyStaffRow() {
@@ -1189,24 +1086,49 @@
     };
   }
 
-  function openExpand(row, prefill) {
+  /* ========== 点「＋」→ 底部「设置内容」sheet（Figma 176:329）
+     数量 / 应付（元）/ 服务员工，点「确定」加入购物车（已放弃原行内展开区方案） ========== */
+  function sheetEl(id) { return document.getElementById(id); }
+
+  function paintItemSheet() {
+    if (!draft) return;
+    var t = sheetEl('asTitle');
+    var q = sheetEl('asQty');
+    var pay = sheetEl('asPayable');
+    var grid = sheetEl('asStaffGrid');
+    if (t) t.textContent = draft.name;
+    if (q) q.textContent = String(draft.qty);
+    if (pay) {
+      var total = (draft.payTotal != null) ? draft.payTotal : draft.price * draft.qty;
+      pay.value = (Math.round(total * 100) / 100).toFixed(2);
+      pay.setAttribute('data-prev', pay.value);
+    }
+    if (grid) {
+      /* 员工卡片用「当前草稿行」渲染（ctx=v2draft 时事件委托读 window.__v2DraftStaff） */
+      grid.setAttribute('data-ctx', 'v2draft');
+      window.__v2DraftStaff = draft.staffRow;
+      if (typeof renderStaffInto === 'function') renderStaffInto(grid, draft.staffRow);
+    }
+  }
+
+  function openItemSheet(row, prefill) {
     var screen = row.closest('.screen');
     var screenId = screen ? screen.id : 's1';
-    var key = row.getAttribute('data-ikey');
-    if (expandKey && expandKey !== key) closeExpand();
-
+    var base = parseFloat(row.getAttribute('data-price')) || 0;
     draft = {
-      key: key,
+      key: row.getAttribute('data-ikey'),
       name: row.getAttribute('data-name'),
-      price: parseFloat(row.getAttribute('data-price')) || 0,
-      base: parseFloat(row.getAttribute('data-price')) || 0,
+      price: base,
+      base: base,
       qty: 1,
+      payTotal: null,
       isProd: row.getAttribute('data-prod') === '1',
       group: row.getAttribute('data-group') || '',
       staffRow: emptyStaffRow(),
       screenId: screenId,
       el: row
     };
+
     /* 从购物车明细跳回：回填保存的数据（单价 / 数量 / 服务员工），可继续编辑 */
     if (prefill) {
       var p = parseFloat(prefill.price);
@@ -1215,6 +1137,8 @@
       if (isFinite(b) && b >= 0) draft.base = Math.round(b * 100) / 100;
       var q = parseInt(prefill.qty, 10);
       if (isFinite(q) && q > 0) draft.qty = Math.min(99, q);
+      var tot = parseFloat(prefill.payTotal);
+      if (isFinite(tot) && tot >= 0) draft.payTotal = Math.round(tot * 100) / 100;
       if (prefill.staff) {
         draft.staffRow = {
           id: '__v2edit__' + Date.now(),
@@ -1225,186 +1149,94 @@
       }
       if (prefill.editUid) draft.editUid = prefill.editUid;
     }
-    window.__v2DraftStaff = draft.staffRow;
-    expandKey = key;
-    row.classList.add('is-open');
-    renderRowRight(row, true);
-    renderExpandBody(row);
-    /* 仅保证展开区可见，不为 sheet 预留位移 */
-    var body = screen && screen.querySelector('.v2-bill-body');
-    if (body) {
-      var top = Math.max(0, row.offsetTop - 72);
-      body.scrollTo({ top: top, behavior: 'smooth' });
-    }
-  }
-
-  function renderExpandBody(row) {
-    var box = row.querySelector('[data-expand]');
-    if (!box || !draft) return;
-    /* 展开卡：① 服务员工 Chip 区 ② 底部「单价（元）」+ 可编辑价格药丸 + 加入购物车 */
-    box.innerHTML =
-      '<div class="v2-staff-row">' +
-        '<div class="v2-staff-row__lbl">服务员工</div>' +
-        '<div class="v2-staff-row__chips" data-slots></div>' +
-      '</div>' +
-      '<div class="v2-expand-foot">' +
-        '<div class="v2-price-line">' +
-          '<span class="v2-price-line__lbl">单价（元）</span>' +
-          '<span class="v2-price-pill" data-price-pill role="button" tabindex="0">' +
-            '<span class="yen">¥</span>' +
-            '<span class="val" data-pill-val>' + pricePlain(draft.price) + '</span>' +
-            pricePenHtml() +
-          '</span>' +
-        '</div>' +
-        '<button type="button" class="v2-cart-pill" data-commit aria-label="加入购物车">' +
-          CART_SVG +
-        '</button>' +
-      '</div>';
-
-    renderSlots();
-    var pill = box.querySelector('[data-price-pill]');
-    if (pill) {
-      pill.onclick = function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openPriceSheet();
-      };
-    }
-    box.querySelector('[data-commit]').onclick = function (e) {
-      e.stopPropagation();
-      commitDraft(e.currentTarget);
-    };
-  }
-
-  /* 员工 Chip：姓名 + 「点客/散客·工位」（设计稿去掉了头像），最多 MAX_STAFF 位 */
-  function renderSlots() {
-    if (!draft || !draft.el) return;
-    var row = draft.el.querySelector('[data-slots]');
-    if (!row) return;
-    var ids = draft.staffRow.staffIds || [];
-    var html = ids.map(function (sid) {
-      var st = staffList().find(function (s) { return s.id === sid; }) ||
-        { name: sid, short: '?', avatar: '' };
-      var des = draft.staffRow.staffDesignated && draft.staffRow.staffDesignated[sid] === true;
-      var role = roleLabel(draft.staffRow.staffRoles && draft.staffRow.staffRoles[sid]);
-      var sub = des ? '点客' : '散客';
-      if (role) sub += '·' + role;
-      return '<div class="v2-staff-chip is-filled" data-slot-sid="' + esc(sid) + '">' +
-        '<span class="v2-staff-chip__meta">' +
-          '<span class="v2-staff-chip__name">' + esc(st.name) + '</span>' +
-          '<span class="v2-staff-chip__sub">' + esc(sub) + '</span>' +
-        '</span>' +
-        '<button type="button" class="v2-staff-chip__x" data-slot-clear="' + esc(sid) +
-          '" aria-label="移除">×</button>' +
-      '</div>';
-    }).join('');
-    if (ids.length < MAX_STAFF) {
-      html += '<button type="button" class="v2-staff-chip is-empty" data-slot-empty ' +
-        'aria-label="添加员工">' +
-        '<span class="v2-staff-chip__plus">' + PLUS_SVG + '</span>' +
-        '<span class="v2-staff-chip__hint">添加</span>' +
-      '</button>';
-    }
-    row.innerHTML = html;
-
-    row.querySelectorAll('.v2-staff-chip.is-filled, [data-slot-empty]').forEach(function (el) {
-      el.addEventListener('click', function (e) {
-        if (e.target.closest('[data-slot-clear]')) return;
-        e.stopPropagation();
-        openStaffSheet();
-      });
-    });
-    row.querySelectorAll('[data-slot-clear]').forEach(function (x) {
-      x.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var sid = x.getAttribute('data-slot-clear');
-        draft.staffRow.staffIds = draft.staffRow.staffIds.filter(function (id) {
-          return id !== sid;
-        });
-        delete draft.staffRow.staffRoles[sid];
-        delete draft.staffRow.staffDesignated[sid];
-        renderSlots();
-        if (staffSheetOpen) paintStaffSheet();
-      });
-    });
-  }
-
-  window.__v2OnDraftStaffChange = function () {
-    renderSlots();
-    if (staffSheetOpen) paintStaffSheet();
-  };
-
-  /* 供外部（员工选择组件）调用：新增员工成功后收起 sheet，需再次点「添加」才弹出 */
-  window.__v2CloseStaffSheet = function () {
-    closeStaffSheet();
-  };
-
-  /* —— 员工 sheet：普通底部弹出 —— */
-  function paintStaffSheet() {
-    if (!draft) return;
-    var screen = document.getElementById(draft.screenId);
-    var root = screen && screen.querySelector('.v2-staff-sheet__bd');
-    if (!root) return;
-    window.__v2DraftStaff = draft.staffRow;
-    /* 始终按当前项目的草稿行渲染，避免读到上一次操作残留的全局员工行 */
-    if (typeof renderStaffInto === 'function') {
-      renderStaffInto(root, draft.staffRow);
-    } else if (typeof renderStaffPickerHtmlForRow === 'function') {
-      root.innerHTML = renderStaffPickerHtmlForRow(draft.staffRow);
-      if (typeof afterStaffPickerPaint === 'function') afterStaffPickerPaint(root);
-    }
-  }
-
-  function openStaffSheet() {
-    if (!draft) return;
-    var screen = document.getElementById(draft.screenId);
-    if (!screen) return;
-    ensureStaffSheetHost(screen);
-    var mask = screen.querySelector('.v2-staff-sheet-mask');
-    if (!mask) return;
-    /* 每次打开都是「未设置、可重新设置」：清掉上一次残留的卡片翻牌编辑态 */
+    /* 每次打开都是干净状态：清掉上一次残留的卡片翻牌编辑态 */
     if (typeof window.__staffPickResetEdit === 'function') window.__staffPickResetEdit();
-    paintStaffSheet();
-    staffSheetOpen = true;
-    mask._v2CloseGen = (mask._v2CloseGen || 0) + 1;
-    mask.style.top = '';
-    mask.classList.add('show');
-    void mask.offsetWidth;
-    mask.classList.add('is-in');
+    paintItemSheet();
+    var mask = sheetEl('addSheetMask');
+    if (mask) mask.classList.add('show');
   }
 
-  function closeStaffSheet() {
-    staffSheetOpen = false;
-    $all('.v2-staff-sheet-mask').forEach(function (mask) {
-      mask.classList.remove('is-in');
-      var gen = (mask._v2CloseGen || 0) + 1;
-      mask._v2CloseGen = gen;
-      setTimeout(function () {
-        if (mask._v2CloseGen !== gen) return;
-        if (staffSheetOpen) return;
-        mask.classList.remove('show');
-      }, 380);
-    });
+  /* 数量步进：同步「应付（元）」= 单价 × 数量（手动改价记录随之清空） */
+  function stepSheetQty(d) {
+    if (!draft) return;
+    draft.qty = Math.max(1, Math.min(999, draft.qty + d));
+    draft.payTotal = null;
+    var q = sheetEl('asQty');
+    if (q) q.textContent = String(draft.qty);
+    var pay = sheetEl('asPayable');
+    if (pay) pay.value = (Math.round(draft.price * draft.qty * 100) / 100).toFixed(2);
   }
 
-  function closeExpand() {
-    closePriceSheet(false);
-    closeStaffSheet();
-    if (draft && draft.el) {
-      draft.el.classList.remove('is-open');
-      var exp = draft.el.querySelector('[data-expand]');
-      if (exp) exp.innerHTML = '';
-      renderRowRight(draft.el, false);
-    }
+  function closeItemSheet() {
+    var mask = sheetEl('addSheetMask');
+    if (mask) mask.classList.remove('show');
+    if (draft && draft.el) draft.el.classList.remove('is-open');
     draft = null;
-    expandKey = null;
     window.__v2DraftStaff = null;
   }
+
+  /* 「确定」：把 sheet 上的数量 / 应付 / 服务员工落到草稿并加入购物车 */
+  function confirmItemSheet(btn) {
+    if (!draft) return;
+    var q = sheetEl('asQty');
+    var pay = sheetEl('asPayable');
+    var qty = parseInt(q ? q.textContent : '', 10);
+    if (isFinite(qty) && qty > 0) draft.qty = Math.min(999, qty);
+    var total = pay ? parseFloat(pay.value) : NaN;
+    if (isFinite(total) && total >= 0) draft.payTotal = Math.round(total * 100) / 100;
+    commitDraft(btn);
+  }
+
+  function wireItemSheet() {
+    var mask = sheetEl('addSheetMask');
+    if (!mask || mask.getAttribute('data-v2wired') === '1') return;
+    mask.setAttribute('data-v2wired', '1');
+    mask.addEventListener('click', function (e) {
+      if (e.target === mask) closeItemSheet();
+    });
+    mask.querySelectorAll('[data-sq]').forEach(function (b) {
+      b.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        stepSheetQty(parseInt(b.getAttribute('data-sq'), 10) || 0);
+      };
+    });
+    /* 「应付（元）」右侧铅笔：聚焦数字输入框（唤起键盘直接改价） */
+    var pen = mask.querySelector('.pen');
+    if (pen) {
+      pen.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var pay = sheetEl('asPayable');
+        if (pay) {
+          pay.focus();
+          if (pay.select) pay.select();
+        }
+      };
+    }
+    var ok = mask.querySelector('.btn-confirm');
+    if (ok) {
+      ok.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        confirmItemSheet(ok);
+      };
+    }
+  }
+
+  /* 员工选择内嵌在「设置内容」sheet 内（卡片翻牌 → 点客/散客 → 工位），
+     每次改选后由 index.html 的事件委托重绘卡片网格，此处无需额外处理 */
+  window.__v2OnDraftStaffChange = function () {};
+
+  function closeExpand() { closeItemSheet(); }
 
   function commitDraft(fromBtn) {
     if (!draft) return;
     if (!window.cartItems) window.cartItems = [];
-    var payable = Math.round(draft.price * draft.qty * 100) / 100;
+    /* 手动改过「应付（元）」→ 以输入值为准（结算页该明细不可用权益），否则 = 单价 × 数量 */
+    var payable = (draft.payTotal != null)
+      ? Math.round(draft.payTotal * 100) / 100
+      : Math.round(draft.price * draft.qty * 100) / 100;
     var basePay = Math.round(draft.base * draft.qty * 100) / 100;
     var kind = draft.screenId === 's5' ? 'member' : 'guest';
     var staffObj = {
@@ -1460,8 +1292,11 @@
     var sid = draft.screenId;
     var startRect = btn ? btn.getBoundingClientRect() : null;
     var replaced = editIdx >= 0;
+    var toastSeq = window.__toastSeq || 0;
     closeExpand();
     flyToCart(startRect, sid, function () {
+      /* 飞入动画期间若已有更新的提示（如「挂单成功」）出现，则不再覆盖 */
+      if ((window.__toastSeq || 0) !== toastSeq) return;
       toast(replaced ? '已更新该笔' : '已加入购物车');
     });
   }
@@ -1481,7 +1316,7 @@
     return -1;
   }
 
-  /* 购物车明细点击 → 跳到开单页对应行、自动展开并回填保存的数据，可再编辑 */
+  /* 购物车明细点击 → 跳到开单页对应行、弹出「设置内容」sheet 回填保存的数据，可再编辑 */
   window.__v2JumpToCartItem = function (index) {
     var list = window.cartItems || [];
     var it = list[index];
@@ -1496,6 +1331,7 @@
       price: it.price,
       base: (it.salePrice != null ? it.salePrice : it.price),
       qty: it.qty,
+      payTotal: (it.payable != null ? it.payable : null),
       staff: it.staff,
       editUid: it._uid || ''
     };
@@ -1510,7 +1346,7 @@
       }
       if (!row && tries < 12) { tries += 1; setTimeout(seek, 50); return; }
       if (!row) { toast('该价目已变更，无法定位'); return; }
-      openExpand(row, payload);
+      openItemSheet(row, payload);
     }
     setTimeout(seek, 80);
     return true;
@@ -1588,14 +1424,12 @@
     setTimeout(finish, dur + 120);
   }
 
-  /* 点展开区外部丢弃；点 sheet 不丢弃展开 */
+  /* 点「设置内容」sheet 外的遮罩区域即关闭；点 sheet 内部不关闭 */
   document.addEventListener('click', function (e) {
     if (!draft) return;
-    if (e.target.closest('.v2-staff-sheet-mask')) return;
-    if (e.target.closest('.v2-price-sheet-mask')) return;
-    if (e.target.closest('.v2-cat-item.is-open')) return;
+    if (e.target.closest('#addSheetMask')) return;
     if (e.target.closest('.v2-fly-ball')) return;
-    closeExpand();
+    closeItemSheet();
   }, true);
 
   function forceNext() {
@@ -1962,6 +1796,8 @@
     selDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     paintBillDates();
     closeDatePop();
+    /* 成功页「改日期」：确认后同步成功页显示的开单日期 */
+    if (typeof window.__v2OnBillDateChange === 'function') window.__v2OnBillDateChange(dKey(selDate));
   }
 
   function wireDateCtl() {
@@ -2003,14 +1839,28 @@
       }
     });
     window.__v2BillDate = function () { return dKey(selDate); };
+    /* 成功页「改日期」复用同一日历浮层 */
+    window.__v2OpenDatePop = openDatePop;
+  }
+
+  /* 演示开关（仅用于演示「价目表为空 → 隐藏对应 tab」）：
+     ?noProduct=1 产品为空；?noProject=1 项目为空；两个都加 = 两个都空（两个 tab 都显示） */
+  function applyDemoSwitches() {
+    var q = location.search || '';
+    if (/[?&]noProduct=1/.test(q)) CATALOG.product.items = [];
+    if (/[?&]noProject=1/.test(q)) CATALOG.project.items = [];
   }
 
   function boot() {
+    applyDemoSwitches();
     syncHold();
     wrapPickRows();
     wireAddMember();
     wirePickSearch();
     wireDateCtl();
+    wireItemSheet();
+    wireNavCust('s1');
+    wireNavCust('s5');
     hookCust();
     forceNext();
     wireHome();
