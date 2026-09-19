@@ -40,17 +40,12 @@
 /* 首页「取挂单（N）」入口：两大按钮下方的描边小按钮 */
 .v2-home-hold {
   position: absolute; left: 16px; right: 16px; top: 436px; height: 40px; z-index: 3;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
+  display: flex; align-items: center; justify-content: center;
   background: #fff; border: 1px solid #F32F41; border-radius: 12px;
   font-family: inherit; font-size: 15px; font-weight: 500; color: #F32F41;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
-.v2-home-hold img { width: 16px; height: 16px; display: block; flex: none; }
 .v2-home-hold:active { background: #FFF2F2; }
-.v2-home-hint {
-  position: absolute; left: 16px; right: 16px; top: 492px; z-index: 2;
-  font-size: 12px; color: #929292; line-height: 1.5;
-}
 .v2-home-tabs {
   position: absolute; left: 0; right: 0; bottom: 0; height: 56px;
   background: #fff; border-top: 1px solid #eee; z-index: 4;
@@ -299,6 +294,10 @@
   font-family: var(--font-data); font-variant-numeric: tabular-nums;
 }
 .v2-cat-price .yen { font-size: 12px; font-weight: 500; line-height: 14px; margin-top: 2px; }
+/* 会员权益价：划线原价（12/400 灰）+ 权益价（15/700 红），与「直接收款」会员态同一口径 */
+.v2-cat-price.has-sale { gap: 8px; align-items: baseline; }
+.v2-cat-price-old { font-size: 12px; font-weight: 400; color: #B2B2B2; line-height: 18px; text-decoration: line-through; }
+.v2-cat-price-sale { color: #F32F41; }
 
 /* 空价目表提示（项目/产品都为空时显示，本期仅说明文案） */
 .v2-cat-empty {
@@ -373,12 +372,15 @@
 #s7.v2-co .guest-card,
 #s6.v2-co .member-card,
 #s7.v2-co .member-card {
-  position: relative !important;
+  /* R9：改为吸在滚动区顶部（sticky，top=静止时的 12px 边距 → 起滚零跳动），
+     让明细白卡从下往上滑过并盖住它（层级见下方 z-index:1 / .co-items z-index:2） */
+  position: sticky !important;
   left: auto !important;
-  top: auto !important;
+  top: 12px !important;
   margin: 12px 16px 0 !important;
   width: calc(100% - 32px) !important;
   max-width: 358px;
+  z-index: 1 !important;
 }
 #s6.v2-co .co-items,
 #s7.v2-co .co-items,
@@ -389,6 +391,28 @@
   top: auto !important;
   width: 100% !important;
   margin-top: 12px !important;
+  z-index: 2;
+}
+/* —— R9「明细白卡盖住顾客卡片」：与开单页同源（白卡 z-index 2 + 滚动时顾客卡降到 1）
+   ① 顾客卡片在本页改为 sticky 吸在滚动区顶部（见 v2.js enableCheckoutFlow）
+   ② 明细区 / 券·备注区整块不透明（底色＝页面底色 #f7f7f7，静止时零视觉变化），
+      并抬到顾客卡之上，滚动时白卡从下往上滑过并盖住卡片；
+      卡片之间的 12px 空隙因此不再“漏底”（不会透出被盖住的顾客卡）
+   ③ 首张明细卡上缘圆角，与开单页价目白卡 .v2-price-card 同一视觉语言 */
+#s6.v2-co .co-items,
+#s7.v2-co .co-items,
+#s6.v2-co .co-extras,
+#s7.v2-co .co-extras {
+  background: #f7f7f7;
+}
+#s6.v2-co .co-items > .co-item:first-child,
+#s7.v2-co .co-items > .co-item:first-child {
+  border-radius: 12px 12px 0 0;
+}
+#s6.v2-co .scroll.is-scrolled .guest-card,
+#s7.v2-co .scroll.is-scrolled .guest-card,
+#s6.v2-co .scroll.is-scrolled .member-card,
+#s7.v2-co .scroll.is-scrolled .member-card {
   z-index: 1;
 }
 

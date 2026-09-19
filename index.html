@@ -36,6 +36,9 @@
     --statusbar-h: 53px;
     --nav-h: 44px;
     --chrome-top: calc(var(--statusbar-h) + var(--nav-h));
+    /* 标题栏右侧文字与标题文字基线对齐的纵向补偿（见 .nav-bar 相关规则） */
+    --nav-shift-14: 2.8px;
+    --nav-shift-12: 3.7px;
     --mobile-scale: 1;
     --mobile-h: 844px;
   }
@@ -130,10 +133,15 @@
     font-size:18px; font-weight:500; color:#1a1a1a; text-align:center;
     white-space:nowrap;
   }
-  .nav-bar .date { position:absolute; left:294px; top:14px; font-size:12px; font-weight:500; color:#1a1a1a; white-space:nowrap; }
+  /* 标题栏右侧元素 vertical 补偿：使右侧文字与标题文字「基线对齐」
+     Noto Sans SC 度量：ascent 1.16em / descent .288em / 行高 1.448em
+     标题 18px 基线 = 10 + 20.88 = 30.88（相对标题栏）
+     14px 组在 24px 行内居中 → 基线 28.11 → 整体下移 2.8
+     12px 组在 24px 行内居中 → 基线 27.23 → 整体下移 3.7
+     组内图标与文字一同下移，保持组内相对关系不变 */
   /* 日期控件：日期文本 + 日历图标为一组可点区域，点击展开日期浮层 */
   .nav-bar .date-ctl {
-    position:absolute; right:10px; top:10px; height:24px;
+    position:absolute; right:10px; top:calc(10px + var(--nav-shift-12)); height:24px;
     display:flex; align-items:center; gap:10px;
     border:0; background:none; padding:0; margin:0; cursor:pointer;
     font-family:inherit; -webkit-tap-highlight-color:transparent;
@@ -141,20 +149,21 @@
   .nav-bar .date-ctl .date { position:static; left:auto; top:auto; font-size:12px; font-weight:500; color:#1a1a1a; white-space:nowrap; }
   .nav-bar .date-ctl .ic-cal { width:16px; height:16px; display:block; flex:none; }
   .nav-bar .date-ctl:active { opacity:.55; }
-  /* 「取挂单（N）」：选择顾客页标题栏右侧入口（挂单列表） */
+  /* 「取挂单（N）」：选择顾客页标题栏右侧入口（挂单列表）：单据+时钟图标 + 文字 */
   .nav-bar .nav-hold {
-    position:absolute; right:10px; top:10px; height:24px;
+    position:absolute; right:10px; top:calc(10px + var(--nav-shift-14)); height:24px;
     display:flex; align-items:center; gap:6px;
     border:0; background:none; padding:0; margin:0; cursor:pointer;
     font-family:inherit; font-size:14px; font-weight:500; color:#1a1a1a;
     -webkit-tap-highlight-color:transparent;
   }
-  .nav-bar .nav-hold img { width:16px; height:16px; display:block; flex:none; }
+  .nav-bar .nav-hold .ic-gd { width:20px; height:20px; display:block; flex:none; }
   .nav-bar .nav-hold .n { color:#F32F41; }
   .nav-bar .nav-hold:active { opacity:.55; }
   /* 开单页标题栏右侧「顾客」入口：会员 = icon + 姓名；散客 = 仅文字。点击展开/收起顾客卡片 */
   .nav-bar .nav-cust {
-    position:absolute; right:10px; top:10px; height:24px;
+    position:absolute; right:10px; top:calc(10px + var(--nav-shift-14));
+    height:24px;
     display:flex; align-items:center; gap:4px;
     border:0; background:none; padding:0; margin:0; cursor:pointer;
     font-family:inherit; font-size:14px; font-weight:500; color:#1a1a1a;
@@ -495,6 +504,29 @@
   }
   .proto-confirm__acts button + button { border-left:1px solid #f0f0f0; color:var(--brand); font-weight:600; }
 
+  /* ===== 权益说明弹窗（结算页「权益」行左侧「?」触发；正文可滚动） ===== */
+  /* 正文区高度自适应内容：内容超出 440px 才出滚动，避免弹窗被撑高留出空白 */
+  .ben-help { width:320px; display:flex; flex-direction:column; }
+  .ben-help__title {
+    flex:none; height:52px; display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:600; color:var(--text);
+  }
+  .ben-help__body {
+    flex:0 1 auto; min-height:0; max-height:440px; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    padding:0 20px 16px;
+  }
+  .ben-help__q { margin:14px 0 6px; font-size:14px; font-weight:600; color:var(--text); line-height:20px; }
+  .ben-help__q:first-child { margin-top:0; }
+  .ben-help__p { margin:0; font-size:13px; color:#666; line-height:20px; }
+  .ben-help__list { margin:0; padding-left:18px; }
+  .ben-help__list li { font-size:13px; color:#666; line-height:20px; margin-bottom:2px; }
+  .ben-help__foot { flex:none; border-top:1px solid #f0f0f0; }
+  .ben-help__foot button {
+    width:100%; height:48px; border:none; background:#fff; color:var(--brand);
+    font-size:16px; font-weight:600; font-family:inherit; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+
   /* ===== 金额卡 ===== */
   .amt-card { position:absolute; left:16px; width:358px; background:#fff; border-radius:12px; overflow:hidden; z-index:14; }
   .amt-card .lbl { position:absolute; left:12px; top:12px; font-size:12px; color:#8f8f94; white-space:nowrap; }
@@ -760,12 +792,17 @@
   }
   #s6 .co-item .co-del svg, #s7 .co-item .co-del svg { width:18px; height:18px; color:#1a1a1a; }
   #s6 .co-item .co-row, #s7 .co-item .co-row { display:flex; align-items:center; min-height:var(--row-h); padding:0 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  /* R11：服务员工行的上下留白以右侧员工文字块为准（行高 = 文字块高度 + 上下各 10px）
+     单选 1 位员工时 min-height:40px 仍生效 → 与「权益 / 应付」单行行观感完全一致；
+     选 2 位及以上时行盒随文字块长高，文字不再贴住上下分隔线 */
+  #s6 .co-item .co-row.co-staff-row, #s7 .co-item .co-row.co-staff-row { padding-top:10px; padding-bottom:10px; }
   #s6 .co-item .co-row .lbl, #s7 .co-item .co-row .lbl { font-size:var(--fs-label); color:var(--text); white-space:nowrap; display:flex; align-items:center; gap:4px; }
   #s6 .co-item .co-row .lbl .q, #s7 .co-item .co-row .lbl .q { width:16px; height:16px; display:flex; align-items:center; justify-content:center; }
   #s6 .co-item .co-row .lbl .q svg, #s7 .co-item .co-row .lbl .q svg { width:14px; height:14px; color:#929292; }
   #s6 .co-item .co-row .lbl .help, #s7 .co-item .co-row .lbl .help {
     width:14px; height:14px; border-radius:50%; border:1px solid #c7c7cc; color:#929292;
     font-size:10px; line-height:12px; text-align:center; display:inline-flex; align-items:center; justify-content:center;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
   }
   #s6 .co-item .co-row .val, #s7 .co-item .co-row .val { margin-left:auto; display:flex; align-items:center; gap:4px; font-size:var(--fs-value); color:var(--text); white-space:nowrap; max-width:220px; overflow:hidden; }
   #s6 .co-item .co-row .val.gray, #s7 .co-item .co-row .val.gray { color:var(--text-sec); }
@@ -842,6 +879,35 @@
   #s6 .co-bar .pay, #s7 .co-bar .pay { display:flex; align-items:baseline; color:#f32f41; font-weight:500; white-space:nowrap; }
   #s6 .co-bar .pay .l, #s7 .co-bar .pay .l { font-size:15px; }
   #s6 .co-bar .pay .v, #s7 .co-bar .pay .v { font-size:19.5px; }
+  /* 应付可手动修改（仅 s6）：按钮化 + 铅笔图标 +「已改价」标记
+     热区靠「内边距 8 + 底栏内边距 8」向外扩，文字仍落在 16px 栏距上 */
+  #s6 .co-bar { padding-left:8px; }
+  #s6 .co-bar button.pay {
+    border:0; background:none; padding:4px 8px; margin:-4px 0; border-radius:6px;
+    font-family:inherit; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #s6 .co-bar button.pay:active { background:#FFF2F2; }
+  /* 铅笔（可编辑暗示）：与金额同色，14px，距金额 6px。
+     参与 `.pay` 的 align-items:baseline —— svg 无基线，其「底缘」即基线，
+     于是铅笔底缘正好落在金额数字底缘（底对齐，R9 修订，原为行内居中）。 */
+  #s6 .co-bar .pay .pen {
+    width:14px; height:14px; flex:none; margin-left:6px;
+  }
+  #s6 .co-bar .pay .tag {
+    align-self:center; margin-left:4px; padding:1px 5px; border-radius:4px;
+    background:#fff2f2; color:#f32f41; font-size:11px; font-weight:400; line-height:16px;
+  }
+  /* 手输应付提示条：贴在底栏上方 */
+  #s6 .co-lock-note {
+    position:absolute; left:0; right:0; bottom:calc(72px + var(--safe-bottom));
+    padding:7px 16px; background:#FFF8E5; color:#B26B00;
+    font-size:var(--fs-hint); line-height:var(--lh-hint); z-index:29; box-sizing:border-box;
+  }
+  /* 改价后（单条改价 / 整单改价）明细「权益」行降权为只读，点击不再进入选择页；
+     优惠券行保持可点——整单改价后仍可选用券，但不影响最终结算价 */
+  #s6 .co-items .co-row.is-benefit-locked { opacity:.5; }
+  #s6 .co-items .co-row.is-benefit-locked .val { cursor:default; pointer-events:none; }
   #s6 .co-bar .btns, #s7 .co-bar .btns { flex:1; display:flex; justify-content:flex-end; gap:11px; }
   #s6 .co-bar .btn-g, #s7 .co-bar .btn-g { width:87px; height:46px; border:none; border-radius:6.5px; background:#fff2f2; color:#f32f41; font-size:17px; cursor:pointer; }
   #s6 .co-bar .btn-c, #s7 .co-bar .btn-c { width:104px; height:46px; border:none; border-radius:6.5px; background:#f42f41; color:#fff; font-size:17px; cursor:pointer; }
@@ -861,7 +927,8 @@
   #s8 .flow-tabs .tab.on .lab { color:#ff7a28; font-weight:500; }
   #s8 .flow-tabs .tab .bar { width:24px; height:3px; border-radius:2px; background:transparent; }
   #s8 .flow-tabs .tab.on .bar { background:#ff7a28; }
-  #s8 .nav-bar .nav-ops { position:absolute; right:10px; top:12px; display:flex; align-items:center; gap:12px; }
+  /* R9 基线对齐：s8 操作组容器为 16px 行盒、内里 14px 文字，故在 14px 组位移上再补 1px */
+  #s8 .nav-bar .nav-ops { position:absolute; right:10px; top:calc(13px + var(--nav-shift-14)); display:flex; align-items:center; gap:12px; }
   #s8 .nav-bar .nav-ops .op { display:flex; align-items:center; gap:4px; font-size:14px; font-weight:700; color:#333; border:none; background:none; cursor:pointer; }
   #s8 .flow-card {
     margin:11px 13px 0; background:#fff; border-radius:11px; padding:15px 13px 13px;
@@ -946,95 +1013,6 @@
     flex:1; height:50px; border:none; border-radius:26px; background:#3d3d3d; color:#fff;
     font-size:17px; font-weight:700; cursor:pointer;
   }
-
-  /* ===== 业绩设置 s10 / 提成方案 s11 ===== */
-  #s10 .nav-op {
-    position:absolute; right:10px; top:15px; font-size:15px; color:#333;
-    border:none; background:none; cursor:pointer;
-  }
-  #s10 .pset-tabs, #s11 .pset-tabs {
-    position:absolute; left:0; top:var(--chrome-top); width:390px; height:48px; background:#fff;
-    display:flex; align-items:flex-start; justify-content:center; gap:61px; padding-top:13px; z-index:10;
-  }
-  #s11 .pset-tabs { top:calc(var(--statusbar-h) + 108px); }
-  #s10 .pset-tabs button, #s11 .pset-tabs button {
-    display:flex; flex-direction:column; align-items:center; gap:9px;
-    border:none; background:none; cursor:pointer; font-size:16px; color:#999; padding:0;
-  }
-  #s10 .pset-tabs button.on, #s11 .pset-tabs button.on { color:#111; font-weight:500; }
-  #s10 .pset-tabs button .bar, #s11 .pset-tabs button .bar {
-    width:16px; height:3px; border-radius:4px; background:transparent;
-  }
-  #s10 .pset-tabs button.on .bar, #s11 .pset-tabs button.on .bar { background:#111; }
-  #s10 .pset-div, #s11 .pset-div {
-    position:absolute; left:0; width:390px; height:0.5px; background:#eee; z-index:10;
-  }
-  #s10 .pset-div { top:calc(var(--statusbar-h) + 92px); }
-  #s11 .pset-div { top:calc(var(--statusbar-h) + 156px); }
-  #s10 .pset-tip {
-    position:absolute; left:0; top:calc(var(--statusbar-h) + 93px); width:390px; height:34px; background:#fff2f2;
-    display:flex; align-items:center; gap:6.5px; padding:0 13px; z-index:10;
-  }
-  #s10 .pset-tip img { width:14px; height:14px; display:block; }
-  #s10 .pset-tip span { font-size:13px; color:#f32f41; white-space:nowrap; }
-  #s10 .pset-cols { top:calc(var(--statusbar-h) + 127px); }
-  #s11 .pset-cols { top:calc(var(--statusbar-h) + 157px); }
-  #s10 .pset-cols, #s11 .pset-cols {
-    position:absolute; left:0; bottom:0; width:390px;
-    display:flex; align-items:stretch; background:#fff; z-index:10;
-  }
-  #s10 .pset-rail, #s11 .pset-rail {
-    width:95px; flex:none; background:#f5f5f5;
-    display:flex; flex-direction:column; align-items:flex-start;
-  }
-  #s10 .pset-rail .cat, #s11 .pset-rail .cat {
-    display:flex; align-items:flex-start; gap:4px; width:100%;
-    padding:11px 4px 11px 9px; border:none; background:none; cursor:pointer; text-align:left;
-  }
-  #s10 .pset-rail .cat .ind, #s11 .pset-rail .cat .ind {
-    width:3px; height:17px; border-radius:2px; background:transparent; flex:none;
-  }
-  #s10 .pset-rail .cat .nm, #s11 .pset-rail .cat .nm {
-    font-size:13px; line-height:17px; color:#666; width:78px;
-  }
-  #s10 .pset-rail .cat.on, #s11 .pset-rail .cat.on { background:#fff; }
-  #s10 .pset-rail .cat.on .ind, #s11 .pset-rail .cat.on .ind { background:#cb9d53; }
-  #s10 .pset-rail .cat.on .nm, #s11 .pset-rail .cat.on .nm { color:#cb9d53; font-weight:500; }
-  #s10 .pset-panel, #s11 .pset-panel {
-    flex:1; min-width:0; background:#fff; padding:11px 11px 22px;
-  }
-  #s10 .perf-card, #s11 .perf-card {
-    background:#edf5fb; border-radius:9px; overflow:hidden;
-  }
-  #s10 .perf-card .hd, #s11 .perf-card .hd {
-    display:flex; align-items:center; padding:11px 13px;
-    border-bottom:1px solid #fff; font-size:14px; color:#222;
-  }
-  #s10 .perf-card .table { padding:9px 9px 13px; }
-  #s10 .perf-card .trow { display:flex; align-items:center; height:27px; }
-  #s10 .perf-card .trow.head { height:16px; }
-  #s10 .perf-card .trow .c0 { width:56px; flex:none; font-size:13px; color:#999; }
-  #s10 .perf-card .trow.head .c0 { visibility:hidden; }
-  #s10 .perf-card .trow .cv { flex:1; text-align:center; font-size:12px; font-weight:700; color:#424242; }
-  #s10 .perf-card .trow.head .cv { font-size:13px; font-weight:400; color:#999; }
-  #s11 .plan-hd {
-    position:absolute; left:0; top:var(--chrome-top); width:390px; height:64px; background:#f6f6f6;
-    display:flex; align-items:center; justify-content:space-between; padding:10px 16px; z-index:10;
-  }
-  #s11 .plan-hd .info { display:flex; flex-direction:column; gap:8px; width:252px; }
-  #s11 .plan-hd .info .t { font-size:16px; font-weight:500; line-height:22px; color:#1a1a1a; }
-  #s11 .plan-hd .info .s { font-size:12px; line-height:14px; white-space:nowrap; color:#929292; }
-  #s11 .plan-hd .more {
-    width:24px; height:24px; border:none; background:none; padding:0; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-  }
-  #s11 .plan-hd .more img { width:17px; height:4px; display:block; }
-  #s11 .perf-card .rows {
-    display:flex; align-items:flex-start; justify-content:space-between; padding:12px 8px;
-  }
-  #s11 .perf-card .pair { display:flex; align-items:center; }
-  #s11 .perf-card .pair .lbl { font-size:13px; color:#222; white-space:nowrap; }
-  #s11 .perf-card .pair .val { width:66px; text-align:center; font-size:13px; font-weight:500; color:#cb9d53; }
 
   /* ===== 权益选择 sheet ===== */
   .benefit-sheet { background:#fff; padding:6px 0 34px; }
@@ -1145,13 +1123,62 @@
 
   /* 底部确认 */
   .addsheet__foot {
-    padding:10px 16px 34px; background:#fff; border-top:1px solid #f0f0f0;
+    padding:10px 16px calc(10px + var(--safe-bottom));
+    background:#fff; border-top:1px solid #f0f0f0;
   }
+  /* 双按钮（取消 / 确定）：如成功页「修改单号」——等宽 1:1，左右边与输入行 16px 对齐 */
+  .addsheet__foot--dual { display:flex; gap:10px; }
+  .addsheet__foot--dual .btn-confirm { flex:1; width:auto; }
+  .addsheet__foot--dual .btn-cancel { flex:1; width:auto; }
   .btn-confirm {
     width:100%; height:44px; border:none; border-radius:22px; cursor:pointer;
     background:#f32f41; color:#fff; font-size:16px; font-weight:500; font-family:inherit;
   }
   .btn-confirm:active { opacity:.9; }
+  .btn-cancel {
+    flex:none; width:104px; height:44px; border:none; border-radius:22px; cursor:pointer;
+    background:#F2F2F2; color:#1a1a1a; font-size:16px; font-weight:500; font-family:inherit;
+  }
+  .btn-cancel:active { background:#e8e8e8; }
+
+  /* ===== 成功页「修改单号」sheet（R9：与「修改应付」sheet 同一套内缩/留白/圆角语言） ===== */
+  .sucno-body { padding:0 16px 16px; }
+  .sucno-field {
+    display:flex; align-items:center; gap:12px;
+    margin-top:16px; background:#fff; border-radius:10px; padding:0 14px; height:56px;
+  }
+  .sucno-field .lbl { flex:none; font-size:var(--fs-label); color:var(--text); }
+  .sucno-field input {
+    flex:1; min-width:0; height:100%; border:0; outline:none; background:none;
+    font-family:var(--font-data); font-size:16px; font-weight:500; color:var(--text);
+    text-align:right; padding:0;
+  }
+  .sucno-field input::placeholder { color:#b2b2b2; font-weight:400; font-size:14px; }
+
+  /* ===== 结算页「修改应付」sheet（底部数字键盘） =====
+     R9：原有提示行（.paysheet__tip）已删除，留白补偿到数值行下沿（16 → 18px） */
+  .paysheet__val {
+    display:flex; align-items:baseline; justify-content:center; gap:4px;
+    min-height:52px; padding:16px 16px 18px;
+    font-family:var(--font-data); color:var(--text);
+  }
+  .paysheet__val .cur { font-size:20px; font-weight:500; }
+  .paysheet__val .num { font-size:34px; font-weight:500; }
+  .paysheet__val .ph { font-size:17px; color:#b2b2b2; }
+  .paysheet__keys {
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:0 12px;
+  }
+  .paysheet__keys .k {
+    height:50px; border:0; border-radius:10px; background:#fff;
+    font-family:inherit; font-size:22px; font-weight:500; color:var(--text);
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .paysheet__keys .k:active { background:#ededed; }
+  .paysheet__keys .k.tool { font-size:16px; font-weight:400; color:var(--text-mid); }
+  .paysheet__keys .k.is-ok { background:#f32f41; color:#fff; font-weight:500; }
+  .paysheet__keys .k.is-ok:active { background:#e02a3b; }
+  .paysheet__keys .k svg { width:22px; height:22px; display:block; }
 
   /* ===== 员工选择 sheet（原样复制 card/demo.html） ===== */
   .btn-main {
@@ -1367,10 +1394,13 @@
 
   /* ===== toast ===== */
   #toast {
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    background:rgba(0,0,0,.75); color:#fff; font-size:14px;
-    padding:12px 22px; border-radius:10px; z-index:999;
-    white-space:nowrap; max-width:340px; text-align:center;
+    /* 居中用 left/right + margin:auto（原 left:50% 会把可用宽度压到 195，长文案被折成 5 行） */
+    position:absolute; left:16px; right:16px; top:50%; transform:translateY(-50%);
+    width:fit-content; max-width:330px; margin:0 auto;
+    background:rgba(0,0,0,.75); color:#fff; font-size:14px; line-height:20px;
+    padding:12px 20px; border-radius:10px; z-index:999;
+    /* 支持两行长文案换行（R8：进入成功页的说明 toast 为 2 行） */
+    white-space:normal; box-sizing:border-box; text-align:center;
     display:none;
     animation:toastIn .18s ease;
   }
@@ -1392,6 +1422,14 @@
     box-shadow:0 12px 32px rgba(0,0,0,.18), 0 0 0 .5px rgba(0,0,0,.04);
   }
   .date-pop.show { display:block; }
+  /* 成功页「改日期」：同一日历以底部 sheet 形态呈现 */
+  .date-pop.is-sheet {
+    left:0; right:0; top:auto; bottom:0; width:auto;
+    border-radius:16px 16px 0 0;
+    padding:16px 16px calc(16px + var(--safe-bottom));
+    box-shadow:0 -8px 32px rgba(0,0,0,.16), 0 0 0 .5px rgba(0,0,0,.04);
+    animation:sheetUp .22s ease;
+  }
   .dp-hd { display:flex; align-items:center; justify-content:space-between; height:32px; }
   .dp-m { font-size:15px; font-weight:600; color:#1a1a1a; font-family:var(--font-data); }
   .dp-nav {
@@ -1526,6 +1564,10 @@
   #s12 .ben-row .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
   #s12 .ben-row .rd { margin-left:auto; width:20px; height:20px; flex:none; }
   #s12 .ben-row .rd img { width:20px; height:20px; display:block; }
+  /* 不适用于该项目的权益：整行置灰 + 不可点（R9） */
+  #s12 .ben-row.is-off { background:#fafafa; cursor:not-allowed; }
+  #s12 .ben-row.is-off .nm { color:#B2B2B2; }
+  #s12 .ben-row.is-off .rd img { opacity:.45; }
 
   /* ---- 13 选择优惠券：不使用行 + 券卡列表 ---- */
   #s13 .cp-list {
@@ -1575,14 +1617,26 @@
   #s13 .cp-card.is-open .cp-rule .chev { transform:rotate(180deg); }
   #s13 .cp-rules { padding:0 16px 11px; font-size:11px; color:#666; line-height:19px; }
   #s13 .cp-amt {
-    position:absolute; right:16px; top:18px;
+    position:absolute; right:52px; top:18px;
     display:flex; align-items:baseline; color:#f32f41;
   }
   #s13 .cp-amt .cur { font-size:13px; line-height:1; }
   #s13 .cp-amt .num { font-size:26px; font-weight:400; line-height:1; font-family:var(--font-data); }
-  #s13 .cp-limit { position:absolute; right:16px; top:53px; font-size:11px; color:#f32f41; line-height:14px; }
-  #s13 .cp-rd { position:absolute; right:16px; top:78px; width:20px; height:20px; }
+  /* 门槛文案：改灰降噪（不再与金额抢红色），并左缩 36 给右侧单选圈让位 */
+  #s13 .cp-limit {
+    position:absolute; right:52px; top:53px;
+    font-size:11px; color:#929292; line-height:14px; white-space:nowrap;
+  }
+  /* 单选圈：固定绝对定位（不再随券卡高度浮动），底缘与「门槛文案」行底缘对齐
+     —— 券卡展开「使用规则」时圈体完全不动（原来 top:50% 会下移 28px 压住规则行）。
+     券卡：cp-hd 84 + cp-div 1 → 规则行从 85 起；圈底 67 < 85，故与规则行无交叠。 */
+  #s13 .cp-rd { position:absolute; right:16px; top:47px; width:20px; height:20px; }
   #s13 .cp-rd img { width:20px; height:20px; display:block; }
+  /* 选中态：1px 红色内描边 + 极浅红底（原来只有小圆点变化，选中不够明确） */
+  #s13 .cp-card.is-on {
+    background:#fff8f8;
+    box-shadow:inset 0 0 0 1px #f32f41;
+  }
 
   /* 结算页「权益」行：仅右侧「值 + ›」为热区 */
   #s6 .co-item .co-row[data-benefit="1"] .val,
@@ -1592,104 +1646,224 @@
   /* 结算页页级「优惠券」行：同样仅右侧「值 + ›」为热区 */
   .co-coupon-row { cursor:default; }
   .co-coupon-row [data-coupon-val] { cursor:pointer; }
-  /* 不满门槛的券：整体降饱和，右侧单选圈置灰不可选 */
-  #s13 .cp-card.is-off { opacity:.45; cursor:not-allowed; }
+  /* 不满门槛的券：卡片转浅灰、内容降饱和；勾选圈不参与降权（保持完整圆） */
+  #s13 .cp-card.is-off { background:#fbfbfb; cursor:not-allowed; }
+  #s13 .cp-card.is-off > *:not(.cp-limit):not(.cp-rd) { opacity:.5; }
+  #s13 .cp-card.is-off .cp-limit-txt { opacity:.5; }
   #s13 .cp-card.is-off .cp-rule { cursor:pointer; }
 
-  /* ===== 页面14 挂单列表（占位） ===== */
+  /* ===== 页面14 挂单列表 =====
+     R5 优化：① 顶部失效提示条（固定在标题栏下，列表滚动时始终可见）
+     ② 卡片信息分层：卡头 / 发丝线 / 明细 + 字段组 / 操作行
+     ③ 金额 20 Medium，操作行「删除（次）+ 取挂单（主）」
+     ④ 类型 chip 与 VIP 标签统一到全站规范
+     ⑤ 动效：进入错峰淡入 / 取单淡出 / 删除塌陷
+     ⑥ 空态：图标 + 主副文案 */
   #s14 { background:#f7f7f7; }
+  /* ① 每日 24:00 后挂单自动失效并删除 */
+  #s14 .hold-note {
+    position:absolute; left:0; right:0; top:var(--chrome-top); height:40px; z-index:2;
+    display:flex; align-items:center; gap:6px; padding:0 16px; box-sizing:border-box;
+    background:#FFF8E5; color:#B26B00;
+    font-size:var(--fs-hint); line-height:var(--lh-hint);
+  }
+  #s14 .hold-note svg { width:14px; height:14px; display:block; flex:none; }
   #s14 .hold-list {
-    position:absolute; left:0; top:var(--chrome-top); width:390px; bottom:0;
+    position:absolute; left:0; top:calc(var(--chrome-top) + 40px); width:390px; bottom:0;
     overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
     padding:12px 16px calc(var(--safe-bottom) + 20px); box-sizing:border-box;
   }
   #s14 .hold-list::-webkit-scrollbar { width:0; height:0; }
   #s14 .hold-card {
-    background:#fff; border-radius:12px; padding:14px 16px; margin-bottom:12px;
+    background:#fff; border-radius:12px; padding:14px; margin-bottom:var(--gap-card);
     box-shadow:0 2px 8px rgba(0,0,0,.04);
   }
-  #s14 .hold-card .hd { display:flex; align-items:center; gap:6px; }
-  #s14 .hold-card .hd .nm { font-size:16px; font-weight:700; color:#1a1a1a; }
-  #s14 .hold-card .hd .vip { font-size:10px; padding:2px 5px; border-radius:2px; background:#333; color:#fff; font-weight:700; }
-  #s14 .hold-card .hd .tm { margin-left:auto; font-size:12px; color:#929292; font-family:var(--font-data); }
-  #s14 .hold-card .items { font-size:13px; color:#666; line-height:19px; margin-top:8px; }
-  #s14 .hold-card .ft { display:flex; align-items:center; margin-top:12px; }
-  #s14 .hold-card .ft .amt { font-size:18px; font-weight:500; color:#1a1a1a; font-family:var(--font-data); }
-  #s14 .hold-card .ft .amt .cur { font-size:12px; margin-right:1px; }
-  #s14 .hold-card .ft .btn-take {
-    margin-left:auto; height:32px; padding:0 16px; border:0; border-radius:8px;
-    background:#F32F41; color:#fff; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer;
-    -webkit-tap-highlight-color:transparent;
+  /* ⑤ 进入页面时卡片错峰淡入上移（仅首次渲染播放，重渲染不重播） */
+  @keyframes v2HoldIn {
+    from { opacity:0; transform:translateY(10px); }
+    to   { opacity:1; transform:translateY(0); }
   }
-  #s14 .hold-card .ft .btn-take:active { opacity:.85; }
-  #s14 .hold-empty { padding-top:140px; text-align:center; font-size:14px; color:#929292; }
-  #s14 .hold-tip { padding:0 4px; font-size:12px; color:#929292; line-height:18px; }
+  #s14 .hold-list.is-anim .hold-card {
+    animation:v2HoldIn .30s cubic-bezier(.32,.72,0,1) both;
+    animation-delay:calc(var(--i, 0) * 50ms);
+  }
+  /* ⑤ 取挂单：卡片淡出缩小后再跳转 */
+  #s14 .hold-card.is-take {
+    opacity:0; transform:scale(.97);
+    transition:opacity .17s ease, transform .17s ease;
+  }
+  /* ② 卡头：顾客名 + VIP + 类型 chip …… 挂单时间 */
+  #s14 .hc-hd { display:flex; align-items:center; gap:6px; }
+  #s14 .hc-hd .nm { font-size:16px; font-weight:600; color:var(--text); line-height:22px; }
+  #s14 .hc-hd .vip {
+    font-size:var(--fs-tag); font-weight:var(--fw-tag); color:#3A2200;
+    padding:2px 6px; border-radius:9px; line-height:1.35; white-space:nowrap;
+    background:linear-gradient(to right,#FFE6CE,#FFBA75);
+  }
+  #s14 .hc-hd .tm {
+    margin-left:auto; font-size:var(--fs-hint); color:var(--text-sec);
+    font-family:var(--font-data); line-height:18px; white-space:nowrap;
+  }
+  #s14 .hc-sep { height:.5px; background:var(--border-light); margin:10px 0; }
+  /* 明细摘要：13px 次要色，最多两行 */
+  #s14 .hc-items {
+    font-size:13px; line-height:19px; color:var(--text-mid);
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden;
+  }
+  /* 字段组：标签左 / 值右（与结算页「服务员工」行同构） */
+  #s14 .hc-row { display:flex; align-items:flex-start; gap:10px; margin-top:6px; }
+  #s14 .hc-row .lb { flex:none; font-size:var(--fs-hint); line-height:19px; color:var(--text-sec); }
+  #s14 .hc-row .vl {
+    flex:1; min-width:0; font-size:13px; line-height:19px; color:var(--text);
+    text-align:right; word-break:break-all;
+  }
+  /* ③ 操作行：金额在左，删除（次）+ 取挂单（主）在右 */
+  #s14 .hc-ft { display:flex; align-items:center; gap:8px; margin-top:12px; }
+  #s14 .hc-ft .amt {
+    margin-right:auto; display:flex; align-items:baseline;
+    font-family:var(--font-data); font-size:20px; font-weight:500; color:var(--text); line-height:26px;
+  }
+  #s14 .hc-ft .amt .cur { font-size:13px; margin-right:1px; }
+  #s14 .hc-ft .btn-del {
+    width:32px; height:32px; flex:none; border:0; border-radius:50%; background:transparent;
+    display:flex; align-items:center; justify-content:center; color:var(--text-sec);
+    cursor:pointer; padding:0; -webkit-tap-highlight-color:transparent;
+  }
+  #s14 .hc-ft .btn-del svg { width:18px; height:18px; display:block; }
+  #s14 .hc-ft .btn-del:active { color:#F32F41; background:#FFF2F2; }
+  #s14 .hc-ft .btn-take {
+    height:34px; padding:0 18px; border:0; border-radius:17px;
+    background:#F32F41; color:#fff; font-family:inherit; font-size:14px; font-weight:500;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  #s14 .hc-ft .btn-take:active { opacity:.85; }
+  /* ⑥ 空态 */
+  #s14 .hold-empty { padding:96px 0 0; text-align:center; }
+  #s14 .hold-empty img { width:72px; height:72px; display:block; margin:0 auto 12px; }
+  #s14 .hold-empty .t { font-size:15px; line-height:22px; color:var(--text); }
+  #s14 .hold-empty .s { margin-top:6px; font-size:var(--fs-hint); line-height:var(--lh-hint); color:var(--text-sec); }
 
-  /* ===== 页面15 开单成功（Figma「开单成功」151:7794） ===== */
+  /* ===== 页面15 开单成功（Figma「开单成功」151:7794） =====
+     R5 优化：① 去双标题（删原标题栏「支付」）② 金额卡浮起 + 字号分三级
+     ③ 操作组降权为无框「图标 + 文字」④ 渐变下沿加过渡带，消除灰白断层 ⑤ 入场动效 */
   #s15 { background:#f7f7f7; }
-  #s15 .status-bar, #s15 .nav-bar { background:transparent; }
-  #s15 .nav-bar .title { left:0; width:390px; font-size:16px; font-weight:500; top:12px; }
+  #s15 .status-bar { background:transparent; }
+  /* ① 成功页顶部渐变（R9 换色 · Figma「1174:57」）：桃橙 → 杏黄 → 透明，高 328
+     原「黄色渐变 + 两枚高斯模糊光斑(suc_bg_mask.svg) + 过渡带」整体废弃：
+     新稿为纯纵向渐变，横向无光斑，且末尾正好落到页面底色 #F7F7F7，无需过渡带。
+     色标说明：Figma 在最后一段是「颜色 →#FFF」与「alpha →0」同时插值；浏览器
+     按预乘 alpha 插值会保持色相不变而偏黄（中段蓝通道最大差 ~24/255），
+     故此处按 Figma 曲线预合成到 #F7F7F7 后写成不透明色标，渲染与设计稿一致。
+     层不透明度 70%（R11 由 84% 调淡）：整层叠在 #F7F7F7 上，整体再淡一档，末端仍无缝。 */
   #s15 .suc-bg {
     position:absolute; left:0; top:0; width:390px; height:328px; z-index:1;
-    background:linear-gradient(180deg,#FBE075 0%, #F7F3E2 100%);
+    opacity:.70;
+    background:linear-gradient(180deg,
+      #FFBE84 0%, #FFD996 23.558%, #FFE59D 58.173%,
+      #FEE9AF 62.356%, #FDEDBF 66.538%, #FDF0CD 70.721%, #FCF2D9 74.904%,
+      #FBF5E3 79.087%, #FAF6EB 83.269%, #F9F7F1 87.452%, #F9F8F5 91.635%,
+      #F8F8F7 95.817%, #F7F7F7 100%);
   }
-  #s15 .suc-bg-mask {
-    position:absolute; left:0; top:0; width:390px; height:281px; z-index:1;
-    pointer-events:none;
-  }
-  #s15 .suc-bg-mask img { width:390px; height:281px; display:block; }
-  /* 「开单成功」徽标行：对勾 20×20 + 17px Semibold */
+  /* 「开单成功」徽标行（页面唯一主标题）：对勾 22×22 + 18px Semibold */
   #s15 .suc-head {
-    position:absolute; left:0; top:107px; width:390px; height:24px; z-index:2;
+    position:absolute; left:0; top:98px; width:390px; height:26px; z-index:2;
     display:flex; align-items:center; justify-content:center; gap:10px;
   }
-  #s15 .suc-head img { width:20px; height:20px; display:block; flex:none; }
-  #s15 .suc-head .t { font-size:17px; font-weight:600; color:#1a1a1a; }
-  /* 内容区胶囊按钮行：改日期 / 改单号 / 看流水 */
+  #s15 .suc-head img { width:22px; height:22px; display:block; flex:none; }
+  #s15 .suc-head .t { font-size:18px; font-weight:600; color:#1a1a1a; letter-spacing:.2px; }
+  /* ③ 内容区操作组：改日期 / 改单号 / 看流水 —— 无框次级样式，视觉让位金额 */
   #s15 .suc-acts {
-    position:absolute; left:16px; right:16px; top:143px; height:30px; z-index:2;
-    display:flex; gap:8px;
+    position:absolute; left:16px; right:16px; top:138px; height:28px; z-index:2;
+    display:flex; align-items:center;
   }
   #s15 .suc-act {
-    flex:1; height:30px; border-radius:4px; border:.5px solid #C2C4CC; background:#fff;
-    display:flex; align-items:center; justify-content:center;
-    font-family:inherit; font-size:13px; color:#6C7279; cursor:pointer; padding:0;
+    flex:1; height:28px; border:0; background:none;
+    display:flex; align-items:center; justify-content:center; gap:4px;
+    font-family:inherit; font-size:13px; color:#55595E; cursor:pointer; padding:0;
     -webkit-tap-highlight-color:transparent;
   }
-  #s15 .suc-act:active { background:#F7F7F7; }
-  /* 半透明白卡 */
+  #s15 .suc-act svg { width:14px; height:14px; display:block; flex:none; }
+  #s15 .suc-act:active { color:#1a1a1a; }
+  /* ② 金额卡：提高不透明度 + 白描边 + 柔和投影，使卡片真正「浮」在渐变之上
+     卡高由内容决定：金额区 + 发丝实线 + 字段行（行间发丝虚线） */
   #s15 .suc-card {
-    position:absolute; left:16px; top:193px; width:358px; height:236px; z-index:2;
-    box-sizing:border-box; border-radius:16px; background:rgba(255,255,255,.6);
+    position:absolute; left:16px; top:182px; width:358px; z-index:2;
+    box-sizing:border-box; border-radius:16px;
+    background:rgba(255,255,255,.88);
+    border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 6px 20px rgba(120,90,0,.07);
+    padding:0 16px 6px;
   }
-  /* 无「剩余」行（非会员卡支付）时，卡内底部次要字段整体上移、卡高收窄 */
-  #s15 .suc-card.no-rest { height:210px; }
+  /* 字号三级：金额 48 / 行值 15 / 标签 12 */
   #s15 .suc-amt {
-    position:absolute; left:0; right:0; top:36px; text-align:center;
-    font-family:var(--font-data); color:#1a1a1a; line-height:1.2;
+    padding:34px 0 26px; text-align:center;
+    font-family:var(--font-data); color:#1a1a1a; line-height:1;
   }
-  #s15 .suc-amt .cur { font-size:30px; }
-  #s15 .suc-amt .num { font-size:44px; }
-  #s15 .suc-line { position:absolute; left:16px; top:125px; width:326px; height:.5px; }
-  #s15 .suc-line img { width:326px; height:.5px; display:block; }
+  #s15 .suc-amt .cur { font-size:26px; }
+  #s15 .suc-amt .num { font-size:48px; }
+  /* 金额区 ↔ 明细区：灰色发丝实线（左右由卡片 16px 内边距保证） */
+  #s15 .suc-hr { height:0; border-top:.5px solid #E5E5E5; }
+  /* 字段行：左字段名 / 右参数；行间灰色发丝虚线 */
+  #s15 .suc-rows { display:block; }
   #s15 .suc-row {
-    position:absolute; left:16px; right:16px; display:flex; align-items:center;
+    display:flex; align-items:center; min-height:44px;
+    border-top:.5px dashed #E0E0E0;
   }
-  #s15 .suc-row.r1 { top:141px; height:20px; font-size:14px; color:#1a1a1a; }
-  #s15 .suc-row.r2 { top:169px; height:18px; font-size:12px; color:#929292; }
-  #s15 .suc-row .l { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  #s15 .suc-row .r { font-family:var(--font-data); }
-  #s15 .suc-row.r1 .r { font-weight:500; color:#1a1a1a; }
-  /* 卡内底部次要字段：开单日期 · 单号（发丝线 + 居中一行 12px 灰字） */
-  #s15 .suc-line2 { position:absolute; left:16px; top:199px; width:326px; height:.5px; }
-  #s15 .suc-line2 img { width:326px; height:.5px; display:block; }
-  #s15 .suc-card.no-rest .suc-line2 { top:173px; }
-  #s15 .suc-submeta {
-    position:absolute; left:16px; right:16px; top:209px; height:17px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:12px; color:#929292; font-family:var(--font-data);
+  #s15 .suc-row:first-child { border-top:0; }
+  #s15 .suc-row .l {
+    flex:none; font-size:var(--fs-hint); color:var(--text-sec); line-height:var(--lh-hint);
   }
-  #s15 .suc-card.no-rest .suc-submeta { top:183px; }
+  #s15 .suc-row .r {
+    margin-left:auto; min-width:0; text-align:right;
+    font-family:var(--font-data); font-size:15px; font-weight:500; color:var(--text);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  /* 「开单日期」→ 支付明细：改为实线分级（其余字段之间仍为虚线） */
+  #s15 .suc-split { height:0; border-top:.5px solid #E5E5E5; }
+  /* 支付明细：一行一种支付方式（左＝方式/卡名，右＝金额或次数）；
+     会员卡下方跟一行灰色小字「剩余 / 折扣」+ 值，主次行之间不画线 */
+  #s15 .suc-pay {
+    display:block; padding:8px 0;
+    border-top:.5px dashed #E0E0E0;
+  }
+  /* 支付明细块的第一行紧接实线分级线，不再叠虚线 */
+  #s15 .suc-split + .suc-pay { border-top:0; padding-top:12px; }
+  #s15 .suc-pay-main {
+    display:flex; align-items:center; min-height:24px;
+  }
+  #s15 .suc-pay-main .l {
+    flex:none; min-width:0; font-size:14px; line-height:20px; color:var(--text);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  #s15 .suc-pay-main .r {
+    margin-left:auto; padding-left:12px; flex:none; line-height:20px;
+    font-family:var(--font-data); font-size:15px; font-weight:500; color:var(--text);
+    white-space:nowrap;
+  }
+  #s15 .suc-pay-sub {
+    display:flex; align-items:center; min-height:18px; margin-top:2px;
+    font-size:12px; line-height:16px; color:var(--text-sec);
+  }
+  #s15 .suc-pay-sub .r { margin-left:auto; padding-left:12px; font-family:var(--font-data); white-space:nowrap; }
+  /* ⑤ 入场动效：对勾回弹 → 标题 / 操作组 / 金额卡 / 底栏错峰上浮，总计 ≤ 580ms */
+  @keyframes sucPop {
+    0%   { transform:scale(.6); opacity:0; }
+    62%  { transform:scale(1.1); opacity:1; }
+    100% { transform:scale(1); opacity:1; }
+  }
+  @keyframes sucRise {
+    from { opacity:0; transform:translateY(8px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes sucRiseLg {
+    from { opacity:0; transform:translateY(10px) scale(.985); }
+    to   { opacity:1; transform:translateY(0) scale(1); }
+  }
+  #s15.active .suc-head img { animation:sucPop .40s cubic-bezier(.32,.72,0,1) both; }
+  #s15.active .suc-head .t { animation:sucRise .32s cubic-bezier(.32,.72,0,1) .06s both; }
+  #s15.active .suc-acts { animation:sucRise .32s cubic-bezier(.32,.72,0,1) .12s both; }
+  #s15.active .suc-card { animation:sucRiseLg .38s cubic-bezier(.32,.72,0,1) .16s both; }
+  #s15.active .suc-bar { animation:sucRise .32s cubic-bezier(.32,.72,0,1) .24s both; }
   /* 底部操作条：返回首页(图标) + 客户签字 + 客户详情 + 继续开单 */
   #s15 .suc-bar {
     position:absolute; left:0; right:0; bottom:0; height:calc(64px + var(--safe-bottom));
@@ -1740,8 +1914,6 @@
     <div class="g-t">逻辑补充</div>
     <button class="nav-item" data-target="s8" onclick="go('s8')"><span class="idx">8</span>门店流水</button>
     <button class="nav-item" data-target="s9" onclick="go('s9')"><span class="idx">9</span>选择退款项目</button>
-    <button class="nav-item" data-target="s10" onclick="go('s10')"><span class="idx">10</span>业绩设置</button>
-    <button class="nav-item" data-target="s11" onclick="go('s11')"><span class="idx">11</span>提成方案</button>
     <button class="nav-item" data-target="s12" onclick="go('s12')"><span class="idx">12</span>选择权益</button>
     <button class="nav-item" data-target="s13" onclick="go('s13')"><span class="idx">13</span>选择优惠券</button>
     <button class="nav-item" data-target="s14" onclick="openHoldList()"><span class="idx">14</span>挂单列表</button>
@@ -1787,10 +1959,8 @@
       </button>
     </div>
     <button type="button" class="v2-home-hold" onclick="openHoldList()">
-      <img src="assets/ic_hold_take.svg" alt="">
       <span>取挂单（<span class="n" data-hold-count>3</span>）</span>
     </button>
-    <p class="v2-home-hint">从「开单」进入选择顾客，再开单或直接收款。本页为 2.0 简化首页（问卷 A2）。</p>
     <div class="v2-home-tabs" aria-hidden="true">
       <div class="ti on"><span class="ic">⌂</span>首页</div>
       <div class="ti"><span class="ic">人</span>客户</div>
@@ -1814,7 +1984,7 @@
       <button class="btn-back" onclick="go('s4')"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
       <button class="nav-cust" type="button" data-nav-cust>
-        <img class="ic-mem" src="assets/ic_member_head.svg" alt="">
+        <img class="ic-mem" src="assets/ic_guest_head.svg" alt="">
         <span data-nav-cust-name>散客</span>
       </button>
     </div>
@@ -1978,7 +2148,7 @@
           </div>
         </div>
         <div class="cards">
-          <span class="lbl">会员卡</span><span class="num">3</span><span class="unit">张</span>
+          <span class="lbl">会员卡</span><span class="num">5</span><span class="unit">张</span>
           <button class="fold-btn" onclick="toggleMemberFold()"><span class="t">展开所有卡项</span><span class="dot"></span></button>
         </div>
         <div class="card-list">
@@ -1998,6 +2168,16 @@
               <span class="nm">超值折扣卡</span>
               <span class="val">8.0折</span>
             </div>
+            <div class="card-item">
+              <span class="tag">套餐卡</span>
+              <span class="nm">染烫套餐卡</span>
+              <span class="val">余4次</span>
+            </div>
+            <div class="card-item">
+              <span class="tag">周期卡</span>
+              <span class="nm">半年畅享卡</span>
+              <span class="val">不限次</span>
+            </div>
           </div>
         </div>
       </div>
@@ -2009,10 +2189,10 @@
 
     <div class="amt-card a2">
       <div class="lbl">收款金额</div>
-      <div class="money" style="position:absolute; left:12px; top:39px; display:flex; align-items:flex-start;">
-        <span style="font-size:22px; font-weight:500; color:#1a1a1a; margin-top:12px;">¥</span>
+      <div class="money" style="position:absolute; left:12px; top:39px; height:40px; display:flex; align-items:center;">
+        <span style="font-size:22px; font-weight:500; color:#1a1a1a; line-height:40px;">¥</span>
         <span class="ph" id="s2moneyPh" style="font-size:24px; color:#b2b2b2; margin-left:13px; line-height:40px;">请输入金额</span>
-        <span class="val" id="s2moneyVal" style="font-size:40px; display:none; margin-left:3px;"></span>
+        <span class="val" id="s2moneyVal" style="font-size:40px; color:#1a1a1a; display:none; margin-left:3px; line-height:40px;"></span>
       </div>
     </div>
 
@@ -2087,7 +2267,7 @@
         </div>
       </div>
       <div class="cards">
-        <span class="lbl">会员卡</span><span class="num">3</span><span class="unit">张</span>
+        <span class="lbl">会员卡</span><span class="num">5</span><span class="unit">张</span>
         <button class="fold-btn" onclick="toggleMemberFold()"><span class="t">展开所有卡项</span><span class="dot"></span></button>
       </div>
       <div class="card-list">
@@ -2107,6 +2287,16 @@
             <span class="nm">超值折扣卡</span>
             <span class="val">8.0折</span>
           </div>
+          <div class="card-item">
+            <span class="tag">套餐卡</span>
+            <span class="nm">染烫套餐卡</span>
+            <span class="val">余4次</span>
+          </div>
+          <div class="card-item">
+            <span class="tag">周期卡</span>
+            <span class="nm">半年畅享卡</span>
+            <span class="val">不限次</span>
+          </div>
         </div>
       </div>
     </div>
@@ -2118,9 +2308,9 @@
 
     <div class="amt-card a2">
       <div class="lbl">收款金额</div>
-        <div style="position:absolute; left:12px; top:39px; display:flex; align-items:flex-start;">
-          <span style="font-size:22px; font-weight:500; color:#1a1a1a; margin-top:12px;">¥</span>
-          <span class="val" id="s3money" style="font-size:40px; color:#1a1a1a; margin-left:1px; line-height:50px;">299</span>
+        <div style="position:absolute; left:12px; top:39px; height:40px; display:flex; align-items:center;">
+          <span style="font-size:22px; font-weight:500; color:#1a1a1a; line-height:40px;">¥</span>
+          <span class="val" id="s3money" style="font-size:40px; color:#1a1a1a; margin-left:1px; line-height:40px;">299</span>
         </div>
     </div>
 
@@ -2164,7 +2354,7 @@
       <button class="btn-back" onclick="go('s0')"><img src="assets/ic_back.svg"></button>
       <div class="title">选择顾客</div>
       <button class="nav-hold" type="button" data-hold-entry onclick="openHoldList()">
-        <img src="assets/ic_hold_take.svg" alt="">
+        <img class="ic-gd" src="assets/ic_hold_take_nav.svg" alt="">
         <span>取挂单（<span class="n" data-hold-count>3</span>）</span>
       </button>
     </div>
@@ -2262,6 +2452,27 @@
           <div class="sub">最近消费：未消费</div>
         </div>
       </div>
+      <div class="pick-row" onclick="toast('选择蔡雅婷')">
+        <div class="avatar"><img src="assets/avatar_female2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">蔡雅婷</span>
+            <span class="phone">13500008899</span>
+          </div>
+          <div class="sub">最近消费：2026.8.28 剪发【¥68.00】</div>
+        </div>
+      </div>
+      <div class="pick-group-h">D</div>
+      <div class="pick-row" onclick="toast('选择邓伟')">
+        <div class="avatar"><img src="assets/avatar_male2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">邓伟</span>
+            <span class="phone">13700001234</span>
+          </div>
+          <div class="sub">最近消费：未消费</div>
+        </div>
+      </div>
       <div class="pick-group-h">G</div>
       <div class="pick-row" onclick="toast('选择高海泉')">
         <div class="avatar"><img src="assets/avatar_male2.png"></div>
@@ -2269,6 +2480,29 @@
           <div class="line1">
             <span class="nm">高海泉</span>
             <span class="phone">13800001122</span>
+          </div>
+          <div class="sub">最近消费：未消费</div>
+        </div>
+      </div>
+      <div class="pick-group-h">H</div>
+      <div class="pick-row" onclick="toast('选择何静')">
+        <div class="avatar"><img src="assets/avatar_female2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">何静</span>
+            <span class="vip grad"><b>VIP</b></span>
+            <span class="cnt">(2)</span>
+            <span class="phone">13800005566</span>
+          </div>
+          <div class="sub">最近消费：2026.8.22 染发【¥358.00】</div>
+        </div>
+      </div>
+      <div class="pick-row" onclick="toast('选择黄浩然')">
+        <div class="avatar"><img src="assets/avatar_male2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">黄浩然</span>
+            <span class="phone">13900007788</span>
           </div>
           <div class="sub">最近消费：未消费</div>
         </div>
@@ -2286,6 +2520,16 @@
           <div class="sub">最近消费：2026.8.10 御方九物【¥198.00】</div>
         </div>
       </div>
+      <div class="pick-row" onclick="toast('选择林嘉怡')">
+        <div class="avatar"><img src="assets/avatar_female2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">林嘉怡</span>
+            <span class="phone">18600009900</span>
+          </div>
+          <div class="sub">最近消费：2026.9.02 洗吹【¥38.00】</div>
+        </div>
+      </div>
       <div class="pick-group-h">M</div>
       <div class="pick-row" onclick="toast('选择马婷')">
         <div class="avatar"><img src="assets/avatar_female2.png"></div>
@@ -2295,6 +2539,63 @@
             <span class="phone">13600006677</span>
           </div>
           <div class="sub">最近消费：未消费</div>
+        </div>
+      </div>
+      <div class="pick-group-h">S</div>
+      <div class="pick-row" onclick="toast('选择苏晓萌')">
+        <div class="avatar"><img src="assets/avatar_female2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">苏晓萌</span>
+            <span class="phone">13000002233</span>
+          </div>
+          <div class="sub">最近消费：未消费</div>
+        </div>
+      </div>
+      <div class="pick-group-h">W</div>
+      <div class="pick-row" onclick="toast('选择王先生')">
+        <div class="avatar"><img src="assets/avatar_male2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">王先生</span>
+            <span class="vip grad"><b>VIP</b></span>
+            <span class="cnt">(1)</span>
+            <span class="phone">13300004455</span>
+          </div>
+          <div class="sub">最近消费：2026.9.02 洗吹【¥38.00】</div>
+        </div>
+      </div>
+      <div class="pick-row" onclick="toast('选择吴思远')">
+        <div class="avatar"><img src="assets/avatar_male2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">吴思远</span>
+            <span class="phone">13300006677</span>
+          </div>
+          <div class="sub">最近消费：未消费</div>
+        </div>
+      </div>
+      <div class="pick-group-h">Z</div>
+      <div class="pick-row" onclick="toast('选择张一鸣')">
+        <div class="avatar"><img src="assets/avatar_male2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">张一鸣</span>
+            <span class="phone">13100008899</span>
+          </div>
+          <div class="sub">最近消费：未消费</div>
+        </div>
+      </div>
+      <div class="pick-row" onclick="toast('选择周雨欣')">
+        <div class="avatar"><img src="assets/avatar_female2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">周雨欣</span>
+            <span class="vip grad"><b>VIP</b></span>
+            <span class="cnt">(2)</span>
+            <span class="phone">13100001122</span>
+          </div>
+          <div class="sub">最近消费：2026.8.30 深层滋养【¥198.00】</div>
         </div>
       </div>
     </div>
@@ -2340,7 +2641,7 @@
           </div>
         </div>
         <div class="cards">
-          <span class="lbl">会员卡</span><span class="num">3</span><span class="unit">张</span>
+          <span class="lbl">会员卡</span><span class="num">5</span><span class="unit">张</span>
           <button class="fold-btn" onclick="toggleMemberFold()"><span class="t">展开所有卡项</span><span class="dot"></span></button>
         </div>
         <div class="card-list">
@@ -2359,6 +2660,16 @@
               <span class="tag">折扣卡</span>
               <span class="nm">超值折扣卡</span>
               <span class="val">8.0折</span>
+            </div>
+            <div class="card-item">
+              <span class="tag">套餐卡</span>
+              <span class="nm">染烫套餐卡</span>
+              <span class="val">余4次</span>
+            </div>
+            <div class="card-item">
+              <span class="tag">周期卡</span>
+              <span class="nm">半年畅享卡</span>
+              <span class="val">不限次</span>
             </div>
           </div>
         </div>
@@ -2507,7 +2818,7 @@
             </div>
           </div>
           <div class="cards">
-            <span class="lbl">会员卡</span><span class="num">3</span><span class="unit">张</span>
+            <span class="lbl">会员卡</span><span class="num">5</span><span class="unit">张</span>
             <button class="fold-btn" onclick="toggleMemberFold()"><span class="t">展开所有卡项</span><span class="dot"></span></button>
           </div>
           <div class="card-list">
@@ -2527,6 +2838,16 @@
                 <span class="nm">超值折扣卡</span>
                 <span class="val">8.0折</span>
               </div>
+              <div class="card-item">
+                <span class="tag">套餐卡</span>
+                <span class="nm">染烫套餐卡</span>
+                <span class="val">余4次</span>
+              </div>
+              <div class="card-item">
+                <span class="tag">周期卡</span>
+                <span class="nm">半年畅享卡</span>
+                <span class="val">不限次</span>
+              </div>
             </div>
           </div>
         </div>
@@ -2535,8 +2856,15 @@
       </div>
     </div>
 
+    <!-- 手动改价提示：仅手输应付后出现，说明权益 / 优惠券不再参与计算 -->
+    <div class="co-lock-note" id="coLockNote" style="display:none;">已按手动应付结算，权益不再参与计算；优惠券可选用但不影响最终结算价</div>
+
     <div class="co-bar">
-      <div class="pay"><span class="l">应付 ¥</span><span class="v" id="coPay">0.00</span></div>
+      <button type="button" class="pay" id="coPayBox" onclick="openPayEditSheet()" aria-label="修改应付">
+        <span class="l">应付 ¥</span><span class="v" id="coPay">0.00</span>
+        <svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7.6 18.4 3 20l1.6-4.6L16.5 3.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="tag" id="coPayTag" style="display:none;">已改价</span>
+      </button>
       <div class="btns">
         <button class="btn-g" data-guadan="s6" onclick="tryHangOrder('s6')">挂单</button>
         <button class="btn-c" onclick="checkoutDone()">结账</button>
@@ -2587,7 +2915,7 @@
             </div>
           </div>
           <div class="cards">
-            <span class="lbl">会员卡</span><span class="num">3</span><span class="unit">张</span>
+            <span class="lbl">会员卡</span><span class="num">5</span><span class="unit">张</span>
             <button class="fold-btn" onclick="toggleMemberFold()"><span class="t">展开所有卡项</span><span class="dot"></span></button>
           </div>
           <div class="card-list">
@@ -2606,6 +2934,16 @@
                 <span class="tag">折扣卡</span>
                 <span class="nm">超值折扣卡</span>
                 <span class="val">8.0折</span>
+              </div>
+              <div class="card-item">
+                <span class="tag">套餐卡</span>
+                <span class="nm">染烫套餐卡</span>
+                <span class="val">余4次</span>
+              </div>
+              <div class="card-item">
+                <span class="tag">周期卡</span>
+                <span class="nm">半年畅享卡</span>
+                <span class="val">不限次</span>
               </div>
             </div>
           </div>
@@ -2719,88 +3057,6 @@
     </div>
   </div>
 
-  <!-- ============ 页面10 业绩设置（劳动业绩-直接收款） ============ -->
-  <div class="screen" id="s10" data-name="业绩设置">
-    <div class="status-bar">
-      <div class="time">9:41</div>
-      <div class="icons">
-        <img src="assets/ic_cellular.svg" height="13">
-        <img src="assets/ic_wifi.svg" height="13">
-        <img src="assets/ic_battery.svg" height="13">
-      </div>
-    </div>
-    <div class="nav-bar">
-      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
-      <div class="title">业绩设置</div>
-      <button class="nav-op" type="button" onclick="toast('高级设置')">高级设置</button>
-    </div>
-    <div class="pset-tabs">
-      <button class="on" type="button"><span>劳动业绩</span><span class="bar"></span></button>
-      <button type="button" onclick="toast('销售业绩暂无设计')"><span>销售业绩</span><span class="bar"></span></button>
-    </div>
-    <div class="pset-div"></div>
-    <div class="pset-tip"><img src="assets/ic_info_red.svg" alt=""><span>注意此处修改业绩，而不是提成！</span></div>
-    <div class="pset-cols">
-      <div class="pset-rail">
-        <button class="cat on" type="button"><span class="ind"></span><span class="nm">直接收款</span></button>
-        <button class="cat" type="button" onclick="toast('洗吹')"><span class="ind"></span><span class="nm">洗吹</span></button>
-      </div>
-      <div class="pset-panel">
-        <div class="perf-card">
-          <div class="hd">直接收款</div>
-          <div class="table">
-            <div class="trow head"><span class="c0"></span><span class="cv">大工</span><span class="cv">中工</span><span class="cv">小工</span></div>
-            <div class="trow"><span class="c0">点客</span><span class="cv">100.00%</span><span class="cv">100.00%</span><span class="cv">100.00%</span></div>
-            <div class="trow"><span class="c0">散客</span><span class="cv">100.00%</span><span class="cv">100.00%</span><span class="cv">100.00%</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ 页面11 提成方案（劳动提成-直接收款） ============ -->
-  <div class="screen" id="s11" data-name="提成方案">
-    <div class="status-bar">
-      <div class="time">9:41</div>
-      <div class="icons">
-        <img src="assets/ic_cellular.svg" height="13">
-        <img src="assets/ic_wifi.svg" height="13">
-        <img src="assets/ic_battery.svg" height="13">
-      </div>
-    </div>
-    <div class="nav-bar">
-      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
-      <div class="title">提成方案</div>
-    </div>
-    <div class="plan-hd">
-      <div class="info">
-        <span class="t">方案名称</span>
-        <span class="s">更改多人分配规则请前往业绩设置中的高级设置</span>
-      </div>
-      <button class="more" type="button" onclick="toast('更多')"><img src="assets/ic_more.svg" alt=""></button>
-    </div>
-    <div class="pset-tabs">
-      <button class="on" type="button"><span>劳动提成</span><span class="bar"></span></button>
-      <button type="button" onclick="toast('销售提成暂无设计')"><span>销售提成</span><span class="bar"></span></button>
-    </div>
-    <div class="pset-div"></div>
-    <div class="pset-cols">
-      <div class="pset-rail">
-        <button class="cat on" type="button"><span class="ind"></span><span class="nm">直接收款</span></button>
-        <button class="cat" type="button" onclick="toast('洗吹')"><span class="ind"></span><span class="nm">洗吹</span></button>
-      </div>
-      <div class="pset-panel">
-        <div class="perf-card">
-          <div class="hd">直接收款</div>
-          <div class="rows">
-            <div class="pair"><span class="lbl">点客</span><span class="val">100.00%</span></div>
-            <div class="pair"><span class="lbl">散客</span><span class="val">100.00%</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ============ 页面12 选择权益（会员卡权益，来自 Figma「选择权益」） ============ -->
   <div class="screen" id="s12" data-name="选择权益">
     <div class="status-bar">
@@ -2842,7 +3098,7 @@
     </div>
   </div>
 
-  <!-- ============ 页面14 挂单列表（占位） ============ -->
+  <!-- ============ 页面14 挂单列表 ============ -->
   <div class="screen" id="s14" data-name="挂单列表">
     <div class="status-bar">
       <div class="time">9:41</div>
@@ -2855,6 +3111,10 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
       <div class="title">挂单列表</div>
+    </div>
+    <div class="hold-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+      <span>每日24:00后 挂单自动失效并删除</span>
     </div>
     <div class="hold-list" id="holdList"></div>
   </div>
@@ -2870,26 +3130,26 @@
       </div>
     </div>
     <div class="suc-bg" aria-hidden="true"></div>
-    <div class="suc-bg-mask" aria-hidden="true"><img src="assets/suc_bg_mask.svg" alt=""></div>
-    <div class="nav-bar">
-      <div class="title">支付</div>
-    </div>
+    <!-- 本页无标题栏：标题栏文案与「开单成功」徽标重复，已删除，避免双标题 -->
     <div class="suc-head">
       <img src="assets/suc_check.svg" alt="">
       <span class="t">开单成功</span>
     </div>
     <div class="suc-acts">
-      <button type="button" class="suc-act" data-suc-act="date" onclick="sucChangeDate()">改日期</button>
-      <button type="button" class="suc-act" data-suc-act="no" onclick="sucChangeNo()">改单号</button>
-      <button type="button" class="suc-act" data-suc-act="flow" onclick="sucViewFlow()">看流水</button>
+      <button type="button" class="suc-act" data-suc-act="date" onclick="sucChangeDate()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>改日期
+      </button>
+      <button type="button" class="suc-act" data-suc-act="no" onclick="sucChangeNo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>改单号
+      </button>
+      <button type="button" class="suc-act" data-suc-act="flow" onclick="sucViewFlow()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>看流水
+      </button>
     </div>
     <div class="suc-card" id="sucCard">
-      <div class="suc-amt"><span class="cur">¥</span><span class="num" id="sucAmt">529</span></div>
-      <div class="suc-line" aria-hidden="true"><img src="assets/suc_line.svg" alt=""></div>
-      <div class="suc-row r1"><span class="l" id="sucPayName">美发卡3000元</span><span class="r" id="sucPayAmt">¥931</span></div>
-      <div class="suc-row r2" id="sucRestRow"><span class="l">剩余</span><span class="r" id="sucRest">¥2069</span></div>
-      <div class="suc-line2" aria-hidden="true"><img src="assets/suc_line.svg" alt=""></div>
-      <div class="suc-submeta">开单日期 <span id="sucDate">2026.09.17</span> · 单号 <span id="sucNo">20260917001</span></div>
+      <div class="suc-amt"><span class="cur">¥</span><span class="num" id="sucAmt">0</span></div>
+      <div class="suc-hr" aria-hidden="true"></div>
+      <div class="suc-rows" id="sucRows"></div>
     </div>
     <div class="suc-bar">
       <button type="button" class="ico-home" data-suc-home onclick="go('s0')" aria-label="返回首页">
@@ -2938,6 +3198,31 @@
     </div>
   </div>
 
+  <!-- ============ 权益说明弹窗（结算页「权益」行左侧「?」触发） ============ -->
+  <div class="proto-confirm-mask" id="benHelpMask" onclick="if(event.target===this)closeBenHelp()">
+    <div class="proto-confirm ben-help" role="dialog" aria-label="权益说明">
+      <div class="ben-help__title">权益说明</div>
+      <div class="ben-help__body">
+        <p class="ben-help__q">权益是什么？</p>
+        <p class="ben-help__p">权益是指在开单时选择的开单项目，针对持有会员卡的顾客所能享受的卡折扣（储值卡、折扣卡）或次卡（套餐卡、周期卡、计次卡）抵扣</p>
+        <p class="ben-help__q">不同类型的顾客所对应的权益？</p>
+        <ol class="ben-help__list">
+          <li>有卡顾客：享受有所办会员卡的折扣权益或次卡抵扣</li>
+          <li>无卡顾客：无可使用的权益</li>
+          <li>散客：无权益</li>
+        </ol>
+        <p class="ben-help__q">如何使用权益？</p>
+        <ol class="ben-help__list">
+          <li>开单时选择项目，会默认优先展示特殊项目折扣，其次是次卡（计次卡、套餐卡、周期卡）的抵扣权益，最后是储值卡和折扣卡的折扣权益</li>
+          <li>根据门店的具体场景，可针对选择的每一个项目所拥有的权益再次调整，如无需要，则按照系统默认权益，最终根据应付的金额去选择支付方式进行结账</li>
+        </ol>
+      </div>
+      <div class="ben-help__foot">
+        <button type="button" onclick="closeBenHelp()">我知道了</button>
+      </div>
+    </div>
+  </div>
+
   <div class="addsheet-mask" id="addSheetMask">
     <div class="addsheet">
       <div class="addsheet__head">
@@ -2974,21 +3259,55 @@
   </div>
 
   <!-- 成功页「改单号」底部 sheet -->
-  <div class="addsheet-mask" id="sucNoMask">
+  <div class="addsheet-mask" id="sucNoMask" onclick="if(event.target===this)closeSucNo()">
     <div class="addsheet" role="dialog" aria-label="修改单号">
       <div class="addsheet__head">
         <div class="addsheet__title">修改单号</div>
       </div>
-      <div class="addsheet__body">
+      <div class="addsheet__body sucno-body">
         <div class="sucno-field">
           <span class="lbl">单号</span>
           <input id="sucNoInput" type="text" inputmode="numeric" maxlength="20" placeholder="请输入单号">
         </div>
-        <div class="sucno-tip">单号仅支持数字，长度 1-20 位；留空则恢复系统自动生成。</div>
       </div>
-      <div class="addsheet__foot">
+      <div class="addsheet__foot addsheet__foot--dual">
         <button type="button" class="btn-cancel" id="sucNoCancel" onclick="closeSucNo()">取消</button>
         <button type="button" class="btn-confirm" id="sucNoOk" onclick="confirmSucNo()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结算页「修改应付」底部 sheet（数字键盘） -->
+  <div class="addsheet-mask" id="coPayMask" onclick="if(event.target===this)closePayEditSheet()">
+    <div class="addsheet" role="dialog" aria-label="修改应付">
+      <div class="addsheet__head">
+        <div class="addsheet__title">修改应付</div>
+      </div>
+      <div class="addsheet__body" style="padding:0 0 14px;">
+        <div class="paysheet__val">
+          <span class="cur">¥</span>
+          <span class="num" id="coPayEditNum" style="display:none;"></span>
+          <span class="ph" id="coPayEditPh">0.00</span>
+        </div>
+        <div class="paysheet__keys">
+          <button type="button" class="k" onclick="payEditKey('1')">1</button>
+          <button type="button" class="k" onclick="payEditKey('2')">2</button>
+          <button type="button" class="k" onclick="payEditKey('3')">3</button>
+          <button type="button" class="k" onclick="payEditKey('4')">4</button>
+          <button type="button" class="k" onclick="payEditKey('5')">5</button>
+          <button type="button" class="k" onclick="payEditKey('6')">6</button>
+          <button type="button" class="k" onclick="payEditKey('7')">7</button>
+          <button type="button" class="k" onclick="payEditKey('8')">8</button>
+          <button type="button" class="k" onclick="payEditKey('9')">9</button>
+          <button type="button" class="k" onclick="payEditKey('.')">.</button>
+          <button type="button" class="k" onclick="payEditKey('0')">0</button>
+          <button type="button" class="k" aria-label="退格" onclick="payEditKey('del')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h10.5A1.5 1.5 0 0121 5.5v13a1.5 1.5 0 01-1.5 1.5H9L3 12l6-8z"/><path d="M12 9.5l5 5M17 9.5l-5 5"/></svg>
+          </button>
+          <button type="button" class="k tool" onclick="payEditKey('clear')">清零</button>
+          <button type="button" class="k tool" onclick="closePayEditSheet()">取消</button>
+          <button type="button" class="k tool is-ok" onclick="confirmPayEdit()">确定</button>
+        </div>
       </div>
     </div>
   </div>
@@ -3057,7 +3376,8 @@
     }
 
   var toastTimer = null;
-  function toast(msg) {
+  /* ms 缺省 1400；长文案（两行说明）由调用方显式传更长的时长 */
+  function toast(msg, ms) {
     var t = document.getElementById('toast');
     t.textContent = msg;
     /* 全局 toast 序号：飞购物车等「延迟 toast」靠它判断期间是否已被更新的提示覆盖 */
@@ -3065,7 +3385,7 @@
     clearTimeout(toastTimer);
     t.style.display = 'block';
     void t.offsetWidth; // 重触发动画
-    toastTimer = setTimeout(function(){ t.style.display='none'; }, 1400);
+    toastTimer = setTimeout(function(){ t.style.display='none'; }, ms || 1400);
   }
 
   // ---- 直接收款/去收款页 顾客身份切换 ----
@@ -3346,14 +3666,28 @@
       toast('请先添加项目或产品');
       return;
     }
-    /* 挂单：明细存入挂单列表（演示），当前单据清空后跳转挂单列表页 */
+    /* 取挂单后又在结算页挂单：原挂单移除，只保留本次新挂单（避免重复计数） */
+    if (activeHoldId) {
+      holdOrders = holdOrders.filter(function (h) { return h.id !== activeHoldId; });
+      activeHoldId = null;
+    }
+    /* 挂单：明细 + 全单服务员工并集存入挂单列表，当前单据清空后跳转挂单列表页
+       from 记录来源页：s6 结算页 / s1·s5 开单页 —— 取挂单时回到同一页 */
     holdOrders.unshift({
       id: 'h' + Date.now(),
       cust: holdCustName(),
       vip: currentCust === 'member',
+      from: (ctx === 's6') ? 'checkout' : 'order',
+      day: 0,
       time: '刚刚',
+      staff: holdStaffOf(cartItems),
       items: cartItems.map(function (it) {
-        return { name: it.name, price: it.price, qty: it.qty, isProd: !!it.isProd, group: it.group || '' };
+        var snap = holdItemStaffSnap(it.staff);
+        return {
+          name: it.name, price: it.price, qty: it.qty,
+          isProd: !!it.isProd, group: it.group || '',
+          staffIds: snap.staffIds, staffRoles: snap.staffRoles, staffDesignated: snap.staffDesignated
+        };
       })
     });
     cartItems.length = 0;
@@ -3368,7 +3702,7 @@
     recalcOrderAmounts();
     updateCartBadge();
     toast('挂单成功');
-    renderHoldList();
+    renderHoldList(true);
     go('s14');
   }
   /* 挂单展示的顾客名：会员用会员姓名，散客按性别显示 */
@@ -3526,6 +3860,19 @@
     var m = document.getElementById(id);
     m.classList.remove('show');
   }
+
+  /* ---- 权益说明弹窗（结算页「权益」行左侧「?」） ----
+     用捕获阶段拦截：权益行本身是热区（可点进 s12），不能让行级 onclick 吞掉这次点击 */
+  function openBenHelp() { openMask('benHelpMask'); }
+  function closeBenHelp() { closeMask('benHelpMask'); }
+  document.addEventListener('click', function (e) {
+    var el = e.target;
+    var help = (el && el.closest) ? el.closest('.co-row .lbl .help') : null;
+    if (!help) return;
+    e.preventDefault();
+    e.stopPropagation();
+    openBenHelp();
+  }, true);
 
   function asStep(d) {
     var q = parseInt(document.getElementById('asQty').textContent, 10) || 1;
@@ -4015,6 +4362,7 @@
     var discounted = Math.abs(payable - normal) > 0.001;
     var staffObj = { id: '__co', staffIds: addStaffRow.staffIds.slice(), staffRoles: Object.assign({}, addStaffRow.staffRoles), staffDesignated: Object.assign({}, addStaffRow.staffDesignated) };
     var unitPay = unitPayableOf(payable, qty);
+    activeHoldId = null;   // 单据内容已变化：不再关联先前取回的挂单
     var mergeIdx = findCartMergeIndex(asData.name, asData.isProd, asData.kind, unitPay, staffObj);
     if (mergeIdx >= 0) {
       var hit = cartItems[mergeIdx];
@@ -4145,6 +4493,7 @@
     updateSideBadges('s1');
     updateSideBadges('s5');
     cartItems = [];
+    activeHoldId = null;                    // 明细已清空，不再关联任何挂单
     window.__v2OrderCoupon = null;          // 清空购物车同时清掉订单级优惠券
     window.__v2OrderCouponTouched = false;
     if (typeof window.__v2RenderCouponRows === 'function') window.__v2RenderCouponRows();
@@ -4248,23 +4597,26 @@
     { type: '优惠券', name: '满200减30券', val: '满200减30', qr: { kind: 'minus', min: 200, amount: 30 } }
   ];
 
-  /* ===== 页面12「选择权益」数据（会员卡权益，按 Figma「选择权益」稿 7 行） =====
-     rule: discount 按比例折 / fixed 固定金额 / none 计次核销不抵扣金额 / null 不使用权益 */
+  /* ===== 页面12「选择权益」数据（会员卡权益） =====
+     rule: discount 按比例折 / fixed 固定金额 / none 次卡核销不抵扣金额 / null 不使用权益
+     R11：新增「套餐卡抵扣 / 周期卡抵扣」两行，用于演示 s15 支付明细的套餐卡 / 周期卡展示规则 */
   var CARD_BENEFITS = [
     { name: '不使用权益', rule: null },
     { name: '5.0折（5折卡）', rule: { kind: 'discount', rate: 0.5 } },
     { name: '计次卡抵扣', rule: { kind: 'none' } },
+    { name: '套餐卡抵扣', rule: { kind: 'none' } },
+    { name: '周期卡抵扣', rule: { kind: 'none' } },
     { name: '充值金额所有项目5.0折(铂金卡)', rule: { kind: 'discount', rate: 0.5 } },
     { name: '折扣卡', rule: { kind: 'discount', rate: 0.8 } },
     { name: '充值金额所有项目8.0折(金卡)', rule: { kind: 'discount', rate: 0.8 } },
     { name: '固定金额98元（美发卡3000元）', rule: { kind: 'fixed', amount: 98 } }
   ];
   /* 会员自动匹配的最优折扣权益（8 折，与价目划线价 MEMBER_BENEFIT_DISCOUNT 同源） */
-  var AUTO_CARD_BENEFIT = 4;   // CARD_BENEFITS[4] = 折扣卡（8.0 折）
+  var AUTO_CARD_BENEFIT = 6;   // CARD_BENEFITS[6] = 折扣卡（8.0 折）
 
   /* ===== 页面13「选择优惠券」数据（订单级，按 Figma「顾客-优惠券」稿） ===== */
   var COUPONS = [
-    { name: '店长洗剪吹新人优惠券，洗剪吹套餐立减10元', tag: '满减券', scope: '项目通用',
+    { name: '洗剪吹立减10元券', tag: '满减券', scope: '项目通用',
       limit: '无门槛', amount: 10, min: 0,
       rules: ['有效期：15天', '适用门店：右尚造型(周浦店)', '测试用账号：18297402934'] },
     { name: '全场通用满200减30元优惠券', tag: '满减券', scope: '全场通用',
@@ -4361,6 +4713,23 @@
       if (!window.__v2OrderCouponTouched) window.__v2OrderCoupon = null;
     }
 
+    /* 失效判定前置：手输应付必须在渲染明细行之前判定，
+       否则同一帧会渲染出「已失效但仍降权」的权益行（底栏已恢复、明细仍置灰）。
+       预跑一遍权益自动填充 + 权益折算，保证这里的合计与下方明细行完全一致。 */
+    cartItems.forEach(function (it) {
+      if (!it.discounted && !it.benefit && !it._benefitCleared) {
+        it.benefit = autoBenefit();
+        it._benefitAuto = !!it.benefit;
+      }
+      applyItemBenefit(it);
+    });
+    total = cartItems.reduce(function (s, it) { return Math.round((s + it.actual) * 100) / 100; }, 0);
+    if (coPayOverride != null && (coPayBase == null || Math.abs(total - coPayBase) > 0.005)) {
+      coPayOverride = null;
+      coPayBase = null;
+      toast('明细已变化，已恢复系统应付');
+    }
+
     box.innerHTML = cartItems.map(function(it, i) {
       // 权益自动填充（仅未改价，且首次；用户取消后不再覆盖）
       if (!it.discounted && !it.benefit && !it._benefitCleared) {
@@ -4370,7 +4739,7 @@
       }
       // 权益规则 → 应付（改价明细沿用改价后的应付）
       applyItemBenefit(it);
-      total += it.actual;      // 员工：默认自动填充首位员工
+      // 员工：默认自动填充首位员工
       if (!it.staff.staffIds.length) {
         var _first = STAFFS[0];
         it.staff.staffIds = [_first.id];
@@ -4385,7 +4754,7 @@
       var primaryRole = staffRoleLabel(it.staff.staffRoles[primarySid]);
       var designated = !!(it.staff.staffDesignated && it.staff.staffDesignated[primarySid]);
       /* 只读摘要：每名员工一行「姓名 · 工位 · 点客/散客」 */
-      var staffCell = '<div class="co-row" data-ro="1">' +
+      var staffCell = '<div class="co-row co-staff-row" data-ro="1">' +
         '<span class="lbl">服务员工</span>' +
         '<span class="co-staff-list">' +
           it.staff.staffIds.map(function(sid) {
@@ -4401,10 +4770,10 @@
               '<span class="dim">' + escapeHtml(meta.join(' · ')) + '</span></span>';
           }).join('') +
         '</span></div>';
-      // 权益：改价商品锁定 / 非改价商品仅右侧「值 + ›」为热区，点击进入 s12 选择权益
+      // 权益：单条改价 / 整单改价（手输应付）时该明细不可用权益；否则右侧「值 + ›」为热区，点击进入 s12
       var benCell = '';
-      if (it.discounted) {
-        benCell = '<div class="co-row" data-ro="1"><span class="lbl">权益<span class="help">?</span></span>' +
+      if (it.discounted || coPayOverride != null) {
+        benCell = '<div class="co-row is-benefit-locked" data-ro="1"><span class="lbl">权益<span class="help">?</span></span>' +
           '<span class="val gray">改价商品不可用权益</span></div>';
       } else {
         benCell = '<div class="co-row" data-benefit="1">' +
@@ -4439,12 +4808,85 @@
     autoFillCoupon(coCust !== 'member');
     // 自动带入 / 失效后同步「优惠券」行文案（行由 assets/v2.js 注入）
     if (typeof window.__v2RenderCouponRows === 'function') window.__v2RenderCouponRows();
-    /* 底部应付 = 各项权益后应付之和 − 订单级优惠券抵扣（不满门槛则券不生效） */
-    pay.textContent = Math.max(0, Math.round((total - orderCouponCut(total)) * 100) / 100).toFixed(2);
+    /* 底部应付 = 各项权益后应付之和 − 订单级优惠券抵扣（不满门槛则券不生效）；
+       若已手动改过应付，则以手输值为准。
+       失效判定使用「券前合计」：整单改价后仍可选用优惠券，换券不改变结算价、不触发失效；
+       明细 / 权益变化才会失效。 */
+    var sysPay = Math.max(0, Math.round((total - orderCouponCut(total)) * 100) / 100);
+    paintCoBar((coPayOverride != null) ? coPayOverride : sysPay);
     // 动态撑高页面，保证滚动到底
     var pg = document.querySelector('#s6 .page');
     if (pg) pg.style.height = (box.offsetTop + box.offsetHeight + 28) + 'px';
   }
+
+  /* ---- 结算页「应付」可手动修改（仅 s6） ----
+     整单改价的规则：
+     ① 本单所有明细的权益不再参与计算（权益行降权为只读），手输值即最终结算价；
+     ② 优惠券仍可选用并记入本单（视为已消耗），但不改变最终结算价；
+     ③ 失效判定只看「券前合计」（明细 / 权益变化 → 手输值失效，回到系统计算值）；
+        换券 / 取消券不触发失效，手输值清空后优惠券自动恢复参与抵扣。 */
+  var coPayOverride = null;   // 手输应付（null = 未改价）
+  var coPayBase = null;       // 改价时的「券前合计」，用于判断明细 / 权益是否已变化
+  var payEditBuf = '';
+
+  function paintCoBar(shown) {
+    var pay = document.getElementById('coPay');
+    if (pay) pay.textContent = money2(shown);
+    var locked = (coPayOverride != null);
+    var tag = document.getElementById('coPayTag');
+    if (tag) tag.style.display = locked ? '' : 'none';
+    var note = document.getElementById('coLockNote');
+    if (note) note.style.display = locked ? '' : 'none';
+    var scr = document.getElementById('s6');
+    if (scr) scr.classList.toggle('is-pay-locked', locked);
+  }
+  function paintPayEdit() {
+    var num = document.getElementById('coPayEditNum');
+    var ph = document.getElementById('coPayEditPh');
+    var base = (coPayOverride != null) ? coPayOverride : currentPayable();
+    if (num) { num.textContent = payEditBuf; num.style.display = payEditBuf ? '' : 'none'; }
+    if (ph) {
+      ph.textContent = '当前 ¥' + money2(base);
+      ph.style.display = payEditBuf ? 'none' : '';
+    }
+  }
+  function openPayEditSheet() {
+    payEditBuf = '';
+    paintPayEdit();
+    var m = document.getElementById('coPayMask');
+    if (m) m.classList.add('show');
+  }
+  function closePayEditSheet() {
+    var m = document.getElementById('coPayMask');
+    if (m) m.classList.remove('show');
+  }
+  function payEditKey(k) {
+    if (k === 'clear') { payEditBuf = ''; paintPayEdit(); return; }
+    if (k === 'del') { payEditBuf = payEditBuf.slice(0, -1); paintPayEdit(); return; }
+    if (/^\d$/.test(k) && payEditBuf === '0') { payEditBuf = k; paintPayEdit(); return; }
+    if (validKey(payEditBuf, k)) { payEditBuf += k; paintPayEdit(); }
+  }
+  function confirmPayEdit() {
+    if (!payEditBuf) {
+      coPayOverride = null;
+      coPayBase = null;
+      closePayEditSheet();
+      renderCo();
+      toast('已恢复系统应付');
+      return;
+    }
+    var n = Math.round((parseFloat(payEditBuf) || 0) * 100) / 100;
+    coPayOverride = n;
+    /* 失效基准用「券前合计」：改价后换券不改变结算价，也不触发失效 */
+    coPayBase = orderPayableSum();
+    closePayEditSheet();
+    renderCo();
+    toast('应付已改为 ¥' + money2(n));
+  }
+  window.openPayEditSheet = openPayEditSheet;
+  window.closePayEditSheet = closePayEditSheet;
+  window.payEditKey = payEditKey;
+  window.confirmPayEdit = confirmPayEdit;
 
   var empSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>';
   var coArrowSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
@@ -4534,18 +4976,52 @@
     renderBenPickList();
     go('s12');
   }
+  /* ===== 权益适用性（R9）=====
+     次卡（计次卡 / 套餐卡 / 周期卡）与固定金额类权益只对「绑定项目」可用，其余项目 / 产品置灰不可选；
+     折扣卡 / 储值卡演示为全场通用。散客（无卡顾客）无任何可用权益。 */
+  var BENEFIT_SCOPE = {
+    '计次卡抵扣': ['洗剪吹', '时尚造型'],
+    '套餐卡抵扣': ['烫发', '染发'],
+    '周期卡抵扣': ['洗剪吹', '时尚洗吹'],
+    '固定金额98元（美发卡3000元）': ['洗剪吹']
+  };
+  function benefitScopeOf(b) { return (b && BENEFIT_SCOPE[b.name]) || null; }
+  function benefitUsableFor(b, it) {
+    var scope = benefitScopeOf(b);
+    if (!scope) return true;                  // 全场通用
+    if (!it) return true;
+    return scope.indexOf(String(it.name || '')) >= 0;
+  }
+  /* 本次选择权益的顾客身份：s7 直接收款取 qcoCust，其余取 s6 的 coCust */
+  function benPickCust() {
+    return (benPickTarget && benPickTarget === qcoItem) ? qcoCust : coCust;
+  }
+  function benPickNoCard() {
+    return (benPickCust() !== 'member') || !!window.__v2MemberNoBenefit;
+  }
   function renderBenPickList() {
     var el = document.getElementById('benList');
     if (!el) return;
-    el.innerHTML = CARD_BENEFITS.map(function(b, i) {
+    var it = benPickTarget;
+    /* 散客 / 无卡顾客：无可用权益 → 仅「不使用权益」一行 */
+    var noCard = benPickNoCard();
+    if (noCard && benPickDraft !== 0) benPickDraft = 0;
+    if (!benefitUsableFor(CARD_BENEFITS[benPickDraft], it)) benPickDraft = 0;
+    var idxs = noCard ? [0] : CARD_BENEFITS.map(function (b, i) { return i; });
+    el.innerHTML = idxs.map(function (i) {
+      var b = CARD_BENEFITS[i];
       var on = (i === benPickDraft);
-      return '<div class="ben-row" role="button" onclick="pickBenDraft(' + i + ')">' +
+      var usable = benefitUsableFor(b, it);
+      return '<div class="ben-row' + (usable ? '' : ' is-off') + '"' +
+        (usable ? ' role="button" onclick="pickBenDraft(' + i + ')"' : ' aria-disabled="true"') + '>' +
         '<span class="nm">' + escapeHtml(b.name) + '</span>' +
         '<span class="rd"><img src="assets/ic_radio_' + (on ? 'on' : 'off') + '.svg" alt=""></span>' +
         '</div>';
     }).join('');
   }
   function pickBenDraft(i) {
+    if (benPickNoCard() && i !== 0) return;
+    if (!benefitUsableFor(CARD_BENEFITS[i], benPickTarget)) return;
     benPickDraft = i;
     renderBenPickList();
   }
@@ -4600,7 +5076,8 @@
     html += COUPONS.map(function(c, i) {
       var usable = couponUsable(c, base);
       var open = !!c._open;
-      return '<div class="cp-card' + (open ? ' is-open' : '') + (usable ? '' : ' is-off') + '"' +
+      return '<div class="cp-card' + (open ? ' is-open' : '') +
+        (usable ? (coupPickDraft === i ? ' is-on' : '') : ' is-off') + '"' +
         ' role="button" onclick="tapCoupCard(' + i + ')">' +
         '<div class="cp-badge">' + escapeHtml(c.tag) + '</div>' +
         '<div class="cp-hd">' +
@@ -4614,7 +5091,7 @@
         '</div>' +
         (open ? '<div class="cp-rules">' + c.rules.map(escapeHtml).join('<br>') + '</div>' : '') +
         '<div class="cp-amt"><span class="cur">¥</span><span class="num">' + c.amount + '</span></div>' +
-        '<div class="cp-limit">' + escapeHtml(c.limit) + '</div>' +
+        '<div class="cp-limit"><span class="cp-limit-txt">' + escapeHtml(c.limit) + '</span></div>' +
         '<div class="cp-rd"><img src="assets/ic_radio_' + (coupPickDraft === i ? 'on' : 'off') + '.svg" alt=""></div>' +
         '</div>';
     }).join('');
@@ -4655,17 +5132,41 @@
   }
 
   // ---- 挂单 / 结账 ----
-  /* ===== 页面14 挂单列表（占位页 + 演示数据；「取挂单」可把明细取回当前单据） ===== */
+  /* ===== 页面14 挂单列表 =====
+     字段：{ id, cust, vip, from, day, time, staff: [{name, role, designated}], items: [] }
+       from：挂单来源页 —— 'order' 开单页（s1 散客 / s5 会员）→ 取挂单回开单页
+                          'checkout' 结算页（s6）→ 取挂单回结算页
+       day ：相对天数（0=今天；<0 = 已过 24:00，自动失效并删除）
+     staff 为挂单时全单服务员工的并集（按明细顺序去重），用于卡片「服务员工」字段；
+     items 内同时保存每行的员工状态，取挂单时可原样还原。
+     ★ 挂单仅在三种情况下被删除：① 列表内「删除」按钮 ② 每日 24:00 超时自动删除
+       ③ 取挂单后进入结算并开单成功 */
   var holdOrders = [
-    { id: 'h1001', cust: '陈女士', vip: true, time: '今天 10:24',
+    { id: 'h1001', cust: '陈女士', vip: true, from: 'order', day: 0, time: '今天 10:24',
+      staff: [{ name: '林屿森', role: '大工', designated: true },
+              { name: '何苏叶', role: '中工', designated: false }],
       items: [{ name: '洗剪吹', price: 68, qty: 1 }, { name: '深层滋养', price: 198, qty: 1 }] },
-    { id: 'h1002', cust: '男散客', vip: false, time: '今天 09:58',
+    { id: 'h1002', cust: '男散客', vip: false, from: 'order', day: 0, time: '今天 09:58',
+      staff: [{ name: '阿Ken', role: '大工', designated: false }],
       items: [{ name: '染发', price: 358, qty: 1 }] },
-    { id: 'h1003', cust: '李女士', vip: true, time: '昨天 19:32',
+    /* 来源为结算页：取挂单后直接回到结算页 */
+    { id: 'h1003', cust: '李女士', vip: true, from: 'checkout', day: 0, time: '今天 09:32',
+      staff: [{ name: 'Lisa', role: '中工', designated: true }],
       items: [{ name: '时尚造型', price: 128, qty: 2 },
-              { name: '剑琅修护洗发水', price: 128, qty: 1, isProd: true }] }
+              { name: '剑琅修护洗发水', price: 128, qty: 1, isProd: true }] },
+    /* 昨日挂单：进入列表时按「每日 24:00 自动失效」规则清理（演示用） */
+    { id: 'h0900', cust: '王先生', vip: false, from: 'order', day: -1, time: '昨天 21:10',
+      staff: [{ name: '何苏叶', role: '中工', designated: false }],
+      items: [{ name: '洗吹', price: 38, qty: 1 }] }
   ];
-  function holdCount() { return holdOrders.length; }
+  /* 当前「已取回但尚未结算」的挂单 id：开单成功时移除，再次挂单时被新挂单替换 */
+  var activeHoldId = null;
+  /* 计数只统计未过期（今天）的挂单，避免角标与进入列表后的结果不一致 */
+  function holdCount() {
+    var n = 0;
+    holdOrders.forEach(function (h) { if ((h.day || 0) >= 0) n++; });
+    return n;
+  }
   window.holdCount = holdCount;
   function syncHoldCount() {
     if (typeof window.__v2SyncHold === 'function') { window.__v2SyncHold(); return; }
@@ -4677,55 +5178,153 @@
     (h.items || []).forEach(function (it) { s += (it.price || 0) * (it.qty || 1); });
     return Math.round(s * 100) / 100;
   }
-  function holdTipHtml() {
-    return '<div class="hold-tip">挂单列表为占位页（演示数据）。点「取挂单」会把该笔明细取回并进入结算页；' +
-      '开单页点「挂单」成功后也会回到本页。</div>';
+  /* 挂单时把全单服务员工并集落到挂单卡字段（按明细顺序去重，姓名全显示不省略） */
+  function holdStaffOf(items) {
+    var seen = {}, out = [];
+    (items || []).forEach(function (it) {
+      var s = it && it.staff;
+      if (!s || !Array.isArray(s.staffIds)) return;
+      s.staffIds.forEach(function (sid) {
+        if (seen[sid]) return;
+        seen[sid] = 1;
+        var st = STAFFS.find(function (x) { return x.id === sid; });
+        out.push({
+          name: st ? st.name : sid,
+          role: staffRoleLabel(s.staffRoles && s.staffRoles[sid]),
+          designated: !!(s.staffDesignated && s.staffDesignated[sid])
+        });
+      });
+    });
+    return out;
   }
-  function renderHoldList() {
+  /* 取挂单后每行员工的还原载体（随明细一起存，避免丢失点客/散客与工位） */
+  function holdItemStaffSnap(st) {
+    st = st || {};
+    return {
+      staffIds: Array.isArray(st.staffIds) ? st.staffIds.slice() : [],
+      staffRoles: Object.assign({}, st.staffRoles || {}),
+      staffDesignated: Object.assign({}, st.staffDesignated || {})
+    };
+  }
+  /* 卡片「服务员工」摘要：单行列全部姓名（不省略），无员工时显示占位 */
+  function holdStaffText(h) {
+    var list = (h && h.staff) || [];
+    var names = list.map(function (s) { return s.name; }).filter(Boolean);
+    return names.length ? names.join('、') : '—';
+  }
+  function renderHoldList(animate) {
     var box = document.getElementById('holdList');
     if (!box) return;
+    box.classList.toggle('is-anim', !!animate);
     if (!holdOrders.length) {
-      box.innerHTML = '<div class="hold-empty">暂无挂单</div>' + holdTipHtml();
+      box.innerHTML = '<div class="hold-empty">' +
+          '<img src="assets/ic_empty.svg" alt="">' +
+          '<div class="t">暂无挂单</div>' +
+          '<div class="s">挂起的单据会显示在这里</div>' +
+        '</div>';
       return;
     }
     box.innerHTML = holdOrders.map(function (h, i) {
       var brief = (h.items || []).map(function (it) {
         return escapeHtml(it.name) + ' ×' + (it.qty || 1);
-      }).join('，');
-      return '<div class="hold-card">' +
-          '<div class="hd">' +
+      }).join('、');
+      return '<div class="hold-card" data-i="' + i + '" style="--i:' + i + '">' +
+          '<div class="hc-hd">' +
             '<span class="nm">' + escapeHtml(h.cust) + '</span>' +
             (h.vip ? '<span class="vip">VIP</span>' : '') +
             '<span class="tm">' + escapeHtml(h.time) + '</span>' +
           '</div>' +
-          '<div class="items">' + brief + '</div>' +
-          '<div class="ft">' +
+          '<div class="hc-sep"></div>' +
+          '<div class="hc-items">' + brief + '</div>' +
+          '<div class="hc-row">' +
+            '<span class="lb">服务员工</span>' +
+            '<span class="vl">' + escapeHtml(holdStaffText(h)) + '</span>' +
+          '</div>' +
+          '<div class="hc-ft">' +
             '<span class="amt"><span class="cur">¥</span>' + fmtCartPrice(holdAmount(h)) + '</span>' +
+            '<button type="button" class="btn-del" aria-label="删除挂单" onclick="delHold(' + i + ')">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 7V5.5A1.5 1.5 0 0111.5 4h1A1.5 1.5 0 0114 5.5V7M6.5 7l.8 12.1A1.5 1.5 0 008.8 20.6h6.4a1.5 1.5 0 001.5-1.5L17.5 7M10 11v6M14 11v6"/></svg>' +
+            '</button>' +
             '<button type="button" class="btn-take" onclick="takeHold(' + i + ')">取挂单</button>' +
           '</div>' +
         '</div>';
-    }).join('') + holdTipHtml();
+    }).join('');
   }
+  /* 每日 24:00 后挂单自动失效并删除：进入列表时先清理过期挂单 */
+  function purgeExpiredHolds() {
+    var before = holdOrders.length;
+    holdOrders = holdOrders.filter(function (h) { return (h.day || 0) >= 0; });
+    var n = before - holdOrders.length;
+    if (n > 0) {
+      syncHoldCount();
+      toast('已自动清理 ' + n + ' 条超时挂单');
+    }
+    return n;
+  }
+  window.purgeExpiredHolds = purgeExpiredHolds;
   function openHoldList() {
-    renderHoldList();
+    purgeExpiredHolds();
+    renderHoldList(true);
     go('s14');
   }
   window.openHoldList = openHoldList;
+  /* 删除挂单：卡片塌陷 + 淡出后真正移除（一键删除，无二次确认），并同步各处计数 */
+  function delHold(i) {
+    var h = holdOrders[i];
+    if (!h) return;
+    var card = document.querySelector('#holdList .hold-card[data-i="' + i + '"]');
+    var drop = function () {
+      holdOrders.splice(i, 1);
+      syncHoldCount();
+      renderHoldList(false);
+      toast('已删除「' + h.cust + '」的挂单');
+    };
+    if (!card) { drop(); return; }
+    card.style.height = card.offsetHeight + 'px';
+    void card.offsetHeight;   /* 触发一次重排，保证 height 过渡生效 */
+    card.style.transition = 'height .20s cubic-bezier(.32,.72,0,1), opacity .16s ease, margin-bottom .20s cubic-bezier(.32,.72,0,1), padding .20s cubic-bezier(.32,.72,0,1)';
+    card.style.overflow = 'hidden';
+    card.style.height = '0px';
+    card.style.opacity = '0';
+    card.style.marginBottom = '0px';
+    card.style.paddingTop = '0px';
+    card.style.paddingBottom = '0px';
+    setTimeout(drop, 205);
+  }
+  window.delHold = delHold;
   function takeHold(i) {
     var h = holdOrders[i];
     if (!h) return;
-    holdOrders.splice(i, 1);
+    var card = document.querySelector('#holdList .hold-card[data-i="' + i + '"]');
+    if (card) card.classList.add('is-take');
+    setTimeout(function () { doTakeHold(i, h); }, card ? 165 : 0);
+  }
+  /* 取挂单：明细取回当前单据，挂单本身保留（可重复取）；
+     只有「开单成功」才会把该挂单移除（见 checkoutToSuccess）。
+     前往页面按挂单来源：结算页挂单 → 回结算页；开单页挂单 → 回开单页 */
+  function doTakeHold(i, h) {
+    if (holdOrders[i] !== h) return;   /* 等待期间列表已变，放弃 */
+    activeHoldId = h.id;
     var kind = h.vip ? 'member' : 'guest';
     setCust(kind);
     setCoCust(kind);
     setQcoCust(kind);
+    /* 取挂单 = 取回该挂单的单据：覆盖当前草稿，并清掉草稿上的券 / 权益手工状态 */
+    cartItems.length = 0;
+    window.__v2OrderCoupon = null;
+    window.__v2OrderCouponTouched = false;
     (h.items || []).forEach(function (it) {
       var amt = Math.round((it.price || 0) * (it.qty || 1) * 100) / 100;
       cartItems.push({
         name: it.name, price: it.price, salePrice: it.price, qty: it.qty || 1,
         payable: amt, receivable: amt, actual: amt, discounted: false,
         isProd: !!it.isProd, kind: kind, group: it.group || '', thumb: '',
-        staff: { id: '__hold__', staffIds: [], staffRoles: {}, staffDesignated: {} },
+        staff: {
+          id: '__hold__',
+          staffIds: (it.staffIds || []).slice(),
+          staffRoles: Object.assign({}, it.staffRoles || {}),
+          staffDesignated: Object.assign({}, it.staffDesignated || {})
+        },
         benefit: null, _benefitCleared: false,
         _uid: (typeof window.__v2NextCartUid === 'function') ? window.__v2NextCartUid() : ''
       });
@@ -4735,11 +5334,14 @@
     recalcOrderAmounts();
     updateCartBadge();
     toast('已取回「' + h.cust + '」的挂单');
-    go('s6');
+    renderHoldList(false);        /* 挂单保留：重渲染回原位（去掉淡出态） */
+    go(h.from === 'checkout' ? 's6' : (h.vip ? 's5' : 's1'));
   }
 
   /* ===== 页面15 开单成功 ===== */
-  var sucInfo = { amount: 0, payName: '', payAmt: 0, rest: null, date: '', no: '' };
+  /* 成功页数据：amount 大字金额 / date 开单日期 / no 单号 / pays 支付明细行
+     pays = [{ name 支付方式或卡名, val 金额或次数, sub: {l,r} 灰色小字剩余权益 }] */
+  var sucInfo = { amount: 0, date: '', no: '', pays: [] };
   function setText(id, txt) {
     var el = document.getElementById(id);
     if (el) el.textContent = txt;
@@ -4768,48 +5370,246 @@
     }
     return null;
   }
-  /* 结账支付信息：会员用卡权益结算 → 显示卡名 + 扣减/剩余；否则线上支付 */
-  function payInfoOf(kind) {
-    if (kind === 'qco') {
-      var base = qcoItem ? Math.round(qcoItem.actual * 100) / 100 : 0;
-      /* 与 s7 底栏一致：权益后应付 − 订单级优惠券 */
-      var amt = Math.max(0, Math.round((base - orderCouponCut(base)) * 100) / 100);
-      var b = qcoItem && qcoItem.benefit;
-      var isCard = !!(b && qcoCust === 'member');
-      return {
-        amount: amt,
-        payName: isCard ? b.name : '线上支付（微信/支付宝）',
-        payAmt: amt,
-        rest: isCard ? memberRestAfter(amt) : null
-      };
-    }
-    var total = currentPayable();
-    var ben = (coCust === 'member') ? firstItemBenefit() : null;
-    return {
-      amount: total,
-      payName: ben ? ben.name : '线上支付（微信/支付宝）',
-      payAmt: total,
-      rest: ben ? memberRestAfter(total) : null
-    };
+
+  /* ---- 支付方式枚举（与线上完全一致；支持多选叠加，展示时以「+」连接）----
+     会员卡 / 微信 / 支付宝 / 美团 / 抖音 / 口碑 / 大众点评 / 现金 /
+     银行卡 / 信用卡 / 经理签单 / 其他平台团购 */
+  var PAY_METHODS = ['会员卡', '微信', '支付宝', '美团', '抖音', '口碑', '大众点评',
+    '现金', '银行卡', '信用卡', '经理签单', '其他平台团购'];
+
+  /* 演示用会员卡额度表：与 s5「会员卡」列表 / s12「选择权益」列表同源
+     kind：discount 折扣卡（不参与支付，不出现在 s15 支付明细）
+           stored   储值卡（展示本次扣减金额 + 卡余额）
+           package  套餐卡（展示本单消耗金额 + 「剩余 金额 / 次数」）
+           count    计次卡（展示扣减次数 + 剩余次数）
+           period   周期卡（展示本单消耗次数，无次行）
+     card：s15 支付明细左列要展示的「会员卡具体名称」（R7 规则：左＝卡名，非权益名） */
+  var CARD_META = {
+    '九折储值卡':                    { kind: 'stored', balance: 2049.00 },
+    '美发卡2000元':                  { kind: 'stored', balance: 1900.00 },
+    '美发卡3000元':                  { kind: 'stored', balance: 3000.00 },
+    '固定金额98元（美发卡3000元）':  { kind: 'stored', balance: 3000.00, card: '美发卡3000元' },
+    '超值折扣卡':                    { kind: 'discount', rate: 0.8 },
+    '折扣卡':                        { kind: 'discount', rate: 0.8, card: '超值折扣卡' },
+    '5.0折（5折卡）':                { kind: 'discount', rate: 0.5 },
+    '充值金额所有项目5.0折(铂金卡)': { kind: 'discount', rate: 0.5 },
+    '充值金额所有项目8.0折(金卡)':   { kind: 'discount', rate: 0.8 },
+    '染烫套餐卡':                    { kind: 'package', balance: 2000.00, rest: 4 },
+    '套餐卡抵扣':                    { kind: 'package', balance: 2000.00, rest: 4, card: '染烫套餐卡' },
+    '水光三次卡':                    { kind: 'count', rest: 3 },
+    '染烫10次卡':                    { kind: 'count', rest: 4 },
+    '计次卡抵扣':                    { kind: 'count', rest: 4, card: '染烫10次卡' },
+    '半年畅享卡':                    { kind: 'period' },
+    '周期卡抵扣':                    { kind: 'period', card: '半年畅享卡' }
+  };
+  /* 权益 → 会员卡支付信息（未登记的权益按 rule 兜底推断） */
+  function cardMetaOf(ben) {
+    if (!ben) return null;
+    if (CARD_META[ben.name]) return CARD_META[ben.name];
+    var rule = benefitRuleOf(ben);
+    if (!rule) return null;
+    if (rule.kind === 'discount') return { kind: 'discount', rate: rule.rate };
+    if (rule.kind === 'fixed') return { kind: 'stored', balance: rule.amount };
+    if (rule.kind === 'none') return { kind: 'count', rest: 1 };
+    return null;
   }
-  function paintSuccessPage() {
-    setText('sucAmt', money2(sucInfo.amount).replace(/\.00$/, ''));
-    setText('sucDate', sucInfo.date);
-    setText('sucNo', sucInfo.no);
-    setText('sucPayName', sucInfo.payName);
-    setText('sucPayAmt', '¥' + money2(sucInfo.payAmt));
-    var row = document.getElementById('sucRestRow');
-    var card = document.getElementById('sucCard');
-    if (row) {
-      if (sucInfo.rest == null) {
-        row.style.display = 'none';
-        if (card) card.classList.add('no-rest');
+  /* s15 支付明细左列名称：优先取卡的具体名称，未登记则用权益名兜底 */
+  function cardDisplayName(ben) {
+    if (!ben) return null;
+    var m = CARD_META[ben.name];
+    return (m && m.card) || ben.name;
+  }
+  /* 卡类展示顺序：储值卡 → 套餐卡 → 计次卡 → 周期卡（折扣卡不参与支付，永不出现在明细里） */
+  var CARD_KIND_ORDER = { discount: 0, stored: 1, package: 2, count: 3, period: 4 };
+  /* 按「卡」聚合：同一张卡的多条明细合并成一组 */
+  function payRowGroups(items) {
+    var order = [], map = {};
+    (items || []).forEach(function (it) {
+      var meta = cardMetaOf(it && it.benefit);
+      if (!meta) return;
+      /* 折扣卡 = 只参与「计算」整单结算价，不参与「支付」，因此不进支付明细 */
+      if (meta.kind === 'discount') return;
+      /* 分组键与展示名同源：按「卡的具体名称」聚合，同一张卡只出一行 */
+      var key = cardDisplayName(it.benefit) || meta.kind;
+      var g = map[key];
+      if (!g) { g = map[key] = { name: key, meta: meta, cut: 0, times: 0 }; order.push(g); }
+      g.cut = Math.round((g.cut + (it.actual || 0)) * 100) / 100;
+      g.times += 1;
+    });
+    return order.sort(function (a, b) {
+      var d = CARD_KIND_ORDER[a.meta.kind] - CARD_KIND_ORDER[b.meta.kind];
+      return d;
+    });
+  }
+  /* 会员卡 → 支付明细行（左＝卡的具体名称；右＝本卡消耗金额或次数；次行＝灰色小字剩余权益）
+     - 折扣卡：不出现在支付明细（折扣只影响结算价的计算，不是支付方式）
+     - 储值卡：右＝本单扣减金额，次行「剩余」+ 卡余额
+     - 套餐卡：右＝本单消耗金额，次行「剩余」+ 剩余金额 / 剩余次数
+     - 计次卡：右＝本单扣减次数，次行「剩余」+ 剩余次数（核销次数，不产生金额）
+     - 周期卡：右＝本单消耗次数，无次行（不限次、不产生金额）
+     该位置会员卡消费字段的最终口径以线上现有版本为准 */
+  function r2(n) { return Math.round((parseFloat(n) || 0) * 100) / 100; }
+  function payMoneyText(n) { return '¥' + money2(n); }
+  /* 支付明细（强制闭合：各金额行之和 = 顶部大号金额）
+     ① 会员卡部分：按卡拆行（储值卡 / 套餐卡 计金额；计次卡 / 周期卡只记次数）
+     ② 其余部分：散客演示拆「现金 + 微信」（现金＝金额最大的单条明细，>1 条明细时才拆），
+        会员记「微信」一行（折扣卡的折扣额不再单列，自然并入该行）
+     ③ 优惠券会让实收低于卡内消耗时，差额从末尾金额行逐行回退，保证闭合 */
+  function buildPays(items, amount, cust) {
+    var list = items || [];
+    var cards = [], cardMoney = 0;
+    payRowGroups(list).forEach(function (g) {
+      var m = (g.meta.kind === 'count' || g.meta.kind === 'period') ? 0 : r2(g.cut);
+      cardMoney = r2(cardMoney + m);
+      cards.push({ g: g, money: m });
+    });
+    var rest = Math.max(0, r2(amount - cardMoney));
+    var others = [];
+    if (rest > 0) {
+      if (cust === 'member') {
+        others.push({ name: '微信', money: rest });
       } else {
-        row.style.display = '';
-        if (card) card.classList.remove('no-rest');
-        setText('sucRest', '¥' + money2(sucInfo.rest));
+        var cash = 0;
+        if (list.length > 1) {
+          list.forEach(function (it) { cash = Math.max(cash, r2(it.actual || 0)); });
+          cash = Math.min(cash, rest);
+        }
+        if (cash > 0) others.push({ name: '现金', money: cash });
+        var wx = r2(rest - cash);
+        if (wx > 0) others.push({ name: '微信', money: wx });
+      }
+    } else if (!cards.length && amount > 0) {
+      others.push({ name: '微信', money: r2(amount) });
+    }
+    /* 强制闭合：差额从末尾金额行逐行回退 */
+    var sum = cardMoney + others.reduce(function (s, o) { return r2(s + o.money); }, 0);
+    var diff = r2(amount - sum);
+    var pool = others.concat(cards.filter(function (c) { return c.money > 0; }));
+    for (var i = pool.length - 1; i >= 0 && diff < -0.004; i--) {
+      var cut = Math.min(pool[i].money, r2(-diff));
+      pool[i].money = r2(pool[i].money - cut);
+      diff = r2(diff + cut);
+    }
+    /* 输出：卡行（含次数行）+ 非卡行 */
+    var pays = [];
+    cards.forEach(function (c) {
+      var g = c.g;
+      if (g.meta.kind === 'stored') {
+        pays.push({ name: g.name, val: payMoneyText(c.money),
+          sub: { l: '剩余', r: payMoneyText(Math.max(0, r2((g.meta.balance || 0) - c.money))) } });
+      } else if (g.meta.kind === 'package') {
+        /* 套餐卡：次行「剩余」= 剩余金额 / 剩余次数 */
+        var restMoney = Math.max(0, r2((g.meta.balance || 0) - c.money));
+        var restTimes = Math.max(0, (g.meta.rest || 0) - g.times);
+        pays.push({ name: g.name, val: payMoneyText(c.money),
+          sub: { l: '剩余', r: payMoneyText(restMoney) + ' / ' + restTimes + ' 次' } });
+      } else if (g.meta.kind === 'period') {
+        /* 周期卡：只记本单消耗次数，无次行 */
+        pays.push({ name: g.name, val: g.times + ' 次', sub: null });
+      } else {
+        /* 计次卡：本单扣减次数 + 剩余次数 */
+        pays.push({ name: g.name, val: g.times + ' 次',
+          sub: { l: '剩余', r: Math.max(0, (g.meta.rest || 0) - g.times) + ' 次' } });
+      }
+    });
+    others.forEach(function (o) {
+      pays.push({ name: o.name, val: payMoneyText(o.money), sub: null });
+    });
+    return pays;
+  }
+  /* 结账支付信息：金额 + 支付明细行 */
+  function payInfoOf(kind) {
+    var items = [], amount = 0, cust = 'guest';
+    if (kind === 'qco') {
+      /* 与 s7 底栏一致：权益后应付 − 订单级优惠券 */
+      var base = qcoItem ? Math.round(qcoItem.actual * 100) / 100 : 0;
+      amount = Math.max(0, Math.round((base - orderCouponCut(base)) * 100) / 100);
+      cust = qcoCust;
+      var isCard = !!(qcoItem && qcoItem.benefit && qcoCust === 'member');
+      if (isCard) items = [qcoItem];
+    } else {
+      /* 已手动改价：以手输值为本次实收金额（整单改价后权益不参与计算，只记非卡方式） */
+      amount = (coPayOverride != null) ? coPayOverride : currentPayable();
+      cust = coCust;
+      items = (coPayOverride != null) ? [] : cartItems.slice();
+    }
+    return { amount: amount, pays: buildPays(items, amount, cust) };
+  }
+  /* 卡片内字段行渲染：单号 → 开单日期 →（实线）→ 支付明细（各行之间发丝虚线） */
+  function renderSucRows() {
+    var box = document.getElementById('sucRows');
+    if (!box) return;
+    var html = '';
+    var infoRows = [
+      { l: '单号', r: sucInfo.no || '—' },
+      { l: '开单日期', r: sucInfo.date || '—' }
+    ];
+    html += infoRows.map(function (r) {
+      return '<div class="suc-row"><span class="l">' + escapeHtml(r.l) + '</span>' +
+        '<span class="r">' + escapeHtml(r.r) + '</span></div>';
+    }).join('');
+    html += '<div class="suc-split" aria-hidden="true"></div>';
+    (sucInfo.pays || []).forEach(function (p) {
+      html += '<div class="suc-pay">' +
+        '<div class="suc-pay-main"><span class="l">' + escapeHtml(p.name) + '</span>' +
+        '<span class="r">' + escapeHtml(p.val) + '</span></div>' +
+        (p.sub ? '<div class="suc-pay-sub"><span class="l">' + escapeHtml(p.sub.l) + '</span>' +
+          '<span class="r">' + escapeHtml(p.sub.r) + '</span></div>' : '') +
+        '</div>';
+    });
+    box.innerHTML = html;
+  }
+  /* 金额入场计数：0 → 目标值，620ms easeOutCubic（与卡片上浮错峰衔接） */
+  var sucAmtRaf = 0;
+  function sucCountUp(el, target) {
+    if (!el) return;
+    if (sucAmtRaf) { cancelAnimationFrame(sucAmtRaf); sucAmtRaf = 0; }
+    var t0 = 0, dur = 620;
+    function tick(now) {
+      if (!t0) t0 = now;
+      var p = Math.min(1, (now - t0) / dur);
+      var e = 1 - Math.pow(1 - p, 3);
+      if (p < 1) {
+        el.textContent = money2(target * e).replace(/\.00$/, '');
+        sucAmtRaf = requestAnimationFrame(tick);
+      } else {
+        el.textContent = money2(target).replace(/\.00$/, '');
+        sucAmtRaf = 0;
       }
     }
+    sucAmtRaf = requestAnimationFrame(tick);
+  }
+  function paintSuccessPage() {
+    sucCountUp(document.getElementById('sucAmt'), sucInfo.amount);
+    renderSucRows();
+  }
+  /* 成功页演示数据（左侧导航直达 s15 时展示）：
+     会员 5 条明细覆盖 储值卡 / 套餐卡 / 计次卡 / 周期卡 四类卡的展示规则，
+     并演示「会员卡 + 微信」组合支付（各支付行金额之和 = 顶部大号金额）；
+     折扣卡只参与结算价的计算、不参与支付，因此不出现在支付明细里 */
+  function seedSuccessDemo() {
+    var d = new Date();
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    var demo = [
+      /* 洗剪吹走折扣卡（8 折）→ 该卡不出行，折扣额自然并入末尾的「微信」 */
+      { benefit: { name: '超值折扣卡', _rule: { kind: 'discount', rate: 0.8 } }, actual: 78.40 },
+      /* 护理走固定金额储值卡 */
+      { benefit: { name: '美发卡3000元', _rule: { kind: 'fixed', amount: 3000 } }, actual: 58.00 },
+      /* 烫发走套餐卡：双列「剩余 金额 / 次数」 */
+      { benefit: { name: '染烫套餐卡', _rule: { kind: 'none' } }, actual: 168.00 },
+      /* 造型走计次卡：本单扣减次数 + 剩余次数 */
+      { benefit: { name: '染烫10次卡', _rule: { kind: 'none' } }, actual: 168.00 },
+      /* 洗吹走周期卡：只记本单消耗次数，无灰字次行 */
+      { benefit: { name: '半年畅享卡', _rule: { kind: 'none' } }, actual: 38.00 }
+    ];
+    var amount = 510.40;
+    sucInfo = {
+      amount: amount,
+      pays: buildPays(demo, amount, 'member'),
+      date: d.getFullYear() + '.' + p(d.getMonth() + 1) + '.' + p(d.getDate()),
+      no: '' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '001'
+    };
+    paintSuccessPage();
   }
   /* 结账成功 → 成功页（toast 占位原「支付中→支付成功」弹窗后直接进入） */
   function checkoutToSuccess(kind) {
@@ -4817,12 +5617,16 @@
     var billDate = (typeof window.__v2BillDate === 'function') ? window.__v2BillDate() : '';
     sucInfo = {
       amount: info.amount,
-      payName: info.payName,
-      payAmt: info.payAmt,
-      rest: info.rest,
+      pays: info.pays,
       date: (billDate ? billDate.replace(/-/g, '.') : todayDot()),
       no: genCoManual()
     };
+    /* 本单已结：把来源挂单移除（挂单删除的第三种情形：取挂单后开单成功） */
+    if (activeHoldId) {
+      holdOrders = holdOrders.filter(function (h) { return h.id !== activeHoldId; });
+      activeHoldId = null;
+      syncHoldCount();
+    }
     /* 本单已结：清空明细 / 券 / 角标，回到开单页即为新单 */
     cartItems.length = 0;
     if (kind === 'qco') qcoItem = null;
@@ -4834,20 +5638,24 @@
     recalcOrderAmounts();
     updateCartBadge();
     paintSuccessPage();
-    toast('支付成功');
+    /* 原型切掉了「结算 → 成功」之间的支付流程弹窗，用 toast 说明。
+       40 字折两行，按约 13 字/秒给到 3.0s（原 1.4s 读不完） */
+    toast('原型省略了结算与成功之间的支付流程弹窗（支付方式、收款确认等），开发时以线上为准', 3000);
     go('s15');
   }
   function checkoutDone() {
     if (!cartItems.length) { toast('暂无结算项目'); return; }
     checkoutToSuccess('co');
   }
+  /* 改日期：底部 sheet 形态的日历（与标题栏日期控件同一数据源） */
   function sucChangeDate() {
-    if (typeof window.__v2OpenDatePop === 'function') window.__v2OpenDatePop();
+    if (typeof window.__v2OpenDateSheet === 'function') window.__v2OpenDateSheet();
+    else if (typeof window.__v2OpenDatePop === 'function') window.__v2OpenDatePop();
   }
   /* 日期浮层确认后同步成功页「开单日期」 */
   window.__v2OnBillDateChange = function (key) {
     sucInfo.date = String(key || '').replace(/-/g, '.');
-    setText('sucDate', sucInfo.date);
+    renderSucRows();
   };
   function sucChangeNo() {
     var inp = document.getElementById('sucNoInput');
@@ -4865,7 +5673,7 @@
     var v = (inp ? inp.value : '').replace(/[^\d]/g, '').slice(0, 20);
     if (!v) v = genCoManual();
     sucInfo.no = v;
-    setText('sucNo', v);
+    renderSucRows();
     closeSucNo();
     toast('单号已更新');
   }
@@ -4971,7 +5779,7 @@
     var primaryRole = staffRoleLabel(it.staff.staffRoles[primarySid]);
     var designated = !!(it.staff.staffDesignated && it.staff.staffDesignated[primarySid]);
     /* 只读摘要：每名员工一行「姓名 · 工位 · 点客/散客」 */
-    var staffCell = '<div class="co-row" data-ro="1">' +
+    var staffCell = '<div class="co-row co-staff-row" data-ro="1">' +
       '<span class="lbl">服务员工</span>' +
       '<span class="co-staff-list">' +
         it.staff.staffIds.map(function(sid) {
@@ -5129,6 +5937,8 @@
     syncOrderNoUI('co');
     syncOrderNoUI('qco');
     resetGuestDefault();
+    seedSuccessDemo();
+    syncHoldCount();
   }
   initS6();
 

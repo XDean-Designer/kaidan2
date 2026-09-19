@@ -655,7 +655,10 @@
     custCardOpen(screenId, !isCustOpen(screenId));
   }
 
-  /* 标题栏右侧入口：会员 = 头像 icon + 姓名；散客 = 仅「散客」文字 */
+  /* 标题栏右侧入口：会员 = 单人 icon + 姓名；散客 = 双人 icon + 「散客/男散客/女散客」
+     两态 icon 均为 #929292 灰，仅图形不同（会员=单人，散客=双人） */
+  var IC_CUST_MEMBER = 'assets/ic_member_head.svg';
+  var IC_CUST_GUEST = 'assets/ic_guest_head.svg';
   function paintNavCust(screenId) {
     var scr = document.getElementById(screenId);
     if (!scr) return;
@@ -666,7 +669,11 @@
     var nm = btn.querySelector('[data-nav-cust-name]');
     var ic = btn.querySelector('.ic-mem');
     if (nm) nm.textContent = member ? m.name : guestDisplayName(currentGuestG());
-    if (ic) ic.style.display = member ? '' : 'none';
+    if (ic) {
+      var want = member ? IC_CUST_MEMBER : IC_CUST_GUEST;
+      if (ic.getAttribute('src') !== want) ic.setAttribute('src', want);
+      ic.style.display = '';
+    }
     btn.classList.toggle('is-member', member);
     btn.setAttribute('aria-expanded', isCustOpen(screenId) ? 'true' : 'false');
   }
@@ -897,6 +904,30 @@
         '<span class="v2-ccard__mc-rest">' + esc(c.rest) + '</span>' +
       '</div>';
   }
+  /* 会员持卡中的最优「折扣」权益（陈女士＝超值折扣卡 8.0折）。
+     口径与结算页自动匹配的权益同源；计次卡 / 储值卡按项目抵扣、规则不同，
+     不参与价目表「权益最优价」。无卡会员返回 null（价目表维持单色原价）。 */
+  function memberBestDiscountRate() {
+    if (window.__v2MemberNoBenefit) return null;
+    var best = null;
+    memberCardList().forEach(function (c) {
+      if (c.type !== '折扣卡') return;
+      var m = String(c.rest || '').match(/([\d.]+)\s*折/);
+      if (!m) return;
+      var r = parseFloat(m[1]) / 10;
+      if (!isFinite(r) || r <= 0 || r >= 1) return;
+      if (best == null || r < best) best = r;
+    });
+    return best;
+  }
+  /* 价目表价格单元格：无权益 → 单色原价；有权益 → 划线原价 + 红色权益价 */
+  function priceCellHtml(price, rate) {
+    var base = Number(price) || 0;
+    if (rate == null) return money(base);
+    var sale = Math.round(base * rate * 100) / 100;
+    return '<s class="v2-cat-price-old">' + money(base) + '</s>' +
+      '<span class="v2-cat-price-sale">' + money(sale) + '</span>';
+  }
   function memberCardsHtml() {
     var list = memberCardList();
     if (!list.length) {
@@ -1006,6 +1037,8 @@
     var items = g === '全部'
       ? cat.items.slice()
       : cat.items.filter(function (it) { return it.g === g; });
+    /* 会员页价目表按「权益最优价」展示（划线原价 + 红色权益价）；散客页维持单色原价 */
+    var rate = (screenId === 's5') ? memberBestDiscountRate() : null;
     var list = items.map(function (it, idx) {
       var key = screenId + '_' + tab + '_' + g + '_' + idx;
       return '<div class="v2-cat-item" data-ikey="' + key + '" data-name="' +
@@ -1013,7 +1046,8 @@
         (tab === 'product' ? '1' : '0') + '" data-group="' + esc(it.g) + '">' +
         '<div class="v2-cat-main">' +
           '<div class="v2-cat-info"><div class="v2-cat-name">' + esc(it.name) +
-          '</div><div class="v2-cat-price">' + money(it.price) + '</div></div>' +
+          '</div><div class="v2-cat-price' + (rate == null ? '' : ' has-sale') + '">' +
+          priceCellHtml(it.price, rate) + '</div></div>' +
           '<div class="v2-cat-right" data-right></div>' +
         '</div>' +
       '</div>';
@@ -1483,12 +1517,22 @@
         manual.style.top = 'auto';
         manual.style.width = '100%';
       }
+      var scroller = scr && scr.querySelector('.scroll');
+      /* R9「白卡盖住顾客卡」：与开单页同源 —— 滚动时给滚动区打 is-scrolled，
+         顾客卡片降到 z-index 1（明细白卡为 2），于是白卡能从下方滑过并盖住它 */
+      if (scroller && !scroller.__v2CoScroll) {
+        scroller.__v2CoScroll = true;
+        scroller.addEventListener('scroll', function () {
+          scroller.classList.toggle('is-scrolled', scroller.scrollTop > 1);
+        }, { passive: true });
+      }
       ['guest-card', 'member-card'].forEach(function (cls) {
         var card = scr && scr.querySelector('.' + cls);
         if (!card) return;
-        card.style.position = 'relative';
+        /* 顾客卡片吸在滚动区顶部（sticky）：明细白卡滚动时从下往上盖住它 */
+        card.style.position = 'sticky';
         card.style.left = 'auto';
-        card.style.top = 'auto';
+        card.style.top = '0';
         card.style.margin = '12px 16px 0';
         card.style.width = 'calc(100% - 32px)';
       });
@@ -1776,12 +1820,15 @@
     grid.innerHTML = html;
   }
 
-  function openDatePop() {
+  /* asSheet=true：以底部 sheet 形态呈现（成功页「改日期」）；
+     缺省为标题栏日期控件下拉形态 */
+  function openDatePop(asSheet) {
     var mask = document.querySelector('[data-date-mask]');
     var pop = document.querySelector('[data-date-pop]');
     if (!pop) return;
     viewMonth = new Date(selDate.getFullYear(), selDate.getMonth(), 1);
     renderDateGrid();
+    pop.classList.toggle('is-sheet', asSheet === true);
     if (mask) mask.classList.add('show');
     pop.classList.add('show');
   }
@@ -1839,8 +1886,9 @@
       }
     });
     window.__v2BillDate = function () { return dKey(selDate); };
-    /* 成功页「改日期」复用同一日历浮层 */
+    /* 成功页「改日期」：复用同一日历，以底部 sheet 形态打开 */
     window.__v2OpenDatePop = openDatePop;
+    window.__v2OpenDateSheet = function () { openDatePop(true); };
   }
 
   /* 演示开关（仅用于演示「价目表为空 → 隐藏对应 tab」）：
