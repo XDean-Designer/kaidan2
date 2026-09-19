@@ -12,6 +12,14 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
+  /* 选人勾选动效时长（与 ticheng 同源） */
+  --sp-check-red: 60ms;
+  --sp-check-draw: 110ms;
+  --sp-uncheck-draw: 55ms;
+  --sp-uncheck-red: 30ms;
+  --sp-collapse: 220ms;
+  --sp-ease-std: cubic-bezier(.22, .82, .24, 1);
+
     --brand: #F32F41; --brand-soft: #FFF2F2; --brand-border: #FFD5D9;
     --bg-page: #F7F7F7; --card: #fff; --text: #1a1a1a; --text-sec: #929292; --text-mid: #666;
     --border: #D7D7D5; --border-light: #E8E8E8; --success: #2BA471; --success-soft: #E8F8F2;
@@ -811,7 +819,7 @@
   #s6 .co-item .co-row .val .staff-mini, #s7 .co-item .co-row .val .staff-mini { width:16px; height:16px; border-radius:50%; overflow:hidden; flex:none; color:#929292; display:flex; align-items:center; justify-content:center; }
   #s6 .co-item .co-row .val .staff-mini svg, #s7 .co-item .co-row .val .staff-mini svg { width:14px; height:14px; }
   #s6 .co-item .co-row .val .staff-mini img, #s7 .co-item .co-row .val .staff-mini img { width:16px; height:16px; object-fit:cover; display:block; }
-  /* 员工第二行（角色标签 + 点客/散客）已移除：结算页「服务员工」改为只读摘要 */
+  /* 员工第二行（角色标签 + 顾客指定）已移除：结算页「服务员工」改为只读摘要 */
   #s6 .co-empty, #s7 .co-empty {
     background:#fff; margin:var(--gap-card); padding:40px 0; border-radius:12px;
     text-align:center; color:var(--text-sec); font-size:var(--fs-value);
@@ -1216,6 +1224,12 @@
   .bill-staff-sheet__body .detail-item__panel-row--staff-head { display: none; }
   .detail-item__staff-block { border-bottom: none; position: relative; }
   .detail-item__panel-row--staff-head { border-bottom: none; padding-bottom: 8px; }
+  /* ===== 选择服务员工（对齐 ticheng 最新 UI/UX · 按工位+顾客指定） ===== */
+  /* 预留两行卡片高度，重绘时空档不塌陷（摘要最多 3 行：大工·中工 / 小工 / 顾客指定） */
+  .staff-grid, .staff-embed .staff-grid {
+    min-height: calc(128px * 2 + 10px + 14px);
+  }
+  .detail-item__staff-block { border-bottom: none; position: relative; }
   .staff-card-scrim {
     position: absolute; inset: -8px -4px -12px; z-index: 1;
     border: none; padding: 0; margin: 0; cursor: pointer;
@@ -1234,7 +1248,7 @@
   .staff-grid.is-morphing > .staff-card { justify-self: start; align-self: start; }
   .staff-card {
     position: relative;
-    min-height: 96px;
+    min-height: 128px;
     width: 100%;
     box-sizing: border-box;
     z-index: 1;
@@ -1242,13 +1256,6 @@
     will-change: transform, width;
   }
   .staff-card.is-dim { opacity: .36; pointer-events: none; filter: saturate(.85); }
-  /* 服务员工已达上限：未选中的员工置灰且不可选 */
-  .staff-card.is-limit { opacity: .4; filter: saturate(.6); }
-  .staff-card.is-limit .staff-card__panel {
-    cursor: not-allowed; background: #FAFAFA; border-style: dashed; border-color: #DCDCDC;
-  }
-  .staff-card.is-limit .staff-card__panel:active { transform: none; }
-  .staff-card.is-limit .staff-card__title--pick { color: #B0B0B0; }
   .detail-item__staff-block--cards.is-picking { overflow: visible; }
   .detail-item__staff-block--cards.is-picking .staff-grid { overflow: visible; pointer-events: none; }
   .staff-card.is-editing { z-index: 6; pointer-events: auto; opacity: 1; filter: none; }
@@ -1256,7 +1263,7 @@
     position: relative;
     box-sizing: border-box;
     width: 100%;
-    min-height: 96px;
+    min-height: 128px;
     padding: 10px 8px 8px;
     border-radius: 12px;
     background: #fff;
@@ -1269,25 +1276,27 @@
     transition: border-color .22s ease, background .22s ease, box-shadow .28s cubic-bezier(.22,.82,.24,1);
     -webkit-tap-highlight-color: transparent;
   }
-  .staff-card__panel:active { transform: scale(.97); }
+  .staff-card__panel:active { transform: scale(.96); transition: transform .08s ease-out; }
   .staff-card.is-done .staff-card__panel {
     background: linear-gradient(180deg, #FFF8F8 0%, #FFF2F2 100%);
     border-color: #FFD5D9;
     box-shadow: inset 0 0 0 1px rgba(243, 47, 65, .04);
-    animation: staffDonePop .42s cubic-bezier(.22,.82,.24,1);
   }
+  /* 回弹只在**本次交互真的选中了该员工**时播（is-pop 由 JS 一次性标记）：
+     避免每次重绘（如再选别人）都重播一遍「噗噗」弹入（见 PRD §6.11.8） */
+  .staff-card.is-done.is-pop .staff-card__panel { animation: staffDonePop .42s cubic-bezier(.34,1.3,.64,1); }
   @keyframes staffDonePop {
-    0% { transform: scale(.96); }
-    55% { transform: scale(1.03); }
+    0% { transform: scale(.94); }
+    55% { transform: scale(1.04); }
     100% { transform: scale(1); }
   }
-  /* Morph Split · 行内变宽；展开态无连体壳，仅独立圆角按钮 */
-  .staff-card.is-editing .staff-card__panel[data-face="designate"],
-  .staff-card.is-editing .staff-card__panel[data-face="role"] {
+  /* 展开态：被点卡片撑满整行，内部横向平铺选项卡片（3 工位 / 顾客指定） */
+  .staff-card.is-editing .staff-card__panel[data-face="opts"] {
     position: relative;
+    z-index: 1;                 /* 压在收起动画的「下层头像卡面」之上（后者 z-index: 0） */
     width: 100%;
-    height: 96px;
-    min-height: 96px;
+    min-height: 128px;
+    height: 128px;
     padding: 0;
     gap: 0;
     border: none;
@@ -1297,49 +1306,158 @@
     cursor: default;
     box-shadow: none;
   }
-  .staff-card.is-editing .staff-card__panel[data-face="designate"]:active,
-  .staff-card.is-editing .staff-card__panel[data-face="role"]:active { transform: none; }
-  .staff-card.is-pinching .staff-card__panel[data-face="designate"],
-  .staff-card.is-pinching .staff-card__panel[data-face="role"] {
+  .staff-card.is-editing .staff-card__panel[data-face="opts"]:active { transform: none; }
+  .staff-card.is-expanding .staff-card__opts {
+    opacity: 1; visibility: visible;
+    transition: opacity .2s cubic-bezier(.34,1.3,.64,1);
+  }
+  .staff-card:not(.is-expanding) .staff-card__opts {
+    opacity: 0; visibility: hidden;
+  }
+  /* 展开时同行其余卡片淡出，避免与撑满的卡片相互压叠（淡出**瞬时**，与本动画无关） */
+  .staff-card.is-row-muted { opacity: 0; pointer-events: none; }
+
+  /* —— 收起 Morph（见 PRD §6.11.7）——
+     展开卡「收回去」的两层交叉：
+       · 上层 `.staff-card__panel[data-face="opts"]`（4 张选项卡）**整体淡出**；
+       · 下层 `.staff-card__panel--base`（头像 / 姓名 / 摘要）**淡入** —— 与收缩态卡面完全是同一套 DOM 结构，
+         因此动画终点与重绘后的静态卡面**像素级一致**，落定那一帧不会跳。
+     卡宽 / 位移的过渡由 JS 内联 `transition` 给出（时长读 `--sp-collapse`，同源）。 */
+  .staff-card.is-editing .staff-card__panel--base {
+    position: absolute; inset: 0; z-index: 0;
+    opacity: 0; pointer-events: none;
+    transition: opacity var(--sp-collapse) var(--sp-ease-std);
+  }
+  .staff-card.is-editing.is-collapsing .staff-card__panel--base { opacity: 1; }
+  /* 选项卡整体淡出。**必须反超** `.staff-card.is-expanding .staff-card__opts`（0,3,0）→ 用 (0,4,0) 组合选择器。
+     注：展开后的卡带的恒为 `is-expanding`，`is-opened` 从不渲染，其选择器已随之删除。 */
+  .staff-card.is-expanding.is-collapsing .staff-card__opts {
+    opacity: 0; visibility: visible;
+    transition: opacity var(--sp-collapse) var(--sp-ease-std);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .staff-card.is-editing .staff-card__panel { animation: none !important; }
+    .staff-card.is-done.is-pop .staff-card__panel { animation: none !important; }
+    .staff-card { transition: none !important; }
+    .staff-card__panel { transition: none; }
+    .staff-opt { transition: none !important; animation: none !important; }
+    .staff-opt__box, .staff-opt__box svg path {
+      animation: none !important; transition: none !important;
+    }
+    .staff-opt__box.is-draw svg path { stroke-dashoffset: 0; }
+    .staff-opt__box.is-undraw svg path { stroke-dashoffset: 24; }
+    .staff-card.is-expanding .staff-card__opts { transition: none !important; opacity: 1; visibility: visible; }
+    .staff-card:not(.is-expanding) .staff-card__opts { opacity: 1; visibility: visible; }
+    /* 收起动画直接落定（无过渡、无交叉淡入淡出） */
+    .staff-card.is-editing .staff-card__panel--base { transition: none !important; }
+    .staff-card.is-expanding.is-collapsing .staff-card__opts { transition: none !important; }
+  }
+  .staff-card__opts {
+    display: flex; align-items: stretch; width: 100%; height: 100%; gap: 8px;
+    box-sizing: border-box; background: transparent;
+  }
+  .staff-opt {
+    position: relative;
+    flex: 1 1 0; min-width: 0;
+    margin: 0; padding: 22px 6px 8px;
     border: 1px solid #E8E8E8;
     border-radius: 12px;
     background: #fff;
-    box-shadow: 0 4px 14px rgba(26, 26, 26, .1);
-  }
-  .staff-card.is-pinching .staff-card__split { opacity: 0; visibility: hidden; pointer-events: none; }
-  .staff-card.is-expanding .staff-card__split { opacity: 1; visibility: visible; transition: opacity .11s ease .03s; }
-  @media (prefers-reduced-motion: reduce) {
-    .staff-card.is-editing .staff-card__panel { animation: none !important; }
-    .staff-card.is-done .staff-card__panel { animation: none !important; }
-    .staff-card { transition: none !important; }
-    .staff-card__panel { transition: none; }
-    .staff-card__split-btn { transition: none !important; }
-    .staff-card.is-expanding .staff-card__split { transition: none !important; }
-  }
-  .staff-card__split { display: flex; align-items: stretch; width: 100%; height: 100%; gap: 8px; box-sizing: border-box; background: transparent; }
-  .staff-card__split-btn {
-    position: relative;
-    flex: 1 1 0; min-width: 0;
-    margin: 0; padding: 0 8px;
-    border: 1px solid rgba(0,0,0,.06);
-    border-radius: 10px;
-    background: #fff;
     color: #1a1a1a;
-    font-size: 15px; font-weight: 650; letter-spacing: .02em; line-height: 1.15;
+    font-size: 14px; font-weight: 600; letter-spacing: .02em; line-height: 1.15;
     font-family: inherit; cursor: pointer;
-    display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
     -webkit-tap-highlight-color: transparent;
     box-shadow: 0 2px 8px rgba(26, 26, 26, .06);
-    transition: background .18s ease, color .18s ease, transform .14s ease, box-shadow .18s ease;
+    transition: background .18s ease, color .18s ease, border-color .18s ease,
+      transform .08s ease-out, box-shadow .2s cubic-bezier(.34,1.3,.64,1);
   }
-  .staff-card__split-btn:active { transform: scale(.97); box-shadow: 0 1px 4px rgba(26, 26, 26, .08); }
-  .staff-card__split-btn--des { color: #C62828; background: linear-gradient(180deg, #FFF9F9 0%, #FFF2F2 100%); border-color: rgba(243, 47, 65, .18); }
-  .staff-card__split-btn--guest { color: #4A667A; background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F8 100%); border-color: rgba(74, 102, 122, .16); }
-  .staff-card__split-btn--role { color: #1a1a1a; background: linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%); font-size: 14px; font-weight: 600; }
-  .staff-card__split-btn--role:nth-child(1) { color: #6B8F71; border-color: rgba(107, 143, 113, .22); }
-  .staff-card__split-btn--role:nth-child(2) { color: #6A7F96; border-color: rgba(106, 127, 150, .22); }
-  .staff-card__split-btn--role:nth-child(3) { color: #C62828; border-color: rgba(198, 40, 40, .18); }
-  .staff-card__split--3 .staff-card__split-btn { font-size: 14px; font-weight: 600; }
+  .staff-opt:active { transform: scale(.96); box-shadow: 0 1px 4px rgba(26, 26, 26, .08); }
+  .staff-opt--extra { color: #C62828; border-color: rgba(243, 47, 65, .18); background: linear-gradient(180deg, #FFF9F9 0%, #FFF2F2 100%); }
+  /* 右上角勾选控件：未勾选空心 */
+  .staff-opt__box {
+    position: absolute; top: 6px; right: 6px;
+    width: 18px; height: 18px; border-radius: 9px;
+    border: 1.5px solid #D6D6D6; background: #fff; color: transparent;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-sizing: border-box;
+  }
+  .staff-opt__box svg { width: 11px; height: 11px; display: block; }
+  .staff-opt.is-on { border-color: var(--brand); box-shadow: 0 2px 10px rgba(243, 47, 65, .16); }
+  .staff-opt.is-on .staff-opt__box {
+    border-color: var(--brand); background: var(--brand); color: #fff;
+  }
+  /* —— 勾选控件动效：点按 → 快速变红（--sp-check-red 60ms）→ 勾从左到右画出（--sp-check-draw 110ms）；
+        取消 = 反序播放（先收勾再褪红），**时长减半、速度加快一倍**（--sp-uncheck-draw 55ms + --sp-uncheck-red 30ms）。
+        时长见文件顶部 :root（PRD §6.11.7）——
+        注：收缩态员工卡已无勾选控件，故本组只会作用于展开态的 `.staff-opt__box` */
+  .staff-opt__box {
+    transition: background-color var(--sp-check-red) ease,
+      border-color var(--sp-check-red) ease,
+      color var(--sp-check-red) ease;
+  }
+  .staff-opt__box svg path {
+    stroke-dasharray: 24; stroke-dashoffset: 24;
+  }
+  /* 已勾选（静态渲染）：勾完整呈现 */
+  .staff-opt.is-on .staff-opt__box svg path { stroke-dashoffset: 0; }
+  /* 点选：立刻变红，勾随后画出 */
+  .staff-opt__box.is-draw { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .staff-opt__box.is-draw svg path {
+    animation: spCheckDraw var(--sp-check-draw) linear var(--sp-check-red) both;
+  }
+  /* 取消：先收勾再褪红（反序）；时长减半、速度加快一倍（--sp-uncheck-* = --sp-check-* / 2） */
+  .staff-opt__box.is-undraw {
+    background: #fff; border-color: #D6D6D6; color: transparent;
+    transition: background-color var(--sp-uncheck-red) ease var(--sp-uncheck-draw),
+      border-color var(--sp-uncheck-red) ease var(--sp-uncheck-draw),
+      color var(--sp-uncheck-red) ease var(--sp-uncheck-draw);
+  }
+  .staff-opt__box.is-undraw svg path { animation: spCheckUndraw var(--sp-uncheck-draw) linear both; }
+  @keyframes spCheckDraw {
+    from { stroke-dashoffset: 24; }
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes spCheckUndraw {
+    from { stroke-dashoffset: 0; }
+    to { stroke-dashoffset: 24; }
+  }
+  /* —— 反向「整卡红色快速淡出」（q7-C）——
+     取消勾选时，勾选框（红色填充 + 描边）与**宿主卡片的红色** （选项卡的红边/红投影、
+     员工卡的粉底/粉描边/头像粉圈）在 85ms 内**一起**退干净 —— 节拍与「点选」完全一致
+     （收勾 55ms → 褪红 30ms，见 PRD §6.11.7）。
+
+     ① **必须反超 `.is-on`（实测 BUG 根因）**：`.staff-opt.is-on .staff-opt__box` 特异性 (0,3,0)
+        高于 `.staff-opt__box.is-undraw` (0,2,0)，不反超则红底在整个动效期间**纹丝不动**，
+        只在落定重绘那一帧「啪」地硬切消失（实测 26→276ms 恒为纯红 rgb(243,47,65)）。
+     ② 选项卡红边/红投影来自 `.staff-opt.is-on` (0,2,0)，用 `.staff-opt.is-on.is-undraw` (0,3,0) 反超。
+     ③ 员工卡粉底是 `linear-gradient`（**不可插值**），故在 `.is-done` 下垫一层同色
+        `background-color`、渐变置其上：褪色时先摘渐变（与垫底同色，肉眼无感），再让
+        `background-color` 过渡到白 —— 否则粉底同样会硬切。 */
+  .staff-opt.is-on .staff-opt__box.is-undraw { background: #fff; border-color: #D6D6D6; color: transparent; }
+  .staff-opt.is-on.is-undraw {
+    border-color: #E8E8E8;
+    box-shadow: 0 2px 8px rgba(26, 26, 26, .06);
+    transition: border-color var(--sp-uncheck-red) ease var(--sp-uncheck-draw),
+      box-shadow var(--sp-uncheck-red) ease var(--sp-uncheck-draw);
+  }
+  /* 「顾客指定」卡未勾选时本身就带淡红边，取消后回它自己的基线色 */
+  .staff-opt--extra.is-on.is-undraw { border-color: rgba(243, 47, 65, .18); }
+  /* 员工卡（收缩态）：粉底 + 粉描边 + 头像粉圈 */
+  .staff-card.is-done .staff-card__panel { background-color: #FFF5F5; }
+  /* 注：收缩态员工卡的「粉底淡出」已废止 —— 该卡不再有勾选控件，取消只能走「展开卡片取消勾选」
+     或「入口摘要行 ×」，两者都不在该卡上做褪色（见 PRD §6.11.3） */
+  /* 注：工位已改为**可点掉**（再点已勾选工位 = 取消），原「iOS 抖动提醒」动效与其
+     `spOptShake` 关键帧、`.is-shake` 规则已随之移除（见 PRD §6.11.2） */
+  .staff-card.is-splitting .staff-opt { animation: staffRoleSplit .38s cubic-bezier(.34,1.3,.64,1) both; }
+  .staff-card.is-splitting .staff-opt:nth-child(1) { animation-delay: 0ms; }
+  .staff-card.is-splitting .staff-opt:nth-child(2) { animation-delay: 35ms; }
+  .staff-card.is-splitting .staff-opt:nth-child(3) { animation-delay: 70ms; }
+  .staff-card.is-splitting .staff-opt:nth-child(4) { animation-delay: 105ms; }
+  @keyframes staffRoleSplit {
+    from { opacity: 0; transform: scaleX(.42) scaleY(.92); }
+    to { opacity: 1; transform: scaleX(1) scaleY(1); }
+  }
   .staff-card__avatar {
     width: 40px; height: 40px; border-radius: 20px; object-fit: cover;
     background: var(--brand-soft); flex-shrink: 0;
@@ -1356,41 +1474,39 @@
     text-align: center; max-width: 100%;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
+  /* 选人摘要区：预留最多 3 行（三工位拆两行 + 顾客指定）；单行垂直居中；行内不省略 */
   .staff-card__title--pick {
     font-size: 11px; font-weight: 600; color: var(--brand);
     letter-spacing: .01em;
+    min-height: 3.6em;
+    height: auto;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    white-space: normal; overflow: visible; text-overflow: unset;
+    line-height: 1.2;
     animation: staffMetaIn .36s cubic-bezier(.22,.82,.24,1);
   }
+  .staff-card__pick-stack {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1px; width: 100%;
+  }
+  .staff-card__pick-line {
+    max-width: 100%;
+    overflow: visible; text-overflow: unset; white-space: nowrap;
+    line-height: 1.2; text-align: center;
+  }
+  /* 「只勾顾客指定、没选工位」的合法状态：按 R12 口径计入已选，只发「顾客指定」提成。
+     卡片与入口摘要行都**只画红字「顾客指定」**，不出现「无工位」（见 PRD §6.11.4） */
+  .staff-card__pick-x { color: var(--brand); }
   @keyframes staffMetaIn {
     0% { opacity: 0; transform: translateY(4px); }
     100% { opacity: 1; transform: translateY(0); }
   }
-  .staff-card__check {
-    position: absolute; top: 6px; left: 6px;
-    width: 16px; height: 16px; border-radius: 8px;
-    background: var(--brand); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    pointer-events: none;
-    animation: staffCheckIn .38s cubic-bezier(.22,.82,.24,1);
-  }
-  @keyframes staffCheckIn {
-    0% { transform: scale(.4); opacity: 0; }
-    70% { transform: scale(1.12); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  .staff-card__check svg { width: 10px; height: 10px; display: block; }
-  .staff-card__clear {
-    position: absolute; top: -6px; right: -6px; z-index: 2;
-    width: 22px; height: 22px; border-radius: 11px;
-    border: 1px solid #E8E8E8; background: #fff; color: #929292;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; padding: 0; font-family: inherit;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    -webkit-tap-highlight-color: transparent;
-  }
-  .staff-card__clear:active { transform: scale(.92); }
-  .staff-card__clear svg { width: 12px; height: 12px; display: block; }
-  .staff-card.is-editing .staff-card__clear { display: none; }
+  /* 收缩态员工卡**不再有任何勾选控件**（`.staff-card__tick` 已删除），勾只存在于展开态的选项卡
+     （`.staff-opt__box`）；随之废止的还有它的弹入动效 `staffCheckIn` / `.is-in`（见 PRD §6.11.2）。
+     取消该员工的入口 = 展开卡片取消勾选 / 入口摘要行 × */
+
+  .staff-embed .staff-grid { min-height: calc(128px * 2 + 10px + 14px); }
+  .staff-embed { position: relative; }
 
   /* ===== toast ===== */
   #toast {
@@ -3573,15 +3689,18 @@
   function delKey3() { s3val = s3val.slice(0,-1) || '0'; renderS3(); }
 
   // ---- 直接收款 员工/备注（s2/s3 共享状态） ----
-  var quickStaffRow = { id: '__quick__', staffIds: [], staffRoles: {}, staffDesignated: {} };
+  var quickStaffRow = { id: '__quick__', staffIds: [], staffRoles: {}, staffExtra: {}, staffChosen: {} };
   var quickRemark = '';
   var quickStaffOpen = '';   // 当前展开的员工面板 id（'' 表示收起）
 
   function renderQuickStaff() {
+    var prev = staffRow;
+    staffRow = quickStaffRow;
     var names = quickStaffRow.staffIds.map(function(sid) {
       var st = STAFFS.find(function(s){ return s.id === sid; });
       return (st ? st.name : sid) + '·' + staffPickSummaryText(sid);
     });
+    staffRow = prev;
     ['s2StaffVal','s3StaffVal'].forEach(function(id) {
       var el = document.getElementById(id);
       el.textContent = names.join('、');
@@ -3614,6 +3733,7 @@
     // 定位面板：跟随员工行位置
     staffRow = quickStaffRow;
     staffCardEdit = null;
+    spActiveRoot = panel;
     panel.innerHTML = renderStaffPickerHtml();
     panel.classList.add('open');
     var top = (row.offsetTop + row.offsetHeight + 8);
@@ -3686,7 +3806,7 @@
         return {
           name: it.name, price: it.price, qty: it.qty,
           isProd: !!it.isProd, group: it.group || '',
-          staffIds: snap.staffIds, staffRoles: snap.staffRoles, staffDesignated: snap.staffDesignated
+          staffIds: snap.staffIds, staffRoles: snap.staffRoles, staffExtra: snap.staffExtra || {}
         };
       })
     });
@@ -3810,7 +3930,7 @@
     var thumbEl = card.querySelector('.thumb img');
     var thumb = thumbEl ? thumbEl.getAttribute('src') : '';
     asData = { name: name, price: price, sale: sale, kind: kind, isProd: isProd, group: group, thumb: thumb };
-    addStaffRow = { id: '__add__', staffIds: [], staffRoles: {}, staffDesignated: {} };
+    addStaffRow = { id: '__add__', staffIds: [], staffRoles: {}, staffExtra: {}, staffChosen: {} };
     staffRow = addStaffRow;
     staffCardEdit = null;
     document.getElementById('asTitle').textContent = name;
@@ -3903,16 +4023,18 @@
     if (el.value === '' && el.dataset.prev !== undefined) el.value = el.dataset.prev;
   }
 
-  // ===== 员工选择（对齐 card 全套 UI/UX） =====
+  // ===== 员工选择（对齐 ticheng 最新 UI/UX · 硬编码按工位+开顾客指定） =====
   var STAFF_ROLE_OPTS = [
     { id: 'senior', label: '大工' },
     { id: 'mid', label: '中工' },
     { id: 'junior', label: '小工' },
   ];
-  var STAFF_ROLE_PICK_ORDER = ['junior', 'mid', 'senior'];
+  var STAFF_STATION_IDS = ['senior', 'mid', 'junior'];
   var STAFF_ROLE_DEFAULT = 'senior';
-  /* 单个开单行最多可选服务员工数 */
-  var STAFF_MAX_PICK = 3;
+  var SP_PICK_AVG = 'avg';
+  /* A1：按工位 + 开顾客指定（硬编码，与提成设置演示默认态一致） */
+  var SP_NEED_STATION = true;
+  var SP_NEED_EXTRA = true;
 
   var STAFFS = [
     { id: 'st0', name: '顾清扬', short: '顾', role: '店主', avatar: 'assets/emp-avatars/man-e.jpg' },
@@ -3922,123 +4044,569 @@
     { id: 'st4', name: 'Lisa', short: 'Lisa', role: '美甲师', avatar: 'assets/emp-avatars/woman-b.jpg' },
   ];
 
-  var staffRow = { id: '__add__', staffIds: [], staffRoles: {}, staffDesignated: {} };
-  var addStaffRow = staffRow;   // 添加弹窗的员工工作行
-  var staffCardEdit = null;
+  var staffRow = { id: '__add__', staffIds: [], staffRoles: {}, staffExtra: {}, staffChosen: {} };
+  var addStaffRow = staffRow;
+  var staffCardEdit = null; /* { staffId, splitting } */
+  var staffFreshDone = {};
+
+  var SP_CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+  var SP_GRID_GAP = 8;
+  var SP_SPRING = 'cubic-bezier(.34,1.3,.64,1)';
+  var SP_EASE_STD = 'cubic-bezier(.22,.82,.24,1)';
+  var SP_EXPAND_MS = 380;
+  var SP_COLLAPSE_FALLBACK_MS = 220;
+  var SP_CHECK_RED_FALLBACK = 60;
+  var SP_CHECK_DRAW_FALLBACK = 110;
+  var SP_UNCHECK_DRAW_FALLBACK = 55;
+  var SP_UNCHECK_RED_FALLBACK = 30;
 
   function staffRoleLabel(roleId) {
-    var hit = STAFF_ROLE_OPTS.find(function(r){ return r.id === roleId; });
+    if (Array.isArray(roleId)) {
+      return roleId.map(staffRoleLabel).filter(Boolean).join(' · ');
+    }
+    if (roleId === SP_PICK_AVG) return '提成';
+    var hit = STAFF_ROLE_OPTS.find(function (r) { return r.id === roleId; });
     return hit ? hit.label : '';
   }
+  function spStationIds() { return STAFF_STATION_IDS.slice(); }
+  function spStationLabel(roleId) { return staffRoleLabel(roleId) || String(roleId || ''); }
+  function spNeedStation() { return !!SP_NEED_STATION; }
+  function spNeedExtra() { return !!SP_NEED_EXTRA; }
+  function spNeedsPick() { return spNeedStation() || spNeedExtra(); }
+  function spHaptic() {
+    try { if (navigator.vibrate) navigator.vibrate(8); } catch (e) { /* ignore */ }
+  }
+  function spReduceMotion() {
+    return typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  /** 兼容旧 staffDesignated / 单值 staffRoles → 新模型（staffExtra + 工位数组） */
+  function migrateStaffRowShape(row) {
+    if (!row || typeof row !== 'object') return row;
+    var legacyDes = row.staffDesignated;
+    if (!row.staffExtra || typeof row.staffExtra !== 'object') {
+      row.staffExtra = {};
+      if (legacyDes && typeof legacyDes === 'object') {
+        Object.keys(legacyDes).forEach(function (sid) {
+          row.staffExtra[sid] = !!legacyDes[sid];
+        });
+      }
+    }
+    if (legacyDes) delete row.staffDesignated;
+    if (!row.staffChosen || typeof row.staffChosen !== 'object') row.staffChosen = {};
+    if (!row.staffRoles || typeof row.staffRoles !== 'object') row.staffRoles = {};
+    Object.keys(row.staffRoles).forEach(function (sid) {
+      var v = row.staffRoles[sid];
+      if (typeof v === 'string' && v) row.staffRoles[sid] = [v];
+      else if (!Array.isArray(v) || !v.length) delete row.staffRoles[sid];
+      else row.staffRoles[sid] = v.filter(Boolean);
+    });
+    return row;
+  }
+
+  function spRolesOf(sid) {
+    var v = staffRow.staffRoles[sid];
+    if (Array.isArray(v)) return v.filter(Boolean);
+    if (typeof v === 'string' && v) return [v];
+    return [];
+  }
+  function spSetRoles(sid, roles) {
+    var list = (roles || []).filter(Boolean);
+    if (!list.length) {
+      delete staffRow.staffRoles[sid];
+      return;
+    }
+    if (list.indexOf(SP_PICK_AVG) >= 0) {
+      staffRow.staffRoles[sid] = [SP_PICK_AVG];
+      return;
+    }
+    var ordered = spStationIds().filter(function (id) { return list.indexOf(id) >= 0; });
+    staffRow.staffRoles[sid] = ordered.length ? ordered : list.slice();
+  }
+  function spHasRole(sid, key) {
+    return spRolesOf(sid).indexOf(key) >= 0;
+  }
+
   function ensureStaffState() {
+    migrateStaffRowShape(staffRow);
     if (!Array.isArray(staffRow.staffIds)) staffRow.staffIds = [];
     if (!staffRow.staffRoles || typeof staffRow.staffRoles !== 'object') staffRow.staffRoles = {};
-    if (!staffRow.staffDesignated || typeof staffRow.staffDesignated !== 'object') staffRow.staffDesignated = {};
-    Object.keys(staffRow.staffRoles).forEach(function(sid) {
-      if (staffRow.staffIds.indexOf(sid) < 0) delete staffRow.staffRoles[sid];
+    if (!staffRow.staffExtra || typeof staffRow.staffExtra !== 'object') staffRow.staffExtra = {};
+    if (!staffRow.staffChosen || typeof staffRow.staffChosen !== 'object') staffRow.staffChosen = {};
+    ['staffRoles', 'staffChosen', 'staffExtra'].forEach(function (k) {
+      Object.keys(staffRow[k]).forEach(function (sid) {
+        if (staffRow.staffIds.indexOf(sid) < 0) delete staffRow[k][sid];
+      });
     });
-    Object.keys(staffRow.staffDesignated).forEach(function(sid) {
-      if (staffRow.staffIds.indexOf(sid) < 0) delete staffRow.staffDesignated[sid];
+    Object.keys(staffRow.staffRoles).forEach(function (sid) {
+      var v = staffRow.staffRoles[sid];
+      if (typeof v === 'string' && v) staffRow.staffRoles[sid] = [v];
+      else if (!Array.isArray(v) || !v.length) delete staffRow.staffRoles[sid];
+      else staffRow.staffRoles[sid] = v.filter(Boolean);
     });
-    staffRow.staffIds.forEach(function(sid) {
-      if (!staffRow.staffRoles[sid]) staffRow.staffRoles[sid] = STAFF_ROLE_DEFAULT;
-      if (typeof staffRow.staffDesignated[sid] !== 'boolean') staffRow.staffDesignated[sid] = false;
+    staffRow.staffIds.forEach(function (sid) {
+      if (typeof staffRow.staffExtra[sid] !== 'boolean') staffRow.staffExtra[sid] = false;
+      if (typeof staffRow.staffChosen[sid] !== 'boolean') staffRow.staffChosen[sid] = true;
     });
+    if (!spNeedExtra()) {
+      Object.keys(staffRow.staffExtra).forEach(function (sid) { staffRow.staffExtra[sid] = false; });
+    }
   }
-  function staffCardOrigin(index) {
-    var col = index % 3;
-    if (col === 0) return 'left center';
-    if (col === 2) return 'right center';
-    return 'center center';
+
+  function spOptionList() {
+    var out = [];
+    if (spNeedStation()) {
+      spStationIds().forEach(function (rid) {
+        out.push({ key: rid, kind: 'role', label: spStationLabel(rid) });
+      });
+      if (spNeedExtra()) out.push({ key: 'extra', kind: 'extra', label: '顾客指定' });
+      return out;
+    }
+    if (spNeedExtra()) {
+      out.push({ key: SP_PICK_AVG, kind: 'plain', label: '服务提成' });
+      out.push({ key: 'extra', kind: 'extra', label: '顾客指定' });
+    }
+    return out;
   }
+  function spOptionChecked(sid, opt) {
+    if (!opt) return false;
+    if (opt.kind === 'extra') return staffRow.staffExtra[sid] === true;
+    if (opt.kind === 'plain') return spHasRole(sid, SP_PICK_AVG);
+    return spHasRole(sid, opt.key);
+  }
+  function spOptionByKey(key) {
+    var list = spOptionList();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].key === key) return list[i];
+    }
+    return null;
+  }
+  function spStaffIsChosen(sid) {
+    return !!staffRow.staffChosen[sid] && staffRow.staffIds.indexOf(sid) >= 0;
+  }
+  function spBasePicked(sid) { return spRolesOf(sid).length > 0; }
+
+  function spSummaryParts(sid) {
+    if (staffRow.staffIds.indexOf(sid) < 0) return null;
+    var extra = staffRow.staffExtra[sid] === true && spNeedExtra();
+    if (spNeedStation()) {
+      var labels = spRolesOf(sid).map(function (rid) { return spStationLabel(rid); }).filter(Boolean);
+      if (labels.length) return { stations: labels, main: labels.join(' · '), extra: extra };
+      return extra ? { stations: [], main: '', extra: true } : null;
+    }
+    if (spNeedExtra()) {
+      if (spHasRole(sid, SP_PICK_AVG)) return { stations: ['提成'], main: '提成', extra: extra };
+      return extra ? { stations: [], main: '', extra: true } : null;
+    }
+    return null;
+  }
+  /* 入口摘要文案（s2 / s3 员工行、s6 / s7 服务员工行、挂单卡片、已选商品 Sheet 共用）：
+     「工位 · 工位 · 顾客指定」；
+     只勾「顾客指定」不选工位时就是「顾客指定」本身，不再前置「无工位」（见 PRD §6.11.4） */
   function staffPickSummaryText(sid) {
-    var designated = staffRow.staffDesignated && staffRow.staffDesignated[sid] === true;
-    var guest = designated ? '点客' : '散客';
-    var role = staffRoleLabel(staffRow.staffRoles && staffRow.staffRoles[sid] ? staffRow.staffRoles[sid] : '');
-    return role ? guest + '·' + role : guest;
+    var p = spSummaryParts(sid);
+    if (!p) return '';
+    var out = [];
+    if (p.main) out.push(p.main);
+    if (p.extra) out.push('顾客指定');
+    return out.join(' · ');
+  }
+  function spStationPickLines(stations) {
+    var esc = (stations || []).map(function (s) { return escapeHtml(s); });
+    if (!esc.length) return [];
+    if (esc.length <= 2) return [esc.join(' · ')];
+    return [esc.slice(0, 2).join(' · ')].concat(esc.slice(2));
+  }
+  function spSummaryHtml(sid) {
+    var p = spSummaryParts(sid);
+    if (!p) return '';
+    var stations = p.stations || [];
+    var stationLines = spStationPickLines(stations);
+    if (stations.length === 1 && p.extra) {
+      return stationLines[0] + ' · ' + escapeHtml('顾客指定');
+    }
+    var lines = stationLines.slice();
+    if (p.extra) {
+      if (!lines.length) return '<span class="staff-card__pick-x">顾客指定</span>';
+      lines.push('<span class="staff-card__pick-x">顾客指定</span>');
+    }
+    if (!lines.length) return '';
+    if (lines.length === 1) return lines[0];
+    return '<div class="staff-card__pick-stack">' +
+      lines.map(function (ln) {
+        return '<div class="staff-card__pick-line">' + ln + '</div>';
+      }).join('') +
+      '</div>';
   }
   function staffJobTitleHtml(st) {
     var title = st && st.role ? String(st.role).trim() : '';
     if (!title) return '';
     return '<div class="staff-card__title">' + escapeHtml(title) + '</div>';
   }
+  function spCardPickLineHtml(st, done) {
+    var jobTitle = staffJobTitleHtml(st);
+    if (!done) return jobTitle;
+    if (!spNeedsPick()) return jobTitle;
+    var sum = spSummaryHtml(st.id);
+    if (!sum) return jobTitle;
+    return '<div class="staff-card__title staff-card__title--pick">' + sum + '</div>';
+  }
   function staffAvatarHtml(st) {
     if (st.avatar) {
-      return '<img class="staff-card__avatar" src="' + st.avatar + '" alt="" loading="lazy" referrerpolicy="no-referrer">';
+      return '<img class="staff-card__avatar" src="' + escapeHtml(st.avatar) + '" alt="" loading="lazy" referrerpolicy="no-referrer">';
     }
     var letter = (st.short || st.name || '?').toString().slice(0, 2);
     return '<span class="staff-card__avatar staff-card__avatar--ph" aria-hidden="true">' + escapeHtml(letter) + '</span>';
   }
-  function escapeHtml(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  function spCssMs(name, fallback) {
+    try {
+      var raw = String(getComputedStyle(document.documentElement).getPropertyValue(name) || '').trim();
+      var m = /^([\d.]+)(ms|s)$/.exec(raw);
+      if (!m) return fallback;
+      return m[2] === 's' ? parseFloat(m[1]) * 1000 : parseFloat(m[1]);
+    } catch (e) { return fallback; }
+  }
+  function spCheckMs() {
+    return spCssMs('--sp-check-red', SP_CHECK_RED_FALLBACK) +
+      spCssMs('--sp-check-draw', SP_CHECK_DRAW_FALLBACK);
+  }
+  function spUncheckMs() {
+    return spCssMs('--sp-uncheck-draw', SP_UNCHECK_DRAW_FALLBACK) +
+      spCssMs('--sp-uncheck-red', SP_UNCHECK_RED_FALLBACK);
+  }
+  function spCheckMsFor(on) { return on ? spCheckMs() : spUncheckMs(); }
+
+  var spGate = { checkUntil: 0, morphUntil: 0, timer: 0, floorTimer: 0, token: null };
+  var spActiveRoot = null;
+  var spEditSeq = 0;
+
+  function spGateBusy() { return Date.now() < Math.max(spGate.checkUntil, spGate.morphUntil); }
+  function spCheckAnims(root) {
+    var out = [];
+    var push = function (el) {
+      if (!el || typeof el.getAnimations !== 'function') return;
+      el.getAnimations().forEach(function (a) { out.push(a); });
+    };
+    if (!root) return out;
+    push(root);
+    if (root.querySelector) push(root.querySelector('svg path'));
+    return out;
+  }
+  function spSnapChecks() {
+    var root = spActiveRoot;
+    if (!root || !root.querySelectorAll) return;
+    Array.prototype.slice.call(root.querySelectorAll('.is-draw, .is-undraw')).forEach(function (el) {
+      spCheckAnims(el).forEach(function (a) { try { a.finish(); } catch (e) { /* ignore */ } });
+    });
+  }
+  function spGateAfter(roots, apply, minMs) {
+    if (spReduceMotion()) { apply(); return null; }
+    var list = Array.isArray(roots) ? roots : [roots];
+    var floor = minMs || 0;
+    var tok = { done: false };
+    tok.fire = function () {
+      if (tok.done) return;
+      tok.done = true;
+      if (spGate.token === tok) spGate.token = null;
+      if (spGate.timer) { clearTimeout(spGate.timer); spGate.timer = 0; }
+      if (spGate.floorTimer) { clearTimeout(spGate.floorTimer); spGate.floorTimer = 0; }
+      spGate.checkUntil = 0;
+      apply();
+    };
+    var anims = [];
+    list.forEach(function (r) { spCheckAnims(r).forEach(function (a) { anims.push(a); }); });
+    var animsDone = !anims.length;
+    var floorDone = !floor;
+    if (animsDone && floorDone) { tok.fire(); return tok; }
+    var maybe = function () { if (animsDone && floorDone) tok.fire(); };
+    spGate.token = tok;
+    var guard = Math.max(spCheckMs() + 300, floor + 300);
+    spGate.checkUntil = Date.now() + guard;
+    spGate.timer = setTimeout(tok.fire, guard);
+    if (!animsDone) {
+      var left = anims.length;
+      anims.forEach(function (a) {
+        var one = function () { if (--left === 0) { animsDone = true; maybe(); } };
+        try { a.finished.then(one, one); } catch (e) { one(); }
+      });
+    }
+    if (!floorDone) {
+      spGate.floorTimer = setTimeout(function () { spGate.floorTimer = 0; floorDone = true; maybe(); }, floor);
+    }
+    return tok;
+  }
+  function spGateHoldOnly(ms) {
+    var wait = spReduceMotion() ? 0 : ms;
+    if (!wait) return;
+    spGate.morphUntil = Math.max(spGate.morphUntil, Date.now() + wait);
+  }
+  function spGateFlush() {
+    var tok = spGate.token;
+    if (spGate.timer) { clearTimeout(spGate.timer); spGate.timer = 0; }
+    if (spGate.floorTimer) { clearTimeout(spGate.floorTimer); spGate.floorTimer = 0; }
+    spGate.checkUntil = 0;
+    spGate.token = null;
+    spSnapChecks();
+    if (tok) tok.fire();
+  }
+  function spIntend(fn) {
+    if (spGateBusy()) spGateFlush();
+    fn();
+    return true;
+  }
+
+  function spCollapseMs() {
+    var root = document.documentElement;
+    if (!root) return SP_COLLAPSE_FALLBACK_MS;
+    var v = getComputedStyle(root).getPropertyValue('--sp-collapse');
+    var n = parseFloat(v);
+    return isNaN(n) ? SP_COLLAPSE_FALLBACK_MS : (v.indexOf('ms') > 0 ? n : n * 1000);
+  }
+  function spCollapseTarget() {
+    var root = spActiveRoot;
+    if (!root) return null;
+    var grid = root.querySelector('.staff-grid');
+    if (!grid) return null;
+    var card = grid.querySelector(':scope > .staff-card.is-editing');
+    if (!card) return null;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll(':scope > .staff-card'));
+    return { grid: grid, card: card, cards: cards };
+  }
+  function spCollapseMorph(done) {
+    var t = spReduceMotion() ? null : spCollapseTarget();
+    if (!t) { done(); return; }
+    var gridW = t.grid.clientWidth;
+    var idx = t.cards.indexOf(t.card);
+    if (gridW <= 0 || idx < 0) { done(); return; }
+    var cellW = (gridW - SP_GRID_GAP * 2) / 3;
+    var col = idx % 3;
+    var ms = spCollapseMs();
+    var sec = (ms / 1000) + 's';
+    var trans = 'transform ' + sec + ' ' + SP_EASE_STD + ', width ' + sec + ' ' + SP_EASE_STD;
+    for (var i = 0; i < 3; i++) {
+      var c = t.cards[idx - col + i];
+      if (!c || c === t.card) continue;
+      c.style.transition = 'opacity ' + sec + ' ' + SP_EASE_STD;
+      c.classList.remove('is-row-muted');
+    }
+    t.card.classList.add('is-collapsing');
+    t.card.style.zIndex = '6';
+    t.card.style.transition = trans;
+    void t.card.offsetWidth;
+    t.card.style.width = cellW + 'px';
+    t.card.style.transform = 'translateX(0)';
+    var fired = false;
+    var finish = function () {
+      if (fired) return;
+      fired = true;
+      t.card.style.transition = 'none';
+      done();
+    };
+    t.card.addEventListener('transitionend', function (e) {
+      if (e && e.propertyName === 'width') finish();
+    });
+    setTimeout(finish, ms + 40);
+  }
+
+  var spRerenderFn = null;
+  function spEditChange(mutator, collapse) {
+    var seq = ++spEditSeq;
+    var commit = function () {
+      mutator();
+      spHaptic();
+      if (typeof spRerenderFn === 'function') spRerenderFn();
+    };
+    var attempt = function () {
+      if (seq !== spEditSeq) return;
+      var until = Math.max(spGate.checkUntil, spGate.morphUntil);
+      var busy = spReduceMotion() ? 0 : Math.max(0, until - Date.now());
+      if (busy > 0) { setTimeout(attempt, busy + 20); return; }
+      if (collapse && spCollapseTarget()) {
+        spGateHoldOnly(spCollapseMs());
+        spCollapseMorph(function () {
+          if (seq !== spEditSeq) return;
+          commit();
+        });
+        return;
+      }
+      commit();
+    };
+    var wait = spReduceMotion() ? 0 : Math.max(0, spGate.morphUntil - Date.now());
+    if (wait > 0) setTimeout(attempt, wait); else attempt();
+  }
+  function spApplyEdit(next) {
+    spEditChange(function () { staffCardEdit = next; }, next === null);
+  }
+
+  function spCheckHost(el) {
+    if (!el || typeof el.closest !== 'function') return null;
+    return el.closest('.staff-opt');
+  }
+  function spPlayCheck(el, on) {
+    if (!el || spReduceMotion()) return;
+    var host = spCheckHost(el);
+    el.classList.remove('is-draw', 'is-undraw');
+    if (host) host.classList.remove('is-undraw');
+    void el.offsetWidth;
+    el.classList.add(on ? 'is-draw' : 'is-undraw');
+    if (!on && host) host.classList.add('is-undraw');
+  }
+  function spOptBoxEl(sid, key) {
+    var root = spActiveRoot;
+    if (!root || !sid || !key) return null;
+    var btn = root.querySelector('[data-staff-opt="' + key + '"][data-staff-id="' + sid + '"]');
+    return btn ? btn.querySelector('.staff-opt__box') : null;
+  }
+
+  function spSelectStaff(sid) {
+    if (staffRow.staffIds.indexOf(sid) < 0) staffRow.staffIds.push(sid);
+    staffRow.staffChosen[sid] = true;
+    staffFreshDone[sid] = true;
+  }
+  function spDropStaff(sid) {
+    staffRow.staffIds = staffRow.staffIds.filter(function (x) { return x !== sid; });
+    staffRow.staffChosen[sid] = false;
+    delete staffRow.staffRoles[sid];
+    delete staffRow.staffExtra[sid];
+  }
+  function spRemoveStaff(sid) {
+    if (!sid) return;
+    ensureStaffState();
+    spDropStaff(sid);
+    if (staffCardEdit && staffCardEdit.staffId === sid) staffCardEdit = null;
+    spHaptic();
+    if (typeof spRerenderFn === 'function') spRerenderFn();
+  }
+
+  function spApplyOptionToggle(sid, key) {
+    if (!sid || !key) return;
+    ensureStaffState();
+    var opt = spOptionByKey(key);
+    if (!opt) return;
+    var checked = spOptionChecked(sid, opt);
+
+    if (opt.kind === 'extra') {
+      if (checked) {
+        staffRow.staffExtra[sid] = false;
+        if (!spBasePicked(sid)) spDropStaff(sid);
+      } else {
+        staffRow.staffExtra[sid] = true;
+        spSelectStaff(sid);
+      }
+      spApplyEdit(null);
+      return;
+    }
+    if (opt.kind === 'plain') {
+      if (checked) {
+        spSetRoles(sid, []);
+        if (staffRow.staffExtra[sid] !== true) spDropStaff(sid);
+      } else {
+        spSetRoles(sid, [SP_PICK_AVG]);
+        spSelectStaff(sid);
+      }
+      spApplyEdit(null);
+      return;
+    }
+    var roles = spRolesOf(sid);
+    if (checked) {
+      roles = roles.filter(function (r) { return r !== key; });
+      spSetRoles(sid, roles);
+      if (!roles.length && staffRow.staffExtra[sid] !== true) spDropStaff(sid);
+    } else {
+      roles.push(key);
+      spSetRoles(sid, roles);
+      spSelectStaff(sid);
+    }
+    spApplyEdit(null);
+  }
+  function spTapOption(sid, key) {
+    if (!sid || !key) return;
+    if (!staffCardEdit || staffCardEdit.staffId !== sid) return;
+    if (spGateBusy()) spGateFlush();
+    var opt = spOptionByKey(key);
+    if (!opt) return;
+    var checked = spOptionChecked(sid, opt);
+    spPlayCheck(spOptBoxEl(sid, key), !checked);
+    spGateAfter(spOptBoxEl(sid, key), function () { spApplyOptionToggle(sid, key); }, spCheckMsFor(!checked));
+  }
+  function spToggleStaff(sid) {
+    if (!sid) return;
+    ensureStaffState();
+    if (spStaffIsChosen(sid)) { spRemoveStaff(sid); return; }
+    staffRow.staffExtra[sid] = false;
+    spSetRoles(sid, [SP_PICK_AVG]);
+    spSelectStaff(sid);
+    staffCardEdit = null;
+    spHaptic();
+    if (typeof spRerenderFn === 'function') spRerenderFn();
+  }
+  function spEnterEdit(sid) {
+    ensureStaffState();
+    if (!spNeedsPick()) {
+      spToggleStaff(sid);
+      return;
+    }
+    if (staffCardEdit && staffCardEdit.staffId !== sid && spCollapseTarget()) {
+      spEditChange(function () {
+        staffCardEdit = { staffId: sid, splitting: true };
+        spGateHoldOnly(SP_EXPAND_MS);
+      }, true);
+      return;
+    }
+    spEditSeq++;
+    staffCardEdit = { staffId: sid, splitting: true };
+    spHaptic();
+    spGateHoldOnly(SP_EXPAND_MS);
+    if (typeof spRerenderFn === 'function') spRerenderFn();
+  }
+
+  function spOptionsPanelHtml(sid) {
+    var opts = spOptionList();
+    var box = '<span class="staff-opt__box" aria-hidden="true">' + SP_CHECK_SVG + '</span>';
+    return '<div class="staff-card__opts" role="group" aria-label="选择工位或顾客指定">' +
+      opts.map(function (o) {
+        var on = spOptionChecked(sid, o);
+        return '<button type="button" class="staff-opt' + (on ? ' is-on' : '') +
+          (o.kind === 'extra' ? ' staff-opt--extra' : '') + '"' +
+          ' data-staff-opt="' + escapeHtml(o.key) + '" data-staff-id="' + escapeHtml(sid) + '"' +
+          ' aria-pressed="' + (on ? 'true' : 'false') + '">' +
+          box +
+          '<span class="staff-opt__txt">' + escapeHtml(o.label) + '</span>' +
+          '</button>';
+      }).join('') +
+      '</div>';
   }
 
   function renderStaffPickerHtml() {
     ensureStaffState();
     var edit = staffCardEdit;
-    var checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
-    var clearSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-    var cards = STAFFS.map(function(st, index) {
-      var done = staffRow.staffIds.indexOf(st.id) >= 0;
+    var cards = STAFFS.map(function (st) {
+      var isChosen = staffRow.staffIds.indexOf(st.id) >= 0;
+      var done = isChosen;
       var isEdit = !!(edit && edit.staffId === st.id);
       var dim = !!(edit && !isEdit);
-      /* 已达上限时，未选中的员工不可再选 */
-      var locked = staffRow.staffIds.length >= STAFF_MAX_PICK && !done && !isEdit;
-      var origin = staffCardOrigin(index);
-      var originSide = index % 3 === 0 ? 'left' : index % 3 === 2 ? 'right' : 'center';
-      var body = '';
-      var jobTitle = staffJobTitleHtml(st);
-      if (isEdit && edit.face === 'designate') {
-        body = '<div class="staff-card__split" role="group" aria-label="点客或散客">' +
-          '<button type="button" class="staff-card__split-btn staff-card__split-btn--des" data-staff-opt-designate="1" data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">点客</button>' +
-          '<button type="button" class="staff-card__split-btn staff-card__split-btn--guest" data-staff-opt-designate="0" data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">散客</button>' +
-          '</div>';
-      } else if (isEdit && edit.face === 'role') {
-        var roleBtns = STAFF_ROLE_PICK_ORDER.map(function(rid) {
-          return '<button type="button" class="staff-card__split-btn staff-card__split-btn--role" data-staff-opt-role="' + rid + '" data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">' + escapeHtml(staffRoleLabel(rid)) + '</button>';
-        }).join('');
-        body = '<div class="staff-card__split staff-card__split--3" role="group" aria-label="选择工位">' + roleBtns + '</div>';
-      } else {
-        var pickLine = done
-          ? '<div class="staff-card__title staff-card__title--pick">' + escapeHtml(staffPickSummaryText(st.id)) + '</div>'
-          : jobTitle;
-        body =
-          (done ? '<span class="staff-card__check">' + checkSvg + '</span>' : '') +
-          staffAvatarHtml(st) +
-          '<div class="staff-card__name">' + escapeHtml(st.name) + '</div>' +
-          pickLine;
-      }
-      var clearBtn = (done && !isEdit)
-        ? '<button type="button" class="staff-card__clear" data-staff-clear data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '" aria-label="清空选择">' + clearSvg + '</button>'
-        : '';
+      var baseBody = staffAvatarHtml(st) +
+        '<div class="staff-card__name">' + escapeHtml(st.name) + '</div>' +
+        spCardPickLineHtml(st, done);
       if (isEdit) {
-        return '<div class="staff-card is-editing' + (done ? ' is-done' : '') + '"' +
-          ' style="--staff-origin:' + origin + '"' +
-          ' data-origin="' + originSide + '"' +
-          ' data-staff-card data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">' +
-          '<div class="staff-card__panel" data-face="' + edit.face + '">' + body + '</div>' +
+        return '<div class="staff-card is-editing' + (done ? ' is-done' : '') + (edit.splitting ? ' is-splitting' : '') + '"' +
+          ' data-staff-card data-staff-id="' + escapeHtml(st.id) + '">' +
+          '<div class="staff-card__panel" data-face="opts">' + spOptionsPanelHtml(st.id) + '</div>' +
+          '<div class="staff-card__panel staff-card__panel--base" data-face="base" aria-hidden="true">' + baseBody + '</div>' +
           '</div>';
       }
-      var panel;
-      if (locked) {
-        body = staffAvatarHtml(st) +
-          '<div class="staff-card__name">' + escapeHtml(st.name) + '</div>' +
-          '<div class="staff-card__title staff-card__title--pick">已达上限</div>';
-        panel = '<button type="button" class="staff-card__panel" data-staff-limit ' +
-          'data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '" ' +
-          'aria-label="' + escapeHtml(st.name) + '（已达上限）">' + body + '</button>';
-      } else {
-        panel = '<button type="button" class="staff-card__panel" data-staff-card-hit ' +
-          'data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '" ' +
-          'aria-label="' + escapeHtml(st.name) + '">' + body + '</button>';
-      }
-      return '<div class="staff-card' + (done ? ' is-done' : '') + (dim ? ' is-dim' : '') +
-        (locked ? ' is-limit' : '') + '"' +
-        ' style="--staff-origin:' + origin + '"' +
-        ' data-origin="' + originSide + '"' +
-        ' data-staff-card data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">' +
-        clearBtn +
-        panel +
+      return '<div class="staff-card' + (done ? ' is-done' : '') + (isChosen && staffFreshDone[st.id] ? ' is-pop' : '') + (dim ? ' is-dim' : '') + '"' +
+        ' data-staff-card data-staff-id="' + escapeHtml(st.id) + '">' +
+        '<button type="button" class="staff-card__panel" data-staff-card-hit data-staff-id="' + escapeHtml(st.id) + '" aria-label="' + escapeHtml(st.name) + '">' +
+        baseBody +
+        '</button>' +
         '</div>';
     }).join('');
     return '<div class="detail-item__staff-block detail-item__staff-block--cards' + (edit ? ' is-picking' : '') + '">' +
@@ -4051,12 +4619,11 @@
     if (!grid) return;
     var token = (grid._staffMorphToken = (grid._staffMorphToken || 0) + 1);
     var cards = Array.prototype.slice.call(grid.querySelectorAll(':scope > .staff-card'));
-    var editing = cards.find(function(c){ return c.classList.contains('is-editing'); });
-    var reduce = typeof window.matchMedia === 'function'
-      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var editing = cards.filter(function (c) { return c.classList.contains('is-editing'); })[0];
+    var reduce = spReduceMotion();
 
-    cards.forEach(function(c) {
-      c.classList.remove('is-pinching', 'is-expanding');
+    cards.forEach(function (c) {
+      c.classList.remove('is-expanding', 'is-row-muted');
       c.style.transition = 'none';
       c.style.transform = '';
       c.style.width = '';
@@ -4065,114 +4632,77 @@
     grid.classList.toggle('is-morphing', !!editing);
 
     if (!editing) {
-      requestAnimationFrame(function() {
+      requestAnimationFrame(function () {
         if (grid._staffMorphToken !== token) return;
-        cards.forEach(function(c) { c.style.transition = ''; });
+        cards.forEach(function (c) { c.style.transition = ''; });
       });
       return;
     }
 
-    var gap = 8;
-    var narrowW = 32;
+    var gap = SP_GRID_GAP;
     var gridW = grid.clientWidth;
     if (gridW <= 0) return;
     var cellW = (gridW - gap * 2) / 3;
-    var face = editing.querySelector('[data-face]') ? editing.querySelector('[data-face]').getAttribute('data-face') : '';
-    var editWFull = face === 'role' ? gridW : Math.min(gridW, cellW * 2 + gap);
-    var editW = Math.max(cellW, Math.round(editWFull * (2 / 3)));
     var idx = cards.indexOf(editing);
     if (idx < 0) return;
     var col = idx % 3;
     var rowStart = idx - col;
-    var natural = [0, cellW + gap, 2 * (cellW + gap)];
-    var lefts = [natural[0], natural[1], natural[2]];
-    if (col === 0) {
-      lefts[0] = 0;
-      lefts[1] = editW + gap;
-      lefts[2] = editW + gap * 2 + cellW;
-    } else if (col === 2) {
-      lefts[2] = gridW - editW;
-      lefts[1] = lefts[2] - gap - cellW;
-      lefts[0] = lefts[1] - gap - cellW;
-    } else {
-      lefts[1] = (gridW - editW) / 2;
-      lefts[0] = lefts[1] - gap - cellW;
-      lefts[2] = lefts[1] + editW + gap;
-    }
-    var narrowDx = (cellW - narrowW) / 2;
+    var dx = -(col * (cellW + gap));
+    var springTrans = 'transform ' + (SP_EXPAND_MS / 1000) + 's ' + SP_SPRING + ', width ' + (SP_EXPAND_MS / 1000) + 's ' + SP_SPRING;
 
-    var applyFinalLayout = function() {
+    var muteRow = function (on) {
       for (var i = 0; i < 3; i++) {
         var card = cards[rowStart + i];
-        if (!card) continue;
-        var dx = lefts[i] - natural[i];
-        var w = (i === col) ? editW : cellW;
-        card.style.transition = 'transform .17s cubic-bezier(.22,.82,.24,1), width .17s cubic-bezier(.22,.82,.24,1)';
-        card.style.width = w + 'px';
-        card.style.transform = 'translateX(' + dx + 'px)';
-        if (i === col) card.style.zIndex = '6';
+        if (!card || card === editing) continue;
+        card.classList.toggle('is-row-muted', on);
       }
     };
-
-    if (reduce) {
-      editing.classList.add('is-expanding');
-      applyFinalLayout();
-      return;
-    }
+    var applyFinalLayout = function (withTransition) {
+      editing.style.transition = withTransition === false ? 'none' : springTrans;
+      editing.style.width = gridW + 'px';
+      editing.style.transform = 'translateX(' + dx + 'px)';
+      editing.style.zIndex = '6';
+      muteRow(true);
+    };
 
     editing.style.zIndex = '6';
-    editing.classList.add('is-pinching');
+    if (reduce) {
+      editing.classList.add('is-expanding');
+      applyFinalLayout(false);
+      return;
+    }
     editing.style.width = cellW + 'px';
     editing.style.transform = 'translateX(0)';
-    for (var i = 0; i < 3; i++) {
-      if (i === col) continue;
-      var card = cards[rowStart + i];
-      if (!card) continue;
-      card.style.width = cellW + 'px';
-      card.style.transform = 'translateX(0)';
-    }
     void grid.offsetWidth;
 
-    requestAnimationFrame(function() {
+    requestAnimationFrame(function () {
       if (grid._staffMorphToken !== token) return;
-      editing.style.transition = 'transform .09s cubic-bezier(.4,0,.2,1), width .09s cubic-bezier(.4,0,.2,1)';
-      editing.style.width = narrowW + 'px';
-      editing.style.transform = 'translateX(' + narrowDx + 'px)';
-
-      var phaseDone = false;
-      var runExpand = function() {
-        if (phaseDone || grid._staffMorphToken !== token) return;
-        phaseDone = true;
-        editing.classList.remove('is-pinching');
-        editing.classList.add('is-expanding');
-        applyFinalLayout();
-      };
-      var onShrinkEnd = function(e) {
-        if (e && e.target !== editing) return;
-        if (e && e.propertyName && e.propertyName !== 'width' && e.propertyName !== 'transform') return;
-        editing.removeEventListener('transitionend', onShrinkEnd);
-        runExpand();
-      };
-      editing.addEventListener('transitionend', onShrinkEnd);
-      setTimeout(runExpand, 110);
+      editing.classList.add('is-expanding');
+      applyFinalLayout();
     });
   }
 
   function afterStaffPickerPaint(root) {
-    requestAnimationFrame(function() {
-      var grid = root && root.querySelector('.staff-grid') ? root.querySelector('.staff-grid') : null;
+    requestAnimationFrame(function () {
+      var grid = root && root.querySelector ? root.querySelector('.staff-grid') : null;
       if (grid) animateStaffMorphLayout(grid);
+      if (staffCardEdit && staffCardEdit.splitting) {
+        setTimeout(function () {
+          if (staffCardEdit) staffCardEdit.splitting = false;
+          var el = root && root.querySelector ? root.querySelector('.staff-card.is-splitting') : null;
+          if (el) el.classList.remove('is-splitting');
+        }, spReduceMotion() ? 0 : 520);
+      }
+      staffFreshDone = {};
     });
   }
 
-  // 员工选择内嵌组件：渲染到指定容器
-  // row 可选：显式指定员工数据行（如开单页展开区的草稿行），避免误用全局 staffRow 造成跨项目串数据
   function renderStaffInto(root, row) {
     if (!root) return;
+    spActiveRoot = root;
     root.innerHTML = row ? renderStaffPickerHtmlForRow(row) : renderStaffPickerHtml();
     afterStaffPickerPaint(root);
   }
-  // 用指定员工数据行渲染（不污染全局 staffRow）
   function renderStaffPickerHtmlForRow(row) {
     var saved = staffRow;
     staffRow = row;
@@ -4180,128 +4710,89 @@
     staffRow = saved;
     return html;
   }
-  // 供开单页（v2）调用：清空卡片翻牌编辑态，保证每次打开 sheet 都是干净状态
   window.__staffPickResetEdit = function () {
     staffCardEdit = null;
+    staffFreshDone = {};
+    spEditSeq++;
   };
 
+  /* 空员工行工厂（开单 / 直接收款 / 挂单还原共用） */
+  function emptyStaffObj(id) {
+    return { id: id || '__staff__', staffIds: [], staffRoles: {}, staffExtra: {}, staffChosen: {} };
+  }
+  function cloneStaffObj(src, id) {
+    src = migrateStaffRowShape(src || {}) || {};
+    return {
+      id: id || src.id || '__staff__',
+      staffIds: Array.isArray(src.staffIds) ? src.staffIds.slice() : [],
+      staffRoles: Object.assign({}, src.staffRoles || {}),
+      staffExtra: Object.assign({}, src.staffExtra || {}),
+      staffChosen: Object.assign({}, src.staffChosen || {})
+    };
+  }
+
   // 员工卡片交互（document 级事件委托：内嵌容器以 [data-staff-root] 标记）
-  document.addEventListener('click', function(e) {
+  document.addEventListener('click', function (e) {
     var root = e.target.closest('[data-staff-root]');
     if (!root) return;
-    // 解析上下文与对应员工数据行
     var ctx = root.getAttribute('data-ctx') || 'add';
+    /* 现网只存在两类宿主：quick（s2/s3 直接收款）、v2draft（添加 sheet 内嵌草稿）。
+       co / qco / 结算页选择员工旧分支已随 R12 只读摘要一并删除。
+       兜底：添加 sheet 的 `#asStaffGrid` 恒为 data-ctx="v2draft"，正常由 v2.js 写入
+       window.__v2DraftStaff；若某条路径（如遗留的 openAddSheet）没写，则回退到 addStaffRow，
+       避免整块员工面板失去交互。 */
     if (ctx === 'quick') {
       staffRow = quickStaffRow;
-    } else if (ctx === 'co') {
-      var idx = parseInt(root.getAttribute('data-idx'), 10);
-      if (!cartItems[idx]) return;
-      staffRow = cartItems[idx].staff;
-    } else if (ctx === 'qco') {
-      if (!qcoItem) return;
-      staffRow = qcoItem.staff;
     } else if (ctx === 'v2draft') {
-      if (!window.__v2DraftStaff) return;
-      staffRow = window.__v2DraftStaff;
+      staffRow = window.__v2DraftStaff || addStaffRow;
     } else {
       staffRow = addStaffRow;
     }
-    var rerender = function() {
+    migrateStaffRowShape(staffRow);
+    spActiveRoot = root;
+    var rerender = function () {
       renderStaffInto(root);
       if (ctx === 'v2draft' && typeof window.__v2OnDraftStaffChange === 'function') {
         window.__v2OnDraftStaffChange();
       }
     };
+    spRerenderFn = function () {
+      if (ctx === 'quick') {
+        renderStaffInto(root);
+        renderQuickStaff();
+        return;
+      }
+      if (ctx === 'co') { renderCo(); return; }
+      if (ctx === 'qco') { renderQco(); return; }
+      rerender();
+    };
 
     if (e.target.closest('[data-staff-scrim]')) {
-      staffCardEdit = null;
-      if (ctx === 'co') { renderCo(); return; }
-      if (ctx === 'qco') { renderQco(); return; }
-      rerender();
+      spIntend(function () { spApplyEdit(null); });
       return;
     }
-    var staffClear = e.target.closest('[data-staff-clear]');
-    if (staffClear) {
+    var optBtn = e.target.closest('[data-staff-opt]');
+    if (optBtn) {
       e.preventDefault(); e.stopPropagation();
-      var sid = staffClear.getAttribute('data-staff-id');
-      ensureStaffState();
-      staffRow.staffIds = staffRow.staffIds.filter(function(x){ return x !== sid; });
-      delete staffRow.staffRoles[sid];
-      delete staffRow.staffDesignated[sid];
-      if (staffCardEdit && staffCardEdit.staffId === sid) staffCardEdit = null;
-      if (ctx === 'quick') renderQuickStaff();
-      if (ctx === 'co') { renderCo(); return; }
-      if (ctx === 'qco') { renderQco(); return; }
-      rerender();
-      return;
-    }
-    var designateOpt = e.target.closest('[data-staff-opt-designate]');
-    if (designateOpt) {
-      e.preventDefault(); e.stopPropagation();
-      var dSid = designateOpt.getAttribute('data-staff-id');
-      if (!staffCardEdit || staffCardEdit.staffId !== dSid) return;
-      staffCardEdit.face = 'role';
-      staffCardEdit.draftDesignated = designateOpt.getAttribute('data-staff-opt-designate') === '1';
-      if (ctx === 'co') { renderCo(); return; }
-      if (ctx === 'qco') { renderQco(); return; }
-      rerender();
-      return;
-    }
-    var roleOpt = e.target.closest('[data-staff-opt-role]');
-    if (roleOpt) {
-      e.preventDefault(); e.stopPropagation();
-      var rSid = roleOpt.getAttribute('data-staff-id');
-      if (!staffCardEdit || staffCardEdit.staffId !== rSid) return;
-      ensureStaffState();
-      var isNewAdd = staffRow.staffIds.indexOf(rSid) < 0;
-      if (isNewAdd) {
-        if (staffRow.staffIds.length >= STAFF_MAX_PICK) {
-          toast('最多可选 ' + STAFF_MAX_PICK + ' 位服务员工');
-          staffCardEdit = null;
-          return;
-        }
-        staffRow.staffIds.push(rSid);
-      }
-      staffRow.staffDesignated[rSid] = !!staffCardEdit.draftDesignated;
-      staffRow.staffRoles[rSid] = roleOpt.getAttribute('data-staff-opt-role') || STAFF_ROLE_DEFAULT;
-      staffCardEdit = null;
-      /* 成功新增一名员工：收起员工 sheet，需用户再次点「添加」才重新弹出 */
-      if (isNewAdd && ctx === 'v2draft' && typeof window.__v2CloseStaffSheet === 'function') {
-        window.__v2CloseStaffSheet();
-      }
-      if (ctx === 'quick') renderQuickStaff();
-      if (ctx === 'co') { renderCo(); return; }
-      if (ctx === 'qco') { renderQco(); return; }
-      rerender();
-      return;
-    }
-    var limitHit = e.target.closest('[data-staff-limit]');
-    if (limitHit) {
-      e.preventDefault(); e.stopPropagation();
-      toast('最多可选 ' + STAFF_MAX_PICK + ' 位服务员工');
+      spTapOption(optBtn.getAttribute('data-staff-id'), optBtn.getAttribute('data-staff-opt'));
       return;
     }
     var staffHit = e.target.closest('[data-staff-card-hit]');
     if (staffHit) {
       e.preventDefault();
       var hitSid = staffHit.getAttribute('data-staff-id');
-      if (staffRow.staffIds.indexOf(hitSid) < 0 && staffRow.staffIds.length >= STAFF_MAX_PICK) {
-        toast('最多可选 ' + STAFF_MAX_PICK + ' 位服务员工');
+      if (staffCardEdit && staffCardEdit.staffId === hitSid) {
+        spIntend(function () { spApplyEdit(null); });
         return;
       }
-      if (staffCardEdit && staffCardEdit.staffId === hitSid) {
-        staffCardEdit = null;
-      } else {
-        ensureStaffState();
-        staffCardEdit = { staffId: hitSid, face: 'designate', draftDesignated: null };
-      }
-      if (ctx === 'quick') renderQuickStaff();
-      if (ctx === 'co') { renderCo(); return; }
-      if (ctx === 'qco') { renderQco(); return; }
-      rerender();
+      spIntend(function () { spEnterEdit(hitSid); });
+      return;
+    }
+    if (staffCardEdit) {
+      e.preventDefault();
+      spIntend(function () { spApplyEdit(null); });
     }
   });
-
   // ===== 确定 =====
   function unitPayableOf(payable, qty) {
     var q = Math.max(1, parseInt(qty, 10) || 1);
@@ -4309,10 +4800,12 @@
   }
   function staffMergeKey(staff) {
     if (!staff || !staff.staffIds || !staff.staffIds.length) return '';
+    staff = migrateStaffRowShape(staff) || staff;
     return staff.staffIds.slice().sort().map(function(sid) {
-      var role = (staff.staffRoles && staff.staffRoles[sid]) || '';
-      var des = (staff.staffDesignated && staff.staffDesignated[sid]) ? '1' : '0';
-      return sid + ':' + role + ':' + des;
+      var roles = staff.staffRoles && staff.staffRoles[sid];
+      var role = Array.isArray(roles) ? roles.slice().sort().join('+') : (roles || '');
+      var extra = (staff.staffExtra && staff.staffExtra[sid]) ? '1' : '0';
+      return sid + ':' + role + ':' + extra;
     }).join('|');
   }
   function findCartMergeIndex(name, isProd, kind, unitPay, staff) {
@@ -4360,7 +4853,7 @@
     var normal = Math.round((asData.sale != null ? asData.sale : price) * qty * 100) / 100;
     // 手动改应付即视为改价：结算页 s6 该明细不可用权益
     var discounted = Math.abs(payable - normal) > 0.001;
-    var staffObj = { id: '__co', staffIds: addStaffRow.staffIds.slice(), staffRoles: Object.assign({}, addStaffRow.staffRoles), staffDesignated: Object.assign({}, addStaffRow.staffDesignated) };
+    var staffObj = cloneStaffObj(addStaffRow, '__co');
     var unitPay = unitPayableOf(payable, qty);
     activeHoldId = null;   // 单据内容已变化：不再关联先前取回的挂单
     var mergeIdx = findCartMergeIndex(asData.name, asData.isProd, asData.kind, unitPay, staffObj);
@@ -4744,30 +5237,27 @@
         var _first = STAFFS[0];
         it.staff.staffIds = [_first.id];
         it.staff.staffRoles = it.staff.staffRoles || {};
-        it.staff.staffRoles[_first.id] = STAFF_ROLE_DEFAULT;
-        it.staff.staffDesignated = it.staff.staffDesignated || {};
-        it.staff.staffDesignated[_first.id] = false;
+        it.staff.staffRoles[_first.id] = [STAFF_ROLE_DEFAULT];
+        it.staff.staffExtra = it.staff.staffExtra || {};
+        it.staff.staffExtra[_first.id] = false;
+        it.staff.staffChosen = it.staff.staffChosen || {};
+        it.staff.staffChosen[_first.id] = true;
       }
-      var primarySid = it.staff.staffIds[0];
-      var primarySt = STAFFS.find(function(s) { return s.id === primarySid; });
-      var primaryName = primarySt ? primarySt.name : (primarySid || '');
-      var primaryRole = staffRoleLabel(it.staff.staffRoles[primarySid]);
-      var designated = !!(it.staff.staffDesignated && it.staff.staffDesignated[primarySid]);
-      /* 只读摘要：每名员工一行「姓名 · 工位 · 点客/散客」 */
+      migrateStaffRowShape(it.staff);
+      /* 只读摘要：每名员工一行「姓名 · 工位摘要（可含顾客指定）」 */
       var staffCell = '<div class="co-row co-staff-row" data-ro="1">' +
         '<span class="lbl">服务员工</span>' +
         '<span class="co-staff-list">' +
           it.staff.staffIds.map(function(sid) {
             var st = STAFFS.find(function(s) { return s.id === sid; });
-            var role = staffRoleLabel(it.staff.staffRoles && it.staff.staffRoles[sid]);
-            var des = !!(it.staff.staffDesignated && it.staff.staffDesignated[sid]);
-            var meta = [];
-            if (role) meta.push(role);
-            meta.push(des ? '点客' : '散客');
+            var prev = staffRow;
+            staffRow = it.staff;
+            var meta = staffPickSummaryText(sid);
+            staffRow = prev;
             return '<span class="co-staff-line">' +
               '<span class="nm">' + escapeHtml(st ? st.name : sid) + '</span>' +
-              '<span class="sep">·</span>' +
-              '<span class="dim">' + escapeHtml(meta.join(' · ')) + '</span></span>';
+              (meta ? '<span class="sep">·</span><span class="dim">' + escapeHtml(meta) + '</span>' : '') +
+              '</span>';
           }).join('') +
         '</span></div>';
       // 权益：单条改价 / 整单改价（手输应付）时该明细不可用权益；否则右侧「值 + ›」为热区，点击进入 s12
@@ -4892,14 +5382,6 @@
   var coArrowSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
   var penSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>';
 
-  function toggleCoDesignated(idx) {
-    var it = cartItems[idx];
-    if (!it || !it.staff.staffIds.length) return;
-    var sid = it.staff.staffIds[0];
-    it.staff.staffDesignated = it.staff.staffDesignated || {};
-    it.staff.staffDesignated[sid] = !it.staff.staffDesignated[sid];
-    renderCo();
-  }
   function focusCoSub(idx) {
     var el = document.getElementById('coSub' + idx);
     if (el) { el.focus(); el.select(); }
@@ -4945,15 +5427,7 @@
     document.getElementById('s5amount').textContent = s5.toFixed(2);
   }
 
-  // ---- 结算页选择员工（内嵌展开/收起） ----
-  function toggleCoStaff(idx) {
-    var it = cartItems[idx];
-    if (!it) return;
-    it._staffOpen = !it._staffOpen;
-    staffCardEdit = null;
-    renderCo();
-  }
-
+  // ---- 结算页服务员工（只读摘要，无编辑入口）----
   /* ===== 页面12 选择权益（会员卡权益）=====
      单选；点底部「确认」才生效并返回，直接返回不保存。
      入口：结算页「权益」行右侧热区（商品级）。coEditIdx = -1 表示直接收款 s7 的单条明细。 */
@@ -5191,20 +5665,15 @@
         out.push({
           name: st ? st.name : sid,
           role: staffRoleLabel(s.staffRoles && s.staffRoles[sid]),
-          designated: !!(s.staffDesignated && s.staffDesignated[sid])
+          designated: !!(s.staffExtra && s.staffExtra[sid])
         });
       });
     });
     return out;
   }
-  /* 取挂单后每行员工的还原载体（随明细一起存，避免丢失点客/散客与工位） */
+  /* 取挂单后每行员工的还原载体（随明细一起存，避免丢失顾客指定与工位） */
   function holdItemStaffSnap(st) {
-    st = st || {};
-    return {
-      staffIds: Array.isArray(st.staffIds) ? st.staffIds.slice() : [],
-      staffRoles: Object.assign({}, st.staffRoles || {}),
-      staffDesignated: Object.assign({}, st.staffDesignated || {})
-    };
+    return cloneStaffObj(st);
   }
   /* 卡片「服务员工」摘要：单行列全部姓名（不省略），无员工时显示占位 */
   function holdStaffText(h) {
@@ -5323,7 +5792,7 @@
           id: '__hold__',
           staffIds: (it.staffIds || []).slice(),
           staffRoles: Object.assign({}, it.staffRoles || {}),
-          staffDesignated: Object.assign({}, it.staffDesignated || {})
+          staffExtra: Object.assign({}, (it.staffExtra || {}))
         },
         benefit: null, _benefitCleared: false,
         _uid: (typeof window.__v2NextCartUid === 'function') ? window.__v2NextCartUid() : ''
@@ -5712,7 +6181,7 @@
         benefit: null,
         _benefitCleared: false,   // 会员进 s7 自动匹配最优折扣卡；用户选「不使用权益」后才锁定
         note: quickRemark,
-        staff: { id: '__qco__', staffIds: [], staffRoles: {}, staffDesignated: {} }
+        staff: emptyStaffObj('__qco__')
       };
     } else {
       qcoItem.price = amt;
@@ -5769,30 +6238,27 @@
       var _f = STAFFS[0];
       it.staff.staffIds = [_f.id];
       it.staff.staffRoles = it.staff.staffRoles || {};
-      it.staff.staffRoles[_f.id] = STAFF_ROLE_DEFAULT;
-      it.staff.staffDesignated = it.staff.staffDesignated || {};
-      it.staff.staffDesignated[_f.id] = false;
+      it.staff.staffRoles[_f.id] = [STAFF_ROLE_DEFAULT];
+      it.staff.staffExtra = it.staff.staffExtra || {};
+      it.staff.staffExtra[_f.id] = false;
+      it.staff.staffChosen = it.staff.staffChosen || {};
+      it.staff.staffChosen[_f.id] = true;
     }
-    var primarySid = it.staff.staffIds[0];
-    var primarySt = STAFFS.find(function(s) { return s.id === primarySid; });
-    var primaryName = primarySt ? primarySt.name : (primarySid || '');
-    var primaryRole = staffRoleLabel(it.staff.staffRoles[primarySid]);
-    var designated = !!(it.staff.staffDesignated && it.staff.staffDesignated[primarySid]);
-    /* 只读摘要：每名员工一行「姓名 · 工位 · 点客/散客」 */
+    migrateStaffRowShape(it.staff);
+    /* 只读摘要：每名员工一行「姓名 · 工位摘要（可含顾客指定）」 */
     var staffCell = '<div class="co-row co-staff-row" data-ro="1">' +
       '<span class="lbl">服务员工</span>' +
       '<span class="co-staff-list">' +
         it.staff.staffIds.map(function(sid) {
           var st = STAFFS.find(function(s) { return s.id === sid; });
-          var role = staffRoleLabel(it.staff.staffRoles && it.staff.staffRoles[sid]);
-          var des = !!(it.staff.staffDesignated && it.staff.staffDesignated[sid]);
-          var meta = [];
-          if (role) meta.push(role);
-          meta.push(des ? '点客' : '散客');
+          var prev = staffRow;
+          staffRow = it.staff;
+          var meta = staffPickSummaryText(sid);
+          staffRow = prev;
           return '<span class="co-staff-line">' +
             '<span class="nm">' + escapeHtml(st ? st.name : sid) + '</span>' +
-            '<span class="sep">·</span>' +
-            '<span class="dim">' + escapeHtml(meta.join(' · ')) + '</span></span>';
+            (meta ? '<span class="sep">·</span><span class="dim">' + escapeHtml(meta) + '</span>' : '') +
+            '</span>';
         }).join('') +
       '</span></div>';
     var benCell;
@@ -5830,20 +6296,6 @@
     if (pg) pg.style.height = (box.offsetTop + box.offsetHeight + 28) + 'px';
   }
 
-  function toggleQcoStaff() {
-    if (!qcoItem) return;
-    qcoItem._staffOpen = !qcoItem._staffOpen;
-    staffCardEdit = null;
-    renderQco();
-  }
-  function toggleQcoDesignated() {
-    var it = qcoItem;
-    if (!it || !it.staff.staffIds.length) return;
-    var sid = it.staff.staffIds[0];
-    it.staff.staffDesignated = it.staff.staffDesignated || {};
-    it.staff.staffDesignated[sid] = !it.staff.staffDesignated[sid];
-    renderQco();
-  }
   function qcoFocusSub() {
     var el = document.getElementById('qcoSub');
     if (el) { el.focus(); el.select(); }
@@ -6120,11 +6572,11 @@ html.capture-figma #toast { display:none !important; }
   if (!cap) return;
   document.documentElement.classList.add('capture-figma');
 
-  /* 展开区预置服务员工（林屿森=点客·大工 / 何苏叶=散客·中工） */
+  /* 展开区预置服务员工（林屿森=大工+顾客指定 / 何苏叶=中工） */
   var DRAFT_STAFF = {
     ids: ['st1', 'st2'],
-    roles: { st1: 'senior', st2: 'mid' },
-    des: { st1: true }
+    roles: { st1: ['senior'], st2: ['mid'] },
+    extra: { st1: true, st2: false }
   };
 
   function waitFor(fn, cb, tries) {
@@ -6138,7 +6590,8 @@ html.capture-figma #toast { display:none !important; }
     if (!d) return;
     d.staffIds = DRAFT_STAFF.ids.slice();
     d.staffRoles = Object.assign({}, DRAFT_STAFF.roles);
-    d.staffDesignated = Object.assign({}, DRAFT_STAFF.des);
+    d.staffExtra = Object.assign({}, DRAFT_STAFF.extra);
+    d.staffChosen = { st1: true, st2: true };
     if (typeof window.__v2OnDraftStaffChange === 'function') window.__v2OnDraftStaffChange();
   }
   function addBtns(screen) {

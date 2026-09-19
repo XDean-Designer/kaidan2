@@ -465,7 +465,7 @@
 .co-item.v2-compact .co-row[data-ro="1"] { pointer-events: none; opacity: .95; cursor: default; }
 .co-item.v2-compact .co-sum-row[data-ro="1"] { pointer-events: none; }
 
-/* 结算页：服务员工只读摘要（每名员工一行：姓名 · 工位 · 点客/散客） */
+/* 结算页：服务员工只读摘要（每名员工一行：姓名 · 工位 · 顾客指定） */
 .co-staff-list { margin-left: auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .co-staff-list .co-staff-line {
   font-size: var(--fs-value); color: var(--text); line-height: var(--lh-text);

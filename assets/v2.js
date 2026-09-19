@@ -1116,7 +1116,8 @@
       id: '__v2draft__' + Date.now(),
       staffIds: [],
       staffRoles: {},
-      staffDesignated: {}
+      staffExtra: {},
+      staffChosen: {}
     };
   }
 
@@ -1178,7 +1179,8 @@
           id: '__v2edit__' + Date.now(),
           staffIds: (prefill.staff.staffIds || []).slice(),
           staffRoles: Object.assign({}, prefill.staff.staffRoles || {}),
-          staffDesignated: Object.assign({}, prefill.staff.staffDesignated || {})
+          staffExtra: Object.assign({}, prefill.staff.staffExtra || {}),
+          staffChosen: Object.assign({}, prefill.staff.staffChosen || {})
         };
       }
       if (prefill.editUid) draft.editUid = prefill.editUid;
@@ -1258,7 +1260,7 @@
     }
   }
 
-  /* 员工选择内嵌在「设置内容」sheet 内（卡片翻牌 → 点客/散客 → 工位），
+  /* 员工选择内嵌在「设置内容」sheet 内（点卡片展开选项卡：工位多选 + 顾客指定），
      每次改选后由 index.html 的事件委托重绘卡片网格，此处无需额外处理 */
   window.__v2OnDraftStaffChange = function () {};
 
@@ -1277,7 +1279,8 @@
       id: '__co',
       staffIds: draft.staffRow.staffIds.slice(),
       staffRoles: Object.assign({}, draft.staffRow.staffRoles),
-      staffDesignated: Object.assign({}, draft.staffRow.staffDesignated)
+      staffExtra: Object.assign({}, draft.staffRow.staffExtra || {}),
+      staffChosen: Object.assign({}, draft.staffRow.staffChosen || {})
     };
     var discounted = Math.abs(payable - basePay) > 0.001;
     var record = {
