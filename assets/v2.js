@@ -1499,7 +1499,7 @@
 
   /* ========== 结算文档流 ========== */
   /* 订单级优惠券状态由 index.html 持有（window.__v2OrderCoupon），
-     此处仅负责「优惠券」行的展示与进入 s13 选择页 */
+     此处仅负责「优惠券」行的展示与打开「选择优惠券」sheet（R13） */
   var orderRemark = '';
 
   function enableCheckoutFlow() {
@@ -1574,9 +1574,9 @@
           '</div>';
         items.insertAdjacentElement('afterend', extras);
 
-        /* 「优惠券」行：仅右侧「值 + ›」为热区，点击进入 s13 选择优惠券页 */
+        /* 「优惠券」行：仅右侧「值 + ›」为热区，点击打开「选择优惠券」sheet（R13） */
         extras.querySelector('[data-coupon-val]').onclick = function () {
-          if (typeof window.openCouponPage === 'function') window.openCouponPage();
+          if (typeof window.openCouponPickSheet === 'function') window.openCouponPickSheet();
         };
         window.__v2RenderCouponRows = function () {
           var c = window.__v2OrderCoupon || null;

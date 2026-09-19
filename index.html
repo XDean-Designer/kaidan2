@@ -1022,24 +1022,22 @@
     font-size:17px; font-weight:700; cursor:pointer;
   }
 
-  /* ===== 权益选择 sheet ===== */
-  .benefit-sheet { background:#fff; padding:6px 0 34px; }
-  .benefit-sheet .benefit-item {
-    width:100%; display:flex; align-items:center; gap:10px;
-    padding:14px 16px; border:none; background:none; cursor:pointer;
-    font-size:15px; color:#333; text-align:left;
+  /* ===== 选择权益 sheet（R13：由整屏页 s12 改为底部 sheet；旧的可点行样式已随页面一并废止） ===== */
+  .ben-pick-body { padding:12px 12px 16px; }
+  .ben-pick .ben-row {
+    display:flex; align-items:center; box-sizing:border-box;
+    height:56px; padding:0 16px; margin-bottom:8px;
+    background:#fff; border-radius:8px; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
   }
-  .benefit-sheet .benefit-item .type {
-    font-size:10px; color:#f32f41; border:0.5px solid #f32f41; border-radius:3px;
-    padding:0 5px; white-space:nowrap;
-  }
-  .benefit-sheet .benefit-item .nm { flex:1; }
-  .benefit-sheet .benefit-item .val { font-size:12px; color:#929292; white-space:nowrap; }
-  .benefit-sheet .benefit-item .ck { width:18px; height:18px; flex:none; display:flex; align-items:center; justify-content:center; }
-  .benefit-sheet .benefit-item .ck svg { width:16px; height:16px; color:#f32f41; }
-  .benefit-sheet .benefit-item.on { background:#fff8f8; }
-  .benefit-sheet .benefit-item.disabled { cursor:not-allowed; opacity:0.4; }
-  .benefit-sheet .benefit-item.disabled .type { color:#929292; border-color:#d8d8d8; }
+  .ben-pick .ben-row:last-child { margin-bottom:0; }
+  .ben-pick .ben-row .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
+  .ben-pick .ben-row .rd { margin-left:auto; width:20px; height:20px; flex:none; }
+  .ben-pick .ben-row .rd img { width:20px; height:20px; display:block; }
+  /* 不适用于该项目的权益：整行置灰 + 不可点（R9） */
+  .ben-pick .ben-row.is-off { background:#fafafa; cursor:not-allowed; }
+  .ben-pick .ben-row.is-off .nm { color:#B2B2B2; }
+  .ben-pick .ben-row.is-off .rd img { opacity:.45; }
 
   /* ===== 直接收款/去收款页 顶部卡片按身份切换 ===== */
   .screen .gcard, .screen .mcard { position:absolute; left:12px; top:calc(var(--statusbar-h) + 54px); z-index:20; }
@@ -1649,110 +1647,97 @@
     /* toast 仍在 #frame 内，保持原样 */
   }
 
-  /* ===== 页面12「选择权益」/ 页面13「选择优惠券」公共骨架 =====
-     两页均来自 Figma「开单结账-ZM」：状态栏 53 + 导航栏 44（--chrome-top），
-     列表自 107(=--chrome-top+10) 起，底部白色操作条 74 + 34 安全区 */
-  #s12, #s13 { background:#f7f7f7; }
-  #s12 .pick-foot, #s13 .pick-foot {
-    position:absolute; left:0; bottom:0; width:390px; z-index:20;
-    height:calc(74px + var(--safe-bottom)); padding-bottom:var(--safe-bottom);
-    background:#fff; box-sizing:border-box;
-    display:flex; align-items:center; justify-content:center;
-  }
-  #s12 .pick-foot .ok, #s13 .pick-foot .ok {
-    width:358px; height:48px; border:none; border-radius:12px;
-    background:#f32f41; color:#fff; font-size:16px; font-weight:600;
-    font-family:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent;
-  }
-  #s12 .pick-tip {
-    position:absolute; left:0; right:0; z-index:20;
-    bottom:calc(74px + var(--safe-bottom) + 10px);
-    text-align:center; font-size:14px; color:#929292; line-height:20px;
-  }
+  /* ===== 选择权益 / 选择优惠券（R13：均由整屏页改为底部 sheet）=====
+     两页共用 .addsheet 骨架（标题头 + 内容区），高度由内容自适应，超过 85% 时内容区内部滚动。
+     交互：单选，**点中即生效并收起**；点蒙层关闭 = 取消（未点中则不改动）。
+     原「确认并设为本单默认支付方式」提示行与底部「确认」通栏按钮已删除。 */
 
-  /* ---- 12 选择权益：7 行单选 ---- */
-  #s12 .ben-list { position:absolute; left:0; top:calc(var(--chrome-top, 97px) + 10px); width:390px; }
-  #s12 .ben-row {
+  /* ---- 权益：9 行单选 ---- */
+  .ben-pick .ben-row {
     display:flex; align-items:center; box-sizing:border-box;
-    width:390px; height:60px; padding:0 16px; margin-bottom:8px;
-    background:#fff; cursor:pointer; -webkit-tap-highlight-color:transparent;
-  }
-  #s12 .ben-row .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
-  #s12 .ben-row .rd { margin-left:auto; width:20px; height:20px; flex:none; }
-  #s12 .ben-row .rd img { width:20px; height:20px; display:block; }
-  /* 不适用于该项目的权益：整行置灰 + 不可点（R9） */
-  #s12 .ben-row.is-off { background:#fafafa; cursor:not-allowed; }
-  #s12 .ben-row.is-off .nm { color:#B2B2B2; }
-  #s12 .ben-row.is-off .rd img { opacity:.45; }
-
-  /* ---- 13 选择优惠券：不使用行 + 券卡列表 ---- */
-  #s13 .cp-list {
-    position:absolute; left:0; top:calc(var(--chrome-top, 97px) + 10px);
-    width:390px; bottom:calc(74px + var(--safe-bottom)); overflow-y:auto;
-  }
-  #s13 .cp-none {
-    display:flex; align-items:center; box-sizing:border-box;
-    height:60px; padding:0 16px; margin:0 12px 12px;
+    height:56px; padding:0 16px; margin-bottom:8px;
     background:#fff; border-radius:8px; cursor:pointer;
     -webkit-tap-highlight-color:transparent;
   }
-  #s13 .cp-none .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
-  #s13 .cp-none .rd { margin-left:auto; width:20px; height:20px; flex:none; }
-  #s13 .cp-none .rd img { width:20px; height:20px; display:block; }
-  #s13 .cp-card {
+  .ben-pick .ben-row:last-child { margin-bottom:0; }
+  .ben-pick .ben-row .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
+  .ben-pick .ben-row .rd { margin-left:auto; width:20px; height:20px; flex:none; }
+  .ben-pick .ben-row .rd img { width:20px; height:20px; display:block; }
+  /* 不适用于该项目的权益：整行置灰 + 不可点（R9） */
+  .ben-pick .ben-row.is-off { background:#fafafa; cursor:not-allowed; }
+  .ben-pick .ben-row.is-off .nm { color:#B2B2B2; }
+  .ben-pick .ben-row.is-off .rd img { opacity:.45; }
+
+  /* ---- 优惠券：不使用行 + 券卡列表 ---- */
+  .cp-pick .cp-none {
+    display:flex; align-items:center; box-sizing:border-box;
+    height:56px; padding:0 16px; margin-bottom:12px;
+    background:#fff; border-radius:8px; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .cp-pick .cp-none .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
+  .cp-pick .cp-none .rd { margin-left:auto; width:20px; height:20px; flex:none; }
+  .cp-pick .cp-none .rd img { width:20px; height:20px; display:block; }
+  .cp-pick .cp-card {
     position:relative; background:#fff; border-radius:8px;
-    margin:0 12px 12px; overflow:hidden;
+    margin-bottom:12px; overflow:hidden;
     cursor:pointer; -webkit-tap-highlight-color:transparent;
   }
   /* 「满减券」角标：左上/右下 8px 圆角，与卡片左上圆角对齐 */
-  #s13 .cp-badge {
+  .cp-pick .cp-badge {
     position:absolute; left:0; top:0; width:38px; height:18px;
     border-radius:8px 0 8px 0;
     background:linear-gradient(-53.9deg,#ff2316 14.67%,#ff6901 86.57%);
     color:#fff; font-size:10px; font-weight:500; line-height:18px; text-align:center;
   }
-  #s13 .cp-hd { box-sizing:border-box; height:84px; padding:24px 16px 0; }
-  #s13 .cp-title {
+  .cp-pick .cp-hd { box-sizing:border-box; height:84px; padding:24px 16px 0; }
+  .cp-pick .cp-title {
     width:209px; font-size:15px; font-weight:500; color:#1a1a1a; line-height:21px;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  #s13 .cp-sub { margin-top:5px; font-size:12px; color:#666; line-height:15px; }
+  .cp-pick .cp-sub { margin-top:5px; font-size:12px; color:#666; line-height:15px; }
   /* 卡内分隔线：0.5px 浅灰虚线（左右内缩 16） */
-  #s13 .cp-div {
+  .cp-pick .cp-div {
     height:1px; margin:0 16px;
     background-image:repeating-linear-gradient(to right,#ededed 0 2px,transparent 2px 4px);
   }
-  #s13 .cp-rule {
+  .cp-pick .cp-rule {
     display:flex; align-items:center; gap:2px;
     padding:8px 16px 16px; font-size:11px; color:#b2b2b2; line-height:16px;
     cursor:pointer; -webkit-tap-highlight-color:transparent;
   }
-  #s13 .cp-rule .chev { width:16px; height:16px; flex:none; transition:transform .18s ease; }
-  #s13 .cp-rule .chev img { width:16px; height:16px; display:block; }
-  #s13 .cp-card.is-open .cp-rule { padding-bottom:4px; }
-  #s13 .cp-card.is-open .cp-rule .chev { transform:rotate(180deg); }
-  #s13 .cp-rules { padding:0 16px 11px; font-size:11px; color:#666; line-height:19px; }
-  #s13 .cp-amt {
+  .cp-pick .cp-rule .chev { width:16px; height:16px; flex:none; transition:transform .18s ease; }
+  .cp-pick .cp-rule .chev img { width:16px; height:16px; display:block; }
+  .cp-pick .cp-card.is-open .cp-rule { padding-bottom:4px; }
+  .cp-pick .cp-card.is-open .cp-rule .chev { transform:rotate(180deg); }
+  .cp-pick .cp-rules { padding:0 16px 11px; font-size:11px; color:#666; line-height:19px; }
+  .cp-pick .cp-amt {
     position:absolute; right:52px; top:18px;
     display:flex; align-items:baseline; color:#f32f41;
   }
-  #s13 .cp-amt .cur { font-size:13px; line-height:1; }
-  #s13 .cp-amt .num { font-size:26px; font-weight:400; line-height:1; font-family:var(--font-data); }
+  .cp-pick .cp-amt .cur { font-size:13px; line-height:1; }
+  .cp-pick .cp-amt .num { font-size:26px; font-weight:400; line-height:1; font-family:var(--font-data); }
   /* 门槛文案：改灰降噪（不再与金额抢红色），并左缩 36 给右侧单选圈让位 */
-  #s13 .cp-limit {
+  .cp-pick .cp-limit {
     position:absolute; right:52px; top:53px;
     font-size:11px; color:#929292; line-height:14px; white-space:nowrap;
   }
   /* 单选圈：固定绝对定位（不再随券卡高度浮动），底缘与「门槛文案」行底缘对齐
-     —— 券卡展开「使用规则」时圈体完全不动（原来 top:50% 会下移 28px 压住规则行）。
+     —— 券卡展开「使用规则」时圈体完全不动。
      券卡：cp-hd 84 + cp-div 1 → 规则行从 85 起；圈底 67 < 85，故与规则行无交叠。 */
-  #s13 .cp-rd { position:absolute; right:16px; top:47px; width:20px; height:20px; }
-  #s13 .cp-rd img { width:20px; height:20px; display:block; }
-  /* 选中态：1px 红色内描边 + 极浅红底（原来只有小圆点变化，选中不够明确） */
-  #s13 .cp-card.is-on {
+  .cp-pick .cp-rd { position:absolute; right:16px; top:47px; width:20px; height:20px; }
+  .cp-pick .cp-rd img { width:20px; height:20px; display:block; }
+  /* 选中态：1px 红色内描边 + 极浅红底 */
+  .cp-pick .cp-card.is-on {
     background:#fff8f8;
     box-shadow:inset 0 0 0 1px #f32f41;
   }
+  /* 不满门槛的券：卡片转浅灰、内容降饱和；勾选圈不参与降权（保持完整圆） */
+  .cp-pick .cp-card.is-off { background:#fbfbfb; cursor:not-allowed; }
+  .cp-pick .cp-card.is-off > *:not(.cp-limit):not(.cp-rd) { opacity:.5; }
+  .cp-pick .cp-card.is-off .cp-limit-txt { opacity:.5; }
+  .cp-pick .cp-card.is-off .cp-rule { cursor:pointer; }
+
 
   /* 结算页「权益」行：仅右侧「值 + ›」为热区 */
   #s6 .co-item .co-row[data-benefit="1"] .val,
@@ -1762,11 +1747,6 @@
   /* 结算页页级「优惠券」行：同样仅右侧「值 + ›」为热区 */
   .co-coupon-row { cursor:default; }
   .co-coupon-row [data-coupon-val] { cursor:pointer; }
-  /* 不满门槛的券：卡片转浅灰、内容降饱和；勾选圈不参与降权（保持完整圆） */
-  #s13 .cp-card.is-off { background:#fbfbfb; cursor:not-allowed; }
-  #s13 .cp-card.is-off > *:not(.cp-limit):not(.cp-rd) { opacity:.5; }
-  #s13 .cp-card.is-off .cp-limit-txt { opacity:.5; }
-  #s13 .cp-card.is-off .cp-rule { cursor:pointer; }
 
   /* ===== 页面14 挂单列表 =====
      R5 优化：① 顶部失效提示条（固定在标题栏下，列表滚动时始终可见）
@@ -1917,6 +1897,18 @@
   }
   #s15 .suc-amt .cur { font-size:26px; }
   #s15 .suc-amt .num { font-size:48px; }
+  /* 打印小票（R13）：卡内右上角 28×28 纯图标热区，18px 线性图标 #B2B2B2。
+     内距与卡片 16px 内边距对齐；落在金额区上方的留白里，与居中大号金额无交叠。
+     视觉权重刻意压到最低：无文字、无底色描边，仅按下时给一层极浅底。 */
+  #s15 .suc-print {
+    position:absolute; top:16px; right:16px; width:28px; height:28px;
+    border:0; background:none; padding:0; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    color:#B2B2B2; cursor:pointer; z-index:1;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #s15 .suc-print svg { width:18px; height:18px; display:block; }
+  #s15 .suc-print:active { background:#F2F2F2; color:#55595E; }
   /* 金额区 ↔ 明细区：灰色发丝实线（左右由卡片 16px 内边距保证） */
   #s15 .suc-hr { height:0; border-top:.5px solid #E5E5E5; }
   /* 字段行：左字段名 / 右参数；行间灰色发丝虚线 */
@@ -2030,8 +2022,8 @@
     <div class="g-t">逻辑补充</div>
     <button class="nav-item" data-target="s8" onclick="go('s8')"><span class="idx">8</span>门店流水</button>
     <button class="nav-item" data-target="s9" onclick="go('s9')"><span class="idx">9</span>选择退款项目</button>
-    <button class="nav-item" data-target="s12" onclick="go('s12')"><span class="idx">12</span>选择权益</button>
-    <button class="nav-item" data-target="s13" onclick="go('s13')"><span class="idx">13</span>选择优惠券</button>
+    <button class="nav-item" onclick="openBenPickSheet(null)"><span class="idx">12</span>选择权益</button>
+    <button class="nav-item" onclick="openCouponPickSheet()"><span class="idx">13</span>选择优惠券</button>
     <button class="nav-item" data-target="s14" onclick="openHoldList()"><span class="idx">14</span>挂单列表</button>
   </div>
   <div class="nav-group grow">
@@ -3173,47 +3165,6 @@
     </div>
   </div>
 
-  <!-- ============ 页面12 选择权益（会员卡权益，来自 Figma「选择权益」） ============ -->
-  <div class="screen" id="s12" data-name="选择权益">
-    <div class="status-bar">
-      <div class="time">9:41</div>
-      <div class="icons">
-        <img src="assets/ic_cellular.svg" height="13">
-        <img src="assets/ic_wifi.svg" height="13">
-        <img src="assets/ic_battery.svg" height="13">
-      </div>
-    </div>
-    <div class="nav-bar">
-      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
-      <div class="title">选择权益</div>
-    </div>
-    <div class="ben-list" id="benList"></div>
-    <div class="pick-tip">确认并设为本单默认支付方式</div>
-    <div class="pick-foot">
-      <button class="ok" type="button" onclick="confirmBenefitPick()">确认</button>
-    </div>
-  </div>
-
-  <!-- ============ 页面13 选择优惠券（订单级，来自 Figma「顾客-优惠券」） ============ -->
-  <div class="screen" id="s13" data-name="选择优惠券">
-    <div class="status-bar">
-      <div class="time">9:41</div>
-      <div class="icons">
-        <img src="assets/ic_cellular.svg" height="13">
-        <img src="assets/ic_wifi.svg" height="13">
-        <img src="assets/ic_battery.svg" height="13">
-      </div>
-    </div>
-    <div class="nav-bar">
-      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
-      <div class="title">选择优惠券</div>
-    </div>
-    <div class="cp-list" id="cpList"></div>
-    <div class="pick-foot">
-      <button class="ok" type="button" onclick="confirmCouponPick()">确认</button>
-    </div>
-  </div>
-
   <!-- ============ 页面14 挂单列表 ============ -->
   <div class="screen" id="s14" data-name="挂单列表">
     <div class="status-bar">
@@ -3263,6 +3214,14 @@
       </button>
     </div>
     <div class="suc-card" id="sucCard">
+      <!-- 打印小票（R13）：金额卡右上角纯图标入口，视觉优先级最低，不参与卡片信息层级 -->
+      <button type="button" class="suc-print" data-suc-print onclick="sucPrint()" aria-label="打印小票" title="打印小票">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6.5 9V3.5h11V9"/>
+          <path d="M6.5 18H5a2 2 0 0 1-2-2v-4.5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2V16a2 2 0 0 1-2 2h-1.5"/>
+          <rect x="6.5" y="14.5" width="11" height="6.5" rx="1.5"/>
+        </svg>
+      </button>
       <div class="suc-amt"><span class="cur">¥</span><span class="num" id="sucAmt">0</span></div>
       <div class="suc-hr" aria-hidden="true"></div>
       <div class="suc-rows" id="sucRows"></div>
@@ -3277,13 +3236,26 @@
     </div>
   </div>
 
-  <div class="addsheet-mask" id="benefitSheetMask">
-    <div class="addsheet">
+  <!-- ============ 选择权益（R13：由整屏页 s12 改为底部 sheet，单选，点中即生效并收起） ============ -->
+  <div class="addsheet-mask" id="benPickMask" onclick="if(event.target===this)closeBenPickSheet()">
+    <div class="addsheet" role="dialog" aria-label="选择权益">
       <div class="addsheet__head">
         <div class="addsheet__title">选择权益</div>
       </div>
-      <div class="addsheet__body" style="overflow-y:auto;">
-        <div class="benefit-sheet" id="benefitList"></div>
+      <div class="addsheet__body ben-pick-body">
+        <div class="ben-pick" id="benList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 选择优惠券（R13：由整屏页 s13 改为底部 sheet，单选，点中即生效并收起） ============ -->
+  <div class="addsheet-mask" id="cpPickMask" onclick="if(event.target===this)closeCoupPickSheet()">
+    <div class="addsheet" role="dialog" aria-label="选择优惠券">
+      <div class="addsheet__head">
+        <div class="addsheet__title">选择优惠券</div>
+      </div>
+      <div class="addsheet__body cp-pick-body">
+        <div class="cp-pick" id="cpList"></div>
       </div>
     </div>
   </div>
@@ -3482,8 +3454,6 @@
       activate(id);
       if (id === 's6') renderCo();
       if (id === 's7') renderQco();
-      if (id === 's12') renderBenPickList();
-      if (id === 's13') renderCoupList();
     }
 
     function goBack() {
@@ -3982,7 +3952,7 @@
   }
 
   /* ---- 权益说明弹窗（结算页「权益」行左侧「?」） ----
-     用捕获阶段拦截：权益行本身是热区（可点进 s12），不能让行级 onclick 吞掉这次点击 */
+     用捕获阶段拦截：权益行本身是热区（可点开「选择权益」sheet），不能让行级 onclick 吞掉这次点击 */
   function openBenHelp() { openMask('benHelpMask'); }
   function closeBenHelp() { closeMask('benHelpMask'); }
   document.addEventListener('click', function (e) {
@@ -5171,7 +5141,7 @@
     if (c.min && base < c.min) return 0;
     return Math.min(c.amount, base);
   }
-  // 券是否满足门槛（s13 展示可用状态）
+  // 券是否满足门槛（「选择优惠券」sheet 展示可用状态）
   function couponUsable(c, sum) {
     if (!c) return true;
     var base = (sum == null) ? (qcoItem ? qcoItem.actual : orderPayableSum()) : sum;
@@ -5260,7 +5230,7 @@
               '</span>';
           }).join('') +
         '</span></div>';
-      // 权益：单条改价 / 整单改价（手输应付）时该明细不可用权益；否则右侧「值 + ›」为热区，点击进入 s12
+      // 权益：单条改价 / 整单改价（手输应付）时该明细不可用权益；否则右侧「值 + ›」为热区，点击打开「选择权益」sheet
       var benCell = '';
       if (it.discounted || coPayOverride != null) {
         benCell = '<div class="co-row is-benefit-locked" data-ro="1"><span class="lbl">权益<span class="help">?</span></span>' +
@@ -5268,7 +5238,7 @@
       } else {
         benCell = '<div class="co-row" data-benefit="1">' +
           '<span class="lbl">权益<span class="help">?</span></span>' +
-          '<span class="val' + (it.benefit ? '' : ' gray') + '" role="button" onclick="openBenefitPage(' + i + ')">' +
+          '<span class="val' + (it.benefit ? '' : ' gray') + '" role="button" onclick="openBenPickSheet(' + i + ')">' +
           (it.benefit ? escapeHtml(it.benefit.name) : '无卡权益') +
           '<span class="co-arr">' + coArrowSvg + '</span></span></div>';
       }
@@ -5428,11 +5398,13 @@
   }
 
   // ---- 结算页服务员工（只读摘要，无编辑入口）----
-  /* ===== 页面12 选择权益（会员卡权益）=====
-     单选；点底部「确认」才生效并返回，直接返回不保存。
-     入口：结算页「权益」行右侧热区（商品级）。coEditIdx = -1 表示直接收款 s7 的单条明细。 */
-  var benPickDraft = 0;     // 草稿选中项（索引 CARD_BENEFITS）
-  var benPickTarget = null; // 本次编辑的明细（引用）
+  /* ===== 选择权益（R13：底部 sheet，单选，点中即生效并收起）=====
+     入口：结算页「权益」行右侧热区（商品级）。coEditIdx = -1 表示直接收款 s7 的单条明细。
+     R13 变更：原整屏页 s12 + 底部「确认」通栏按钮 + 「确认并设为本单默认支付方式」提示一并删除；
+     权益为单选，**点中哪一行就立即生效并收起 sheet**，不再有二次确认。
+     点蒙层关闭 = 取消（未点中任何行时权益不变，仅关闭）。 */
+  var benPickDraft = 0;     // 当前选中项（索引 CARD_BENEFITS），同时用于 sheet 内回显
+  var benPickTarget = null; // 本次编辑的明细（引用）；为 null 时是导航面板的「演示态」
 
   function benefitIndexOf(it) {
     if (!it || !it.benefit) return 0;   // 0 = 不使用权益
@@ -5441,14 +5413,20 @@
     }
     return 0;
   }
-  function openBenefitPage(idx) {
-    var it = (idx === -1) ? qcoItem : cartItems[idx];
-    if (!it) return;
-    coEditIdx = idx;
+  /* idx 为明细下标；-1 = 直接收款单条明细；null/undefined = 导航面板的「演示态」（无目标明细，全部权益可选） */
+  function openBenPickSheet(idx) {
+    var it = (idx === -1) ? qcoItem : ((idx === null || idx === undefined) ? null : cartItems[idx]);
+    if (idx === -1 && !it) return;
     benPickTarget = it;
     benPickDraft = benefitIndexOf(it);
     renderBenPickList();
-    go('s12');
+    var m = document.getElementById('benPickMask');
+    if (m) m.classList.add('show');
+  }
+  function closeBenPickSheet() {
+    var m = document.getElementById('benPickMask');
+    if (m) m.classList.remove('show');
+    benPickTarget = null;
   }
   /* ===== 权益适用性（R9）=====
      次卡（计次卡 / 套餐卡 / 周期卡）与固定金额类权益只对「绑定项目」可用，其余项目 / 产品置灰不可选；
@@ -5477,8 +5455,9 @@
     var el = document.getElementById('benList');
     if (!el) return;
     var it = benPickTarget;
-    /* 散客 / 无卡顾客：无可用权益 → 仅「不使用权益」一行 */
-    var noCard = benPickNoCard();
+    /* 散客 / 无卡顾客：无可用权益 → 仅「不使用权益」一行。
+       演示态（无目标明细）不做身份判定，全部权益行可选，用于从导航面板单独查看本 sheet。 */
+    var noCard = it ? benPickNoCard() : false;
     if (noCard && benPickDraft !== 0) benPickDraft = 0;
     if (!benefitUsableFor(CARD_BENEFITS[benPickDraft], it)) benPickDraft = 0;
     var idxs = noCard ? [0] : CARD_BENEFITS.map(function (b, i) { return i; });
@@ -5493,13 +5472,16 @@
         '</div>';
     }).join('');
   }
+  /* 点中权益行：单选立即生效并收起（R13）。演示态下无明细可改，只更新回显、不关闭。 */
   function pickBenDraft(i) {
-    if (benPickNoCard() && i !== 0) return;
+    if (benPickTarget && benPickNoCard() && i !== 0) return;
     if (!benefitUsableFor(CARD_BENEFITS[i], benPickTarget)) return;
     benPickDraft = i;
-    renderBenPickList();
+    if (!benPickTarget) { renderBenPickList(); return; }
+    applyBenefitPick();
   }
-  function confirmBenefitPick() {
+  /* 生效：写回该明细的权益 → 重算 → 收起 sheet。原「确认」按钮的职责已并入此处。 */
+  function applyBenefitPick() {
     var it = benPickTarget;
     if (it) {
       var b = CARD_BENEFITS[benPickDraft];
@@ -5507,17 +5489,19 @@
       it._benefitCleared = (benPickDraft === 0);   // 选「不使用权益」后不再自动覆盖
       it._benefitAuto = false;
       applyItemBenefit(it);
-      if (coEditIdx === -1 && it === qcoItem) it.receivable = it.actual;
+      if (it === qcoItem) it.receivable = it.actual;
     }
     benPickTarget = null;
     renderCo();
     renderQco();
     recalcOrderAmounts();
-    goBack();
+    closeBenPickSheet();
   }
 
-  /* ===== 页面13 选择优惠券（订单级）=====
-     单选；点底部「确认」才生效并返回。 -1 = 不使用优惠券。 */
+  /* ===== 选择优惠券（订单级，R13：底部 sheet，单选，点中即生效并收起）=====
+     R13 变更：原整屏页 s13 + 底部「确认」通栏按钮删除；点中券卡立即生效并收起 sheet。
+     「使用规则」行仍为独立热区（展开/收起，不触发选中）。点蒙层 = 取消。
+     -1 = 不使用优惠券。 */
   var coupPickDraft = -1;   // -1 = 不使用优惠券
   var coupFromQuick = false; // 入口来自 s7（直接收款）时为 true，门槛按单条明细应付判定
   function couponIndexOf() {
@@ -5526,13 +5510,18 @@
     for (var k = 0; k < COUPONS.length; k++) if (COUPONS[k].name === c.name) return k;
     return -1;
   }
-  function openCouponPage() {
-    // 记录来源屏幕（go 之前取 navStack 顶）
+  function openCouponPickSheet() {
+    // 记录来源屏幕：sheet 不改动 navStack，故当前栈顶即来源页
     coupFromQuick = (navStack[navStack.length - 1] === 's7');
     coupPickDraft = couponIndexOf();
     COUPONS.forEach(function (c) { c._open = false; });   // 每次进入，「使用规则」默认折叠
     renderCoupList();
-    go('s13');
+    var m = document.getElementById('cpPickMask');
+    if (m) m.classList.add('show');
+  }
+  function closeCoupPickSheet() {
+    var m = document.getElementById('cpPickMask');
+    if (m) m.classList.remove('show');
   }
   // 券门槛判定基准：直接收款为单条明细应付，开单结算为整单应付合计
   function couponBase() {
@@ -5571,11 +5560,12 @@
     }).join('');
     el.innerHTML = html;
   }
+  /* 点「不使用优惠券」行 / 券卡：单选立即生效并收起（R13） */
   function pickCoupDraft(i) {
     coupPickDraft = i;
-    renderCoupList();
+    applyCouponPick();
   }
-  // 点券卡：不满门槛的券不可选，仅提示
+  // 点券卡：不满门槛的券不可选，仅提示（不关闭 sheet）
   function tapCoupCard(i) {
     var c = COUPONS[i];
     if (!c) return;
@@ -5587,7 +5577,8 @@
     COUPONS[i]._open = !COUPONS[i]._open;
     renderCoupList();
   }
-  function confirmCouponPick() {
+  /* 生效：写回订单级券 → 重算 → 收起 sheet。原「确认」按钮的职责已并入此处。 */
+  function applyCouponPick() {
     var c = (coupPickDraft >= 0) ? COUPONS[coupPickDraft] : null;
     window.__v2OrderCoupon = c;
     window.__v2OrderCouponTouched = true;
@@ -5595,7 +5586,7 @@
     renderCo();
     renderQco();
     recalcOrderAmounts();
-    goBack();
+    closeCoupPickSheet();
   }
   // 散客订单自动带入首张可用券（会员不自动带券；用户手动选过「不使用」后不再自动带）
   function autoFillCoupon(isGuest) {
@@ -5846,7 +5837,7 @@
   var PAY_METHODS = ['会员卡', '微信', '支付宝', '美团', '抖音', '口碑', '大众点评',
     '现金', '银行卡', '信用卡', '经理签单', '其他平台团购'];
 
-  /* 演示用会员卡额度表：与 s5「会员卡」列表 / s12「选择权益」列表同源
+  /* 演示用会员卡额度表：与 s5「会员卡」列表 / 「选择权益」sheet 列表同源
      kind：discount 折扣卡（不参与支付，不出现在 s15 支付明细）
            stored   储值卡（展示本次扣减金额 + 卡余额）
            package  套餐卡（展示本单消耗金额 + 「剩余 金额 / 次数」）
@@ -6150,6 +6141,16 @@
     toast('查看该笔流水');
     go('s8');
   }
+  /* 打印小票（R13）：金额卡右上角图标入口。
+     非主要功能，本原型只以 toast 表示目标页面，不实现打印流程本身 */
+  function sucPrint() {
+    toast('已发送打印小票指令');
+  }
+  /* 打印小票（R13）：金额卡右上角图标入口。
+     非主要功能，本原型只以 toast 表示目标页面，不实现打印流程本身 */
+  function sucPrint() {
+    toast('已发送打印小票指令');
+  }
   /* 继续开单：清空当前单据（明细 / 券 / 单号）后回到开单页 */
   function sucContinue() {
     cartItems.length = 0;
@@ -6323,7 +6324,7 @@
   }
   function openQcoBenefitPage() {
     if (!qcoItem) return;
-    openBenefitPage(-1);
+    openBenPickSheet(-1);
   }
   function openQcoRemark() {
     if (!qcoItem) return;

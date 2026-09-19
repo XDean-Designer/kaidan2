@@ -467,11 +467,17 @@
 
 /* 结算页：服务员工只读摘要（每名员工一行：姓名 · 工位 · 顾客指定） */
 .co-staff-list { margin-left: auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+/* R13：宽度不再用固定 236px 上限，改为「能占多少占多少」
+   —— 行内可用宽 = 390 - 左右内距 32 - 左标签「服务员工」56 = 302px。
+   「3 工位 + 顾客指定」的长摘要实测 265px：旧上限 236 会裁成省略号，放开后完整显示且仍有 37px 余量。
+   左侧标签与摘要同一 flex 行，摘要先按 max-content 取宽、超宽才收缩，
+   故右侧始终与上方「权益 / 应付」的「值」右边缘对齐；ellipsis 仅作极端情况的兜底。 */
 .co-staff-list .co-staff-line {
   font-size: var(--fs-value); color: var(--text); line-height: var(--lh-text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;
-  max-width: 236px;
+  max-width: none;
 }
 .co-staff-list .co-staff-line .nm { font-weight: 500; }
 .co-staff-list .co-staff-line .sep { color: #d0d0d0; margin: 0 4px; }
-.co-staff-list .co-staff-line .dim { color: var(--text-sec); }
+/* 工位摘要降 1px 灰字：与姓名形成层级，并再让出约 17px 宽度（约 248px < 302px） */
+.co-staff-list .co-staff-line .dim { color: var(--text-sec); font-size: 13px; }
