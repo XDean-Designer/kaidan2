@@ -1186,8 +1186,11 @@
   .sucno-field .lbl { flex:none; font-size:var(--fs-label); color:var(--text); }
   /* 弱化输入框：仅靠 #f7f7f7 填充与白底区分，无边框、无内阴影 ——
      视觉权重刻意低于「单号」标签，不与上方标题争层级 */
+  /* R15：定宽 240px 并靠右。原 `flex:1` 会把输入框撑到 318px（占 sheet 宽 82%），
+     整行看上去是一条宽条、不像「字段」。240px = 20 位数字满宽 182 + 内距 24 + 余量 34；
+     右缘与页脚「确定」按钮右缘同列（距 sheet 右 16px），左侧自然留白。 */
   .sucno-field input {
-    flex:1; min-width:0; height:36px; box-sizing:border-box;
+    flex:0 1 240px; min-width:0; margin-left:auto; height:36px; box-sizing:border-box;
     border:0; outline:none; background:#f7f7f7; border-radius:8px; padding:0 12px;
     font-family:var(--font-data); font-size:16px; font-weight:500; color:var(--text);
     text-align:right;
