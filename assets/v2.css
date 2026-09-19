@@ -427,7 +427,11 @@
   margin-left: auto; font-size: var(--fs-value); color: var(--text-sec);
   display: flex; align-items: center; gap: 4px;
 }
-.co-coupon-row .r.has { color: var(--brand); }
+/* R14：已选券由红改为主文字色 —— 这一行是「本单信息」，与「应付」的红色
+   （唯一的强调色，留给金额）职责分离，避免同一屏出现两处红色争主次 */
+.co-coupon-row .r.has { color: var(--text); }
+/* 进入箭头：SVG，固定 14px，不随字体度量漂移（与明细行的 .co-arr 同一规格） */
+.co-coupon-row .r svg { width: 14px; height: 14px; flex: none; display: block; color: #c7c7cc; }
 .co-remark-card {
   background: #fff; border-radius: 0; padding: 14px 16px;
   box-sizing: border-box;

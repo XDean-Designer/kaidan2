@@ -185,6 +185,44 @@
   .nav-bar .ic-right { position:absolute; left:364px; top:14px; width:16px; height:16px; }
   .nav-bar .ic-right img { width:16px; height:16px; display:block; }
 
+  /* ===== 结算页标题栏「更多」（R14）=====
+     3 圆点横排的线性图标，主文字色 #1a1a1a，与标题同级（不做降权：它是本页仅有的两个
+     非返回操作入口之一，语义上属于「页面级操作」而非次级提示）。
+     24px 方形热区、图标 20px；热区上边距取 10+1：
+     实测（Noto Sans SC · canvas TextMetrics）18px 标题「开单结账」的墨迹中心落在标题栏
+     y = 76.00，而热区中心 = 11 + 12 = 23 → 76.00，两者同心（差 0.00px）。 */
+  .nav-bar .nav-more {
+    position:absolute; right:10px; top:calc(10px + 1px); width:24px; height:24px;
+    border:0; background:none; padding:0; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    color:#1a1a1a; -webkit-tap-highlight-color:transparent;
+  }
+  .nav-bar .nav-more svg { width:20px; height:20px; display:block; }
+  .nav-bar .nav-more:active { opacity:.55; }
+
+  /* 更多下拉菜单：白卡 + 12px 圆角 + 轻投影，右缘与图标热区右缘（10px）对齐，
+     顶边贴在标题栏下方 6px —— 视觉上「从图标下方长出」，与图标构成一对 */
+  .nav-more-scrim { position:absolute; inset:0; z-index:55; display:none; background:transparent; }
+  .nav-more-scrim.show { display:block; }
+  .nav-more-menu {
+    position:absolute; right:10px; top:calc(var(--statusbar-h) + var(--nav-h) + 6px);
+    min-width:132px; z-index:56; padding:4px 0; box-sizing:border-box;
+    background:#fff; border-radius:12px; display:none;
+    box-shadow:0 10px 28px rgba(0,0,0,.14), 0 0 0 .5px rgba(0,0,0,.05);
+    animation:moreMenuIn .16s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .nav-more-menu.show { display:block; }
+  @keyframes moreMenuIn { from { opacity:0; transform:translateY(-6px) scale(.96); } to { opacity:1; transform:none; } }
+  .nav-more-menu .mi {
+    display:flex; align-items:center; gap:8px; width:100%; height:44px; padding:0 14px;
+    box-sizing:border-box; border:0; background:none; cursor:pointer;
+    font-family:inherit; font-size:15px; font-weight:400; color:#1a1a1a; text-align:left;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .nav-more-menu .mi + .mi { border-top:1px solid #f0f0f0; }
+  .nav-more-menu .mi svg { width:18px; height:18px; flex:none; display:block; color:#1a1a1a; }
+  .nav-more-menu .mi:active { background:#f7f7f7; }
+
   /* ===== 顾客卡（深色渐变卡） ===== */
   .cust-card {
     position:absolute; left:16px; top:calc(var(--statusbar-h) + 54px); width:358px; height:94px;
@@ -798,7 +836,9 @@
     width:22px; height:22px; border:none; background:none; padding:0; cursor:pointer; flex:none;
     display:flex; align-items:center; justify-content:center;
   }
-  #s6 .co-item .co-del svg, #s7 .co-item .co-del svg { width:18px; height:18px; color:#1a1a1a; }
+  /* 垃圾桶：R14 起统一 #929292（与「不适用 / 清空 / 挂单删除」同一档中性灰） */
+  #s6 .co-item .co-del svg, #s7 .co-item .co-del svg,
+  #s6 .co-item .co-del img, #s7 .co-item .co-del img { width:18px; height:18px; color:#929292; }
   #s6 .co-item .co-row, #s7 .co-item .co-row { display:flex; align-items:center; min-height:var(--row-h); padding:0 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   /* R11：服务员工行的上下留白以右侧员工文字块为准（行高 = 文字块高度 + 上下各 10px）
      单选 1 位员工时 min-height:40px 仍生效 → 与「权益 / 应付」单行行观感完全一致；
@@ -896,11 +936,12 @@
     -webkit-tap-highlight-color:transparent;
   }
   #s6 .co-bar button.pay:active { background:#FFF2F2; }
-  /* 铅笔（可编辑暗示）：与金额同色，14px，距金额 6px。
+  /* 铅笔（可编辑暗示）：R14 起固定 #929292（中性灰，与「可编辑」的提示语气一致，
+     不再随金额的红色走 —— 红是「应付」这一数值的高亮，铅笔是操作暗示，两者不同语义）。
      参与 `.pay` 的 align-items:baseline —— svg 无基线，其「底缘」即基线，
      于是铅笔底缘正好落在金额数字底缘（底对齐，R9 修订，原为行内居中）。 */
   #s6 .co-bar .pay .pen {
-    width:14px; height:14px; flex:none; margin-left:6px;
+    width:14px; height:14px; flex:none; margin-left:6px; color:#929292;
   }
   #s6 .co-bar .pay .tag {
     align-self:center; margin-left:4px; padding:1px 5px; border-radius:4px;
@@ -1022,23 +1063,6 @@
     font-size:17px; font-weight:700; cursor:pointer;
   }
 
-  /* ===== 选择权益 sheet（R13：由整屏页 s12 改为底部 sheet；旧的可点行样式已随页面一并废止） ===== */
-  .ben-pick-body { padding:12px 12px 16px; }
-  .ben-pick .ben-row {
-    display:flex; align-items:center; box-sizing:border-box;
-    height:56px; padding:0 16px; margin-bottom:8px;
-    background:#fff; border-radius:8px; cursor:pointer;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .ben-pick .ben-row:last-child { margin-bottom:0; }
-  .ben-pick .ben-row .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
-  .ben-pick .ben-row .rd { margin-left:auto; width:20px; height:20px; flex:none; }
-  .ben-pick .ben-row .rd img { width:20px; height:20px; display:block; }
-  /* 不适用于该项目的权益：整行置灰 + 不可点（R9） */
-  .ben-pick .ben-row.is-off { background:#fafafa; cursor:not-allowed; }
-  .ben-pick .ben-row.is-off .nm { color:#B2B2B2; }
-  .ben-pick .ben-row.is-off .rd img { opacity:.45; }
-
   /* ===== 直接收款/去收款页 顶部卡片按身份切换 ===== */
   .screen .gcard, .screen .mcard { position:absolute; left:12px; top:calc(var(--statusbar-h) + 54px); z-index:20; }
   #s6 .gcard, #s6 .mcard, #s7 .gcard, #s7 .mcard { top:10px; }
@@ -1147,19 +1171,29 @@
   }
   .btn-cancel:active { background:#e8e8e8; }
 
-  /* ===== 成功页「修改单号」sheet（R9：与「修改应付」sheet 同一套内缩/留白/圆角语言） ===== */
-  .sucno-body { padding:0 16px 16px; }
+  /* ===== 成功页「修改单号」sheet（R9 建立 · R14 改版）=====
+     R14 改版三要点：
+     ① 内容区整块通栏：去掉圆角与左右内缩，白底铺满标题栏分隔线到页脚之间的整段，
+        把 sheet 的 #f7f7f7 灰底完全盖住（「卡片」概念退化为一条满宽行）；
+     ② 单号落在「视觉较弱」的输入框里：浅灰填充、无描边、无投影，权重低于标题；
+     ③ 输入不做二次弹层：直接就地聚焦，手机上唤起系统键盘而非原型内的数字键盘。
+     键盘避让见 `html.is-mobile .addsheet { bottom: var(--kb-h) }`（visualViewport 计算）。 */
+  .sucno-body { padding:0; }
   .sucno-field {
     display:flex; align-items:center; gap:12px;
-    margin-top:16px; background:#fff; border-radius:10px; padding:0 14px; height:56px;
+    margin:0; background:#fff; border-radius:0; padding:0 16px; height:56px;
   }
   .sucno-field .lbl { flex:none; font-size:var(--fs-label); color:var(--text); }
+  /* 弱化输入框：仅靠 #f7f7f7 填充与白底区分，无边框、无内阴影 ——
+     视觉权重刻意低于「单号」标签，不与上方标题争层级 */
   .sucno-field input {
-    flex:1; min-width:0; height:100%; border:0; outline:none; background:none;
+    flex:1; min-width:0; height:36px; box-sizing:border-box;
+    border:0; outline:none; background:#f7f7f7; border-radius:8px; padding:0 12px;
     font-family:var(--font-data); font-size:16px; font-weight:500; color:var(--text);
-    text-align:right; padding:0;
+    text-align:right;
   }
   .sucno-field input::placeholder { color:#b2b2b2; font-weight:400; font-size:14px; }
+  .sucno-field input:focus { background:#f2f2f2; }
 
   /* ===== 结算页「修改应付」sheet（底部数字键盘） =====
      R9：原有提示行（.paysheet__tip）已删除，留白补偿到数值行下沿（16 → 18px） */
@@ -1621,6 +1655,13 @@
     height:var(--mobile-h, 844px);
     box-shadow:none;
   }
+  /* 系统键盘避让（R14）：--kb-h 由 JS 依 visualViewport 实时算出（**逻辑** px，
+     已按 --mobile-scale 折算），键盘弹出时把底部浮层整体抬起，
+     保证「修改单号」这类就地输入的浮层内容区与输入框不被键盘遮住。
+     iOS Safari 不会改变 window.innerHeight，只能靠 visualViewport 检测；
+     部分 Android 浏览器会直接压缩视觉视口，此时 --kb-h 自然趋近 0，两者都不冲突。 */
+  html.is-mobile .addsheet,
+  html.is-mobile .date-pop.is-sheet { bottom:var(--kb-h, 0px); }
   html.is-mobile .site-nav {
     display:flex;
     /* 抽屉必须高于蒙层（.site-nav-scrim, z-index:250），否则蒙层会盖住导航无法点击 */
@@ -1650,21 +1691,31 @@
   /* ===== 选择权益 / 选择优惠券（R13：均由整屏页改为底部 sheet）=====
      两页共用 .addsheet 骨架（标题头 + 内容区），高度由内容自适应，超过 85% 时内容区内部滚动。
      交互：单选，**点中即生效并收起**；点蒙层关闭 = 取消（未点中则不改动）。
-     原「确认并设为本单默认支付方式」提示行与底部「确认」通栏按钮已删除。 */
+     原「确认并设为本单默认支付方式」提示行与底部「确认」通栏按钮已删除。
+
+     R14 修订：
+     ① 内容区顶部 12px、卡片间距统一 12px、底部 12px + 安全区 34px（--safe-bottom）；
+     ② 选中态统一为「1px 红色内描边 + #fff8f8 底」；
+     ③ 券卡删除勾选圈，「不使用优惠券」行保留勾选圈；金额 / 门槛右移到 16px。 */
+
+  /* ---- 内容区留白：两个 sheet 共用同一套 12px 节奏 + 底部安全区 ---- */
+  .ben-pick-body, .cp-pick-body { padding:12px 12px calc(12px + var(--safe-bottom)); }
 
   /* ---- 权益：9 行单选 ---- */
   .ben-pick .ben-row {
     display:flex; align-items:center; box-sizing:border-box;
-    height:56px; padding:0 16px; margin-bottom:8px;
+    height:56px; padding:0 16px; margin-bottom:12px;
     background:#fff; border-radius:8px; cursor:pointer;
     -webkit-tap-highlight-color:transparent;
   }
   .ben-pick .ben-row:last-child { margin-bottom:0; }
+  /* 选中态：与券卡同一套「1px 红色内描边 + 极浅红底」（勾选控件仍保留） */
+  .ben-pick .ben-row.is-on { background:#fff8f8; box-shadow:inset 0 0 0 1px #f32f41; }
   .ben-pick .ben-row .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
   .ben-pick .ben-row .rd { margin-left:auto; width:20px; height:20px; flex:none; }
   .ben-pick .ben-row .rd img { width:20px; height:20px; display:block; }
   /* 不适用于该项目的权益：整行置灰 + 不可点（R9） */
-  .ben-pick .ben-row.is-off { background:#fafafa; cursor:not-allowed; }
+  .ben-pick .ben-row.is-off { background:#fafafa; cursor:not-allowed; box-shadow:none; }
   .ben-pick .ben-row.is-off .nm { color:#B2B2B2; }
   .ben-pick .ben-row.is-off .rd img { opacity:.45; }
 
@@ -1675,6 +1726,8 @@
     background:#fff; border-radius:8px; cursor:pointer;
     -webkit-tap-highlight-color:transparent;
   }
+  /* 「不使用优惠券」保留勾选控件，故与权益行同样叠加选中态描边 + 填充 */
+  .cp-pick .cp-none.is-on { background:#fff8f8; box-shadow:inset 0 0 0 1px #f32f41; }
   .cp-pick .cp-none .nm { font-size:14px; font-weight:500; color:#1a1a1a; line-height:20px; }
   .cp-pick .cp-none .rd { margin-left:auto; width:20px; height:20px; flex:none; }
   .cp-pick .cp-none .rd img { width:20px; height:20px; display:block; }
@@ -1683,6 +1736,8 @@
     margin-bottom:12px; overflow:hidden;
     cursor:pointer; -webkit-tap-highlight-color:transparent;
   }
+  /* 末张券卡不再留底部间距：底部只保留 12px 节奏 + 34px 安全区（合计 46px） */
+  .cp-pick .cp-card:last-child { margin-bottom:0; }
   /* 「满减券」角标：左上/右下 8px 圆角，与卡片左上圆角对齐 */
   .cp-pick .cp-badge {
     position:absolute; left:0; top:0; width:38px; height:18px;
@@ -1691,8 +1746,9 @@
     color:#fff; font-size:10px; font-weight:500; line-height:18px; text-align:center;
   }
   .cp-pick .cp-hd { box-sizing:border-box; height:84px; padding:24px 16px 0; }
+  /* 券名：原 209px 是为右侧勾选圈让位；R14 删圈后放宽到 260px（最长券名不再被截断） */
   .cp-pick .cp-title {
-    width:209px; font-size:15px; font-weight:500; color:#1a1a1a; line-height:21px;
+    width:260px; font-size:15px; font-weight:500; color:#1a1a1a; line-height:21px;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .cp-pick .cp-sub { margin-top:5px; font-size:12px; color:#666; line-height:15px; }
@@ -1711,30 +1767,26 @@
   .cp-pick .cp-card.is-open .cp-rule { padding-bottom:4px; }
   .cp-pick .cp-card.is-open .cp-rule .chev { transform:rotate(180deg); }
   .cp-pick .cp-rules { padding:0 16px 11px; font-size:11px; color:#666; line-height:19px; }
+  /* 金额 / 门槛：R14 删掉右侧勾选圈后一并右移到 16px，与卡片内边距对齐 */
   .cp-pick .cp-amt {
-    position:absolute; right:52px; top:18px;
+    position:absolute; right:16px; top:18px;
     display:flex; align-items:baseline; color:#f32f41;
   }
   .cp-pick .cp-amt .cur { font-size:13px; line-height:1; }
   .cp-pick .cp-amt .num { font-size:26px; font-weight:400; line-height:1; font-family:var(--font-data); }
-  /* 门槛文案：改灰降噪（不再与金额抢红色），并左缩 36 给右侧单选圈让位 */
+  /* 门槛文案：改灰降噪（不再与金额抢红色） */
   .cp-pick .cp-limit {
-    position:absolute; right:52px; top:53px;
+    position:absolute; right:16px; top:53px;
     font-size:11px; color:#929292; line-height:14px; white-space:nowrap;
   }
-  /* 单选圈：固定绝对定位（不再随券卡高度浮动），底缘与「门槛文案」行底缘对齐
-     —— 券卡展开「使用规则」时圈体完全不动。
-     券卡：cp-hd 84 + cp-div 1 → 规则行从 85 起；圈底 67 < 85，故与规则行无交叠。 */
-  .cp-pick .cp-rd { position:absolute; right:16px; top:47px; width:20px; height:20px; }
-  .cp-pick .cp-rd img { width:20px; height:20px; display:block; }
-  /* 选中态：1px 红色内描边 + 极浅红底 */
+  /* 选中态：1px 红色内描边 + 极浅红底（券卡唯一选中标识，R14 起不再有勾选圈） */
   .cp-pick .cp-card.is-on {
     background:#fff8f8;
     box-shadow:inset 0 0 0 1px #f32f41;
   }
-  /* 不满门槛的券：卡片转浅灰、内容降饱和；勾选圈不参与降权（保持完整圆） */
+  /* 不满门槛的券：卡片转浅灰、内容降饱和 */
   .cp-pick .cp-card.is-off { background:#fbfbfb; cursor:not-allowed; }
-  .cp-pick .cp-card.is-off > *:not(.cp-limit):not(.cp-rd) { opacity:.5; }
+  .cp-pick .cp-card.is-off > *:not(.cp-limit) { opacity:.5; }
   .cp-pick .cp-card.is-off .cp-limit-txt { opacity:.5; }
   .cp-pick .cp-card.is-off .cp-rule { cursor:pointer; }
 
@@ -1895,7 +1947,9 @@
     padding:34px 0 26px; text-align:center;
     font-family:var(--font-data); color:#1a1a1a; line-height:1;
   }
-  #s15 .suc-amt .cur { font-size:26px; }
+  /* R14：¥ 与数值之间 +2 间距（原先两段紧贴，仅靠字形侧边距，盒间为 0）。
+     用 margin-right 而非 gap，因为 .cur / .num 是行内 span，不是 flex 子项 */
+  #s15 .suc-amt .cur { font-size:26px; margin-right:2px; }
   #s15 .suc-amt .num { font-size:48px; }
   /* 打印小票（R13）：卡内右上角 28×28 纯图标热区，18px 线性图标 #B2B2B2。
      内距与卡片 16px 内边距对齐；落在金额区上方的留白里，与居中大号金额无交叠。
@@ -2896,6 +2950,10 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
+      <!-- 更多（R14）：3 圆点横排，主文字色；下拉菜单 = 选日期 / 手工单号 -->
+      <button type="button" class="nav-more" onclick="openNavMoreMenu(event)" aria-label="更多" aria-haspopup="menu">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>
+      </button>
     </div>
 
     <div class="scroll">
@@ -2993,6 +3051,10 @@
     <div class="nav-bar">
       <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
       <div class="title">开单结账</div>
+      <!-- 更多（R14）：与 s6 同构 -->
+      <button type="button" class="nav-more" onclick="openNavMoreMenu(event)" aria-label="更多" aria-haspopup="menu">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>
+      </button>
     </div>
 
     <div class="scroll">
@@ -3214,12 +3276,14 @@
       </button>
     </div>
     <div class="suc-card" id="sucCard">
-      <!-- 打印小票（R13）：金额卡右上角纯图标入口，视觉优先级最低，不参与卡片信息层级 -->
+      <!-- 打印小票（R13 建立 · R14 换用 Figma 稿图标 node 1189-136）：
+           图形为满画布 200×200，无内边距；线面交接处按 Figma 的 evenodd 轮廓绘制，
+           颜色走 currentColor（由 CSS 给 #B2B2B2），保持「视觉优先级最低」的权重 -->
       <button type="button" class="suc-print" data-suc-print onclick="sucPrint()" aria-label="打印小票" title="打印小票">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M6.5 9V3.5h11V9"/>
-          <path d="M6.5 18H5a2 2 0 0 1-2-2v-4.5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2V16a2 2 0 0 1-2 2h-1.5"/>
-          <rect x="6.5" y="14.5" width="11" height="6.5" rx="1.5"/>
+        <svg viewBox="0 0 200 200" fill="currentColor" aria-hidden="true">
+          <path d="M163.158 66.8421C158.947 66.8421 155.789 70.5263 155.789 74.2105C155.789 78.421 158.947 81.5789 163.158 81.5789C167.368 81.5789 170.526 77.8947 170.526 74.2105C170.526 70.5263 167.368 67.3684 163.158 66.8421Z"/>
+          <path d="M182.105 43.1579H156.842V17.8947C156.842 14.7368 155.263 11.5789 153.158 8.94737C151.053 6.84211 147.368 5.26316 144.211 5.26316H55.7895C48.9474 5.26316 43.1579 11.0526 43.1579 17.8947V43.1579H17.8947C11.0526 43.1579 5.78947 48.421 5.26316 55.2632V120C5.78947 126.316 11.0526 131.579 17.8947 131.579H36.8421V182.105C36.8421 188.947 42.6316 194.737 49.4737 194.737H150.526C157.368 194.737 163.158 188.947 163.158 182.105V131.579H182.105C188.947 131.579 194.737 125.789 194.737 118.947V55.7895C194.737 48.9474 188.947 43.1579 182.105 43.1579ZM52.1053 17.8947C52.1053 16.3158 52.6316 14.2105 54.2105 13.1579C55.2632 12.1053 57.3684 11.0526 58.9474 11.0526H141.053C142.632 11.0526 144.737 11.5789 145.789 13.1579C146.842 14.2105 147.895 16.3158 147.895 17.8947V43.1579H52.1053V17.8947ZM154.737 182.105C154.737 183.684 153.684 185.789 152.632 186.842C151.579 187.895 149.474 188.947 147.895 188.947H52.1053C50.5263 188.947 48.4211 188.421 47.3684 186.842C46.3158 185.789 45.2632 183.684 45.2632 182.105V108.947C45.2632 105.263 48.4211 102.105 52.1053 102.105H147.895C151.579 102.105 154.737 105.263 154.737 108.947V182.105ZM188.947 113.684C188.947 115.263 187.895 117.368 186.842 118.421C185.789 119.474 183.684 120.526 182.105 120.526H168.421V106.842C168.421 103.158 166.842 100 164.211 97.3684C161.579 94.7368 158.421 93.1579 154.737 93.1579H45.2632C37.3684 93.1579 31.5789 99.4737 31.5789 106.842V120.526H17.8947C14.2105 120.526 11.0526 117.368 11.0526 113.684V58.9474C11.0526 55.2632 14.2105 52.1053 17.8947 52.1053H182.105C185.789 52.1053 188.947 55.2632 188.947 58.9474V113.684Z"/>
+          <path d="M128.947 151.579H71.0526C68.4211 151.579 66.3158 153.684 66.3158 156.316C66.3158 158.947 68.4211 161.053 71.0526 161.053H129.474C132.105 161.053 134.211 158.947 134.211 156.316C134.211 153.684 131.579 151.579 128.947 151.579ZM128.947 126.842H71.0526C68.4211 126.842 66.3158 128.947 66.3158 131.579C66.3158 134.211 68.4211 136.316 71.0526 136.316H129.474C132.105 136.316 134.211 134.211 134.211 131.579C134.211 129.474 131.579 126.842 128.947 126.842Z"/>
         </svg>
       </button>
       <div class="suc-amt"><span class="cur">¥</span><span class="num" id="sucAmt">0</span></div>
@@ -3258,6 +3322,20 @@
         <div class="cp-pick" id="cpList"></div>
       </div>
     </div>
+  </div>
+
+  <!-- ============ 结算页标题栏「更多」下拉菜单（R14）============
+       单实例：s6 / s7 的标题栏几何完全一致，无需各挂一份。
+       两个选项的图标沿用原型既有词汇：单号 ↔ 铅笔、日期 ↔ 日历
+       （与成功页「改单号 / 改日期」操作组同一套，避免同类操作出现两套图标语言）。 -->
+  <div class="nav-more-scrim" id="navMoreScrim" onclick="closeNavMoreMenu()"></div>
+  <div class="nav-more-menu" id="navMoreMenu" role="menu" aria-label="更多">
+    <button type="button" class="mi" role="menuitem" onclick="navMorePick('date')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>选日期
+    </button>
+    <button type="button" class="mi" role="menuitem" onclick="navMorePick('no')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>手工单号
+    </button>
   </div>
 
   <div class="cart-sheet-mask" id="cartSheetMask" onclick="if(event.target===this)closeCartSheet()">
@@ -3346,16 +3424,18 @@
     </div>
   </div>
 
-  <!-- 成功页「改单号」底部 sheet -->
+  <!-- 成功页「改单号」底部 sheet（R14：内容区通栏 + 弱化输入框，就地聚焦不叠层） -->
   <div class="addsheet-mask" id="sucNoMask" onclick="if(event.target===this)closeSucNo()">
     <div class="addsheet" role="dialog" aria-label="修改单号">
       <div class="addsheet__head">
-        <div class="addsheet__title">修改单号</div>
+        <div class="addsheet__title" id="sucNoTitle">修改单号</div>
       </div>
       <div class="addsheet__body sucno-body">
-        <div class="sucno-field">
+        <!-- 整行可点即聚焦：手机演示时由系统键盘输入，不再叠加原型内的数字键盘浮层 -->
+        <div class="sucno-field" onclick="onSucNoFieldClick(event)">
           <span class="lbl">单号</span>
-          <input id="sucNoInput" type="text" inputmode="numeric" maxlength="20" placeholder="请输入单号">
+          <input id="sucNoInput" type="text" inputmode="numeric" enterkeyhint="done"
+                 maxlength="20" autocomplete="off" placeholder="请输入单号">
         </div>
       </div>
       <div class="addsheet__foot addsheet__foot--dual">
@@ -3447,6 +3527,7 @@
         n.classList.toggle('on', n.getAttribute('data-target') === id);
       });
       if (typeof window.closeSiteNav === 'function') window.closeSiteNav();
+      if (typeof window.closeNavMoreMenu === 'function') window.closeNavMoreMenu();
     }
 
     function go(id) {
@@ -5465,7 +5546,7 @@
       var b = CARD_BENEFITS[i];
       var on = (i === benPickDraft);
       var usable = benefitUsableFor(b, it);
-      return '<div class="ben-row' + (usable ? '' : ' is-off') + '"' +
+      return '<div class="ben-row' + (usable ? (on ? ' is-on' : '') : ' is-off') + '"' +
         (usable ? ' role="button" onclick="pickBenDraft(' + i + ')"' : ' aria-disabled="true"') + '>' +
         '<span class="nm">' + escapeHtml(b.name) + '</span>' +
         '<span class="rd"><img src="assets/ic_radio_' + (on ? 'on' : 'off') + '.svg" alt=""></span>' +
@@ -5532,7 +5613,9 @@
     var el = document.getElementById('cpList');
     if (!el) return;
     var base = couponBase();
-    var html = '<div class="cp-none" role="button" onclick="pickCoupDraft(-1)">' +
+    /* R14：券卡不再有勾选控件，选中唯一标识是卡片的红色描边 + 极浅红底；
+       「不使用优惠券」仍保留勾选控件，故加 is-on 让两者共用同一套选中语言 */
+    var html = '<div class="cp-none' + (coupPickDraft === -1 ? ' is-on' : '') + '" role="button" onclick="pickCoupDraft(-1)">' +
       '<span class="nm">不使用优惠券</span>' +
       '<span class="rd"><img src="assets/ic_radio_' + (coupPickDraft === -1 ? 'on' : 'off') + '.svg" alt=""></span>' +
       '</div>';
@@ -5555,7 +5638,6 @@
         (open ? '<div class="cp-rules">' + c.rules.map(escapeHtml).join('<br>') + '</div>' : '') +
         '<div class="cp-amt"><span class="cur">¥</span><span class="num">' + c.amount + '</span></div>' +
         '<div class="cp-limit"><span class="cp-limit-txt">' + escapeHtml(c.limit) + '</span></div>' +
-        '<div class="cp-rd"><img src="assets/ic_radio_' + (coupPickDraft === i ? 'on' : 'off') + '.svg" alt=""></div>' +
         '</div>';
     }).join('');
     el.innerHTML = html;
@@ -6075,11 +6157,14 @@
   function checkoutToSuccess(kind) {
     var info = payInfoOf(kind);
     var billDate = (typeof window.__v2BillDate === 'function') ? window.__v2BillDate() : '';
+    /* R14：结算页「更多 → 手工单号」填了就用它，代替开单后自动产生的单号；留空则系统生成。
+       日期同理由 selDate 提供：结算页「更多 → 选日期」、开单页标题栏日期控件、成功页「改日期」
+       三处写的是同一个值，这里只做兜底（未取到时退回今天）。 */
     sucInfo = {
       amount: info.amount,
       pays: info.pays,
       date: (billDate ? billDate.replace(/-/g, '.') : todayDot()),
-      no: genCoManual()
+      no: coManualNo || genCoManual()
     };
     /* 本单已结：把来源挂单移除（挂单删除的第三种情形：取挂单后开单成功） */
     if (activeHoldId) {
@@ -6112,39 +6197,106 @@
     if (typeof window.__v2OpenDateSheet === 'function') window.__v2OpenDateSheet();
     else if (typeof window.__v2OpenDatePop === 'function') window.__v2OpenDatePop();
   }
-  /* 日期浮层确认后同步成功页「开单日期」 */
-  window.__v2OnBillDateChange = function (key) {
-    sucInfo.date = String(key || '').replace(/-/g, '.');
+  /* 日期浮层确认后：
+     · 标题栏日期控件 / 成功页「改日期」/ 结算页「更多 → 选日期」三者写的是**同一个字段**
+       —— 开单日期（selDate），由 v2.js 的 setBillDate 统一落库并绘制，这里只负责显示层：
+     · ctx='co'（结算页选日期）→ 本页只回一个 toast 确认，成功页稍后由 checkoutToSuccess 取用；
+     · 其余（成功页改日期）→ 立即同步成功页卡片上的「开单日期」。 */
+  window.__v2OnBillDateChange = function (key, ctx) {
+    var dot = String(key || '').replace(/-/g, '.');
+    if (ctx === 'co') { toast('开单日期：' + dot); return; }
+    sucInfo.date = dot;
     renderSucRows();
   };
-  function sucChangeNo() {
-    var inp = document.getElementById('sucNoInput');
-    if (inp) inp.value = sucInfo.no || '';
-    openMask('sucNoMask');
-    setTimeout(function () {
-      if (!inp) return;
-      inp.focus();
-      if (inp.select) inp.select();
-    }, 30);
+  /* ===== 结算页标题栏「更多」下拉菜单（R14）=====
+     入口只在 s6 / s7；菜单为单实例，靠 JS 显隐（几何两页一致）。
+     选日期 → 复用同一套日历的底部 sheet 形态，写入「开单日期」（与开单页标题栏日期控件同源）；
+     手工单号 → 复用「单号」sheet，标题切为「手工单号」，留空则开单成功时自动生成。 */
+  function openNavMoreMenu(e) {
+    if (e && e.stopPropagation) e.stopPropagation();
+    var m = document.getElementById('navMoreMenu');
+    var s = document.getElementById('navMoreScrim');
+    if (!m) return;
+    /* 再次点击图标 = 收起（与下拉菜单的通用预期一致） */
+    if (m.classList.contains('show')) { closeNavMoreMenu(); return; }
+    m.classList.add('show');
+    if (s) s.classList.add('show');
   }
+  function closeNavMoreMenu() {
+    var m = document.getElementById('navMoreMenu');
+    var s = document.getElementById('navMoreScrim');
+    if (m) m.classList.remove('show');
+    if (s) s.classList.remove('show');
+  }
+  function navMorePick(kind) {
+    closeNavMoreMenu();
+    if (kind === 'date') coPickDateSheet();
+    else coManualNoSheet();
+  }
+  /* 结算页「选日期」：同一个日历 sheet，来源标记为 'co'，确认后只写本单日期 */
+  function coPickDateSheet() {
+    if (typeof window.__v2OpenDateSheet === 'function') window.__v2OpenDateSheet('co');
+    else if (typeof window.__v2OpenDatePop === 'function') window.__v2OpenDatePop();
+  }
+
+  /* ===== 单号 sheet（R14：两个入口共用一个 sheet，标题随入口切换）=====
+     · 成功页「改单号」→ 单号已生成，语义是「改」；
+     · 结算页「更多 → 手工单号」→ 单号尚未生成，语义是「手工指定一组号码，代替开单后自动产生的单号」。
+     输入就地完成：不叠加任何子弹层，手机上直接唤起系统键盘（CSS 用 --kb-h 让浮层避开键盘）。 */
+  var sucNoTarget = 's15';        // 's15' = 成功页改单号；'co' = 结算页手工单号
+  /* 结算页指定的手工单号：空 = 不手工指定，开单成功时由系统自动生成。
+     注意这里只管「单号」；「日期」不另存字段 —— 开单日期在整个原型里只有 selDate 一处来源
+     （标题栏日期控件 / 成功页改日期 / 结算页更多→选日期 三者写同一个值），避免出现双份真相。 */
+  var coManualNo = '';
+
+  function openSucNoSheet(title, value, target) {
+    sucNoTarget = target || 's15';
+    var t = document.getElementById('sucNoTitle');
+    if (t) t.textContent = title || '修改单号';
+    var inp = document.getElementById('sucNoInput');
+    if (inp) inp.value = (value == null) ? '' : String(value);
+    openMask('sucNoMask');
+    /* 等 sheet 入场动画结束后再聚焦，避免移动端在布局未稳定时唤起键盘后又被系统收起 */
+    focusSucNoInput(260);
+  }
+  /* 聚焦 + 全选：兑现「点击后重新输入」——直接打字即覆盖旧值 */
+  function focusSucNoInput(delay) {
+    var inp = document.getElementById('sucNoInput');
+    if (!inp) return;
+    var run = function () {
+      try { inp.focus({ preventScroll: true }); } catch (e) { inp.focus(); }
+      if (inp.select) inp.select();
+    };
+    if (delay) setTimeout(run, delay); else run();
+  }
+  /* 点在整行任意处即聚焦（点输入框内部则交给浏览器放光标，不强制全选） */
+  function onSucNoFieldClick(e) {
+    var inp = document.getElementById('sucNoInput');
+    if (inp && e && e.target === inp) return;
+    focusSucNoInput(0);
+  }
+  /* 成功页入口 */
+  function sucChangeNo() { openSucNoSheet('修改单号', sucInfo.no, 's15'); }
+  /* 结算页「更多 → 手工单号」入口 */
+  function coManualNoSheet() { openSucNoSheet('手工单号', coManualNo, 'co'); }
   function closeSucNo() { closeMask('sucNoMask'); }
   function confirmSucNo() {
     var inp = document.getElementById('sucNoInput');
     var v = (inp ? inp.value : '').replace(/[^\d]/g, '').slice(0, 20);
+    closeSucNo();
+    if (sucNoTarget === 'co') {
+      coManualNo = v;   // 允许留空：留空即「不手工指定」，开单成功时自动生成
+      toast(v ? ('手工单号：' + v) : '已取消手工单号，开单成功后将自动生成');
+      return;
+    }
     if (!v) v = genCoManual();
     sucInfo.no = v;
     renderSucRows();
-    closeSucNo();
     toast('单号已更新');
   }
   function sucViewFlow() {
     toast('查看该笔流水');
     go('s8');
-  }
-  /* 打印小票（R13）：金额卡右上角图标入口。
-     非主要功能，本原型只以 toast 表示目标页面，不实现打印流程本身 */
-  function sucPrint() {
-    toast('已发送打印小票指令');
   }
   /* 打印小票（R13）：金额卡右上角图标入口。
      非主要功能，本原型只以 toast 表示目标页面，不实现打印流程本身 */
@@ -6159,6 +6311,9 @@
     window.__lastCoCust = null;
     resetOrderNo('co');
     resetOrderNo('qco');
+    /* R14：手工单号属于「本单」的临时约定，开新单即失效
+       （日期不在这里清——它是全局的「开单日期」，由日期控件自身维护） */
+    coManualNo = '';
     recalcOrderAmounts();
     updateCartBadge();
     toast('已开始新的一单');
@@ -6483,6 +6638,26 @@
     root.style.setProperty('--mobile-h', Math.round(logicalH) + 'px');
   }
 
+  /* ---- 系统键盘避让（R14）----
+     目标：手机模式下就地聚焦输入框时，底部浮层不被系统键盘遮住。
+     做法：用 visualViewport 与 layout viewport 的高度差算出键盘占位，
+     再按 --mobile-scale 折算回 #frame 的**逻辑** px 写进 --kb-h，
+     由 CSS `html.is-mobile .addsheet { bottom:var(--kb-h) }` 消费。
+     说明：iOS Safari 键盘弹出时 window.innerHeight 不变（只有 visualViewport.height 变），
+     所以不能只监听 resize；Android 部分浏览器会直接压缩视觉视口，此时差值趋近 0，不会重复抬升。 */
+  function updateKeyboardInset() {
+    if (!root.classList.contains('is-mobile')) return;
+    var vv = window.visualViewport;
+    if (!vv) { root.style.setProperty('--kb-h', '0px'); return; }
+    var overlap = window.innerHeight - vv.height - (vv.offsetTop || 0);
+    if (!isFinite(overlap) || overlap < 0) overlap = 0;
+    var scale = parseFloat(root.style.getPropertyValue('--mobile-scale')) || 1;
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+    /* 小于 80px 的差值视为地址栏等视口抖动，不作为键盘处理，避免页面无故跳动 */
+    var logical = overlap > 80 ? overlap / scale : 0;
+    root.style.setProperty('--kb-h', Math.round(logical) + 'px');
+  }
+
   function applyMode() {
     var on = shouldMobile();
     root.classList.toggle('is-mobile', on);
@@ -6490,9 +6665,11 @@
       closeSiteNav();
       root.style.removeProperty('--mobile-scale');
       root.style.removeProperty('--mobile-h');
+      root.style.removeProperty('--kb-h');
       return;
     }
     updateScale();
+    updateKeyboardInset();
   }
 
   if (scrim) {
@@ -6549,10 +6726,13 @@
 
   applyMode();
   window.addEventListener('resize', function () {
-    if (root.classList.contains('is-mobile')) updateScale();
+    if (root.classList.contains('is-mobile')) { updateScale(); updateKeyboardInset(); }
   }, { passive: true });
   if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', updateScale, { passive: true });
+    window.visualViewport.addEventListener('resize', function () {
+      updateScale(); updateKeyboardInset();
+    }, { passive: true });
+    window.visualViewport.addEventListener('scroll', updateKeyboardInset, { passive: true });
   }
 })();
 </script>

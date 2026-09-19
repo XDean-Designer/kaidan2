@@ -1548,6 +1548,12 @@
     });
   }
 
+  /* R14：结算页「优惠券」行右侧的进入箭头由文字「›」改为 SVG。
+     全仓唯一一处文字箭头即此处，替换后这类图标已全部是 SVG，不会再随字体度量漂移。 */
+  var COUPON_ARROW_SVG =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+
   function ensureCheckoutExtras() {
     enableCheckoutFlow();
     ['coItems', 'qcoItems'].forEach(function (id) {
@@ -1563,7 +1569,7 @@
         extras.innerHTML =
           '<div class="co-coupon-row" data-coupon-row>' +
             '<span class="l">优惠券</span>' +
-            '<span class="r" data-coupon-val>请选择<span>›</span></span>' +
+            '<span class="r" data-coupon-val>请选择' + COUPON_ARROW_SVG + '</span>' +
           '</div>' +
           '<div class="co-remark-card">' +
             '<div class="t">备注</div>' +
@@ -1583,10 +1589,10 @@
           $all('[data-coupon-val]').forEach(function (valEl) {
             if (c) {
               valEl.className = 'r has';
-              valEl.innerHTML = esc(c.name) + '<span>›</span>';
+              valEl.innerHTML = esc(c.name) + COUPON_ARROW_SVG;
             } else {
               valEl.className = 'r';
-              valEl.innerHTML = '请选择<span>›</span>';
+              valEl.innerHTML = '请选择' + COUPON_ARROW_SVG;
             }
           });
         };
@@ -1771,6 +1777,8 @@
   var D_MIN = new Date(dToday.getFullYear(), dToday.getMonth() - 3, dToday.getDate());
   var selDate = new Date(dToday.getFullYear(), dToday.getMonth(), dToday.getDate());
   var viewMonth = new Date(selDate.getFullYear(), selDate.getMonth(), 1);
+  /* 日期浮层的「来源」：null = 标题栏下拉 / 成功页改日期；'co' = 结算页「更多 → 选日期」 */
+  var datePopCtx = null;
 
   function dSame(a, b) {
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -1825,10 +1833,14 @@
 
   /* asSheet=true：以底部 sheet 形态呈现（成功页「改日期」）；
      缺省为标题栏日期控件下拉形态 */
-  function openDatePop(asSheet) {
+  /* asSheet=true：以底部 sheet 形态呈现（成功页「改日期」/ 结算页「更多 → 选日期」）；
+     缺省为标题栏日期控件下拉形态。
+     ctx 记录「谁打开的」：'co' = 结算页选日期（只写本单日期），其余 = 成功页（写开单日期）。 */
+  function openDatePop(asSheet, ctx) {
     var mask = document.querySelector('[data-date-mask]');
     var pop = document.querySelector('[data-date-pop]');
     if (!pop) return;
+    datePopCtx = ctx || null;
     viewMonth = new Date(selDate.getFullYear(), selDate.getMonth(), 1);
     renderDateGrid();
     pop.classList.toggle('is-sheet', asSheet === true);
@@ -1846,8 +1858,10 @@
     selDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     paintBillDates();
     closeDatePop();
-    /* 成功页「改日期」：确认后同步成功页显示的开单日期 */
-    if (typeof window.__v2OnBillDateChange === 'function') window.__v2OnBillDateChange(dKey(selDate));
+    /* 日期确认后的落点由打开方决定：
+       ctx='co' → 结算页「更多 → 选日期」，只写本单日期；
+       其余 → 成功页「改日期」，同步成功页显示的开单日期 */
+    if (typeof window.__v2OnBillDateChange === 'function') window.__v2OnBillDateChange(dKey(selDate), datePopCtx);
   }
 
   function wireDateCtl() {
@@ -1891,7 +1905,8 @@
     window.__v2BillDate = function () { return dKey(selDate); };
     /* 成功页「改日期」：复用同一日历，以底部 sheet 形态打开 */
     window.__v2OpenDatePop = openDatePop;
-    window.__v2OpenDateSheet = function () { openDatePop(true); };
+    /* ctx：'co' = 结算页「更多 → 选日期」；缺省 = 成功页「改日期」 */
+    window.__v2OpenDateSheet = function (ctx) { openDatePop(true, ctx); };
   }
 
   /* 演示开关（仅用于演示「价目表为空 → 隐藏对应 tab」）：
