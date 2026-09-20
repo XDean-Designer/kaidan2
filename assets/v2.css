@@ -63,12 +63,15 @@
 /* 搜索态：隐藏右侧 A-Z 索引条 */
 #s4 .pick-list.is-searching ~ .index-bar { display: none; }
 
-/* —— 顾客行 + 常驻操作区（R16）——
-   删除折叠区与整行点击：行本身无响应，右侧常驻一枚「开单 | 收款」分段胶囊。
-   左段实心红＝主（开单），右段白底红字＝次（收款），1px 分隔同一枚控件，两段各一次点击直达。 */
+/* —— 顾客行 + 常驻操作区（R16 建立 · R17 改版）——
+   删除折叠区与整行点击：行本身无响应，右侧常驻「开单 | 收款」。
+   R17：由「实心红分段胶囊」改为 iOS 列表语言的「纯文字 + 发丝竖线」：
+   无底、无框、无描边，开单 = 红字 600（主）、收款 = 灰字 500（次），中间 1px 竖线。
+   红色面积由整段实心红块降为 2 个字，页面右侧不再过重。
+   行内右内距同时由 12 → 30，与右侧 A–Z 字母索引条（370–388）留出 10px 净空，消除 8px 重叠。 */
 .pick-row-wrap {
   display: flex; align-items: center; gap: 10px;
-  padding-right: 12px;
+  padding-right: 30px;
   background: #fff; border-bottom: 1px solid #f5f5f5;
 }
 .pick-row-wrap .pick-row {
@@ -76,19 +79,20 @@
   border-bottom: 0; padding-right: 0;
 }
 .pick-row-actions {
-  flex: none; display: inline-flex; align-items: stretch; height: 32px;
-  border: 1px solid #F32F41; border-radius: 16px; overflow: hidden; background: #fff;
+  flex: none; display: inline-flex; align-items: center; height: 44px;
+  background: none; border: 0; border-radius: 0; overflow: visible;
 }
 .pick-seg {
-  border: 0; background: #fff; color: #F32F41;
+  border: 0; background: none; color: #8E8E93;
   font-family: inherit; font-size: 13px; font-weight: 500; line-height: 1;
-  padding: 0 12px; cursor: pointer; white-space: nowrap;
+  padding: 0 12px; height: 44px; cursor: pointer; white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
-  transition: background .14s ease, color .14s ease;
+  transition: opacity .14s ease;
 }
-.pick-seg.pick-seg--main { background: #F32F41; color: #fff; border-right: 1px solid #F32F41; }
-.pick-seg.pick-seg--main:active { background: #D9233A; }
-.pick-seg.pick-seg--sec:active { background: #FFF2F2; }
+.pick-seg.pick-seg--main { color: #F32F41; font-weight: 600; }
+.pick-seg:active { opacity: .5; }
+/* 两段之间的发丝竖线（高 14，垂直居中） */
+.pick-seg__div { flex: none; width: 1px; height: 14px; background: #E5E5E5; }
 
 /* —— 开单页：demo 结构（无会员卡/直接收款入口） —— */
 .v2-bill-body {

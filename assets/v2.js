@@ -163,7 +163,9 @@
 
   /* 把单个顾客行包成「行 + 常驻操作区（开单 | 收款）」。
      R16：删除折叠区与整行点击 —— 顾客行本身不响应点击，
-     右侧常驻一枚分段胶囊，左段「开单」为主、右段「收款」为次，两段各自一次点击直达。 */
+     右侧常驻一枚控件，左段「开单」为主、右段「收款」为次，两段各自一次点击直达。
+     R17：控件由「实心红分段胶囊」改为 iOS 列表语言的「纯文字 + 发丝竖线」
+     （开单 = #F32F41 13/600，收款 = #8E8E93 13/500，中间 .pick-seg__div 1px 竖线）。 */
   function wrapOnePickRow(row) {
     if (!row) return null;
     if (row.parentNode && row.parentNode.classList &&
@@ -188,6 +190,7 @@
     actions.className = 'pick-row-actions';
     actions.innerHTML =
       '<button type="button" class="pick-seg pick-seg--main" data-a="bill">开单</button>' +
+      '<span class="pick-seg__div" aria-hidden="true"></span>' +
       '<button type="button" class="pick-seg pick-seg--sec" data-a="quick" aria-label="直接收款">收款</button>';
     actions.onclick = function (e) {
       var b = e.target.closest('[data-a]');

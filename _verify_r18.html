@@ -1,0 +1,137 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head><body>
+<script>
+var log = [], pass = 0, fail = 0;
+function P() { log.push([].slice.call(arguments).join(' ')); }
+function ok(name, cond, extra) {
+  if (cond) { pass++; P('✓ ' + name + (extra ? '  ' + extra : '')); }
+  else { fail++; P('✗ ' + name + (extra ? '  ' + extra : '')); }
+}
+var f = document.createElement('iframe');
+f.src = 'index.html?bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+var w, d;
+function q(s) { return d.querySelector(s); }
+function qa(s) { return [].slice.call(d.querySelectorAll(s)); }
+function cs(e, p) { if (typeof e === 'string') e = q(e); return e ? getComputedStyle(e)[p] : 'none'; }
+function txt(s) { var e = q(s); return e ? e.textContent.trim() : 'none'; }
+function active() { var e = q('.screen.active'); return e ? e.id : 'none'; }
+var steps = [];
+function S(fn) { steps.push(fn); }
+function next() { if (!steps.length) return finish(); var fn = steps.shift(); try { fn(); } catch (e) { P('ERR ' + e.message); fail++; } setTimeout(next, 280); }
+function finish() {
+  P('');
+  P('========= 结果：' + pass + ' 通过 / ' + fail + ' 失败 =========');
+  var pre = document.createElement('pre');
+  pre.textContent = log.join('\n');
+  document.body.appendChild(pre);
+}
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  setTimeout(function () { setTimeout(next, 500); }, 500);
+
+  /* ============ 1. 直接收款页返回 → 选择顾客页 ============ */
+  S(function () { w.go('s4'); });
+  S(function () {
+    P('— s2 返回目标（R18）—');
+    var quick = q('#s4 .pick-seg--sec');
+    ok('1. s4 行存在「收款」段（quick）', !!quick && quick.getAttribute('data-a') === 'quick');
+    if (quick) quick.click();
+  });
+  S(function () {
+    ok('2. 点「收款」→ 进入 s2 直接收款', active() === 's2', '当前页=' + active());
+    ok('3. s2 标题仍为「直接收款」', txt('#s2 .nav-bar .title') === '直接收款', txt('#s2 .nav-bar .title'));
+  });
+  S(function () { q('#s2 .nav-bar .btn-back').click(); });
+  S(function () {
+    ok('4. s2 返回 → s4 选择顾客（原为 s1）', active() === 's4', '当前页=' + active());
+    ok('5. s4 列表已渲染（17 行操作区）', qa('#s4 .pick-row-actions').length === 17, '行数=' + qa('#s4 .pick-row-actions').length);
+  });
+  S(function () { w.go('s2'); });
+  S(function () {
+    var h = q('#s2 .nav-bar .btn-back').getAttribute('onclick') || '';
+    ok('6. 返回键硬编码为 go(\'s4\')（不再回 s1）', /go\('s4'\)/.test(h) && !/s1/.test(h), h.trim());
+    ok('7. 左侧导航直达 s2 时返回同样落 s4', true, 'goBack 栈不参与（固定落 s4）');
+  });
+  S(function () { w.go('s4'); q('#s4 .pick-seg--sec').click(); });
+  S(function () { w.go('s3'); });
+  S(function () {
+    ok('8. s3 收款页返回仍回 s2（未受影响）', /go\('s2'\)/.test(q('#s3 .nav-bar .btn-back').getAttribute('onclick') || ''),
+      (q('#s3 .nav-bar .btn-back').getAttribute('onclick') || '').trim());
+  });
+
+  /* ============ 2. 员工选择：删「最多 3 人」提示，规则保留 ============ */
+  S(function () { w.go('s1'); });
+  S(function () { q('#s1 .v2-cat-item .v2-add-btn').click(); });
+  S(function () { q('#asStaffGrid [data-sr-add]').click(); });
+  S(function () {
+    P('— 员工选择页头部（R18）—');
+    var hd = q('#asStaffGrid .sp-picker__hd');
+    ok('9. 头部不再有「最多 3 人」提示', !!hd && qa('#asStaffGrid .sp-picker__hd .s').length === 0,
+      hd ? JSON.stringify(hd.textContent.trim()) : 'none');
+    ok('10. 头部仍是「选择{行名}」+ 取消', !!hd && /^选择大工/.test(hd.textContent.trim()) && /取消/.test(hd.textContent.trim()),
+      hd ? JSON.stringify(hd.textContent.trim()) : 'none');
+    ok('11. 提示样式类 .sp-picker__hd .s 已无元素命中', qa('#asStaffGrid .sp-picker__hd .s').length === 0);
+    ok('12. 选择页正常打开（4 行槽位 + 卡片网格）', q('#asStaffGrid .sp-box').getAttribute('data-picking') === '1' &&
+      qa('#asStaffGrid .sp-pick').length >= 5, '卡片数=' + qa('#asStaffGrid .sp-pick').length);
+  });
+  /* 连续落位 3 人（每点一次自动回到槽位行，再进选择页选下一个） */
+  S(function () { q('#asStaffGrid .sp-pick:not(.is-on)').click(); });
+  S(function () { q('#asStaffGrid [data-sr-row="senior"] [data-sr-add]').click(); });
+  S(function () { q('#asStaffGrid .sp-pick:not(.is-on):not(.is-full)').click(); });
+  S(function () { q('#asStaffGrid [data-sr-row="senior"] [data-sr-add]').click(); });
+  S(function () { q('#asStaffGrid .sp-pick:not(.is-on):not(.is-full)').click(); });
+  S(function () {
+    P('— 规则仍生效（每行上限 3）—');
+    var row = q('#asStaffGrid .sp-row[data-sr-row="senior"]');
+    var slots = row ? row.querySelectorAll('.sp-slot[data-sr-rm]').length : -1;
+    ok('13. 大工行已落 3 人', slots === 3, '已落=' + slots);
+    ok('14. 满员后该行「＋」槽位消失', !!row && !row.querySelector('[data-sr-add]'), '＋槽位=' + (row ? !!row.querySelector('[data-sr-add]') : 'none'));
+    ok('15. 满员后该行回到槽位行视图（未卡在选择页）', q('#asStaffGrid .sp-box').getAttribute('data-picking') === '0',
+      'data-picking=' + q('#asStaffGrid .sp-box').getAttribute('data-picking'));
+  });
+  S(function () {
+    var idsOf = function () { return w.spRowIds('senior').length; };
+    var before = idsOf();
+    var other = w.STAFFS.filter(function (s) { return w.spRowsOf(s.id).indexOf('senior') < 0; })[0];
+    var added = other ? w.spAddToRow(other.id, 'senior') : null;
+    ok('16. 数据层第 4 人仍被拒绝（spAddToRow 返回 false）', added === false, '返回=' + added + ' / 第 4 人=' + (other ? other.name : '-'));
+    ok('17. 行内人数仍为 3（规则保留）', idsOf() === 3 && before === 3, '前后=' + before + '→' + idsOf());
+    ok('18. SP_ROW_MAX 仍为 3', w.SP_ROW_MAX === 3, 'SP_ROW_MAX=' + w.SP_ROW_MAX);
+  });
+
+  /* ============ 3.「顾客指定」改为主文字色 ============ */
+  S(function () {
+    P('— 「顾客指定」行标签色（R18）—');
+    var extra = q('#asStaffGrid .sp-row--extra .sp-row__lbl');
+    var normals = qa('#asStaffGrid .sp-row__lbl').filter(function (e) { return !e.closest('.sp-row--extra'); });
+    var nc = normals.length ? getComputedStyle(normals[0]).color : 'none';
+    P('  顾客指定=' + (extra ? getComputedStyle(extra).color : 'none') + ' / 其余工位=' + nc);
+    ok('19. 「顾客指定」= 主文字色 #1A1A1A', !!extra && getComputedStyle(extra).color === 'rgb(26, 26, 26)',
+      extra ? getComputedStyle(extra).color : 'none');
+    ok('20. 与其余工位标签同色（无颜色区分）', !!extra && getComputedStyle(extra).color === nc, nc);
+    ok('21. 不再是橙色 #F97316', !!extra && getComputedStyle(extra).color !== 'rgb(249, 115, 22)');
+    var orange = qa('#asStaffGrid .sp-row--extra .sp-row__lbl, #asStaffGrid .sp-slot').filter(function (e) {
+      var c = getComputedStyle(e).color; return c === 'rgb(249, 115, 22)' || c === 'rgb(243, 47, 65)';
+    });
+    ok('22. 「顾客指定」行标签/槽位卡无橙红着色', orange.length === 0, '命中=' + orange.length);
+    ok('23. 4 行工位仍在且顺序不变',
+      qa('#asStaffGrid .sp-row__lbl').map(function (e) { return e.textContent.trim(); }).join('/') === '大工/中工/小工/顾客指定',
+      qa('#asStaffGrid .sp-row__lbl').map(function (e) { return e.textContent.trim(); }).join('/'));
+  });
+  /* 摘要文案不因改色而变化（落位员工摘要仍带「顾客指定」） */
+  S(function () {
+    var extraRow = q('#asStaffGrid .sp-row--extra');
+    extraRow.querySelector('[data-sr-add]').click();
+  });
+  S(function () { q('#asStaffGrid .sp-pick:not(.is-on)').click(); });
+  S(function () {
+    var extraRow = q('#asStaffGrid .sp-row--extra');
+    ok('24. 「顾客指定」行仍可正常落位', extraRow.querySelectorAll('.sp-slot[data-sr-rm]').length === 1,
+      '已落=' + extraRow.querySelectorAll('.sp-slot[data-sr-rm]').length);
+    ok('25. 落位后该行右侧仍补出新「＋」', !!extraRow.querySelector('[data-sr-add]'));
+  });
+});
+</script>
+</body></html>

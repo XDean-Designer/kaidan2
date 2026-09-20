@@ -1,0 +1,75 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script>
+var log = [];
+function P() { log.push(Array.prototype.slice.call(arguments).join(' ')); }
+var f = document.createElement('iframe');
+f.src = 'index.html?bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+var w, d;
+function q(s) { return d.querySelector(s); }
+function qa(s) { return Array.prototype.slice.call(d.querySelectorAll(s)); }
+function R(s) { var e = typeof s === 'string' ? q(s) : s; if (!e) return null; var r = e.getBoundingClientRect();
+  return { l: Math.round(r.left * 10) / 10, r: Math.round(r.right * 10) / 10, t: Math.round(r.top * 10) / 10,
+           b: Math.round(r.bottom * 10) / 10, w: Math.round(r.width * 10) / 10, h: Math.round(r.height * 10) / 10 }; }
+function cs(s, p) { var e = typeof s === 'string' ? q(s) : s; return e ? getComputedStyle(e)[p] : 'none'; }
+var steps = [];
+function S(fn) { steps.push(fn); }
+function next() { if (!steps.length) return finish(); var fn = steps.shift(); try { fn(); } catch (e) { log.push('ERR ' + e.message); } setTimeout(next, 220); }
+function finish() { var pre = document.createElement('pre'); pre.textContent = log.join('\n'); document.body.appendChild(pre); }
+
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  setTimeout(function () { setTimeout(next, 400); }, 400);
+
+  S(function () { w.go('s4'); });
+  S(function () {
+    P('=== s4 几何（逻辑 px，画布 390）===');
+    P('pick-list      ' + JSON.stringify(R('#s4 .pick-list')));
+    P('pick-row-wrap  ' + JSON.stringify(R('#s4 .pick-row-wrap')));
+    P('pick-row       ' + JSON.stringify(R('#s4 .pick-row-wrap .pick-row')));
+    P('actions(胶囊)  ' + JSON.stringify(R('#s4 .pick-row-wrap .pick-row-actions')));
+    P('seg--main      ' + JSON.stringify(R('#s4 .pick-row-wrap .pick-seg--main')));
+    P('seg--sec       ' + JSON.stringify(R('#s4 .pick-row-wrap .pick-seg--sec')));
+    P('index-bar      ' + JSON.stringify(R('#s4 .index-bar')));
+    P('index-bar 首字母 ' + JSON.stringify(R('#s4 .index-bar span')));
+    var a = R('#s4 .pick-row-wrap .pick-row-actions'), i = R('#s4 .index-bar');
+    P('重叠宽度 = ' + Math.max(0, Math.min(a.r, i.r) - Math.max(a.l, i.l)) + 'px');
+    P('胶囊右缘 ' + a.r + ' / 索引条左缘 ' + i.l + ' / 净空 ' + (i.l - a.r) + 'px');
+    P('行数 = ' + qa('#s4 .pick-row-wrap').length + ' 胶囊数 = ' + qa('#s4 .pick-row-actions').length);
+    P('--- 胶囊样式 ---');
+    P('main bg/color/fs/fw = ' + cs('#s4 .pick-row-wrap .pick-seg--main', 'backgroundColor') + ' / ' +
+      cs('#s4 .pick-row-wrap .pick-seg--main', 'color') + ' / ' + cs('#s4 .pick-row-wrap .pick-seg--main', 'fontSize') + ' / ' + cs('#s4 .pick-row-wrap .pick-seg--main', 'fontWeight'));
+    P('sec  bg/color/fs/fw = ' + cs('#s4 .pick-row-wrap .pick-seg--sec', 'backgroundColor') + ' / ' +
+      cs('#s4 .pick-row-wrap .pick-seg--sec', 'color') + ' / ' + cs('#s4 .pick-row-wrap .pick-seg--sec', 'fontSize') + ' / ' + cs('#s4 .pick-row-wrap .pick-seg--sec', 'fontWeight'));
+    P('胶囊 border/radius/h = ' + cs('#s4 .pick-row-wrap .pick-row-actions', 'border') + ' / ' + cs('#s4 .pick-row-wrap .pick-row-actions', 'borderRadius') + ' / ' + R('#s4 .pick-row-wrap .pick-row-actions').h);
+    P('索引条 color/fs/fw/left = ' + cs('#s4 .index-bar', 'color') + ' / ' + cs('#s4 .index-bar', 'fontSize') + ' / ' + cs('#s4 .index-bar', 'fontWeight') + ' / left ' + cs('#s4 .index-bar', 'left'));
+  });
+
+  S(function () { q('#s1 .v2-cat-item .v2-add-btn').click(); });
+  S(function () {
+    P('=== sheet 顾客指定 ===');
+    var lbl = q('#asStaffGrid .sp-row--extra .sp-row__lbl');
+    P('顾客指定 文案 = ' + (lbl ? lbl.textContent.trim() : 'none') + '  color = ' + (lbl ? getComputedStyle(lbl).color : 'none'));
+    P('大工 color = ' + cs('#asStaffGrid .sp-row .sp-row__lbl', 'color'));
+    P('行名列表 = ' + qa('#asStaffGrid .sp-row__lbl').map(function (e) { return e.textContent.trim(); }).join('/'));
+    P('sp-row--extra 数 = ' + qa('#asStaffGrid .sp-row--extra').length);
+  });
+  S(function () { q('#addSheetMask .addsheet__mask, #addSheetMask').click(); });
+  S(function () { w.go('s6'); });
+  S(function () { q('#s6 .co-bar .btn-c').click(); });
+  S(function () {
+    P('=== s15 操作组 / 打印小票 ===');
+    P('suc-acts       ' + JSON.stringify(R('#s15 .suc-acts')));
+    P('suc-act[0]     ' + JSON.stringify(R('#s15 .suc-act')));
+    P('打印小票 元素   ' + JSON.stringify(R('#s15 [aria-label="打印小票"]')));
+    P('suc-card       ' + JSON.stringify(R('#s15 .suc-card')));
+    P('底栏           ' + JSON.stringify(R('#s15 .suc-bar')));
+    P('操作组按钮数 = ' + qa('#s15 .suc-act').length + '  文案 = ' +
+      qa('#s15 .suc-act').map(function (e) { return e.textContent.replace(/\s+/g, ''); }).join('/'));
+  });
+});
+</script>
+</body></html>
