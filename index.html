@@ -1141,6 +1141,10 @@
     display:none;
   }
   .quick-staff-panel.open { display:block; }
+  /* R20：员工 ≤ 5 人的紧凑形态（4 行「标题 + 卡列」）比旧槽位行高，
+     直接收款面板的上限 320 → 388（面板顶 452 + 388 = 840 < 手机底 844），
+     4 行卡全部可见、面板内不滚动。 */
+  .quick-staff-panel.is-cards { max-height: 388px; }
 
   /* 底部确认 */
   .addsheet__foot {
@@ -1277,7 +1281,7 @@
 
   .sp-box[data-picking="1"] .sp-face--rows { max-height: 0; opacity: 0; transform: scale(.985); pointer-events: none; }
 
-  .sp-box[data-picking="1"] .sp-face--pick { max-height: 560px; opacity: 1; transform: none; pointer-events: auto; }
+  .sp-box[data-picking="1"] .sp-face--pick { max-height: var(--sp-pick-h, 560px); opacity: 1; transform: none; pointer-events: auto; }
 
 
 
@@ -1430,11 +1434,60 @@
 
   .sp-pick.is-full { opacity: .4; pointer-events: none; }
 
+  /* —— R20 紧凑形态：员工总数 ≤ 5 人 ——
+     布局：每个工位标题独占一行（仍在左侧），标题下一行横列「全部」员工卡，
+     第一张卡与标题左对齐（同一左内距 → 标题与卡列成一条竖线）。
+     点卡即选中＝加入该槽位，再点移出；某行满 3 人后该行其余卡置灰。
+     尺寸：5 张卡 59 + 4×6 间距 = 319px，最窄宿主（添加 sheet 内 322px）也恰好落满一行，
+     不横滑、不换行、不需要滚动。高度 62 与旧槽位卡（62×54）同一档，观感连续。 */
+  .sp-cards__row { padding: 3px 0; }
+  .sp-cards__row + .sp-cards__row { border-top: .5px solid #F0F0F0; }
+  .sp-cards__t { font-size: 13px; line-height: 18px; color: #1a1a1a; padding: 0 0 4px; }
+  .sp-cards__list { display: flex; flex-wrap: nowrap; gap: 6px; }
+  .sp-card {
+    position: relative; width: 59px; height: 62px; padding: 6px 2px 5px; box-sizing: border-box;
+    border: .5px solid #EDEDED; border-radius: 10px; background: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .1s ease-out;
+  }
+  .sp-card:active { transform: scale(.95); }
+  .sp-av--card { width: 30px; height: 30px; }
+  .sp-card__nm {
+    max-width: 100%; font-size: 10px; line-height: 13px; color: #55595E;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  /* 选中：0.5px 描边 + 0.5px 外扩阴影＝视觉 1px 品牌边（59px 宽的小卡上 0.5px 太弱） */
+  .sp-card.is-on { border-color: var(--brand); box-shadow: 0 0 0 .5px var(--brand); background: linear-gradient(180deg, #FFF8F8 0%, #FFF2F2 100%); }
+  .sp-card.is-on .sp-card__nm { color: #1a1a1a; font-weight: 500; }
+  .sp-card__tick {
+    position: absolute; top: 3px; right: 3px; width: 14px; height: 14px; border-radius: 7px;
+    background: var(--brand); color: #fff; display: none; align-items: center; justify-content: center;
+  }
+  .sp-card__tick svg { width: 8px; height: 8px; display: block; }
+  .sp-card.is-on .sp-card__tick { display: flex; }
+  .sp-card.is-full { opacity: .4; pointer-events: none; }
+  /* 选中落位：卡自己弹一下（没有槽位可落，就把弹跳给到卡） */
+  .sp-card.is-land { animation: spCardLand .34s cubic-bezier(.34,1.3,.64,1) both; }
+  @keyframes spCardLand {
+    0% { transform: scale(.82); }
+    58% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  /* —— R20：选择页（>5 人）高度自适应 & 焦点收拢 ——
+     ① 选择页高度由内容决定（渲染后实测写入 --sp-pick-h），4 行卡（12 人）不再被 560px 提前截断；
+     ② 进入选择页时隐藏「价格（元）」卡，sheet 只留「员工」一件事，腾出的高度全部给卡片；
+     ③ sheet 上限 85% → 92%（仅抬上限，高度仍由内容决定）。 */
+  .sp-pick-inner { display: block; }
+  #addSheetMask .addsheet.is-picking { max-height: 92%; }
+  #addSheetMask .addsheet.is-picking #asPriceCell { display: none; }
+
   @media (prefers-reduced-motion: reduce) {
 
-    .sp-face, .sp-slot, .sp-pick { transition: none !important; }
+    .sp-face, .sp-slot, .sp-pick, .sp-card { transition: none !important; }
 
-    .sp-slot.is-land { animation: none !important; }
+    .sp-slot.is-land, .sp-card.is-land { animation: none !important; }
 
   }
 
@@ -1703,7 +1756,7 @@
   /* ===== 页面14 挂单列表 =====
      R5 优化：① 顶部失效提示条（固定在标题栏下，列表滚动时始终可见）
      ② 卡片信息分层：卡头 / 发丝线 / 明细 + 字段组 / 操作行
-     ③ 金额 20 Medium，操作行「删除（次）+ 去开单（主）」
+     ③ 金额 20 Medium，操作行「删除（次）+ 去结单（主）」
      ④ 类型 chip 与 VIP 标签统一到全站规范
      ⑤ 动效：进入错峰淡入 / 取单淡出 / 删除塌陷
      ⑥ 空态：图标 + 主副文案 */
@@ -1735,7 +1788,7 @@
     animation:v2HoldIn .30s cubic-bezier(.32,.72,0,1) both;
     animation-delay:calc(var(--i, 0) * 50ms);
   }
-  /* ⑤ 去开单：卡片淡出缩小后再跳转 */
+  /* ⑤ 去结单：卡片淡出缩小后再跳转 */
   #s14 .hold-card.is-take {
     opacity:0; transform:scale(.97);
     transition:opacity .17s ease, transform .17s ease;
@@ -1764,7 +1817,7 @@
     flex:1; min-width:0; font-size:13px; line-height:19px; color:var(--text);
     text-align:right; word-break:break-all;
   }
-  /* ③ 操作行：金额在左，删除（次）+ 去开单（主）在右 */
+  /* ③ 操作行：金额在左，删除（次）+ 去结单（主）在右 */
   #s14 .hc-ft { display:flex; align-items:center; gap:8px; margin-top:12px; }
   #s14 .hc-ft .amt {
     margin-right:auto; display:flex; align-items:baseline;
@@ -2005,6 +2058,7 @@
     <button class="nav-item" onclick="openBenPickSheet(null)"><span class="idx">12</span>选择权益</button>
     <button class="nav-item" onclick="openCouponPickSheet()"><span class="idx">13</span>选择优惠券</button>
     <button class="nav-item" data-target="s14" onclick="openHoldList()"><span class="idx">14</span>挂单列表</button>
+    <button class="nav-item" onclick="demoStaffPicker12()"><span class="idx">16</span>员工选择（12 人）</button>
   </div>
   <div class="nav-group grow">
     <div class="g-t">文档</div>
@@ -3672,7 +3726,7 @@
     var prev = staffRow;
     staffRow = quickStaffRow;
     var names = quickStaffRow.staffIds.map(function(sid) {
-      var st = STAFFS.find(function(s){ return s.id === sid; });
+      var st = staffById(sid);
       return (st ? st.name : sid) + '·' + staffPickSummaryText(sid);
     });
     staffRow = prev;
@@ -3709,13 +3763,13 @@
     staffRow = quickStaffRow;
     spPickRow = null;
     spActiveRoot = panel;
-    panel.innerHTML = renderStaffPickerHtml();
+    panel.classList.toggle('is-cards', spSmallStaff());
+    renderStaffInto(panel);
     panel.classList.add('open');
     var top = (row.offsetTop + row.offsetHeight + 8);
     panel.style.top = top + 'px';
     var arr = row.querySelector('.opt .arr');
     if (arr) arr.style.transform = 'rotate(180deg)';
-    afterStaffPickerPaint(panel);
   }
 
   function renderQuickRemark() {
@@ -3761,13 +3815,13 @@
       toast('请先添加项目或产品');
       return;
     }
-    /* 去开单后又在结算页挂单：原挂单移除，只保留本次新挂单（避免重复计数） */
+    /* 去结单后又在结算页挂单：原挂单移除，只保留本次新挂单（避免重复计数） */
     if (activeHoldId) {
       holdOrders = holdOrders.filter(function (h) { return h.id !== activeHoldId; });
       activeHoldId = null;
     }
     /* 挂单：明细 + 全单服务员工并集存入挂单列表，当前单据清空后跳转挂单列表页
-       from 记录来源页：s6 结算页 / s1·s5 开单页 —— 去开单时回到同一页 */
+       from 记录来源页：s6 结算页 / s1·s5 开单页 —— 去结单时回到同一页 */
     holdOrders.unshift({
       id: 'h' + Date.now(),
       cust: holdCustName(),
@@ -3914,16 +3968,45 @@
     document.getElementById('asStaffLabel').textContent = isProd ? '销售人员' : '服务员工';
     // 内嵌员工选择：直接渲染到弹窗内
     var gridRoot = document.getElementById('asStaffGrid');
-    if (gridRoot) {
-      gridRoot.innerHTML = renderStaffPickerHtml();
-      afterStaffPickerPaint(gridRoot);
-    }
+    if (gridRoot) renderStaffInto(gridRoot);
     openMask('addSheetMask');
   }
 
+  /* R20：关闭「设置内容」sheet 的统一出口 —— 顺带退出员工扩编演示态 */
+  function closeAddSheet() {
+    closeMask('addSheetMask');
+    exitStaffDemo();
+  }
+
+  /* 员工扩编演示（左侧导航「16 员工选择（12 人）」）：
+     门店只有 5 人时走新紧凑形态，>5 人走原「槽位 + 选择页」形态；
+     这一支要能评审，因此临时把员工池扩到 12 人，关闭 sheet 即还原。 */
+  function exitStaffDemo() {
+    if (!spDemoStaff) return;
+    spDemoStaff = false;
+    var grid = document.getElementById('asStaffGrid');
+    if (grid) grid.innerHTML = '';
+  }
+
+  function demoStaffPicker12() {
+    spDemoStaff = true;
+    if (quickStaffOpen) toggleQuickStaff(quickStaffOpen);   /* 收起直接收款的面板，避免两个宿主同时亮着 */
+    go('s1');
+    setTimeout(function () {
+      var addBtn = document.querySelector('#s1 .v2-cat-item .v2-add-btn');
+      if (!addBtn) { exitStaffDemo(); toast('演示入口失效：未找到项目卡'); return; }
+      addBtn.click();                                       /* 打开「设置内容」sheet（已是 12 人池） */
+      setTimeout(function () {
+        var plus = document.querySelector('#asStaffGrid .sp-slot--add');
+        if (plus) plus.click();                             /* 直接进入「选择大工」选择页 */
+      }, 320);
+    }, 300);
+  }
+  window.demoStaffPicker12 = demoStaffPicker12;
+
   // 遮罩点击关闭
   document.getElementById('addSheetMask').addEventListener('click', function(e) {
-    if (e.target === this) closeMask('addSheetMask');
+    if (e.target === this) closeAddSheet();
   });
 
   function switchTab(el) {
@@ -4018,6 +4101,27 @@
     { id: 'st3', name: '阿Ken', short: 'Ken', role: '美容师', avatar: 'assets/emp-avatars/man-b.jpg' },
     { id: 'st4', name: 'Lisa', short: 'Lisa', role: '美甲师', avatar: 'assets/emp-avatars/woman-b.jpg' },
   ];
+
+  /* R20：演示用「扩编员工池」（左侧导航「16 员工选择（12 人）」进入）。
+     5 人门店走新紧凑形态、>5 人走原槽位 + 选择页形态，两支都要能评审，
+     所以把多出的 7 人放在 STAFF_EXTRA 里：只有演示开关打开时才出现在选择列表，
+     但查找（staffById）永远覆盖 —— 避免演示里选中的员工在摘要 / 购物车 / 挂单里显示成 id。 */
+  var STAFF_EXTRA = [
+    { id: 'st5', name: '周予安', short: '周', role: '美容师', avatar: 'assets/emp-avatars/man-c.jpg' },
+    { id: 'st6', name: '陈叙白', short: '陈', role: '美容师', avatar: 'assets/emp-avatars/man-d.jpg' },
+    { id: 'st7', name: '苏晚棠', short: '苏', role: '美甲师', avatar: 'assets/emp-avatars/woman-c.jpg' },
+    { id: 'st8', name: '许星禾', short: '许', role: '美甲师', avatar: 'assets/emp-avatars/woman-d.jpg' },
+    { id: 'st9', name: '郑南', short: '郑', role: '理发师', avatar: 'assets/emp-avatars/man-a.jpg' },
+    { id: 'st10', name: '梁清和', short: '梁', role: '技师', avatar: 'assets/emp-avatars/man-e.jpg' },
+    { id: 'st11', name: '孟知微', short: '孟', role: '美容师', avatar: 'assets/emp-avatars/woman-e.jpg' }
+  ];
+  var STAFF_ALL = STAFFS.concat(STAFF_EXTRA);
+  var spDemoStaff = false;   /* 演示开关：把员工池扩到 12 人（关闭添加 sheet 即还原） */
+  function staffPool() { return spDemoStaff ? STAFF_ALL : STAFFS; }
+  function staffById(sid) {
+    for (var i = 0; i < STAFF_ALL.length; i++) if (STAFF_ALL[i].id === sid) return STAFF_ALL[i];
+    return null;
+  }
 
   var staffRow = { id: '__add__', staffIds: [], staffRoles: {}, staffExtra: {}, staffChosen: {} };
   var addStaffRow = staffRow;
@@ -4177,11 +4281,7 @@
   }
 
   function spStaffById(sid) {
-
-    for (var i = 0; i < STAFFS.length; i++) if (STAFFS[i].id === sid) return STAFFS[i];
-
-    return null;
-
+    return staffById(sid);
   }
 
   /* 该员工当前所属的工位行（可多行：同一员工既可挂大工、也可同时计顾客指定提成） */
@@ -4366,6 +4466,42 @@
 
   }
 
+  /* ===== R20：≤ SP_SMALL_MAX 人的紧凑形态 =====
+
+     标题（大工 / 中工 / 小工 / 顾客指定）各自独占一行、仍在左侧；
+     标题下一行横列「全部」员工卡，第一张卡与标题左对齐（同一个左内距）。
+     点卡即选中＝加入该槽位，再点即移出；某行满 3 人后该行其余卡置灰并提示。
+     没有「＋」虚线槽位，也不再 morph 到选择页 —— 5 张卡恰好落满一行，不需要滚动。 */
+  var SP_SMALL_MAX = 5;
+
+  function spSmallStaff() { return staffPool().length <= SP_SMALL_MAX; }
+
+  function spCardHtml(st, rowKey) {
+    var on = spRowsOf(st.id).indexOf(rowKey) >= 0;
+    var full = !on && spRowIds(rowKey).length >= SP_ROW_MAX;
+    var land = (spLandSid === st.id) ? ' is-land' : '';
+    return '<button type="button" class="sp-card' + (on ? ' is-on' : '') + (full ? ' is-full' : '') + land + '"' +
+      ' data-sr-card="' + escapeHtml(st.id) + '" data-sr-row="' + escapeHtml(rowKey) + '"' +
+      (full ? ' aria-disabled="true"' : '') +
+      ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
+      ' aria-label="' + escapeHtml(st.name) + (on ? '（已加入此工位，点击移除）' : '') + '">' +
+      spAvatarHtml(st, 'sp-av--card') +
+      '<span class="sp-card__nm">' + escapeHtml(st.name) + '</span>' +
+      '<span class="sp-card__tick" aria-hidden="true">' + SP_TICK_SVG + '</span>' +
+      '</button>';
+  }
+
+  function spCardsHtml() {
+    var pool = staffPool();
+    return '<div class="sp-cards">' + spRowDefs().map(function (r) {
+      var cards = pool.map(function (st) { return spCardHtml(st, r.key); }).join('');
+      return '<div class="sp-cards__row' + (r.kind === 'extra' ? ' sp-cards__row--extra' : '') + '" data-sr-row="' + r.key + '">' +
+          '<div class="sp-cards__t">' + escapeHtml(r.label) + '</div>' +
+          '<div class="sp-cards__list">' + cards + '</div>' +
+        '</div>';
+    }).join('') + '</div>';
+  }
+
   function spRowsHtml() {
 
     return spRowDefs().map(function (r) {
@@ -4396,7 +4532,7 @@
 
     var ids = spRowIds(spPickRow);
 
-    var cards = STAFFS.map(function (st) {
+    var cards = staffPool().map(function (st) {
 
       var on = ids.indexOf(st.id) >= 0;
 
@@ -4436,13 +4572,14 @@
 
     ensureStaffState();
 
+    if (spSmallStaff()) return spCardsHtml();
     return '<div class="sp-box" data-picking="' + (spPickRow ? '1' : '0') + '"' +
 
         (spPickRow ? ' data-pick-row="' + escapeHtml(spPickRow) + '"' : '') + '>' +
 
         '<div class="sp-face sp-face--rows">' + spRowsHtml() + '</div>' +
 
-        '<div class="sp-face sp-face--pick" aria-hidden="' + (spPickRow ? 'false' : 'true') + '">' + spPickHtml() + '</div>' +
+        '<div class="sp-face sp-face--pick" aria-hidden="' + (spPickRow ? 'false' : 'true') + '"><div class="sp-pick-inner">' + spPickHtml() + '</div></div>' +
 
       '</div>';
 
@@ -4468,6 +4605,29 @@
 
     afterStaffPickerPaint(root);
 
+    syncStaffHostState(root);
+
+  }
+
+  /* R20：宿主（添加 sheet / 结算 sheet / 直接收款面板）在重绘后的同步：
+     ① 添加 sheet：进入选择页时隐藏「价格（元）」卡（.is-picking）；
+     ② 选择页高度按内容自适应 —— 渲染后实测内容高写入 --sp-pick-h，
+        4 行卡（12 人）也能完整展开、不被原来固定的 560px 截断。 */
+  function syncStaffHostState(root) {
+    var box = root.querySelector ? root.querySelector('.sp-box') : null;
+    var mask = (root.closest && root.closest('.addsheet-mask')) || null;
+    if (mask && mask.id === 'addSheetMask') {
+      var sheet = mask.querySelector('.addsheet');
+      if (sheet) sheet.classList.toggle('is-picking', !!spPickRow);
+    }
+    if (!box) return;
+    if (spPickRow) {
+      var inner = box.querySelector('.sp-pick-inner');
+      var h = inner ? inner.offsetHeight : 0;
+      if (h > 0) box.style.setProperty('--sp-pick-h', h + 'px');
+    } else {
+      box.style.removeProperty('--sp-pick-h');
+    }
   }
 
   function renderStaffPickerHtmlForRow(row) {
@@ -4669,6 +4829,32 @@
 
     }
 
+    /* R20：紧凑形态点卡 = 加入 / 移出该工位（无选择页，就地切换选中态） */
+    var cardBtn = e.target.closest('[data-sr-card]');
+    if (cardBtn) {
+      e.preventDefault(); e.stopPropagation();
+      var cRow = cardBtn.getAttribute('data-sr-row');
+      var cSid = cardBtn.getAttribute('data-sr-card');
+      var cDef = spRowDef(cRow);
+      if (spRowsOf(cSid).indexOf(cRow) >= 0) {
+        spRemoveFromRow(cSid, cRow);
+        spLandSid = null;
+        spHaptic();
+        spRepaint(root, ctx);
+        return;
+      }
+      if (spRowFull(cRow)) {
+        toast((cDef ? cDef.label : '该工位') + '最多 ' + SP_ROW_MAX + ' 人');
+        return;
+      }
+      if (spAddToRow(cSid, cRow)) {
+        spLandSid = cSid;
+        spHaptic();
+        spRepaint(root, ctx);
+      }
+      return;
+    }
+
     var rmBtn = e.target.closest('[data-sr-rm]');
 
     if (rmBtn) {
@@ -4724,7 +4910,7 @@
     var prev = staffRow;
     staffRow = staff;
     var t = staff.staffIds.map(function(sid) {
-      var st = STAFFS.find(function(s){ return s.id === sid; });
+      var st = staffById(sid);
       return (st ? st.name : sid) + '·' + staffPickSummaryText(sid);
     }).join('、');
     staffRow = prev;
@@ -4795,7 +4981,7 @@
     recalcOrderAmounts();
     updateCartBadge();
     toast('已加入 · 应付 ¥' + payable.toFixed(2));
-    closeMask('addSheetMask');
+    closeAddSheet();
   }
 
   // ===== 已选商品 Sheet =====
@@ -5144,7 +5330,7 @@
         '<span class="lbl">服务员工</span>' +
         '<span class="co-staff-list">' +
           it.staff.staffIds.map(function(sid) {
-            var st = STAFFS.find(function(s) { return s.id === sid; });
+            var st = staffById(sid);
             var prev = staffRow;
             staffRow = it.staff;
             var meta = staffPickSummaryText(sid);
@@ -5571,13 +5757,13 @@
   // ---- 挂单 / 结账 ----
   /* ===== 页面14 挂单列表 =====
      字段：{ id, cust, vip, from, day, time, staff: [{name, role, designated}], items: [] }
-       from：挂单来源页 —— 'order' 开单页（s1 散客 / s5 会员）→ 去开单回开单页
-                          'checkout' 结算页（s6）→ 去开单回结算页
+       from：挂单来源页 —— 'order' 开单页（s1 散客 / s5 会员）→ 去结单回开单页
+                          'checkout' 结算页（s6）→ 去结单回结算页
        day ：相对天数（0=今天；<0 = 已过 24:00，自动失效并删除）
      staff 为挂单时全单服务员工的并集（按明细顺序去重），用于卡片「服务员工」字段；
-     items 内同时保存每行的员工状态，去开单时可原样还原。
+     items 内同时保存每行的员工状态，去结单时可原样还原。
      ★ 挂单仅在三种情况下被删除：① 列表内「删除」按钮 ② 每日 24:00 超时自动删除
-       ③ 去开单后进入结算并开单成功 */
+       ③ 去结单后进入结算并开单成功 */
   var holdOrders = [
     { id: 'h1001', cust: '陈女士', vip: true, from: 'order', day: 0, time: '今天 10:24',
       staff: [{ name: '林屿森', role: '大工', designated: true },
@@ -5586,7 +5772,7 @@
     { id: 'h1002', cust: '男散客', vip: false, from: 'order', day: 0, time: '今天 09:58',
       staff: [{ name: '阿Ken', role: '大工', designated: false }],
       items: [{ name: '染发', price: 358, qty: 1 }] },
-    /* 来源为结算页：去开单后直接回到结算页 */
+    /* 来源为结算页：去结单后直接回到结算页 */
     { id: 'h1003', cust: '李女士', vip: true, from: 'checkout', day: 0, time: '今天 09:32',
       staff: [{ name: 'Lisa', role: '中工', designated: true }],
       items: [{ name: '时尚造型', price: 128, qty: 2 },
@@ -5624,7 +5810,7 @@
       s.staffIds.forEach(function (sid) {
         if (seen[sid]) return;
         seen[sid] = 1;
-        var st = STAFFS.find(function (x) { return x.id === sid; });
+        var st = staffById(sid);
         out.push({
           name: st ? st.name : sid,
           role: staffRoleLabel(s.staffRoles && s.staffRoles[sid]),
@@ -5634,7 +5820,7 @@
     });
     return out;
   }
-  /* 去开单后每行员工的还原载体（随明细一起存，避免丢失顾客指定与工位） */
+  /* 去结单后每行员工的还原载体（随明细一起存，避免丢失顾客指定与工位） */
   function holdItemStaffSnap(st) {
     return cloneStaffObj(st);
   }
@@ -5677,7 +5863,7 @@
             '<button type="button" class="btn-del" aria-label="删除挂单" onclick="delHold(' + i + ')">' +
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 7V5.5A1.5 1.5 0 0111.5 4h1A1.5 1.5 0 0114 5.5V7M6.5 7l.8 12.1A1.5 1.5 0 008.8 20.6h6.4a1.5 1.5 0 001.5-1.5L17.5 7M10 11v6M14 11v6"/></svg>' +
             '</button>' +
-            '<button type="button" class="btn-take" onclick="takeHold(' + i + ')">去开单</button>' +
+            '<button type="button" class="btn-take" onclick="takeHold(' + i + ')">去结单</button>' +
           '</div>' +
         '</div>';
     }).join('');
@@ -5731,7 +5917,7 @@
     if (card) card.classList.add('is-take');
     setTimeout(function () { doTakeHold(i, h); }, card ? 165 : 0);
   }
-  /* 去开单：明细取回当前单据，挂单本身保留（可重复取）；
+  /* 去结单：明细取回当前单据，挂单本身保留（可重复取）；
      只有「开单成功」才会把该挂单移除（见 checkoutToSuccess）。
      前往页面按挂单来源：结算页挂单 → 回结算页；开单页挂单 → 回开单页 */
   function doTakeHold(i, h) {
@@ -5741,7 +5927,7 @@
     setCust(kind);
     setCoCust(kind);
     setQcoCust(kind);
-    /* 去开单 = 取回该挂单的单据：覆盖当前草稿，并清掉草稿上的券 / 权益手工状态 */
+    /* 去结单 = 取回该挂单的单据：覆盖当前草稿，并清掉草稿上的券 / 权益手工状态 */
     cartItems.length = 0;
     window.__v2OrderCoupon = null;
     window.__v2OrderCouponTouched = false;
@@ -5991,28 +6177,11 @@
     });
     box.innerHTML = html;
   }
-  /* 金额入场计数：0 → 目标值，620ms easeOutCubic（与卡片上浮错峰衔接） */
-  var sucAmtRaf = 0;
-  function sucCountUp(el, target) {
-    if (!el) return;
-    if (sucAmtRaf) { cancelAnimationFrame(sucAmtRaf); sucAmtRaf = 0; }
-    var t0 = 0, dur = 620;
-    function tick(now) {
-      if (!t0) t0 = now;
-      var p = Math.min(1, (now - t0) / dur);
-      var e = 1 - Math.pow(1 - p, 3);
-      if (p < 1) {
-        el.textContent = money2(target * e).replace(/\.00$/, '');
-        sucAmtRaf = requestAnimationFrame(tick);
-      } else {
-        el.textContent = money2(target).replace(/\.00$/, '');
-        sucAmtRaf = 0;
-      }
-    }
-    sucAmtRaf = requestAnimationFrame(tick);
-  }
+  /* R20：金额不再入场计数（原 0 → 目标值 620ms easeOutCubic 已按需求删除），
+     直接写终值 —— 进入成功页时金额是「已落定」的读数，只有卡片/标题/操作组的错峰上浮淡入。 */
   function paintSuccessPage() {
-    sucCountUp(document.getElementById('sucAmt'), sucInfo.amount);
+    var amtEl = document.getElementById('sucAmt');
+    if (amtEl) amtEl.textContent = money2(sucInfo.amount).replace(/\.00$/, '');
     renderSucRows();
   }
   /* 成功页演示数据（左侧导航直达 s15 时展示）：
@@ -6056,7 +6225,7 @@
       date: (billDate ? billDate.replace(/-/g, '.') : todayDot()),
       no: coManualNo || genCoManual()
     };
-    /* 本单已结：把来源挂单移除（挂单删除的第三种情形：去开单后开单成功） */
+    /* 本单已结：把来源挂单移除（挂单删除的第三种情形：去结单后开单成功） */
     if (activeHoldId) {
       holdOrders = holdOrders.filter(function (h) { return h.id !== activeHoldId; });
       activeHoldId = null;
@@ -6296,7 +6465,7 @@
       '<span class="lbl">服务员工</span>' +
       '<span class="co-staff-list">' +
         it.staff.staffIds.map(function(sid) {
-          var st = STAFFS.find(function(s) { return s.id === sid; });
+          var st = staffById(sid);
           var prev = staffRow;
           staffRow = it.staff;
           var meta = staffPickSummaryText(sid);

@@ -3,7 +3,7 @@
 <body>
 <script>
 /* R16 验收：① 价目去划线价 ② 添加 sheet 布局/员工槽位选择 ③ s4 行常驻分段胶囊
-   ④ s6/s7 单项可改应付 + 可改服务员工、应付总价只读 ⑤ 挂单/去开单改名
+   ④ s6/s7 单项可改应付 + 可改服务员工、应付总价只读 ⑤ 挂单/去结单改名
    ⑥ s15 操作组移到卡片下方 ⑦ s14 VIP 换红色图标 */
 var log = [];
 function P() { log.push(Array.prototype.slice.call(arguments).join(' ')); }
@@ -131,7 +131,7 @@ f.addEventListener('load', function () {
   S(function () { w.go('s4'); q('#s4 .pick-row-wrap .pick-seg--main').click(); });
   S(function () { P('C9 点「开单」→', vis()); });
 
-  /* ===== D. s14：VIP 红色图标 + 「去开单」 ===== */
+  /* ===== D. s14：VIP 红色图标 + 「去结单」 ===== */
   S(function () { w.openHoldList(); });
   S(function () {
     P('D1 页面', vis(), '卡片数=' + n('#holdList .hold-card'));

@@ -213,19 +213,12 @@ function start() {
     toSettle(function () {
       d.querySelector('#s6 .co-bar .btn-c').click();
       phase = 's15';
-      /* 无头虚拟时间下 rAF 计数 + 入场动效可能未跑完：
-         截图前把 s15 直接落到终态，保证截出的图就是用户看到的最终画面 */
+      /* R20：金额已不再入场计数（直接落终值），只需关掉入场动效即可截图 */
       setTimeout(function () {
         try {
           var el = d.getElementById('sucAmt');
           var target = (w.sucInfo && w.sucInfo.amount) ? String(w.sucInfo.amount) : el.textContent;
-          /* 虚拟时间下 rAF 计数停在中途：用 MutationObserver 钉住终态金额 */
-          if (el) {
-            new MutationObserver(function () {
-              if (el.textContent !== target) el.textContent = target;
-            }).observe(el, { childList: true, characterData: true, subtree: true });
-            el.textContent = target;
-          }
+          if (el) el.textContent = target;
           d.querySelectorAll('#s15 .suc-head img, #s15 .suc-head .t, #s15 .suc-card, #s15 .suc-acts, #s15 .suc-bar')
             .forEach(function (e) { e.style.animation = 'none'; e.style.opacity = '1'; e.style.transform = 'none'; });
           phase = 's15-settled';

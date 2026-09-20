@@ -1,0 +1,87 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head><body>
+<script>
+var log = [];
+function P() { log.push([].slice.call(arguments).join(' ')); }
+var f = document.createElement('iframe');
+f.src = 'index.html?bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+var w, d;
+function q(s) { return d.querySelector(s); }
+function qa(s) { return [].slice.call(d.querySelectorAll(s)); }
+function cs(e, p) { if (typeof e === 'string') e = q(e); return e ? getComputedStyle(e)[p] : 'none'; }
+function R(e) {
+  if (typeof e === 'string') e = q(e);
+  if (!e) return null;
+  var r = e.getBoundingClientRect(), k = 1 / 1.25;
+  return { l: +(r.left * k).toFixed(1), t: +(r.top * k).toFixed(1), b: +(r.bottom * k).toFixed(1),
+           w: +(r.width * k).toFixed(1), h: +(r.height * k).toFixed(1) };
+}
+var steps = [];
+function S(fn) { steps.push(fn); }
+function next() { if (!steps.length) return finish(); var fn = steps.shift(); try { fn(); } catch (e) { P('ERR ' + e.message); } setTimeout(next, 420); }
+function finish() { var pre = document.createElement('pre'); pre.textContent = log.join('\n'); document.body.appendChild(pre); }
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  setTimeout(function () { setTimeout(next, 450); }, 450);
+
+  S(function () { P('== ≤5 人 · 添加 sheet =='); w.go('s1'); });
+  S(function () { var b = q('#s1 .v2-cat-item .v2-add-btn'); if (b) b.click(); });
+  S(function () {
+    var rowH = qa('#asStaffGrid .sp-cards__row').map(function (e) { return R(e).h; });
+    var body = q('#addSheetMask .addsheet__body');
+    P('卡片 = ' + R('#asStaffGrid .sp-card').w + '×' + R('#asStaffGrid .sp-card').h +
+      ' 头像=' + R('#asStaffGrid .sp-av').w + ' 姓名=' + cs('#asStaffGrid .sp-card__nm', 'fontSize'));
+    P('4 行高 = ' + rowH.join(',') + '（合计 ' + rowH.reduce(function (a, b) { return a + b; }, 0).toFixed(1) + '）');
+    P('员工区 .sp-cards = ' + R('#asStaffGrid .sp-cards').h + ' / staff-embed = ' + R('#asStaffGrid').h);
+    P('sheet = ' + R('#addSheetMask .addsheet').h + '（maxH=' + cs('#addSheetMask .addsheet', 'maxHeight') + '）');
+    P('body scrollH=' + body.scrollHeight + ' clientH=' + body.clientHeight + ' 需滚动=' + (body.scrollHeight > body.clientHeight + 1));
+    P('末行底=' + R(qa('#asStaffGrid .sp-cards__row')[3]).b + ' sheet 底=' + R('#addSheetMask .addsheet').b);
+  });
+  S(function () { w.closeAddSheet(); });
+  S(function () { P(''); P('== ≤5 人 · 直接收款面板 =='); w.go('s2'); });
+  S(function () { w.toggleQuickStaff('s2'); });
+  S(function () {
+    var p = q('#s2StaffPanel');
+    P('面板 = ' + R(p).w + '×' + R(p).h + ' maxH=' + cs(p, 'maxHeight') + ' 定位 top=' + (q('#s2StaffRow').offsetTop + q('#s2StaffRow').offsetHeight + 8));
+    P('面板 scrollH=' + p.scrollHeight + ' clientH=' + p.clientHeight + ' 需滚动=' + (p.scrollHeight > p.clientHeight + 1));
+    P('面板底=' + R(p).b + ' 手机框底=' + R('#s2').b + ' 余量=' + (R('#s2').b - R(p).b).toFixed(1));
+    P('末行底=' + R(qa('#s2StaffPanel .sp-cards__row')[3]).b);
+  });
+  S(function () { w.toggleQuickStaff('s2'); });
+  S(function () { P(''); P('== ≤5 人 · s6 修改服务员工 sheet =='); w.go('s1'); });
+  S(function () { var b = q('#s1 .v2-cat-item .v2-add-btn'); if (b) b.click(); });
+  S(function () { var b = q('#addSheetMask .btn-confirm'); if (b) b.click(); });
+  S(function () { w.go('s6'); });
+  S(function () { var r = q('#s6 .co-row.co-staff-row'); if (r) r.click(); });
+  S(function () {
+    var body = q('#coStaffMask .addsheet__body');
+    P('sheet = ' + R('#coStaffMask .addsheet').h + ' body scrollH=' + body.scrollHeight + ' clientH=' + body.clientHeight +
+      ' 需滚动=' + (body.scrollHeight > body.clientHeight + 1));
+    P('4 行高 = ' + qa('#coStaffGrid .sp-cards__row').map(function (e) { return R(e).h; }).join(','));
+    w.closeCoItemStaffSheet();
+  });
+  S(function () { P(''); P('== >5 人 · 12 人选择页 =='); w.demoStaffPicker12(); });
+  S(function () {}); S(function () {});
+  S(function () {
+    var body = q('#addSheetMask .addsheet__body');
+    P('选择页头 = ' + R('#asStaffGrid .sp-picker__hd').h + ' 网格 = ' + R('#asStaffGrid .sp-picker__grid').h +
+      '（' + qa('#asStaffGrid .sp-pick').length + ' 卡 / 卡 = ' + R('#asStaffGrid .sp-pick').w + '×' + R('#asStaffGrid .sp-pick').h + '）');
+    P('pick-inner = ' + R('#asStaffGrid .sp-pick-inner').h + ' --sp-pick-h=' + q('#asStaffGrid .sp-box').style.getPropertyValue('--sp-pick-h') +
+      ' face--pick = ' + R('#asStaffGrid .sp-face--pick').h);
+    P('价格卡 display=' + cs('#asPriceCell', 'display') + ' sheet maxH=' + cs('#addSheetMask .addsheet', 'maxHeight'));
+    P('sheet = ' + R('#addSheetMask .addsheet').h + ' body scrollH=' + body.scrollHeight + ' clientH=' + body.clientHeight +
+      ' 需滚动=' + (body.scrollHeight > body.clientHeight + 1));
+    P('末卡底=' + R(qa('#asStaffGrid .sp-pick')[11]).b + ' sheet 底=' + R('#addSheetMask .addsheet').b);
+  });
+  S(function () { P(''); P('== 4 行 × 3 列推演（卡 95 + 间距 8 + 选择页头 36）=='); });
+  S(function () {
+    [2, 3, 4, 5, 6].forEach(function (rows) {
+      var sheetH = 50 + 12 + 30 + 36 + rows * 95 + (rows - 1) * 8 + 60;
+      P(rows + ' 行卡（' + rows * 3 + ' 人）→ sheet ≈ ' + sheetH + 'px，上限 92% = 776px → ' + (sheetH <= 776 ? '不滚动' : '需滚动'));
+    });
+  });
+});
+</script>
+</body></html>
