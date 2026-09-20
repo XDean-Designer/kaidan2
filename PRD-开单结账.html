@@ -2271,7 +2271,7 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
   <li><b>Given</b> s15（1 条明细），<b>When</b> 量测，<b>Then</b> 卡高 <b>≈ 283.7px</b>、卡底 <b>≈ 434px</b>、<code>.suc-body</code> 的 <code>top</code> <b>仍 138px</b>、<code>scrollHeight ≤ clientHeight</code>（<b>无内部滚动</b>）。</li>
   <li><b>Given</b> s15，<b>When</b> 检查卡外，<b>Then</b> 操作组仍 <b>4 等分 / 高 62px / 距卡底 14px</b>，底栏仍 <b>3 个按钮</b>；<b>各格图标仍 17px</b>（本次只改打印小票这一个图标）。</li>
   <li><b>Given</b> 全原型渲染后的 DOM，<b>When</b> 检索 <code>#s15 .suc-print</code>（不含 <code>-row</code>）、<code>viewBox="0 0 200 200"</code> 与 <code>.suc-print-row</code> 命中数，<b>Then</b> 依次为 <b>0 / 0 / 1</b>。</li>
-  <li><b>Given</b> 本轮改动，<b>When</b> 跑 <code>_verify_r19.html</code>，<b>Then</b> <b>34 条全部通过</b>；<code>_verify_r17.html</code> 28 条、<code>_verify_r18.html</code> 25 条、<code>_verify_r16.html</code> 清单<b>均无失败</b>。</li>
+  <li><b>Given</b> 本轮改动，<b>When</b> 逐条跑本轮的校验清单，<b>Then</b> <b>34 条全部通过</b>；R16 / R17 / R18 三轮的自校验清单（28 / 25 条）<b>均无失败</b>。<br><b>注（R20 后清理）</b>：各轮的校验页（<code>_verify_*.html</code>）与探针页（<code>_probe_*.html</code>）是开发期临时工具，<b>不属于交付物</b>，已随脚手架一并清理出仓库（<code>_*</code> 已加入 <code>.gitignore</code>）。<b>后续验收以本 PRD 的用例为准</b>，不再依赖这些临时页面。</li>
 </ol>
 <h3>10.5 R18 验收用例（343–352）</h3>
 <ol start="343">
@@ -2323,6 +2323,7 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
   <tr><td><code>PRD-开单结账.html</code></td><td>PRD 自包含 HTML 预览版</td></tr>
 </table>
 <p>开发与测试只需 <b>PRD + 原型</b>。冲突时以原型界面为准修正 PRD。</p>
+<p><b>仓库卫生（R20 后清理）</b>：开发期的脚手架文件 —— 截图（<code>_r*_*.png</code>）、探针页（<code>_probe_*.html</code>）、校验页（<code>_verify_*.html</code>）、一次性脚本（<code>_run_*.js</code> / <code>_shot*.js</code>）—— <b>不属于交付物</b>，已统一从仓库移除，并在 <code>.gitignore</code> 中加了 <b><code>_*</code></b> 规则，避免再次进仓。清理前共 <b>124 个文件 / 5.6 MB</b>（60 PNG + 53 HTML + 6 JS + 5 OUT）。</p>
 
 <div class="foot">PRD：开单结账2.0 · v2.0-draft (R20 · 2026-09-20) · 交互原型 index.html（390 × 844）</div>
 
