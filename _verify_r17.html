@@ -93,19 +93,19 @@ f.addEventListener('load', function () {
     ok('14. 新入口是卡片最后一个子元素', !!row && !!card && card.lastElementChild === row,
       row ? ('最后一个子元素 = ' + card.lastElementChild.className) : 'none');
     ok('15. 入口在明细区下方', !!row && !!rowsEl && PR.t >= RR.b - 1, '入口 top=' + PR.t + ' / 明细 bottom=' + RR.b);
-    ok('16. 整行热区：高 46 / 宽与卡内字段行齐平', Math.abs(PR.h - 46) < 1.2 && Math.abs(PR.w - AR.w) < 1.2,
+    ok('16. 整行热区：高 44 / 宽与卡内字段行齐平（R19 由 46 改 44）', Math.abs(PR.h - 44) < 1.2 && Math.abs(PR.w - AR.w) < 1.2,
       PR.w + '×' + PR.h + '（卡内字段行宽 ' + AR.w + '）');
     ok('17. 上方 0.5px 灰色实线', cs(row, 'borderTopWidth') !== '0px' && parseFloat(cs(row, 'borderTopWidth')) <= 1 &&
       cs(row, 'borderTopColor') === 'rgb(229, 229, 229)', cs(row, 'borderTopWidth') + ' ' + cs(row, 'borderTopColor'));
-    ok('18. 图标 17px #8E8E93 / 文案 13px #55595E',
+    ok('18. 图标 18px #8E8E93 / 文案 13px #55595E（R19 尺寸 17→18、改线描稿）',
       cs(row, 'fontSize') === '13px' && cs(row, 'color') === 'rgb(85, 89, 94)' && !!row.querySelector('svg') &&
-      Math.abs(R(row.querySelector('svg')).w - 17) < 0.6 && cs(row.querySelector('svg'), 'color') === 'rgb(142, 142, 147)',
+      Math.abs(R(row.querySelector('svg')).w - 18) < 0.6 && cs(row.querySelector('svg'), 'color') === 'rgb(142, 142, 147)',
       cs(row, 'fontSize') + ' ' + cs(row, 'color') + ' icon=' + (row.querySelector('svg') ? R(row.querySelector('svg')).w : '-'));
     ok('19. 文案 = 打印小票', row.textContent.trim() === '打印小票', JSON.stringify(row.textContent.trim()));
     ok('20. 卡片上移：内容区 top 由 182 → 138', cs(body, 'top') === '138px' && Math.abs(BR.t - 138) < 2,
       'css top=' + cs(body, 'top') + ' / 实测 ' + BR.t);
     ok('21. 卡底不高过原位置 +8px（上移量补掉新增行）', CR.b - 440.5 <= 8, '卡底=' + CR.b + '（改动前 440.5）');
-    ok('22. 卡内新增高度 ≈ 40（46 行 − 6 收回的底部内距）', Math.abs((CR.h - 246.3) - 40) <= 2, '卡高=' + CR.h + '（改动前 246.3）');
+    ok('22. 卡内新增高度 ≈ 38（44 行 − 6 收回的底部内距；R19 由 40 改 38）', Math.abs((CR.h - 246.3) - 38) <= 2, '卡高=' + CR.h + '（改动前 246.3）');
     ok('23. 卡内不产生滚动（内容不被挤爆）', q('#s15 .suc-body').scrollHeight <= q('#s15 .suc-body').clientHeight + 1,
       'scrollH=' + q('#s15 .suc-body').scrollHeight + ' clientH=' + q('#s15 .suc-body').clientHeight);
     ok('24. 卡外操作带仍 4 项 / 高 62 / 间距 14', qa('#s15 .suc-act').length === 4 && Math.abs(AC.h - 62) < 1.5 && Math.abs(AC.t - CR.b - 14) < 1.5,

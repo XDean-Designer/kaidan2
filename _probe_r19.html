@@ -1,0 +1,61 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head><body>
+<script>
+var log = [];
+function P() { log.push([].slice.call(arguments).join(' ')); }
+var f = document.createElement('iframe');
+f.src = 'index.html?bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+var w, d, YOFF = null;
+function q(s) { return d.querySelector(s); }
+function qa(s) { return [].slice.call(d.querySelectorAll(s)); }
+function R(e) {
+  if (typeof e === 'string') e = q(e);
+  if (!e) return null;
+  var r = e.getBoundingClientRect(), k = 1 / 1.25;
+  return { l: +(r.left * k).toFixed(1), r: +(r.right * k).toFixed(1),
+           t: +(r.top * k).toFixed(1), b: +(r.bottom * k).toFixed(1),
+           w: +(r.width * k).toFixed(1), h: +(r.height * k).toFixed(1) };
+}
+function RK(e) { var r = R(e); if (!r || YOFF === null) return r; r.t = +(r.t - YOFF).toFixed(1); r.b = +(r.b - YOFF).toFixed(1); return r; }
+function cs(e, p) { if (typeof e === 'string') e = q(e); return e ? getComputedStyle(e)[p] : 'none'; }
+var steps = [];
+function S(fn) { steps.push(fn); }
+function next() { if (!steps.length) return finish(); var fn = steps.shift(); try { fn(); } catch (e) { P('ERR ' + e.message); } setTimeout(next, 600); }
+function finish() { var pre = document.createElement('pre'); pre.textContent = log.join('\n'); document.body.appendChild(pre); }
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  setTimeout(function () { setTimeout(next, 400); }, 400);
+  S(function () { w.go('s6'); });
+  S(function () { q('#s6 .co-bar .btn-c').click(); });
+  S(function () { P('after click: s15 on=' + q('#s15').classList.contains('on') + ' display=' + cs('#s15', 'display') +
+    ' cartBadge=' + q('.cart-badge')?.textContent); });
+  S(function () {
+    if (!q('#s15').classList.contains('on')) { w.go('s15'); }
+  });
+  S(function () {
+    YOFF = Math.round(R('#s15 .suc-head').t - 98);
+    var row = q('#s15 .suc-print-row'), card = q('#s15 .suc-card'), body = q('#s15 .suc-body'),
+        rowsEl = q('#s15 .suc-rows'), acts = q('#s15 .suc-acts'), amt = q('#s15 .suc-amt'), svg = row.querySelector('svg');
+    P('YOFF=' + YOFF);
+    P('body ' + JSON.stringify(RK(body)) + ' css top=' + cs(body, 'top'));
+    P('card ' + JSON.stringify(RK(card)) + ' lastChild=' + card.lastElementChild.className);
+    P('amt  ' + JSON.stringify(RK(amt)));
+    P('rows ' + JSON.stringify(RK(rowsEl)));
+    P('row  ' + JSON.stringify(RK(row)));
+    P('acts ' + JSON.stringify(RK(acts)) + ' gap=' + (RK(acts).t - RK(card).b).toFixed(1));
+    P('');
+    P('row css: h=' + cs(row, 'height') + ' radius=' + cs(row, 'borderRadius') + ' bg=' + cs(row, 'backgroundColor') +
+      ' bt=' + cs(row, 'borderTopWidth') + ' ' + cs(row, 'borderTopStyle') + ' ' + cs(row, 'borderTopColor') +
+      ' mb=' + cs(row, 'marginBottom') + ' fs=' + cs(row, 'fontSize') + ' color=' + cs(row, 'color'));
+    P('svg: ' + JSON.stringify(R(svg)) + ' viewBox=' + svg.getAttribute('viewBox') + ' fill=' + svg.getAttribute('fill') +
+      ' stroke=' + svg.getAttribute('stroke') + ' sw=' + svg.getAttribute('stroke-width') +
+      ' color=' + cs(svg, 'color') + ' paths=' + svg.querySelectorAll('path').length + ' circles=' + svg.querySelectorAll('circle').length);
+    P('row text=' + JSON.stringify(row.textContent.trim()) + ' data=' + row.getAttribute('data-suc-print'));
+    P('body scrollH=' + body.scrollHeight + ' clientH=' + body.clientHeight);
+    P('suc-print (old icon) exists=' + !!q('#s15 .suc-print'));
+  });
+});
+</script>
+</body></html>

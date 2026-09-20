@@ -1,0 +1,73 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;padding:0;background:#fff;overflow:hidden}
+#f{position:absolute;left:0;top:0;width:390px;height:844px;border:0;display:block}</style>
+</head>
+<body>
+<iframe id="f" src="index.html?capture=zoom&t=__TS__"></iframe>
+<script>
+/* 把 s15 金额卡底部（末两行字段 + 打印小票行）放到视口里，配合
+   --force-device-scale-factor=3 --window-size=390x240 输出 3× 放大图，便于核对图标。 */
+var f = document.getElementById('f'), w = null, d = null;
+var UP = 96;          /* 打印小票行上方要露出的高度 */
+var VH = 240;         /* 视口高（与 --window-size 的 H 对齐） */
+function waitFor(cond, cb, n) {
+  n = (n == null) ? 240 : n;
+  if (cond()) return cb(null);
+  if (n <= 0) return cb(new Error('timeout'));
+  setTimeout(function () { waitFor(cond, cb, n - 1); }, 50);
+}
+function goto(sid, cb) {
+  w.go(sid);
+  setTimeout(function () { cb && cb(); }, 260);
+}
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  setTimeout(function () {
+    goto('s1', function () {
+      var add = d.querySelector('#s1 .v2-cat-item .v2-add-btn');
+      if (add) add.click();
+      setTimeout(function () {
+        var c = d.querySelector('#addSheetMask .addsheet__foot .btn-confirm');
+        if (c) c.click();
+        setTimeout(function () {
+          goto('s6', function () {
+            var b = d.querySelector('#s6 .co-bar .btn-c');
+            if (b) b.click();
+            waitFor(function () { return d.querySelector('#s15 .suc-print-row'); }, function () {
+              setTimeout(function () {
+                /* 虚拟时间下 rAF 计数可能停在中途：钉住金额终态、关掉入场动效 */
+                try {
+                  var el = d.getElementById('sucAmt');
+                  var target = (w.sucInfo && w.sucInfo.amount) ? String(w.sucInfo.amount) : (el ? el.textContent : '');
+                  if (el && target) el.textContent = target;
+                  Array.prototype.forEach.call(
+                    d.querySelectorAll('#s15 .suc-head img, #s15 .suc-head .t, #s15 .suc-card, #s15 .suc-acts, #s15 .suc-bar'),
+                    function (e) { e.style.animation = 'none'; e.style.opacity = '1'; e.style.transform = 'none'; });
+                } catch (e) {}
+                var row = d.querySelector('#s15 .suc-print-row');
+                var body = d.querySelector('#s15 .suc-body');
+                /* 让内容区滚到底，保证打印小票行在卡片可见范围内 */
+                if (body) body.scrollTop = body.scrollHeight;
+                var top = row.getBoundingClientRect().top;
+                f.style.top = (-Math.max(0, top - UP)) + 'px';
+                d.title = 'ready row.top=' + Math.round(top);
+                var rep = document.createElement('pre');
+                rep.id = 'rep';
+                rep.setAttribute('style', 'position:absolute;top:9000px;left:0;font-size:10px');
+                rep.textContent = 'zoom ok rowTop=' + Math.round(top) + ' offset=' + f.style.top +
+                  ' rowH=' + Math.round(row.getBoundingClientRect().height) +
+                  ' cardBottom=' + Math.round(d.querySelector('#s15 .suc-card').getBoundingClientRect().bottom) +
+                  ' bodyScrollTop=' + (body ? Math.round(body.scrollTop) : '-') +
+                  ' innerH=' + w.innerHeight;
+                document.body.appendChild(rep);
+              }, 700);
+            }, 120);
+          });
+        }, 500);
+      }, 500);
+    });
+  }, 600);
+});
+</script>
+</body></html>

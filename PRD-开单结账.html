@@ -333,7 +333,7 @@
   <li><b>券卡删除勾选控件</b>（<b>6.21</b>）：券卡不再有单选圈，「不使用优惠券」行的勾选圈<b>保留</b>；金额与门槛文案由 <code>right:52px</code> <b>右移到 <code>right:16px</code></b>，券名可用宽度 <code>209 → 260px</code>。</li>
   <li><b>结算页「优惠券」行已选文字不再用红色</b>：由 <code>--brand</code> 改为<b>主文字色 <code>#1a1a1a</code></b>；该行右侧<b>进入箭头改为 SVG</b>（<code>viewBox 0 0 24 24</code>，14×14，<code>#C7C7CC</code>）—— 全仓<b>最后一处文字箭头</b>就此消除，<b>此类图标现全部为 SVG</b>。</li>
   <li><b>图标色统一 <code>#929292</code></b>：结算页底部 BAR 的<b>铅笔</b>（原随金额为红）、<b>全部垃圾桶图标</b>（明细删除 / 直接收款删除 / 已选商品「清空」/ 挂单删除）统一 <code>#929292</code>。</li>
-  <li><b>s15「打印小票」换用 Figma 稿图标</b>（<b>6.23</b>）：改用 <b>Figma <code>1189-136</code></b>（<code>viewBox 0 0 200 200</code>、满画布、3 条路径），尺寸仍 <b>18px</b>、颜色仍 <code>#B2B2B2</code>、热区仍 28×28 于卡片右上角（<b>R17 已改为「卡片底部整行入口」，图标 17px / <code>#8E8E93</code>，见 6.23 与 10.4</b>）。</li>
+  <li><b>s15「打印小票」换用 Figma 稿图标</b>（<b>6.23</b>）：改用 <b>Figma <code>1189-136</code></b>（<code>viewBox 0 0 200 200</code>、满画布、3 条路径），尺寸仍 <b>18px</b>、颜色仍 <code>#B2B2B2</code>、热区仍 28×28 于卡片右上角（<b>R17 已改为「卡片底部整行入口」，图标 17px / <code>#8E8E93</code>；R19 再改：24 画布 stroke 1.6 线描稿、18px，该 200 画布填充稿作废，见 6.23 与 10.4 / 10.6</b>）。</li>
   <li><b>s15 总金额 <code>¥</code> 与数值之间 +2 间距</b>（原两段紧贴，盒间为 0 → 现 <code>margin-right:2px</code>）。</li>
   <li><b>结算页标题栏新增「更多」菜单</b>（<b>6.28</b>）：<b>3 圆点横排</b>图标、<b>主文字色 <code>#1a1a1a</code></b>，24×24 热区、图标 20×20，<b>图标中心与 18px 标题墨迹中心对齐（实测差 0.00px）</b>；<b>s6 与 s7 都加</b>。点击弹出<b>下拉菜单</b>，两项 —— <b>「选日期」「手工单号」</b>（<b>左侧均有图标</b>），点任一项打开对应 sheet；点菜单外任意处或切换页面即收起。</li>
   <li><b>命名与语义</b>（<b>6.28</b>）：结算页下拉命名为 <b>「选日期」「手工单号」</b>，<b>成功页操作组仍保留「改日期」「改单号」</b>，<b>同一个 sheet 的标题随入口切换</b>。
@@ -361,8 +361,16 @@
   <li><b>s15 开单成功页</b>：改日期 / 改单号 / 看流水 / <b>客户详情</b> 四项<b>移到金额卡下方</b>（一行 4 等分白底托板 + 格间发丝竖线 + 每格竖排「图标 + 文字」）；<b>底栏只保留 3 项</b>：返回首页（图标）+ 客户签字 + 继续开单。</li>
   <li><b>s14 挂单卡 VIP</b> 换为<b>开单页顾客卡同款红色 VIP 图标</b>（<code>assets/ic_vip.svg</code>，26×10）。</li>
 </ol>
-<p class="note">验收用例见 <b>10.3（309–330）</b>；<b>R17 见 10.4（331–342）</b>；<b>R18 见 10.5（343–352）</b>。</p>
+<p class="note">验收用例见 <b>10.3（309–330）</b>；<b>R17 见 10.4（331–342）</b>；<b>R18 见 10.5（343–352）</b>；<b>R19 见 10.6（353–364）</b>。</p>
 
+<p class="note"><b>R19 本轮变更摘要（2026-09-20）</b></p>
+<ol>
+  <li><b>s15「打印小票」换图标</b>（<b>6.23</b>）：R14 的 Figma 稿 <code>1189-136</code> 是 <b>200 画布填充式</b>，最细壁厚 5.3/200 —— 缩到 17px 后<b>渲染线宽不足 0.5px</b>，叠 <code>#8E8E93</code> 浅灰在真机上看不清。改为 <b>24 画布 stroke 1.6 线描稿</b>（进纸 + 机身 + 出纸 + 1 枚指示灯），<b>渲染线宽 ≈ 1.2px</b>；尺寸 <b>17 → 18px</b>，颜色仍 <code>#8E8E93</code>。</li>
+  <li><b>s15「打印小票」去按钮感</b>（<b>6.23</b>）：<b>圆角 12 → 0</b>、<b>删除 <code>:active</code> 整行浅底 <code>#F7F7F8</code></b> —— 原先「圆角 + 按压底色」读起来像浮在卡片上的按钮，与卡片里无圆角、无底色的字段行不是一套语言；改为<b>纯行</b>：上方仅 <b>0.5px 实线 <code>#E5E5E5</code></b>，<b>行高 46 → 44px</b> 对齐字段行 <code>min-height:44</code>。</li>
+  <li><b>按下反馈改为「仅加深」</b>（<b>6.23</b>）：<code>:active</code> 时<b>文字 <code>#55595E → #1A1A1A</code>、图标 <code>#8E8E93 → #55595E</code></b>（<code>transition: color .12s ease</code>），<b>无任何底色</b>；整行仍是热区（<b>319×44</b>）。</li>
+  <li><b>几何随之微调</b>（<b>6.23</b>）：卡高 <b>286.3 → 283.7px</b>、卡底 <b>436 → 434px</b>；<code>.suc-body</code> 的 <code>top</code> <b>仍为 138px</b>，卡内仍<b>不触发滚动</b>。</li>
+  <li><b>PRD 同步范围</b>：3.0 结构图 / 页面清单、模块 8 R14 图标补充、6.23、模块 <b>10.6（353–364）</b>。</li>
+</ol>
 <p class="note"><b>R18 本轮变更摘要（2026-09-20）</b></p>
 <ol>
   <li><b>直接收款页返回目标修正</b>（<b>6.6</b>）：s2 标题栏左侧返回键由 <code>go('s1')</code> 改为 <b><code>go('s4')</code></b> —— <b>从「直接收款」返回一律回到「选择顾客」</b>（原来错跳散客开单页）。s3（去收款）返回仍回 s2，未受影响。</li>
@@ -375,13 +383,13 @@
   <li><b>s4 行内「开单 | 收款」去红</b>（<b>6.8</b>）：由 R16 的「实心红分段胶囊」改为 <b>iOS 列表语言的「纯文字 + 发丝竖线」</b> —— <b>无底、无框、无描边</b>，「开单」= <code>#F32F41</code> 13/600（主）、「收款」= <code>#8E8E93</code> 13/500（次），中间 <b>1px × 14px <code>#E5E5E5</code> 竖线</b>；每段热区高 <b>44px</b>。一屏 17 行的<b>红色面积由「17 个实心红块」降为「34 个字」（约 −96%）</b>，控件总宽 <b>101px</b>（R16 103px）。</li>
   <li><b>s4 胶囊与 A–Z 字母索引条避让</b>（<b>6.8</b>）：实测原「胶囊右缘 378 / 索引条 370–388」<b>重叠 8px</b>（首字母 x 375.8–382.2 压在红块上）；<b>行内距右 12 → 30px</b>（胶囊右缘 <b>360</b>），与索引条<b>净空 10px</b>，重叠归零。</li>
   <li><b>sheet 内「顾客指定」行标签改用橙色</b>（<b>6.11</b>）：<code>#F32F41</code> → <b><code>#F97316</code></b>（<b>仅该行标签</b>；大工 / 中工 / 小工 仍 <code>#1a1a1a</code>；橙不参与「主操作红」语义）。<b>（R18 已作废：改回主文字色 <code>#1a1a1a</code>，见 R18 摘要第 3 条）</b></li>
-  <li><b>s15「打印小票」入口重排</b>（<b>6.23</b>）：<b>删除金额卡右上角 28×28 纯图标热区</b>（同一功能不留双入口），改为<b>金额卡底部一整行</b> —— 图标 <b>17px <code>#8E8E93</code></b> + 文案「打印小票」<b>13px <code>#55595E</code></b> 居中，<b>上方 0.5px 灰色实线</b>（字段行之间仍是虚线：实线明确「上面是信息、下面是操作」），<b>整行即热区（319×46）</b>，按下整行浅底 <code>#F7F7F8</code>。</li>
+  <li><b>s15「打印小票」入口重排</b>（<b>6.23</b>）：<b>删除金额卡右上角 28×28 纯图标热区</b>（同一功能不留双入口），改为<b>金额卡底部一整行</b> —— 图标 <b>17px <code>#8E8E93</code></b> + 文案「打印小票」<b>13px <code>#55595E</code></b> 居中，<b>上方 0.5px 灰色实线</b>（字段行之间仍是虚线：实线明确「上面是信息、下面是操作」），<b>整行即热区（319×46）</b>，按下整行浅底 <code>#F7F7F8</code>。<b>（R19 已改：图标换 24 画布 stroke 1.6 线描稿、17 → 18px；圆角 12 → 0、去掉按压浅底，改为文字 / 图标加深；行高 46 → 44px，见 R19 摘要第 2–4 条）</b></li>
   <li><b>s15 金额卡上移</b>（<b>6.23</b>）：内容区 <code>.suc-body</code> 的 <code>top</code> <b>182 → 138px</b>（上移 44），补掉卡内新增的 46px 入口行 —— 卡底实测 <b>440.5 → 436px</b>（仅差 4.5px），卡外 4 等分操作组与底栏位置不变，且<b>不触发内容区滚动</b>。</li>
   <li><b>PRD 同步范围</b>：1.3 交付要点、3.0 结构图 / 页面清单、6.8、6.11.1、6.23、模块 8 R14 图标补充、模块 10.4（331–342）。</li>
 </ol>
 <table>
   <tr><th>字段</th><th>内容</th></tr>
-  <tr><td>文档版本</td><td>v2.0-draft（R18 · 2026-09-20）</td></tr>
+  <tr><td>文档版本</td><td>v2.0-draft（R19 · 2026-09-20）</td></tr>
   <tr><td>日期</td><td>2026-09-20</td></tr>
   <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code></td></tr>
   <tr><td>画布</td><td>390 × 844</td></tr>
@@ -477,7 +485,7 @@
   <li>价目表为空：隐藏对应 Tab；两个都空 → 两个 Tab 都显示 + 空态说明（演示开关 <code>?noProduct=1</code> / <code>?noProject=1</code>）</li>
   <li>顾客卡片折叠（s1/s5）：默认收起 + 标题栏右侧顾客入口（<b>散客 = 双人 icon + 「散客 / 男散客 / 女散客」；会员 = 单人 icon + 姓名；两态 icon 均 <code>#929292</code></b>），点击展开/收起（iOS 动效）</li>
   <li>商品「设置内容」sheet：点圆形加号 → 底部 sheet，确定入购物车；<b>原行内展开区与滚动视差吸顶已删除</b></li>
-  <li>开单成功页 s15：金额卡（<b>卡内底部整行「打印小票」入口，R17</b>）；卡下 4 等分操作组 改日期 / 改单号 / 看流水 / 客户详情（R16）；底部 bar 返回首页图标 + 客户签字 / 继续开单</li>
+  <li>开单成功页 s15：金额卡（<b>卡内底部整行「打印小票」入口，R17 · R19 去按钮感 + 换线描图标</b>）；卡下 4 等分操作组 改日期 / 改单号 / 看流水 / 客户详情（R16）；底部 bar 返回首页图标 + 客户签字 / 继续开单</li>
 </ul>
 
 <h3>1.4 本期不做（Out）</h3>
@@ -1289,7 +1297,7 @@
 
 <p class="note"><b>R16 修订：</b>① 卡片按钮「取挂单」改名 <b>「去开单」</b>（生命周期口径不变：去开单<b>不删除</b>挂单，仅还原明细与员工状态）；② 卡头 VIP 由渐变胶囊换成<b>开单页顾客卡同款红色 VIP 图标</b>（<code>assets/ic_vip.svg</code>，26×10）；③ 入口文案同步为 s4 标题栏「挂单（N）」。</p>
 
-<h3>6.23 开单成功 s15<span class="badge-new">R6 重构 · R13 补打印小票</span></h3>
+<h3>6.23 开单成功 s15<span class="badge-new">R6 重构 · R13 补打印小票 · R19 打印小票去按钮感</span></h3>
 <p class="note">设计来源：Figma <code>开单结账-ZM</code> 节点 <code>151-7794</code>；原型为全屏页 <code>#s15</code>（390×844），字体全局 Noto Sans SC。</p>
 <ul>
   <li><b>入口</b>：s6 / s7 点「结账」成功后（<b>先 toast「结账流程说明」，再进入本页</b>）；左侧导航含「15 开单成功」可直达（评审用）。</li>
@@ -1300,7 +1308,7 @@
       <li><b>改日期</b> → <b>底部 sheet 形态的日历</b>（见 6.19 的 R6 调整；沿用同一日期控件、<code>is-sheet</code> 样式），选完更新本页<b>卡内「开单日期」</b>；</li>
       <li><b>改单号</b> → 底部 sheet（<code>suc-no-sheet</code>）：单号输入行（<code>inputmode=numeric</code>、最多 20 位、默认带出当前单号）+ 取消 / 确定（两列等宽），确定后 toast「单号已更新」并更新本页<b>卡内「单号」</b>。<b>R6 修复：该 sheet 的输入行样式补全（<code>sucno-field</code>），不再出现样式丢失导致的错位 / 透明异常；R7：删除 sheet 内提示文案，底部留白收紧；R9：版式对齐「修改应付」sheet —— body 16px 内缩、输入行 56 高 / 圆角 10 / 白底且与按钮同宽、上下留白 16、底部等宽双按钮并与输入行左右对齐、点遮罩关闭。</b></li>
       <li><b>看流水</b> → toast「查看该笔流水」并跳 <b>s8 门店流水</b>。</li>
-      <li><b>打印小票（R13 新增 · R14 换图标 · R17 移到卡内底部）</b> → <b>金额卡底部一整行入口</b>（<code>.suc-print-row</code>，卡片最后一个子元素，位于明细字段区之下）：图标 <b>17px <code>#8E8E93</code></b> + 文案「打印小票」<b>13px <code>#55595E</code></b> 居中，<b>上方 0.5px 灰色实线 <code>#E5E5E5</code></b>（字段行之间仍是 <code>0.5px #E0E0E0</code> 虚线 —— 实线明确「上面是信息、下面是操作」），<b>整行即热区（319×46）</b>，按下整行浅底 <code>#F7F7F8</code>，<code>margin-bottom:-6px</code> 回收卡片底部内距，<code>aria-label="打印小票"</code>；<b>R17 已删除原「卡内右上角 28×28 纯图标热区」</b>（同一功能不留双入口）。<b>不占用</b>卡外 4 等分操作组与底部 bar。点击 → toast「<b>已发送打印小票指令</b>」（打印流程本身以线上为准）。<b>R14：图标换用 Figma 稿 <code>RTB老版本优化</code> 节点 <code>1189-136</code></b>（<code>viewBox 0 0 200 200</code>、3 路径、<code>fill:currentColor</code>）。</li>
+      <li><b>打印小票（R13 新增 · R14 换图标 · R17 移到卡内底部 · R19 换线描图标 + 去按钮感）</b> → <b>金额卡底部一整行入口</b>（<code>.suc-print-row</code>，卡片最后一个子元素，位于明细字段区之下）：图标 <b>18px <code>#8E8E93</code></b> + 文案「打印小票」<b>13px <code>#55595E</code></b> 居中，<b>上方 0.5px 灰色实线 <code>#E5E5E5</code></b>（字段行之间仍是 <code>0.5px #E0E0E0</code> 虚线 —— 实线明确「上面是信息、下面是操作」），<b>整行即热区（319×44）</b>，<b>圆角 0、背景透明</b>，按下<b>只加深</b>（文字 <code>#1A1A1A</code> / 图标 <code>#55595E</code>，无底色），<code>margin-bottom:-6px</code> 回收卡片底部内距，<code>aria-label="打印小票"</code>；<b>R17 已删除原「卡内右上角 28×28 纯图标热区」</b>（同一功能不留双入口）。<b>不占用</b>卡外 4 等分操作组与底部 bar。点击 → toast「<b>已发送打印小票指令</b>」（打印流程本身以线上为准）。<b>R19：图标改为 24 画布 stroke 1.6 线描稿</b>（<code>fill:none</code> / <code>stroke:currentColor</code> / <code>linecap,linejoin:round</code>；<b>3 条路径</b> = 进纸 + 机身 + 出纸，另 1 枚 <code>currentColor</code> 指示灯），<b>渲染线宽 ≈ 1.2px</b>，尺寸 <b>17 → 18px</b>。<b>R14 的 Figma 稿 <code>1189-136</code> 作废</b> —— 它是 200 画布填充式，最细壁厚 5.3/200，缩到 17px 只剩 ≈ 0.5px 线宽，叠 <code>#8E8E93</code> 浅灰在真机上看不清。</li>
     </ul>
   </li>
   <li><b>金额卡（R6 重构）</b>：<b>卡片浮起</b> —— 卡底 <code>rgba(255,255,255,.88)</code> + 1px 白描边 + 柔和投影。
@@ -1369,6 +1377,8 @@
 </ul>
 
 <p class="note"><b>R16 修订：</b>① 操作组由「改日期 / 改单号 / 看流水」扩为 <b>4 项</b>并<b>移到金额卡下方</b>（白底圆角 14 托板、4 等分各 90px、格间 0.5px 发丝竖线、每格竖排「图标 17px + 文字 12px」，与卡片间距 14px）；② <b>「客户详情」由底栏移入操作组第 4 格</b>（点击 toast「查看客户详情」）；③ <b>底栏收口为 3 项</b>：返回首页图标 + 客户签字 + 继续开单。</p>
+
+<p class="note"><b>R19 修订（去按钮感）：</b>打印行高 <b>46 → 44px</b>（对齐字段行 <code>min-height:44</code>）、<b>圆角 12 → 0</b>、<b>删除 <code>:active</code> 整行浅底 <code>#F7F7F8</code></b>，按下改为<b>文字 <code>#1A1A1A</code> / 图标 <code>#55595E</code> 加深</b>；图标换 <b>24 画布 stroke 1.6 线描稿</b>、<b>18px</b>。几何：卡高 <b>286.3 → 283.7px</b>、卡底 <b>436 → 434px</b>，<code>.suc-body</code> 的 <code>top</code> <b>仍 138px</b>，卡内仍<b>不触发滚动</b>。</p>
 
 <p class="note"><b>R17 修订（金额卡上移）：</b><code>.suc-body</code> 的 <code>top</code> <b>182 → 138px</b>（上移 <b>44</b>），用于补掉卡内新增的 <b>46px</b> 打印行 —— 卡底实测 <b>440.5 → 436px</b>（仅差 4.5px），卡外 4 等分操作组（改日期 / 改单号 / 看流水 / 客户详情）与底栏<b>位置不变</b>，内容区高 582px、本页占用约 375px，<b>不触发内部滚动</b>。</p>
 
@@ -1583,7 +1593,7 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
   <li><b>字段名称统一</b>：全原型（含可见文案、代码标识与 PRD）统一使用 <b>「直接收款」</b>，不再出现「快捷开单 / 快速消费」。</li>
   <li><b>图标规格</b>：<b>标题栏顾客入口两种身份均为 20×20、颜色统一 <code>#929292</code></b>（散客 = 双人 <code>ic_guest_head.svg</code>，会员 = 单人 <code>ic_member_head.svg</code>）；「添加会员」新图标（<code>ic_add_member_new.svg</code>）<b>列表行 36×36</b>（外层 44×44 占位）、<b>顾客卡片 24×24</b>，保持橙色 <code>#FF8956</code>；s15「返回首页」图标 20×20、描边色 <code>#F32F41</code>；s15 操作组与 s14 删除/提示条图标为 <b>14~18px 线性 SVG</b>（随文字色）；<b>s0 与 s4 的「取挂单（N）」不设前置图标</b>；s14 空态图标 <code>ic_empty.svg</code> 72×72。
     <ul>
-      <li><b>R14 图标色与形态补充</b>：<b>结算页底栏铅笔</b>与<b>全部垃圾桶图标</b>（s6/s7 明细删除、s7 直接收款删除、已选商品「清空」、s14 挂单删除）统一 <b><code>#929292</code></b>；<code>assets/ic_trash_figma.svg</code> 的 <code>stroke</code> <b>直接写死 <code>#929292</code></b>（该文件以 <code>img</code> 引用，颜色不继承 CSS）；<b>s15「打印小票」图标改用 Figma <code>1189-136</code></b>（<code>viewBox 0 0 200 200</code>、3 路径；<b>R17：已从「卡内右上角 28×28」移到「卡片底部整行入口」，图标 18 → 17px、色 <code>#B2B2B2</code> → <code>#8E8E93</code>，文案 13px <code>#55595E</code></b>）；<b>全站「进入」指示箭头均为 SVG</b>（s6/s7 优惠券行的箭头亦已由文字 <code>›</code> 改为 14×14 SVG）；<b>结算页标题栏「更多」为 20×20 三圆点 SVG、主文字色</b>，下拉项图标 18×18。</li>
+      <li><b>R14 图标色与形态补充</b>：<b>结算页底栏铅笔</b>与<b>全部垃圾桶图标</b>（s6/s7 明细删除、s7 直接收款删除、已选商品「清空」、s14 挂单删除）统一 <b><code>#929292</code></b>；<code>assets/ic_trash_figma.svg</code> 的 <code>stroke</code> <b>直接写死 <code>#929292</code></b>（该文件以 <code>img</code> 引用，颜色不继承 CSS）；<b>s15「打印小票」图标（R19 改为 24 画布 stroke 1.6 线描稿；R14 的 Figma 稿 <code>1189-136</code> 作废）</b>（<b>R17：已从「卡内右上角 28×28」移到「卡片底部整行入口」，色 <code>#B2B2B2</code> → <code>#8E8E93</code>，文案 13px <code>#55595E</code>；R19：尺寸 17 → 18px、渲染线宽 ≈ 1.2px、圆角 0 无底色</b>）；<b>全站「进入」指示箭头均为 SVG</b>（s6/s7 优惠券行的箭头亦已由文字 <code>›</code> 改为 14×14 SVG）；<b>结算页标题栏「更多」为 20×20 三圆点 SVG、主文字色</b>，下拉项图标 18×18。</li>
     </ul>
   </li>
 </ol>
@@ -2115,8 +2125,8 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
 </ul>
 <p><i>打印小票</i></p>
 <ul>
-  <li><b>Given</b> s15，<b>When</b> 检查金额卡，<b>Then</b> <b>卡片右上角不存在图标按钮</b>；<b>卡片最后一行</b>为「打印小票」整行入口（<code>aria-label="打印小票"</code>、图标 17px <code>#8E8E93</code> + 文案 13px <code>#55595E</code>、上方 0.5px 实线、整行可点）；<b>底栏按钮数量不变</b>（返回首页 / 客户签字 / 继续开单）。</li>
-  <li><b>Given</b> s15，<b>When</b> 点卡片底部「打印小票」行，<b>Then</b> toast「已发送打印小票指令」，<b>停留在 s15</b>（不跳转）；<b>Given</b> 该行，<b>Then</b> 热区 <b>319×46</b>、与卡内字段行左右对齐、位于明细字段区<b>下方</b>。</li>
+  <li><b>Given</b> s15，<b>When</b> 检查金额卡，<b>Then</b> <b>卡片右上角不存在图标按钮</b>；<b>卡片最后一行</b>为「打印小票」整行入口（<code>aria-label="打印小票"</code>、图标 18px <code>#8E8E93</code> + 文案 13px <code>#55595E</code>、上方 0.5px 实线、整行可点）；<b>底栏按钮数量不变</b>（返回首页 / 客户签字 / 继续开单）。</li>
+  <li><b>Given</b> s15，<b>When</b> 点卡片底部「打印小票」行，<b>Then</b> toast「已发送打印小票指令」，<b>停留在 s15</b>（不跳转）；<b>Given</b> 该行，<b>Then</b> 热区 <b>319×44</b>、与卡内字段行左右对齐、位于明细字段区<b>下方</b>。</li>
 </ul>
 <p><i>服务员工长摘要</i></p>
 <ul>
@@ -2155,7 +2165,7 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
 <ol start="299">
   <li><b>Given</b> s6 底栏「应付」，<b>When</b> 检查铅笔图标，<b>Then</b> <code>color</code> 为 <code>#929292</code>（改前随金额为 <code>#F32F41</code>）；<b>Given</b> 全部垃圾桶图标（s6/s7 明细删除、s7 直接收款删除、已选商品「清空」、s14 挂单删除），<b>Then</b> <b>均为 <code>#929292</code></b>。</li>
   <li><b>Given</b> s6 已选优惠券，<b>When</b> 检查券行右侧文字，<b>Then</b> <code>color</code> 为主文字色 <code>#1a1a1a</code>（改前 <code>#F32F41</code>）；<b>Given</b> 该行右侧箭头，<b>Then</b> <b>是 SVG 元素而非文字 <code>›</code></b>；<b>Given</b> 全原型渲染后的 DOM，<b>When</b> 扫描文本节点中的 <code>›</code> / <code>＞</code>，<b>Then</b> <b>命中数为 0</b>。</li>
-  <li><b>Given</b> s15，「When」检查打印小票图标，<b>Then</b> <code>viewBox="0 0 200 200"</code>、3 条路径、<code>fill:currentColor</code>、计算色 <b><code>#8E8E93</code></b>、渲染 <b>17px</b>，位于<b>金额卡底部整行入口</b>内（<code>.suc-print-row</code>，不再是右上角 28×28 热区）。</li>
+  <li><b>Given</b> s15，「When」检查打印小票图标，<b>Then</b> <code>viewBox="0 0 24 24"</code>、<code>fill="none"</code> / <code>stroke="currentColor"</code> / <code>stroke-width="1.6"</code>、3 条路径 + 1 枚 <code>currentColor</code> 指示灯（<b>R19 改写</b>：原 200 画布填充稿作废）、计算色 <b><code>#8E8E93</code></b>、渲染 <b>18px</b>（渲染线宽 ≈ 1.2px），位于<b>金额卡底部整行入口</b>内（<code>.suc-print-row</code>，不再是右上角 28×28 热区）。</li>
   <li><b>Given</b> s15 大号金额，<b>When</b> 量测 <code>¥</code> 盒右缘与数字盒左缘，<b>Then</b> 间距为 <b>2px</b>（<code>margin-right:2px</code>）；<b>Given</b> s15 对勾图标，<b>Then</b> <code>assets/suc_check.svg</code> 的圆底 <code>fill</code> 为 <b><code>#FF571A</code></b>。</li>
 </ol>
 <p><i>「修改单号」sheet 版式与键盘</i></p>
@@ -2175,6 +2185,8 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
 <p class="note"><b>R18 说明：</b>本节 <b>#315</b>（删「最多 3 人」）、<b>#335</b>（顾客指定回主文字色）两条已按 R18 改写，另见 <b>10.5（343–352）</b>。</p>
 
 <p class="note"><b>R17 说明：</b>本节第 <b>#281 / #282 / #301 / #322</b> 四条已按 R17 改写（打印小票入口由「卡内右上角图标」改为「卡片底部整行」）；s4 相关条目里「分段胶囊 / 左段实心红」的表述以 <b>6.8</b> 与 <b>10.4（331–334）</b> 为准。</p>
+
+<p class="note"><b>R19 说明：</b>本节第 <b>#281 / #282 / #301 / #337 / #338 / #339</b> 六条已按 R19 改写（图标换 24 画布线描稿、17 → 18px；该行去圆角去底色、46 → 44px、按下仅加深），另见 <b>10.6（353–364）</b>。</p>
 
 <h3>10.3 R16 验收用例（309–330）</h3>
 <ol start="309">
@@ -2201,6 +2213,21 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
   <li><b>Given</b> s6/s7 明细「服务员工」行，<b>When</b> 点击，<b>Then</b> 打开「修改服务员工」sheet（4 行槽位、<code>data-ctx</code> 为 <code>co</code> / <code>qco</code>）；落位员工后<b>摘要即时更新且金额不变</b>。</li>
   <li><b>Given</b> s7 明细，<b>When</b> 查看「应付」行，<b>Then</b> <b>同样可编辑</b>（R16 前为只读），改价规则与 s6 一致。</li>
 </ol>
+<h3>10.6 R19 验收用例（353–364）</h3>
+<ol start="353">
+  <li><b>Given</b> s15，<b>When</b> 取 <code>.suc-print-row</code> 内的 <code>svg</code>，<b>Then</b> 全行只有 1 个 svg、<code>viewBox="0 0 24 24"</code>（<b>不再是 <code>0 0 200 200</code></b>）、<code>fill="none"</code>、<code>stroke="currentColor"</code>、<code>stroke-width="1.6"</code>、<code>stroke-linecap="round"</code>、<code>stroke-linejoin="round"</code>。</li>
+  <li><b>Given</b> 该图标，<b>When</b> 数结构，<b>Then</b> <b>3 条 <code>path</code></b>（进纸 / 机身 / 出纸）+ <b>1 枚 <code>circle</code></b>（指示灯，<code>fill="currentColor"</code>、<code>stroke="none"</code>）；坐标全部落在 0–24 区间，<b>无 <code>163.158</code> / <code>182.105</code> 等 200 画布残留</b>。</li>
+  <li><b>Given</b> 该图标，<b>When</b> 量测渲染尺寸，<b>Then</b> 为 <b>18px</b>（R19 前 17px）；<b>渲染线宽 = <code>stroke-width ÷ 24 × 18</code> ≈ 1.2px</b>（R19 前 ≈ 0.5px）。</li>
+  <li><b>Given</b> 该图标，<b>When</b> 检查颜色，<b>Then</b> 常态计算色 <b><code>rgb(142,142,147)</code></b>、<code>flex-grow</code> / <code>flex-shrink</code> 均为 <b>0</b>。</li>
+  <li><b>Given</b> s15，<b>When</b> 量测 <code>.suc-print-row</code>，<b>Then</b> <code>border-radius</code> = <b><code>0px</code></b>（R19 前 12px）、<code>background-color</code> = <b><code>rgba(0,0,0,0)</code></b>、<code>border-top</code> = <b>0.5px 实线 <code>#E5E5E5</code></b>。</li>
+  <li><b>Given</b> 该行，<b>When</b> 量测，<b>Then</b> 高 <b>44px</b>（R19 前 46px）、宽 <b>= 卡内字段行宽（319px）</b>、<b>是金额卡的最后一个子元素</b>；文案仍「打印小票」13px <code>#55595E</code>。</li>
+  <li><b>Given</b> 该行与其 <code>:active</code> 规则的 CSSOM，<b>Then</b> <b>不再有任何 <code>background</code> 声明</b>（<code>#F7F7F8</code> 命中 0）；<code>:active</code> 的 <code>color</code> = <b><code>rgb(26,26,26)</code></b>，<code>:active svg</code> 的 <code>color</code> = <b><code>rgb(85,89,94)</code></b>。</li>
+  <li><b>Given</b> 该行，<b>When</b> 检查标签与热区，<b>Then</b> 仍是 <code>&lt;button&gt;</code>、带 <code>data-suc-print</code> 与 <code>aria-label="打印小票"</code>，<b>点击 → toast「已发送打印小票指令」并停留在 s15</b>。</li>
+  <li><b>Given</b> s15（1 条明细），<b>When</b> 量测，<b>Then</b> 卡高 <b>≈ 283.7px</b>、卡底 <b>≈ 434px</b>、<code>.suc-body</code> 的 <code>top</code> <b>仍 138px</b>、<code>scrollHeight ≤ clientHeight</code>（<b>无内部滚动</b>）。</li>
+  <li><b>Given</b> s15，<b>When</b> 检查卡外，<b>Then</b> 操作组仍 <b>4 等分 / 高 62px / 距卡底 14px</b>，底栏仍 <b>3 个按钮</b>；<b>各格图标仍 17px</b>（本次只改打印小票这一个图标）。</li>
+  <li><b>Given</b> 全原型渲染后的 DOM，<b>When</b> 检索 <code>#s15 .suc-print</code>（不含 <code>-row</code>）、<code>viewBox="0 0 200 200"</code> 与 <code>.suc-print-row</code> 命中数，<b>Then</b> 依次为 <b>0 / 0 / 1</b>。</li>
+  <li><b>Given</b> 本轮改动，<b>When</b> 跑 <code>_verify_r19.html</code>，<b>Then</b> <b>34 条全部通过</b>；<code>_verify_r17.html</code> 28 条、<code>_verify_r18.html</code> 25 条、<code>_verify_r16.html</code> 清单<b>均无失败</b>。</li>
+</ol>
 <h3>10.5 R18 验收用例（343–352）</h3>
 <ol start="343">
   <li><b>Given</b> s4 选择顾客页，<b>When</b> 点某行右侧「收款」，<b>Then</b> 进入 s2 直接收款（标题「直接收款」不变）。</li>
@@ -2222,9 +2249,9 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
   <li><b>Given</b> s4 行 <code>.pick-row-wrap</code>，<b>When</b> 检查行内距右，<b>Then</b> 为 <b>30px</b>（R17 前 12px）、行高仍 <b>74px</b>；点「开单」→ <code>s1/s5</code>（会员行进 s5），点「收款」→ <code>s2</code>，各 1 次点击直达；点行本身 → <b>无响应</b>。</li>
   <li><b>Given</b> 打开员工选择器（含 sheet 内嵌），<b>When</b> 量测 4 行工位行名，<b>Then</b> <b>四行全部 = <code>rgb(26,26,26)</code>（主文字色）</b>（<b>R18：R17 的橙 <code>#F97316</code> 作废</b>）；<code>.sp-row--extra</code> 仅 1 个，槽位卡与摘要文案<b>不变色</b>。</li>
   <li><b>Given</b> s15，<b>When</b> 检查金额卡，<b>Then</b> <b>不存在</b> <code>.suc-print</code>（右上角 28×28 图标已删除），<b>存在</b> <code>.suc-print-row</code> 且<b>是卡片的最后一个子元素</b>、位于明细字段区<b>下方</b>。</li>
-  <li><b>Given</b> 该行，<b>When</b> 量测，<b>Then</b> <b>宽 = 卡内字段行宽（319px）× 高 46px</b>（误差 ≤ 1.2px），上方 <code>border-top</code> 为 <b>0.5px <code>#E5E5E5</code> 实线</b>（字段行之间仍为 <code>0.5px #E0E0E0</code> 虚线）。</li>
-  <li><b>Given</b> 该行内容，<b>When</b> 检查，<b>Then</b> 图标 <b>17px / <code>#8E8E93</code></b>、文案「打印小票」<b>13px / <code>#55595E</code></b>、水平居中、<code>aria-label="打印小票"</code>；按下整行底色 <b><code>#F7F7F8</code></b>。</li>
-  <li><b>Given</b> s15，<b>When</b> 量测 <code>.suc-body</code>，<b>Then</b> 计算 <code>top</code> = <b>138px</b>（R17 前 182px），卡底实测 <b>≈ 436px</b>（R17 前 440.5px，差 4.5px）。</li>
+  <li><b>Given</b> 该行，<b>When</b> 量测，<b>Then</b> <b>宽 = 卡内字段行宽（319px）× 高 44px</b>（误差 ≤ 1.2px），上方 <code>border-top</code> 为 <b>0.5px <code>#E5E5E5</code> 实线</b>（字段行之间仍为 <code>0.5px #E0E0E0</code> 虚线）。</li>
+  <li><b>Given</b> 该行内容，<b>When</b> 检查，<b>Then</b> 图标 <b>18px / <code>#8E8E93</code></b>、文案「打印小票」<b>13px / <code>#55595E</code></b>、水平居中、<code>aria-label="打印小票"</code>、<b>圆角 0 / 背景透明</b>；按下<b>只加深（文字 <code>#1A1A1A</code>、图标 <code>#55595E</code>），无底色</b>。</li>
+  <li><b>Given</b> s15，<b>When</b> 量测 <code>.suc-body</code>，<b>Then</b> 计算 <code>top</code> = <b>138px</b>（R17 前 182px），卡底实测 <b>≈ 434px</b>（R17 前 440.5px；<b>R19</b> 行高 46 → 44 后再上移 2px）。</li>
   <li><b>Given</b> s15（1 条明细），<b>When</b> 检查内容区，<b>Then</b> <code>scrollHeight ≤ clientHeight</code>（<b>无内部滚动</b>）；卡外操作组仍为 <b>4 等分 / 高 62px / 与卡片间距 14px</b>，底栏仍为 <b>3 个按钮</b>。</li>
   <li><b>Given</b> s15，<b>When</b> 点卡片底部「打印小票」行，<b>Then</b> toast「<b>已发送打印小票指令</b>」且<b>停留在 s15</b>（不跳转、不清空单据）。</li>
   <li><b>Given</b> 全原型渲染后，<b>When</b> 全局检索旧类名 <code>.suc-print</code>（不含 <code>-row</code>）与旧样式 <code>#s15 .suc-print {</code>，<b>Then</b> <b>命中 0</b>（无残留死代码）；<code>sucPrint()</code> 仍保留且仅由 <code>.suc-print-row</code> 调用。</li>
