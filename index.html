@@ -12,13 +12,6 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
-  /* 选人勾选动效时长（与 ticheng 同源） */
-  --sp-check-red: 60ms;
-  --sp-check-draw: 110ms;
-  --sp-uncheck-draw: 55ms;
-  --sp-uncheck-red: 30ms;
-  --sp-collapse: 220ms;
-  --sp-ease-std: cubic-bezier(.22, .82, .24, 1);
 
     --brand: #F32F41; --brand-soft: #FFF2F2; --brand-border: #FFD5D9;
     --bg-page: #F7F7F7; --card: #fff; --text: #1a1a1a; --text-sec: #929292; --text-mid: #666;
@@ -157,7 +150,7 @@
   .nav-bar .date-ctl .date { position:static; left:auto; top:auto; font-size:12px; font-weight:500; color:#1a1a1a; white-space:nowrap; }
   .nav-bar .date-ctl .ic-cal { width:16px; height:16px; display:block; flex:none; }
   .nav-bar .date-ctl:active { opacity:.55; }
-  /* 「取挂单（N）」：选择顾客页标题栏右侧入口（挂单列表）：单据+时钟图标 + 文字 */
+  /* 「挂单（N）」：选择顾客页标题栏右侧入口（挂单列表）：单据+时钟图标 + 文字 */
   .nav-bar .nav-hold {
     position:absolute; right:10px; top:calc(10px + var(--nav-shift-14)); height:24px;
     display:flex; align-items:center; gap:6px;
@@ -387,8 +380,6 @@
   .proj-card .pr .sym { font-size:13px; }
   .proj-card .pr .int { font-size:18px; }
   .proj-card .pr .dec { font-size:12px; }
-  .proj-card .pr .old { font-size:12px; color:#b2b2b2; text-decoration:line-through; margin-right:6px; }
-  .proj-card .pr .sale { font-size:16px; font-weight:500; }
   .proj-card .add {
     position:absolute; width:20px; height:20px; border:none; background:none; padding:0; cursor:pointer;
   }
@@ -667,14 +658,16 @@
   }
   .pick-row {
     width:390px; height:74px; display:flex; align-items:center; gap:10px;
-    padding:14px 28px 14px 12px; cursor:pointer;
+    padding:14px 28px 14px 12px; cursor:default;
   }
-  .pick-row:active { background:#fafafa; }
   .pick-row .avatar { width:44px; height:44px; border-radius:50%; overflow:hidden; flex:none; }
   .pick-row .avatar img { width:44px; height:44px; object-fit:cover; display:block; }
-  .pick-row .info { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
-  .pick-row .info .line1 { display:flex; align-items:center; gap:6px; }
-  .pick-row .info .line1 .nm { font-size:16px; font-weight:700; color:#111; white-space:nowrap; }
+  .pick-row .info { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+  .pick-row .info .line1 { display:flex; align-items:center; gap:6px; min-width:0; }
+  .pick-row .info .line1 .nm {
+    font-size:16px; font-weight:700; color:#111; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis;
+  }
   .pick-row .info .line1 .vip {
     font-size:10px; padding:2px 5px; border-radius:2px; background:#333; color:#fff; font-weight:700; letter-spacing:.1px;
   }
@@ -685,8 +678,12 @@
     font-weight:400;
   }
   .pick-row .info .line1 .cnt { font-size:13px; color:#111; white-space:nowrap; }
-  .pick-row .info .line1 .phone { flex:1; text-align:right; font-size:14px; color:#888; white-space:nowrap; }
-  .pick-row .info .sub { font-size:12px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* R16：手机号移到姓名下一行（「最近消费」整行删除） */
+  .pick-row .info .line2 { display:flex; min-width:0; }
+  .pick-row .info .line2 .phone {
+    font-size:13px; line-height:18px; color:#929292; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis; font-family:var(--font-data);
+  }
   /* 「添加会员」入口行（设计稿 968:371）：图标 36×36（#FF8956 实心图形）+ 灰色标题
      外层保持 44×44，使图标与其它行的 44 头像同中轴、行高一致 */
   .pick-add-av {
@@ -886,6 +883,22 @@
   }
   #s7 .co-item .co-thumb img { width:33px; height:33px; object-fit:contain; margin:auto; }
   #s6 .co-item .co-sum-row.pay, #s7 .co-item .co-sum-row.pay { padding-bottom:4px; }
+  /* R16：结算页每项可改「应付」与「服务员工」
+     —— 「应付」行右侧加铅笔（#929292，14×14）并以整行热区进入数字键盘 sheet；
+        「服务员工」行右侧加 › 箭头并以整行热区进入员工选择 sheet。 */
+  #s6 .co-item .co-sum-row[data-price-edit="1"],
+  #s7 .co-item .co-sum-row[data-price-edit="1"] { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  #s6 .co-item .co-sum-row[data-price-edit="1"]:active,
+  #s7 .co-item .co-sum-row[data-price-edit="1"]:active { background:#FAFAFA; }
+  #s6 .co-item .co-sum-row .co-pen, #s7 .co-item .co-sum-row .co-pen {
+    width:14px; height:14px; flex:none; color:#929292;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  #s6 .co-item .co-sum-row .co-pen svg, #s7 .co-item .co-sum-row .co-pen svg { width:14px; height:14px; display:block; }
+  #s6 .co-item .co-row.co-staff-row[data-staff-edit="1"],
+  #s7 .co-item .co-row.co-staff-row[data-staff-edit="1"] { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  #s6 .co-item .co-row.co-staff-row[data-staff-edit="1"]:active,
+  #s7 .co-item .co-row.co-staff-row[data-staff-edit="1"]:active { background:#FAFAFA; }
   #s7 .co-item .co-note-row { padding-bottom:12px; }
   /* 明细内分隔线：商品头下沿 + 「服务员工/权益/应付」行间，左右各内缩 16
      商品头下沿（上面第 1 根）：发丝浅灰 0.5px 实线
@@ -924,37 +937,11 @@
     display:flex; align-items:center; gap:11px; padding-left:16px; padding-right:11px;
     box-sizing:border-box;
   }
+  /* 应付为只读（R16：应付总价不可修改，改价入口下移到每项明细的「应付」行） */
   #s6 .co-bar .pay, #s7 .co-bar .pay { display:flex; align-items:baseline; color:#f32f41; font-weight:500; white-space:nowrap; }
   #s6 .co-bar .pay .l, #s7 .co-bar .pay .l { font-size:15px; }
   #s6 .co-bar .pay .v, #s7 .co-bar .pay .v { font-size:19.5px; }
-  /* 应付可手动修改（仅 s6）：按钮化 + 铅笔图标 +「已改价」标记
-     热区靠「内边距 8 + 底栏内边距 8」向外扩，文字仍落在 16px 栏距上 */
-  #s6 .co-bar { padding-left:8px; }
-  #s6 .co-bar button.pay {
-    border:0; background:none; padding:4px 8px; margin:-4px 0; border-radius:6px;
-    font-family:inherit; cursor:pointer;
-    -webkit-tap-highlight-color:transparent;
-  }
-  #s6 .co-bar button.pay:active { background:#FFF2F2; }
-  /* 铅笔（可编辑暗示）：R14 起固定 #929292（中性灰，与「可编辑」的提示语气一致，
-     不再随金额的红色走 —— 红是「应付」这一数值的高亮，铅笔是操作暗示，两者不同语义）。
-     参与 `.pay` 的 align-items:baseline —— svg 无基线，其「底缘」即基线，
-     于是铅笔底缘正好落在金额数字底缘（底对齐，R9 修订，原为行内居中）。 */
-  #s6 .co-bar .pay .pen {
-    width:14px; height:14px; flex:none; margin-left:6px; color:#929292;
-  }
-  #s6 .co-bar .pay .tag {
-    align-self:center; margin-left:4px; padding:1px 5px; border-radius:4px;
-    background:#fff2f2; color:#f32f41; font-size:11px; font-weight:400; line-height:16px;
-  }
-  /* 手输应付提示条：贴在底栏上方 */
-  #s6 .co-lock-note {
-    position:absolute; left:0; right:0; bottom:calc(72px + var(--safe-bottom));
-    padding:7px 16px; background:#FFF8E5; color:#B26B00;
-    font-size:var(--fs-hint); line-height:var(--lh-hint); z-index:29; box-sizing:border-box;
-  }
-  /* 改价后（单条改价 / 整单改价）明细「权益」行降权为只读，点击不再进入选择页；
-     优惠券行保持可点——整单改价后仍可选用券，但不影响最终结算价 */
+  /* 单条改价后该明细「权益」行降权为只读，点击不再进入选择页 */
   #s6 .co-items .co-row.is-benefit-locked { opacity:.5; }
   #s6 .co-items .co-row.is-benefit-locked .val { cursor:default; pointer-events:none; }
   #s6 .co-bar .btns, #s7 .co-bar .btns { flex:1; display:flex; justify-content:flex-end; gap:11px; }
@@ -1106,6 +1093,13 @@
   .addsheet-grid {
     display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;
   }
+  /* R16 项目 sheet：删除数量卡片 → 单列通栏，价格行左标签 / 右输入 */
+  .addsheet-grid.is-single { grid-template-columns:1fr; }
+  .addsheet-grid.is-single .addsheet-cell--qty { display:none; }
+  .addsheet-cell.is-wide { display:flex; align-items:center; gap:12px; min-height:56px; padding:10px 14px; }
+  .addsheet-cell.is-wide .lbl { flex:none; font-size:15px; color:#1a1a1a; }
+  .addsheet-cell.is-wide .pay-row { flex:1; min-width:0; margin-top:0; }
+  .addsheet-cell.is-wide .pay-row input.num { text-align:right; }
   .addsheet-cell {
     background:#fff; border-radius:12px; padding:10px 12px; min-height:66px;
   }
@@ -1137,19 +1131,16 @@
   .addsheet-staff-embed .staff-embed__head {
     font-size:14px; font-weight:500; color:#1a1a1a; margin-bottom:4px;
   }
-  .staff-embed { background:#FAFAFA; border-radius:12px; padding:10px 10px 4px; }
-  .staff-embed .detail-item__staff-block { margin:0; }
-  .staff-embed .staff-grid { padding-top:0; }
+  .staff-embed { background:#FAFAFA; border-radius:12px; padding:10px 10px 6px; }
 
   /* 直接收款 员工内嵌面板 */
   .quick-staff-panel {
     position:absolute; left:16px; width:358px; z-index:26;
     background:#FAFAFA; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,.14);
-    padding:12px 10px 4px; max-height:300px; overflow-y:auto;
+    padding:12px 10px 6px; max-height:320px; overflow-y:auto;
     display:none;
   }
   .quick-staff-panel.open { display:block; }
-  .quick-staff-panel .staff-grid { padding-top:0; }
 
   /* 底部确认 */
   .addsheet__foot {
@@ -1252,296 +1243,203 @@
   }
   .remark-sheet__body textarea:focus { border-color: var(--brand-border); background: #fff; }
   .remark-sheet__body .remark-count { margin-top: 8px; text-align: right; font-size: 12px; color: #929292; }
-  .add-card-staff-sheet__hint { margin: 0 16px 10px; font-size: 12px; line-height: 1.45; color: var(--text-sec); }
-  .add-card-staff-sheet__body { margin: 0 16px 16px; padding: 12px; background: #FAFAFA; border-radius: 12px; box-sizing: border-box; max-height: min(52vh, 420px); overflow-y: auto; }
-  .add-card-staff-sheet__body .detail-item__staff-block { margin: 0; }
-  .add-card-staff-sheet__body .detail-item__panel-row--staff-head { display: none; }
-  .bill-staff-sheet__body .detail-item__panel-row--staff-head { display: none; }
-  .detail-item__staff-block { border-bottom: none; position: relative; }
-  .detail-item__panel-row--staff-head { border-bottom: none; padding-bottom: 8px; }
-  /* ===== 选择服务员工（对齐 ticheng 最新 UI/UX · 按工位+顾客指定） ===== */
-  /* 预留两行卡片高度，重绘时空档不塌陷（摘要最多 3 行：大工·中工 / 小工 / 顾客指定） */
-  .staff-grid, .staff-embed .staff-grid {
-    min-height: calc(128px * 2 + 10px + 14px);
-  }
-  .detail-item__staff-block { border-bottom: none; position: relative; }
-  .staff-card-scrim {
-    position: absolute; inset: -8px -4px -12px; z-index: 1;
-    border: none; padding: 0; margin: 0; cursor: pointer;
-    background: rgba(247, 247, 247, .42); border-radius: 12px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .staff-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px 8px;
-    padding: 2px 0 12px;
-    position: relative;
-    z-index: 2;
-    overflow: visible;
-  }
-  .staff-grid.is-morphing > .staff-card { justify-self: start; align-self: start; }
-  .staff-card {
-    position: relative;
-    min-height: 128px;
-    width: 100%;
-    box-sizing: border-box;
-    z-index: 1;
-    -webkit-tap-highlight-color: transparent;
-    will-change: transform, width;
-  }
-  .staff-card.is-dim { opacity: .36; pointer-events: none; filter: saturate(.85); }
-  .detail-item__staff-block--cards.is-picking { overflow: visible; }
-  .detail-item__staff-block--cards.is-picking .staff-grid { overflow: visible; pointer-events: none; }
-  .staff-card.is-editing { z-index: 6; pointer-events: auto; opacity: 1; filter: none; }
-  .staff-card__panel {
-    position: relative;
-    box-sizing: border-box;
-    width: 100%;
-    min-height: 128px;
-    padding: 10px 8px 8px;
-    border-radius: 12px;
-    background: #fff;
-    border: 1px solid #E8E8E8;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 6px;
-    cursor: pointer;
-    font-family: inherit;
-    color: #1a1a1a;
-    transition: border-color .22s ease, background .22s ease, box-shadow .28s cubic-bezier(.22,.82,.24,1);
-    -webkit-tap-highlight-color: transparent;
-  }
-  .staff-card__panel:active { transform: scale(.96); transition: transform .08s ease-out; }
-  .staff-card.is-done .staff-card__panel {
-    background: linear-gradient(180deg, #FFF8F8 0%, #FFF2F2 100%);
-    border-color: #FFD5D9;
-    box-shadow: inset 0 0 0 1px rgba(243, 47, 65, .04);
-  }
-  /* 回弹只在**本次交互真的选中了该员工**时播（is-pop 由 JS 一次性标记）：
-     避免每次重绘（如再选别人）都重播一遍「噗噗」弹入（见 PRD §6.11.8） */
-  .staff-card.is-done.is-pop .staff-card__panel { animation: staffDonePop .42s cubic-bezier(.34,1.3,.64,1); }
-  @keyframes staffDonePop {
-    0% { transform: scale(.94); }
-    55% { transform: scale(1.04); }
-    100% { transform: scale(1); }
-  }
-  /* 展开态：被点卡片撑满整行，内部横向平铺选项卡片（3 工位 / 顾客指定） */
-  .staff-card.is-editing .staff-card__panel[data-face="opts"] {
-    position: relative;
-    z-index: 1;                 /* 压在收起动画的「下层头像卡面」之上（后者 z-index: 0） */
-    width: 100%;
-    min-height: 128px;
-    height: 128px;
-    padding: 0;
-    gap: 0;
-    border: none;
-    border-radius: 0;
-    overflow: visible;
-    background: transparent;
-    cursor: default;
-    box-shadow: none;
-  }
-  .staff-card.is-editing .staff-card__panel[data-face="opts"]:active { transform: none; }
-  .staff-card.is-expanding .staff-card__opts {
-    opacity: 1; visibility: visible;
-    transition: opacity .2s cubic-bezier(.34,1.3,.64,1);
-  }
-  .staff-card:not(.is-expanding) .staff-card__opts {
-    opacity: 0; visibility: hidden;
-  }
-  /* 展开时同行其余卡片淡出，避免与撑满的卡片相互压叠（淡出**瞬时**，与本动画无关） */
-  .staff-card.is-row-muted { opacity: 0; pointer-events: none; }
+  /* ===== 选择服务员工（R16 重构：按工位槽位 + iOS 风格选择页） =====
 
-  /* —— 收起 Morph（见 PRD §6.11.7）——
-     展开卡「收回去」的两层交叉：
-       · 上层 `.staff-card__panel[data-face="opts"]`（4 张选项卡）**整体淡出**；
-       · 下层 `.staff-card__panel--base`（头像 / 姓名 / 摘要）**淡入** —— 与收缩态卡面完全是同一套 DOM 结构，
-         因此动画终点与重绘后的静态卡面**像素级一致**，落定那一帧不会跳。
-     卡宽 / 位移的过渡由 JS 内联 `transition` 给出（时长读 `--sp-collapse`，同源）。 */
-  .staff-card.is-editing .staff-card__panel--base {
-    position: absolute; inset: 0; z-index: 0;
-    opacity: 0; pointer-events: none;
-    transition: opacity var(--sp-collapse) var(--sp-ease-std);
-  }
-  .staff-card.is-editing.is-collapsing .staff-card__panel--base { opacity: 1; }
-  /* 选项卡整体淡出。**必须反超** `.staff-card.is-expanding .staff-card__opts`（0,3,0）→ 用 (0,4,0) 组合选择器。
-     注：展开后的卡带的恒为 `is-expanding`，`is-opened` 从不渲染，其选择器已随之删除。 */
-  .staff-card.is-expanding.is-collapsing .staff-card__opts {
-    opacity: 0; visibility: visible;
-    transition: opacity var(--sp-collapse) var(--sp-ease-std);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .staff-card.is-editing .staff-card__panel { animation: none !important; }
-    .staff-card.is-done.is-pop .staff-card__panel { animation: none !important; }
-    .staff-card { transition: none !important; }
-    .staff-card__panel { transition: none; }
-    .staff-opt { transition: none !important; animation: none !important; }
-    .staff-opt__box, .staff-opt__box svg path {
-      animation: none !important; transition: none !important;
-    }
-    .staff-opt__box.is-draw svg path { stroke-dashoffset: 0; }
-    .staff-opt__box.is-undraw svg path { stroke-dashoffset: 24; }
-    .staff-card.is-expanding .staff-card__opts { transition: none !important; opacity: 1; visibility: visible; }
-    .staff-card:not(.is-expanding) .staff-card__opts { opacity: 1; visibility: visible; }
-    /* 收起动画直接落定（无过渡、无交叉淡入淡出） */
-    .staff-card.is-editing .staff-card__panel--base { transition: none !important; }
-    .staff-card.is-expanding.is-collapsing .staff-card__opts { transition: none !important; }
-  }
-  .staff-card__opts {
-    display: flex; align-items: stretch; width: 100%; height: 100%; gap: 8px;
-    box-sizing: border-box; background: transparent;
-  }
-  .staff-opt {
-    position: relative;
-    flex: 1 1 0; min-width: 0;
-    margin: 0; padding: 22px 6px 8px;
-    border: 1px solid #E8E8E8;
-    border-radius: 12px;
-    background: #fff;
-    color: #1a1a1a;
-    font-size: 14px; font-weight: 600; letter-spacing: .02em; line-height: 1.15;
-    font-family: inherit; cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center;
-    -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 2px 8px rgba(26, 26, 26, .06);
-    transition: background .18s ease, color .18s ease, border-color .18s ease,
-      transform .08s ease-out, box-shadow .2s cubic-bezier(.34,1.3,.64,1);
-  }
-  .staff-opt:active { transform: scale(.96); box-shadow: 0 1px 4px rgba(26, 26, 26, .08); }
-  .staff-opt--extra { color: #C62828; border-color: rgba(243, 47, 65, .18); background: linear-gradient(180deg, #FFF9F9 0%, #FFF2F2 100%); }
-  /* 右上角勾选控件：未勾选空心 */
-  .staff-opt__box {
-    position: absolute; top: 6px; right: 6px;
-    width: 18px; height: 18px; border-radius: 9px;
-    border: 1.5px solid #D6D6D6; background: #fff; color: transparent;
-    display: inline-flex; align-items: center; justify-content: center;
-    box-sizing: border-box;
-  }
-  .staff-opt__box svg { width: 11px; height: 11px; display: block; }
-  .staff-opt.is-on { border-color: var(--brand); box-shadow: 0 2px 10px rgba(243, 47, 65, .16); }
-  .staff-opt.is-on .staff-opt__box {
-    border-color: var(--brand); background: var(--brand); color: #fff;
-  }
-  /* —— 勾选控件动效：点按 → 快速变红（--sp-check-red 60ms）→ 勾从左到右画出（--sp-check-draw 110ms）；
-        取消 = 反序播放（先收勾再褪红），**时长减半、速度加快一倍**（--sp-uncheck-draw 55ms + --sp-uncheck-red 30ms）。
-        时长见文件顶部 :root（PRD §6.11.7）——
-        注：收缩态员工卡已无勾选控件，故本组只会作用于展开态的 `.staff-opt__box` */
-  .staff-opt__box {
-    transition: background-color var(--sp-check-red) ease,
-      border-color var(--sp-check-red) ease,
-      color var(--sp-check-red) ease;
-  }
-  .staff-opt__box svg path {
-    stroke-dasharray: 24; stroke-dashoffset: 24;
-  }
-  /* 已勾选（静态渲染）：勾完整呈现 */
-  .staff-opt.is-on .staff-opt__box svg path { stroke-dashoffset: 0; }
-  /* 点选：立刻变红，勾随后画出 */
-  .staff-opt__box.is-draw { background: var(--brand); border-color: var(--brand); color: #fff; }
-  .staff-opt__box.is-draw svg path {
-    animation: spCheckDraw var(--sp-check-draw) linear var(--sp-check-red) both;
-  }
-  /* 取消：先收勾再褪红（反序）；时长减半、速度加快一倍（--sp-uncheck-* = --sp-check-* / 2） */
-  .staff-opt__box.is-undraw {
-    background: #fff; border-color: #D6D6D6; color: transparent;
-    transition: background-color var(--sp-uncheck-red) ease var(--sp-uncheck-draw),
-      border-color var(--sp-uncheck-red) ease var(--sp-uncheck-draw),
-      color var(--sp-uncheck-red) ease var(--sp-uncheck-draw);
-  }
-  .staff-opt__box.is-undraw svg path { animation: spCheckUndraw var(--sp-uncheck-draw) linear both; }
-  @keyframes spCheckDraw {
-    from { stroke-dashoffset: 24; }
-    to { stroke-dashoffset: 0; }
-  }
-  @keyframes spCheckUndraw {
-    from { stroke-dashoffset: 0; }
-    to { stroke-dashoffset: 24; }
-  }
-  /* —— 反向「整卡红色快速淡出」（q7-C）——
-     取消勾选时，勾选框（红色填充 + 描边）与**宿主卡片的红色** （选项卡的红边/红投影、
-     员工卡的粉底/粉描边/头像粉圈）在 85ms 内**一起**退干净 —— 节拍与「点选」完全一致
-     （收勾 55ms → 褪红 30ms，见 PRD §6.11.7）。
+     4 行 = 大工 / 中工 / 小工 / 顾客指定（随 SP_NEED_STATION / SP_NEED_EXTRA 显隐）。
 
-     ① **必须反超 `.is-on`（实测 BUG 根因）**：`.staff-opt.is-on .staff-opt__box` 特异性 (0,3,0)
-        高于 `.staff-opt__box.is-undraw` (0,2,0)，不反超则红底在整个动效期间**纹丝不动**，
-        只在落定重绘那一帧「啪」地硬切消失（实测 26→276ms 恒为纯红 rgb(243,47,65)）。
-     ② 选项卡红边/红投影来自 `.staff-opt.is-on` (0,2,0)，用 `.staff-opt.is-on.is-undraw` (0,3,0) 反超。
-     ③ 员工卡粉底是 `linear-gradient`（**不可插值**），故在 `.is-done` 下垫一层同色
-        `background-color`、渐变置其上：褪色时先摘渐变（与垫底同色，肉眼无感），再让
-        `background-color` 过渡到白 —— 否则粉底同样会硬切。 */
-  .staff-opt.is-on .staff-opt__box.is-undraw { background: #fff; border-color: #D6D6D6; color: transparent; }
-  .staff-opt.is-on.is-undraw {
-    border-color: #E8E8E8;
-    box-shadow: 0 2px 8px rgba(26, 26, 26, .06);
-    transition: border-color var(--sp-uncheck-red) ease var(--sp-uncheck-draw),
-      box-shadow var(--sp-uncheck-red) ease var(--sp-uncheck-draw);
-  }
-  /* 「顾客指定」卡未勾选时本身就带淡红边，取消后回它自己的基线色 */
-  .staff-opt--extra.is-on.is-undraw { border-color: rgba(243, 47, 65, .18); }
-  /* 员工卡（收缩态）：粉底 + 粉描边 + 头像粉圈 */
-  .staff-card.is-done .staff-card__panel { background-color: #FFF5F5; }
-  /* 注：收缩态员工卡的「粉底淡出」已废止 —— 该卡不再有勾选控件，取消只能走「展开卡片取消勾选」
-     或「入口摘要行 ×」，两者都不在该卡上做褪色（见 PRD §6.11.3） */
-  /* 注：工位已改为**可点掉**（再点已勾选工位 = 取消），原「iOS 抖动提醒」动效与其
-     `spOptShake` 关键帧、`.is-shake` 规则已随之移除（见 PRD §6.11.2） */
-  .staff-card.is-splitting .staff-opt { animation: staffRoleSplit .38s cubic-bezier(.34,1.3,.64,1) both; }
-  .staff-card.is-splitting .staff-opt:nth-child(1) { animation-delay: 0ms; }
-  .staff-card.is-splitting .staff-opt:nth-child(2) { animation-delay: 35ms; }
-  .staff-card.is-splitting .staff-opt:nth-child(3) { animation-delay: 70ms; }
-  .staff-card.is-splitting .staff-opt:nth-child(4) { animation-delay: 105ms; }
-  @keyframes staffRoleSplit {
-    from { opacity: 0; transform: scaleX(.42) scaleY(.92); }
-    to { opacity: 1; transform: scaleX(1) scaleY(1); }
-  }
-  .staff-card__avatar {
-    width: 40px; height: 40px; border-radius: 20px; object-fit: cover;
-    background: var(--brand-soft); flex-shrink: 0;
-    box-shadow: 0 0 0 2px #fff;
-  }
-  .staff-card.is-done .staff-card__avatar { box-shadow: 0 0 0 2px #FFE0E3; }
-  .staff-card__avatar--ph { display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--brand); }
-  .staff-card__name {
-    font-size: 12px; font-weight: 500; line-height: 1.25; text-align: center;
-    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .staff-card__title {
-    font-size: 10px; font-weight: 400; line-height: 1.2; color: var(--text-sec);
-    text-align: center; max-width: 100%;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  /* 选人摘要区：预留最多 3 行（三工位拆两行 + 顾客指定）；单行垂直居中；行内不省略 */
-  .staff-card__title--pick {
-    font-size: 11px; font-weight: 600; color: var(--brand);
-    letter-spacing: .01em;
-    min-height: 3.6em;
-    height: auto;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    white-space: normal; overflow: visible; text-overflow: unset;
-    line-height: 1.2;
-    animation: staffMetaIn .36s cubic-bezier(.22,.82,.24,1);
-  }
-  .staff-card__pick-stack {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 1px; width: 100%;
-  }
-  .staff-card__pick-line {
-    max-width: 100%;
-    overflow: visible; text-overflow: unset; white-space: nowrap;
-    line-height: 1.2; text-align: center;
-  }
-  /* 「只勾顾客指定、没选工位」的合法状态：按 R12 口径计入已选，只发「顾客指定」提成。
-     卡片与入口摘要行都**只画红字「顾客指定」**，不出现「无工位」（见 PRD §6.11.4） */
-  .staff-card__pick-x { color: var(--brand); }
-  @keyframes staffMetaIn {
-    0% { opacity: 0; transform: translateY(4px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-  /* 收缩态员工卡**不再有任何勾选控件**（`.staff-card__tick` 已删除），勾只存在于展开态的选项卡
-     （`.staff-opt__box`）；随之废止的还有它的弹入动效 `staffCheckIn` / `.is-in`（见 PRD §6.11.2）。
-     取消该员工的入口 = 展开卡片取消勾选 / 入口摘要行 × */
+     每行右侧一个「+」入口；点开 → 整块内容 morph 成员工选择页 → 点员工卡即落位
 
-  .staff-embed .staff-grid { min-height: calc(128px * 2 + 10px + 14px); }
+     （带落位反馈动效）并自动返回，右侧自动补出一个新的空槽位；每行上限 3 人。
+
+     点已落位卡片 = 移除该员工在该行的分配（点选中的卡片再次点击亦可取消）。 */
+
   .staff-embed { position: relative; }
+
+  .sp-box { position: relative; }
+
+
+
+  /* 两层「面」：槽位行 / 选择页。用 max-height + opacity + scale 做 iOS 式 morph */
+
+  .sp-face {
+
+    overflow: hidden;
+
+    transition: opacity .2s ease, transform .28s cubic-bezier(.32,.72,0,1),
+
+      max-height .3s cubic-bezier(.32,.72,0,1);
+
+  }
+
+  .sp-face--rows { max-height: 440px; opacity: 1; transform: none; }
+
+  .sp-face--pick { max-height: 0; opacity: 0; transform: scale(.985); pointer-events: none; }
+
+  .sp-box[data-picking="1"] .sp-face--rows { max-height: 0; opacity: 0; transform: scale(.985); pointer-events: none; }
+
+  .sp-box[data-picking="1"] .sp-face--pick { max-height: 560px; opacity: 1; transform: none; pointer-events: auto; }
+
+
+
+  /* —— 工位行：左标签 + 右槽位 —— */
+
+  .sp-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; }
+
+  .sp-row + .sp-row { border-top: .5px solid #F0F0F0; }
+
+  .sp-row__lbl {
+
+    flex: none; width: 52px; padding-top: 9px;
+
+    font-size: 13px; line-height: 18px; color: #1a1a1a;
+
+  }
+
+  .sp-row--extra .sp-row__lbl { color: #F32F41; }
+
+  .sp-row__slots { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+
+
+
+  .sp-slot {
+
+    width: 62px; height: 54px; padding: 4px 2px 3px; box-sizing: border-box;
+
+    border: .5px solid #EDEDED; border-radius: 10px; background: #fff;
+
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+
+    font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+
+    transition: border-color .18s ease, box-shadow .18s ease, transform .1s ease-out;
+
+  }
+
+  .sp-slot:active { transform: scale(.95); }
+
+  .sp-slot__nm {
+
+    max-width: 100%; font-size: 10px; line-height: 13px; color: #55595E;
+
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+
+  }
+
+  .sp-slot--add { border-style: dashed; border-color: #DCDCDC; background: #FCFCFC; color: #C4C4C4; }
+
+  .sp-slot--add svg { width: 18px; height: 18px; display: block; }
+
+  .sp-slot--add:active { color: #F32F41; border-color: #F32F41; background: #FFF6F7; }
+
+  /* 落位反馈：新员工卡从槽位里「弹」进来（延迟 50ms，等选择页收起一帧，肉眼可见） */
+
+  .sp-slot.is-land { animation: spLandIn .42s cubic-bezier(.34,1.3,.64,1) .05s both; }
+
+  @keyframes spLandIn {
+
+    0% { opacity: 0; transform: scale(.55); }
+
+    58% { opacity: 1; transform: scale(1.09); }
+
+    100% { opacity: 1; transform: scale(1); }
+
+  }
+
+
+
+  /* —— 头像（槽位 26 / 选择页 38）—— */
+
+  .sp-av { border-radius: 50%; object-fit: cover; background: var(--brand-soft); flex: none; display: block; }
+
+  .sp-av--slot { width: 26px; height: 26px; }
+
+  .sp-av--pick { width: 38px; height: 38px; }
+
+  .sp-av--ph { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--brand); }
+
+
+
+  /* —— 员工选择页 —— */
+
+  .sp-picker__hd { display: flex; align-items: center; gap: 8px; padding: 2px 0 10px; }
+
+  .sp-picker__hd .t { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+
+  .sp-picker__hd .s { font-size: 11px; color: #929292; }
+
+  .sp-picker__cancel {
+
+    margin-left: auto; height: 26px; padding: 0 12px; border: 0; border-radius: 13px;
+
+    background: #F2F2F2; color: #66686C; font-family: inherit; font-size: 12px;
+
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+
+  }
+
+  .sp-picker__cancel:active { background: #E8E8E8; }
+
+  .sp-picker__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+
+  .sp-pick {
+
+    position: relative; padding: 10px 4px 8px; box-sizing: border-box;
+
+    border: 1px solid #EDEDED; border-radius: 12px; background: #fff;
+
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+
+    font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+
+    transition: border-color .18s ease, background .18s ease, transform .1s ease-out, box-shadow .18s ease;
+
+  }
+
+  .sp-pick:active { transform: scale(.96); }
+
+  .sp-pick__nm {
+
+    max-width: 100%; font-size: 12px; font-weight: 500; line-height: 16px; color: #1a1a1a;
+
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+
+  }
+
+  .sp-pick__role {
+
+    max-width: 100%; font-size: 10px; line-height: 13px; color: #929292;
+
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+
+  }
+
+  .sp-pick__tick {
+
+    position: absolute; top: 5px; right: 5px; width: 16px; height: 16px; border-radius: 8px;
+
+    background: var(--brand); color: #fff; display: none;
+
+    align-items: center; justify-content: center;
+
+  }
+
+  .sp-pick__tick svg { width: 9px; height: 9px; display: block; }
+
+  .sp-pick.is-on { border-color: var(--brand); background: linear-gradient(180deg, #FFF8F8 0%, #FFF2F2 100%); }
+
+  .sp-pick.is-on .sp-pick__tick { display: flex; }
+
+  .sp-pick.is-full { opacity: .4; pointer-events: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+
+    .sp-face, .sp-slot, .sp-pick { transition: none !important; }
+
+    .sp-slot.is-land { animation: none !important; }
+
+  }
+
+
 
   /* ===== toast ===== */
   #toast {
@@ -1806,7 +1704,7 @@
   /* ===== 页面14 挂单列表 =====
      R5 优化：① 顶部失效提示条（固定在标题栏下，列表滚动时始终可见）
      ② 卡片信息分层：卡头 / 发丝线 / 明细 + 字段组 / 操作行
-     ③ 金额 20 Medium，操作行「删除（次）+ 取挂单（主）」
+     ③ 金额 20 Medium，操作行「删除（次）+ 去开单（主）」
      ④ 类型 chip 与 VIP 标签统一到全站规范
      ⑤ 动效：进入错峰淡入 / 取单淡出 / 删除塌陷
      ⑥ 空态：图标 + 主副文案 */
@@ -1838,18 +1736,17 @@
     animation:v2HoldIn .30s cubic-bezier(.32,.72,0,1) both;
     animation-delay:calc(var(--i, 0) * 50ms);
   }
-  /* ⑤ 取挂单：卡片淡出缩小后再跳转 */
+  /* ⑤ 去开单：卡片淡出缩小后再跳转 */
   #s14 .hold-card.is-take {
     opacity:0; transform:scale(.97);
     transition:opacity .17s ease, transform .17s ease;
   }
-  /* ② 卡头：顾客名 + VIP + 类型 chip …… 挂单时间 */
+  /* ② 卡头：顾客名 + VIP（R16：换成开单页顾客卡同款红色 VIP 图标 ic_vip.svg）+ 挂单时间 */
   #s14 .hc-hd { display:flex; align-items:center; gap:6px; }
   #s14 .hc-hd .nm { font-size:16px; font-weight:600; color:var(--text); line-height:22px; }
-  #s14 .hc-hd .vip {
-    font-size:var(--fs-tag); font-weight:var(--fw-tag); color:#3A2200;
-    padding:2px 6px; border-radius:9px; line-height:1.35; white-space:nowrap;
-    background:linear-gradient(to right,#FFE6CE,#FFBA75);
+  #s14 .hc-hd .vip-img {
+    width:26px; height:10px; display:block; flex:none;
+    object-fit:contain; object-position:left center;
   }
   #s14 .hc-hd .tm {
     margin-left:auto; font-size:var(--fs-hint); color:var(--text-sec);
@@ -1868,7 +1765,7 @@
     flex:1; min-width:0; font-size:13px; line-height:19px; color:var(--text);
     text-align:right; word-break:break-all;
   }
-  /* ③ 操作行：金额在左，删除（次）+ 取挂单（主）在右 */
+  /* ③ 操作行：金额在左，删除（次）+ 去开单（主）在右 */
   #s14 .hc-ft { display:flex; align-items:center; gap:8px; margin-top:12px; }
   #s14 .hc-ft .amt {
     margin-right:auto; display:flex; align-items:baseline;
@@ -1922,23 +1819,39 @@
   }
   #s15 .suc-head img { width:22px; height:22px; display:block; flex:none; }
   #s15 .suc-head .t { font-size:18px; font-weight:600; color:#1a1a1a; letter-spacing:.2px; }
-  /* ③ 内容区操作组：改日期 / 改单号 / 看流水 —— 无框次级样式，视觉让位金额 */
+  /* ③ 内容区操作组（R16 改版）：改日期 / 改单号 / 看流水 / 客户详情
+     由「卡片上方一行」移到「金额卡下方」，4 等分白底托板，每格竖排「图标 + 文字」，
+     格间 0.5px 发丝竖线分隔 —— 与上方金额卡同一视觉族，但权重更低（无投影层级）。 */
+  #s15 .suc-body {
+    position:absolute; left:16px; right:16px; top:182px;
+    bottom:calc(64px + var(--safe-bottom) + 16px);
+    z-index:2; display:flex; flex-direction:column; overflow-y:auto;
+  }
   #s15 .suc-acts {
-    position:absolute; left:16px; right:16px; top:138px; height:28px; z-index:2;
-    display:flex; align-items:center;
+    flex:none; margin-top:14px; height:62px;
+    display:flex; align-items:center; box-sizing:border-box;
+    background:#fff; border-radius:14px; box-shadow:0 2px 10px rgba(120,90,0,.05);
   }
   #s15 .suc-act {
-    flex:1; height:28px; border:0; background:none;
-    display:flex; align-items:center; justify-content:center; gap:4px;
-    font-family:inherit; font-size:13px; color:#55595E; cursor:pointer; padding:0;
+    flex:1; height:100%; border:0; background:none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+    font-family:inherit; font-size:12px; line-height:16px; color:#55595E;
+    cursor:pointer; padding:0; position:relative;
     -webkit-tap-highlight-color:transparent;
   }
-  #s15 .suc-act svg { width:14px; height:14px; display:block; flex:none; }
-  #s15 .suc-act:active { color:#1a1a1a; }
+  /* 格间发丝竖线（首格不画），高 24 居中 */
+  #s15 .suc-act + .suc-act::before {
+    content:''; position:absolute; left:0; top:50%; width:.5px; height:24px; margin-top:-12px;
+    background:#EDEDED;
+  }
+  #s15 .suc-act svg { width:17px; height:17px; display:block; flex:none; }
+  #s15 .suc-act:active { color:#1a1a1a; background:#FAFAFA; }
+  #s15 .suc-act:first-child { border-top-left-radius:14px; border-bottom-left-radius:14px; }
+  #s15 .suc-act:last-child { border-top-right-radius:14px; border-bottom-right-radius:14px; }
   /* ② 金额卡：提高不透明度 + 白描边 + 柔和投影，使卡片真正「浮」在渐变之上
      卡高由内容决定：金额区 + 发丝实线 + 字段行（行间发丝虚线） */
   #s15 .suc-card {
-    position:absolute; left:16px; top:182px; width:358px; z-index:2;
+    position:static; width:auto; flex:none; z-index:2;
     box-sizing:border-box; border-radius:16px;
     background:rgba(255,255,255,.88);
     border:1px solid rgba(255,255,255,.9);
@@ -2026,8 +1939,8 @@
   }
   #s15.active .suc-head img { animation:sucPop .40s cubic-bezier(.32,.72,0,1) both; }
   #s15.active .suc-head .t { animation:sucRise .32s cubic-bezier(.32,.72,0,1) .06s both; }
-  #s15.active .suc-acts { animation:sucRise .32s cubic-bezier(.32,.72,0,1) .12s both; }
-  #s15.active .suc-card { animation:sucRiseLg .38s cubic-bezier(.32,.72,0,1) .16s both; }
+  #s15.active .suc-card { animation:sucRiseLg .38s cubic-bezier(.32,.72,0,1) .12s both; }
+  #s15.active .suc-acts { animation:sucRise .32s cubic-bezier(.32,.72,0,1) .20s both; }
   #s15.active .suc-bar { animation:sucRise .32s cubic-bezier(.32,.72,0,1) .24s both; }
   /* 底部操作条：返回首页(图标) + 客户签字 + 客户详情 + 继续开单 */
   #s15 .suc-bar {
@@ -2520,7 +2433,7 @@
       <div class="title">选择顾客</div>
       <button class="nav-hold" type="button" data-hold-entry onclick="openHoldList()">
         <img class="ic-gd" src="assets/ic_hold_take_nav.svg" alt="">
-        <span>取挂单（<span class="n" data-hold-count>3</span>）</span>
+        <span>挂单（<span class="n" data-hold-count>3</span>）</span>
       </button>
     </div>
     <div class="pick-search">
@@ -2538,7 +2451,6 @@
         <div class="info">
           <div class="line1">
             <span class="nm">男散客</span>
-            <span class="phone">散客</span>
           </div>
         </div>
       </div>
@@ -2547,7 +2459,6 @@
         <div class="info">
           <div class="line1">
             <span class="nm">女散客</span>
-            <span class="phone">散客</span>
           </div>
         </div>
       </div>
@@ -2602,9 +2513,8 @@
             <span class="nm">陈女士</span>
             <span class="vip grad"><b>VIP</b></span>
             <span class="cnt">(3)</span>
-            <span class="phone">19900000255</span>
           </div>
-          <div class="sub">最近消费：2026.8.15 水光三次卡【¥300.00】</div>
+          <div class="line2"><span class="phone">19900000255</span></div>
         </div>
       </div>
       <div class="pick-row" onclick="toast('选择陈昕然')">
@@ -2612,9 +2522,8 @@
         <div class="info">
           <div class="line1">
             <span class="nm">陈昕然</span>
-            <span class="phone">19900000256</span>
           </div>
-          <div class="sub">最近消费：未消费</div>
+          <div class="line2"><span class="phone">19900000256</span></div>
         </div>
       </div>
       <div class="pick-row" onclick="toast('选择蔡雅婷')">
@@ -2622,9 +2531,8 @@
         <div class="info">
           <div class="line1">
             <span class="nm">蔡雅婷</span>
-            <span class="phone">13500008899</span>
           </div>
-          <div class="sub">最近消费：2026.8.28 剪发【¥68.00】</div>
+          <div class="line2"><span class="phone">13500008899</span></div>
         </div>
       </div>
       <div class="pick-group-h">D</div>
@@ -2633,9 +2541,8 @@
         <div class="info">
           <div class="line1">
             <span class="nm">邓伟</span>
-            <span class="phone">13700001234</span>
           </div>
-          <div class="sub">最近消费：未消费</div>
+          <div class="line2"><span class="phone">13700001234</span></div>
         </div>
       </div>
       <div class="pick-group-h">G</div>
@@ -2644,9 +2551,8 @@
         <div class="info">
           <div class="line1">
             <span class="nm">高海泉</span>
-            <span class="phone">13800001122</span>
           </div>
-          <div class="sub">最近消费：未消费</div>
+          <div class="line2"><span class="phone">13800001122</span></div>
         </div>
       </div>
       <div class="pick-group-h">H</div>
@@ -2657,9 +2563,8 @@
             <span class="nm">何静</span>
             <span class="vip grad"><b>VIP</b></span>
             <span class="cnt">(2)</span>
-            <span class="phone">13800005566</span>
           </div>
-          <div class="sub">最近消费：2026.8.22 染发【¥358.00】</div>
+          <div class="line2"><span class="phone">13800005566</span></div>
         </div>
       </div>
       <div class="pick-row" onclick="toast('选择黄浩然')">
@@ -2667,9 +2572,8 @@
         <div class="info">
           <div class="line1">
             <span class="nm">黄浩然</span>
-            <span class="phone">13900007788</span>
           </div>
-          <div class="sub">最近消费：未消费</div>
+          <div class="line2"><span class="phone">13900007788</span></div>
         </div>
       </div>
       <div class="pick-group-h">L</div>
@@ -2680,9 +2584,8 @@
             <span class="nm">李女士</span>
             <span class="vip grad"><b>VIP</b></span>
             <span class="cnt">(2)</span>
-            <span class="phone">18600003344</span>
           </div>
-          <div class="sub">最近消费：2026.8.10 御方九物【¥198.00】</div>
+          <div class="line2"><span class="phone">18600003344</span></div>
         </div>
       </div>
       <div class="pick-row" onclick="toast('选择林嘉怡')">
@@ -2690,9 +2593,8 @@
         <div class="info">
           <div class="line1">
             <span class="nm">林嘉怡</span>
-            <span class="phone">18600009900</span>
           </div>
-          <div class="sub">最近消费：2026.9.02 洗吹【¥38.00】</div>
+          <div class="line2"><span class="phone">18600009900</span></div>
         </div>
       </div>
       <div class="pick-group-h">M</div>
@@ -2701,9 +2603,8 @@
         <div class="info">
           <div class="line1">
             <span class="nm">马婷</span>
-            <span class="phone">13600006677</span>
           </div>
-          <div class="sub">最近消费：未消费</div>
+          <div class="line2"><span class="phone">13600006677</span></div>
         </div>
       </div>
       <div class="pick-group-h">S</div>
@@ -2712,9 +2613,8 @@
         <div class="info">
           <div class="line1">
             <span class="nm">苏晓萌</span>
-            <span class="phone">13000002233</span>
           </div>
-          <div class="sub">最近消费：未消费</div>
+          <div class="line2"><span class="phone">13000002233</span></div>
         </div>
       </div>
       <div class="pick-group-h">W</div>
@@ -2725,9 +2625,8 @@
             <span class="nm">王先生</span>
             <span class="vip grad"><b>VIP</b></span>
             <span class="cnt">(1)</span>
-            <span class="phone">13300004455</span>
           </div>
-          <div class="sub">最近消费：2026.9.02 洗吹【¥38.00】</div>
+          <div class="line2"><span class="phone">13300004455</span></div>
         </div>
       </div>
       <div class="pick-row" onclick="toast('选择吴思远')">
@@ -2735,9 +2634,8 @@
         <div class="info">
           <div class="line1">
             <span class="nm">吴思远</span>
-            <span class="phone">13300006677</span>
           </div>
-          <div class="sub">最近消费：未消费</div>
+          <div class="line2"><span class="phone">13300006677</span></div>
         </div>
       </div>
       <div class="pick-group-h">Z</div>
@@ -2746,9 +2644,8 @@
         <div class="info">
           <div class="line1">
             <span class="nm">张一鸣</span>
-            <span class="phone">13100008899</span>
           </div>
-          <div class="sub">最近消费：未消费</div>
+          <div class="line2"><span class="phone">13100008899</span></div>
         </div>
       </div>
       <div class="pick-row" onclick="toast('选择周雨欣')">
@@ -2758,9 +2655,8 @@
             <span class="nm">周雨欣</span>
             <span class="vip grad"><b>VIP</b></span>
             <span class="cnt">(2)</span>
-            <span class="phone">13100001122</span>
           </div>
-          <div class="sub">最近消费：2026.8.30 深层滋养【¥198.00】</div>
+          <div class="line2"><span class="phone">13100001122</span></div>
         </div>
       </div>
     </div>
@@ -3025,15 +2921,10 @@
       </div>
     </div>
 
-    <!-- 手动改价提示：仅手输应付后出现，说明权益 / 优惠券不再参与计算 -->
-    <div class="co-lock-note" id="coLockNote" style="display:none;">已按手动应付结算，权益不再参与计算；优惠券可选用但不影响最终结算价</div>
-
     <div class="co-bar">
-      <button type="button" class="pay" id="coPayBox" onclick="openPayEditSheet()" aria-label="修改应付">
+      <div class="pay" id="coPayBox">
         <span class="l">应付 ¥</span><span class="v" id="coPay">0.00</span>
-        <svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7.6 18.4 3 20l1.6-4.6L16.5 3.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="tag" id="coPayTag" style="display:none;">已改价</span>
-      </button>
+      </div>
       <div class="btns">
         <button class="btn-g" data-guadan="s6" onclick="tryHangOrder('s6')">挂单</button>
         <button class="btn-c" onclick="checkoutDone()">结账</button>
@@ -3267,17 +3158,7 @@
       <img src="assets/suc_check.svg" alt="">
       <span class="t">开单成功</span>
     </div>
-    <div class="suc-acts">
-      <button type="button" class="suc-act" data-suc-act="date" onclick="sucChangeDate()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>改日期
-      </button>
-      <button type="button" class="suc-act" data-suc-act="no" onclick="sucChangeNo()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>改单号
-      </button>
-      <button type="button" class="suc-act" data-suc-act="flow" onclick="sucViewFlow()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>看流水
-      </button>
-    </div>
+    <div class="suc-body">
     <div class="suc-card" id="sucCard">
       <!-- 打印小票（R13 建立 · R14 换用 Figma 稿图标 node 1189-136）：
            图形为满画布 200×200，无内边距；线面交接处按 Figma 的 evenodd 轮廓绘制，
@@ -3293,12 +3174,27 @@
       <div class="suc-hr" aria-hidden="true"></div>
       <div class="suc-rows" id="sucRows"></div>
     </div>
+    <!-- 内容区操作组（R16）：改日期 / 改单号 / 看流水 / 客户详情，金额卡下方 4 等分 -->
+    <div class="suc-acts">
+      <button type="button" class="suc-act" data-suc-act="date" onclick="sucChangeDate()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>改日期
+      </button>
+      <button type="button" class="suc-act" data-suc-act="no" onclick="sucChangeNo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>改单号
+      </button>
+      <button type="button" class="suc-act" data-suc-act="flow" onclick="sucViewFlow()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>看流水
+      </button>
+      <button type="button" class="suc-act" data-suc-act="cust" data-suc-cust onclick="toast('查看客户详情')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6"/></svg>客户详情
+      </button>
+    </div>
+    </div>
     <div class="suc-bar">
       <button type="button" class="ico-home" data-suc-home onclick="go('s0')" aria-label="返回首页">
         <img src="assets/suc_home.svg" alt="">
       </button>
       <button type="button" class="b-sec" data-suc-sign onclick="toast('已进入电子签字流程')">客户签字</button>
-      <button type="button" class="b-sec" data-suc-cust onclick="toast('查看客户详情')">客户详情</button>
       <button type="button" class="b-main" data-suc-continue onclick="sucContinue()">继续开单</button>
     </div>
   </div>
@@ -3398,8 +3294,9 @@
         <div class="addsheet__title" id="asTitle">高级设计师洗吹+造型</div>
       </div>
       <div class="addsheet__body">
-        <div class="addsheet-grid">
-          <div class="addsheet-cell">
+        <!-- R16：项目 sheet 删除「数量」卡片，价格占整行通栏；产品 sheet 保留「数量 + 价格」并排 -->
+        <div class="addsheet-grid" id="asGrid">
+          <div class="addsheet-cell addsheet-cell--qty" id="asQtyCell">
             <div class="lbl">数量</div>
             <div class="stepper">
               <button type="button" class="st-btn" data-sq="-1">−</button>
@@ -3407,12 +3304,12 @@
               <button type="button" class="st-btn" data-sq="1">+</button>
             </div>
           </div>
-          <div class="addsheet-cell">
-            <div class="lbl">应付（元）</div>
+          <div class="addsheet-cell" id="asPriceCell">
+            <div class="lbl">价格（元）</div>
             <div class="pay-row">
               <input class="num act" id="asPayable" type="number" inputmode="decimal" value="58.9"
                      oninput="fixAmountOnInput(this)" onfocus="asPayableFocus(this)" onblur="asPayableBlur(this)">
-              <span class="pen" role="button" tabindex="0" aria-label="编辑应付金额"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+              <span class="pen" role="button" tabindex="0" aria-label="编辑价格"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
             </div>
           </div>
         </div>
@@ -3448,11 +3345,11 @@
     </div>
   </div>
 
-  <!-- 结算页「修改应付」底部 sheet（数字键盘） -->
+  <!-- 结算页「修改应付」底部 sheet（数字键盘）：入口＝每项明细的「应付」行（R16） -->
   <div class="addsheet-mask" id="coPayMask" onclick="if(event.target===this)closePayEditSheet()">
     <div class="addsheet" role="dialog" aria-label="修改应付">
       <div class="addsheet__head">
-        <div class="addsheet__title">修改应付</div>
+        <div class="addsheet__title" id="coPaySheetTitle">修改应付</div>
       </div>
       <div class="addsheet__body" style="padding:0 0 14px;">
         <div class="paysheet__val">
@@ -3479,6 +3376,21 @@
           <button type="button" class="k tool" onclick="closePayEditSheet()">取消</button>
           <button type="button" class="k tool is-ok" onclick="confirmPayEdit()">确定</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结算页「修改服务员工」底部 sheet（R16）：复用槽位式员工选择器（工位行 ↔ 选择页） -->
+  <div class="addsheet-mask" id="coStaffMask" onclick="if(event.target===this)closeCoItemStaffSheet()">
+    <div class="addsheet" role="dialog" aria-label="修改服务员工">
+      <div class="addsheet__head">
+        <div class="addsheet__title">修改服务员工</div>
+      </div>
+      <div class="addsheet__body">
+        <div class="staff-embed" id="coStaffGrid" data-staff-root data-ctx="co"></div>
+      </div>
+      <div class="addsheet__foot">
+        <button type="button" class="btn-confirm" onclick="closeCoItemStaffSheet()">确定</button>
       </div>
     </div>
   </div>
@@ -3572,13 +3484,12 @@
     if (parts[1]) h += '<span class="dec">.' + parts[1] + '</span>';
     return h;
   }
-  // 价目卡片价格渲染：会员持有折扣权益时显示划线原价 + 红色优惠价
+  // 价目卡片价格渲染：R16 起取消划线价与权益价，任何身份都只显示原价
   // 本次新注册的会员无任何卡/权益 → 不参与折扣
   function memberBenefitOn() {
     return currentCust === 'member' && !window.__v2MemberNoBenefit;
   }
   function applyPriceTags() {
-    var member = memberBenefitOn();
     document.querySelectorAll('.proj-card').forEach(function(card) {
       var pr = card.querySelector('.pr');
       if (!pr) return;
@@ -3588,12 +3499,7 @@
         if (isNaN(price)) return;
         pr.setAttribute('data-price', price);
       }
-      if (member) {
-        var sale = salePrice(price);
-        pr.innerHTML = '<span class="old">¥' + String(price) + '</span><span class="sale">' + priceHtml(sale) + '</span>';
-      } else {
-        pr.innerHTML = priceHtml(price);
-      }
+      pr.innerHTML = priceHtml(price);
     });
   }
   function setCust(type) {
@@ -3786,7 +3692,7 @@
     quickStaffOpen = screenId;
     // 定位面板：跟随员工行位置
     staffRow = quickStaffRow;
-    staffCardEdit = null;
+    spPickRow = null;
     spActiveRoot = panel;
     panel.innerHTML = renderStaffPickerHtml();
     panel.classList.add('open');
@@ -3840,13 +3746,13 @@
       toast('请先添加项目或产品');
       return;
     }
-    /* 取挂单后又在结算页挂单：原挂单移除，只保留本次新挂单（避免重复计数） */
+    /* 去开单后又在结算页挂单：原挂单移除，只保留本次新挂单（避免重复计数） */
     if (activeHoldId) {
       holdOrders = holdOrders.filter(function (h) { return h.id !== activeHoldId; });
       activeHoldId = null;
     }
     /* 挂单：明细 + 全单服务员工并集存入挂单列表，当前单据清空后跳转挂单列表页
-       from 记录来源页：s6 结算页 / s1·s5 开单页 —— 取挂单时回到同一页 */
+       from 记录来源页：s6 结算页 / s1·s5 开单页 —— 去开单时回到同一页 */
     holdOrders.unshift({
       id: 'h' + Date.now(),
       cust: holdCustName(),
@@ -3978,7 +3884,7 @@
     var name = nameEl.textContent.replace(/\s+/g, ' ').trim();
     var price = parseFloat(prEl.getAttribute('data-price'));
     if (isNaN(price)) price = parseFloat(prEl.textContent.replace(/[^\d.]/g, ''));
-    var sale = memberBenefitOn() ? salePrice(price) : price;
+    var sale = price; /* R16：添加 sheet「价格（元）」默认值＝原价（不再预置权益价） */
     var isProd = card.getAttribute('data-cat') === 'prod';
     var group = card.getAttribute('data-group');
     var thumbEl = card.querySelector('.thumb img');
@@ -3986,7 +3892,7 @@
     asData = { name: name, price: price, sale: sale, kind: kind, isProd: isProd, group: group, thumb: thumb };
     addStaffRow = { id: '__add__', staffIds: [], staffRoles: {}, staffExtra: {}, staffChosen: {} };
     staffRow = addStaffRow;
-    staffCardEdit = null;
+    spPickRow = null;
     document.getElementById('asTitle').textContent = name;
     document.getElementById('asQty').textContent = '1';
     document.getElementById('asPayable').value = sale;
@@ -4100,20 +4006,6 @@
 
   var staffRow = { id: '__add__', staffIds: [], staffRoles: {}, staffExtra: {}, staffChosen: {} };
   var addStaffRow = staffRow;
-  var staffCardEdit = null; /* { staffId, splitting } */
-  var staffFreshDone = {};
-
-  var SP_CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
-  var SP_GRID_GAP = 8;
-  var SP_SPRING = 'cubic-bezier(.34,1.3,.64,1)';
-  var SP_EASE_STD = 'cubic-bezier(.22,.82,.24,1)';
-  var SP_EXPAND_MS = 380;
-  var SP_COLLAPSE_FALLBACK_MS = 220;
-  var SP_CHECK_RED_FALLBACK = 60;
-  var SP_CHECK_DRAW_FALLBACK = 110;
-  var SP_UNCHECK_DRAW_FALLBACK = 55;
-  var SP_UNCHECK_RED_FALLBACK = 30;
-
   function staffRoleLabel(roleId) {
     if (Array.isArray(roleId)) {
       return roleId.map(staffRoleLabel).filter(Boolean).join(' · ');
@@ -4213,562 +4105,381 @@
     }
   }
 
-  function spOptionList() {
-    var out = [];
-    if (spNeedStation()) {
-      spStationIds().forEach(function (rid) {
-        out.push({ key: rid, kind: 'role', label: spStationLabel(rid) });
-      });
-      if (spNeedExtra()) out.push({ key: 'extra', kind: 'extra', label: '顾客指定' });
-      return out;
-    }
-    if (spNeedExtra()) {
-      out.push({ key: SP_PICK_AVG, kind: 'plain', label: '服务提成' });
-      out.push({ key: 'extra', kind: 'extra', label: '顾客指定' });
-    }
-    return out;
+  /* ===== 选择服务员工（R16 重构：按工位槽位 · iOS 风格选择页） =====
+
+     4 行（大工 / 中工 / 小工 / 顾客指定）各占一行，每行一个「+」槽位入口；
+
+     点开 → 整块 morph 成员工选择页 → 点员工卡即落位（带落位反馈动效）并自动返回，
+
+     右侧自动补出新的空槽位；每行上限 3 人。点已落位卡片即移除该行的分配。 */
+
+  var SP_ROW_MAX = 3;
+
+  var SP_ROW_DEFS = [
+
+    { key: 'senior', kind: 'role', label: '大工' },
+
+    { key: 'mid', kind: 'role', label: '中工' },
+
+    { key: 'junior', kind: 'role', label: '小工' },
+
+    { key: 'extra', kind: 'extra', label: '顾客指定' }
+
+  ];
+
+  var spActiveRoot = null;
+
+  var spPickRow = null;   /* 当前展开选择页的工位行 key；null = 展示槽位行 */
+
+  var spLandSid = null;   /* 刚落位的员工 id：只给对应槽位播一次落位动效 */
+
+  var SP_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+
+  var SP_TICK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+
+
+
+  function spRowDefs() {
+
+    return SP_ROW_DEFS.filter(function (r) {
+
+      return r.kind === 'extra' ? spNeedExtra() : spNeedStation();
+
+    });
+
   }
-  function spOptionChecked(sid, opt) {
-    if (!opt) return false;
-    if (opt.kind === 'extra') return staffRow.staffExtra[sid] === true;
-    if (opt.kind === 'plain') return spHasRole(sid, SP_PICK_AVG);
-    return spHasRole(sid, opt.key);
-  }
-  function spOptionByKey(key) {
-    var list = spOptionList();
-    for (var i = 0; i < list.length; i++) {
-      if (list[i].key === key) return list[i];
+
+  function spRowDef(key) {
+
+    for (var i = 0; i < SP_ROW_DEFS.length; i++) {
+
+      if (SP_ROW_DEFS[i].key === key) return SP_ROW_DEFS[i];
+
     }
+
     return null;
+
   }
-  function spStaffIsChosen(sid) {
-    return !!staffRow.staffChosen[sid] && staffRow.staffIds.indexOf(sid) >= 0;
+
+  function spStaffById(sid) {
+
+    for (var i = 0; i < STAFFS.length; i++) if (STAFFS[i].id === sid) return STAFFS[i];
+
+    return null;
+
   }
-  function spBasePicked(sid) { return spRolesOf(sid).length > 0; }
+
+  /* 该员工当前所属的工位行（可多行：同一员工既可挂大工、也可同时计顾客指定提成） */
+
+  function spRowsOf(sid) {
+
+    var out = [];
+
+    if (spNeedStation()) {
+
+      spStationIds().forEach(function (rid) { if (spHasRole(sid, rid)) out.push(rid); });
+
+    }
+
+    if (spNeedExtra() && staffRow.staffExtra[sid] === true) out.push('extra');
+
+    return out;
+
+  }
+
+  /* 某工位行内的员工（顺序 = 选择顺序，即 staffIds 的顺序） */
+
+  function spRowIds(rowKey) {
+
+    var ids = Array.isArray(staffRow.staffIds) ? staffRow.staffIds : [];
+
+    return ids.filter(function (sid) { return spRowsOf(sid).indexOf(rowKey) >= 0; });
+
+  }
+
+  function spRowFull(rowKey) { return spRowIds(rowKey).length >= SP_ROW_MAX; }
+
+
+
+  function spAddToRow(sid, rowKey) {
+
+    var def = spRowDef(rowKey);
+
+    if (!def || !sid) return false;
+
+    ensureStaffState();
+
+    if (spRowsOf(sid).indexOf(rowKey) >= 0) return false;
+
+    if (spRowFull(rowKey)) return false;
+
+    if (staffRow.staffIds.indexOf(sid) < 0) staffRow.staffIds.push(sid);
+
+    if (def.kind === 'extra') {
+
+      staffRow.staffExtra[sid] = true;
+
+    } else {
+
+      var roles = spRolesOf(sid).filter(function (r) { return r !== SP_PICK_AVG; });
+
+      if (roles.indexOf(rowKey) < 0) roles.push(rowKey);
+
+      spSetRoles(sid, roles);
+
+    }
+
+    staffRow.staffChosen[sid] = true;
+
+    return true;
+
+  }
+
+  function spRemoveFromRow(sid, rowKey) {
+
+    var def = spRowDef(rowKey);
+
+    if (!def || !sid) return;
+
+    ensureStaffState();
+
+    if (def.kind === 'extra') {
+
+      staffRow.staffExtra[sid] = false;
+
+    } else {
+
+      spSetRoles(sid, spRolesOf(sid).filter(function (r) { return r !== rowKey; }));
+
+    }
+
+    /* 该员工已不属于任何工位行 → 从本单移除 */
+
+    if (!spRowsOf(sid).length) {
+
+      staffRow.staffIds = staffRow.staffIds.filter(function (x) { return x !== sid; });
+
+      delete staffRow.staffChosen[sid];
+
+      delete staffRow.staffRoles[sid];
+
+      delete staffRow.staffExtra[sid];
+
+    }
+
+  }
+
+
+
+  /* 摘要：按员工所属工位行拼「大工 · 中工 · 顾客指定」（未在任何工位行 → null） */
 
   function spSummaryParts(sid) {
-    if (staffRow.staffIds.indexOf(sid) < 0) return null;
-    var extra = staffRow.staffExtra[sid] === true && spNeedExtra();
-    if (spNeedStation()) {
-      var labels = spRolesOf(sid).map(function (rid) { return spStationLabel(rid); }).filter(Boolean);
-      if (labels.length) return { stations: labels, main: labels.join(' · '), extra: extra };
-      return extra ? { stations: [], main: '', extra: true } : null;
-    }
-    if (spNeedExtra()) {
-      if (spHasRole(sid, SP_PICK_AVG)) return { stations: ['提成'], main: '提成', extra: extra };
-      return extra ? { stations: [], main: '', extra: true } : null;
-    }
-    return null;
+
+    if (!staffRow.staffIds || staffRow.staffIds.indexOf(sid) < 0) return null;
+
+    var keys = spRowsOf(sid);
+
+    if (!keys.length) return null;
+
+    var labels = keys.map(function (k) { var d = spRowDef(k); return d ? d.label : ''; }).filter(Boolean);
+
+    if (!labels.length) return null;
+
+    return { stations: labels, main: labels.join(' · '), extra: false };
+
   }
-  /* 入口摘要文案（s2 / s3 员工行、s6 / s7 服务员工行、挂单卡片、已选商品 Sheet 共用）：
-     「工位 · 工位 · 顾客指定」；
-     只勾「顾客指定」不选工位时就是「顾客指定」本身，不再前置「无工位」（见 PRD §6.11.4） */
+
+  /* 入口摘要文案（s2/s3 直接收款员工行、s6/s7 服务员工行、挂单卡片、已选商品 Sheet 共用） */
+
   function staffPickSummaryText(sid) {
+
     var p = spSummaryParts(sid);
-    if (!p) return '';
-    var out = [];
-    if (p.main) out.push(p.main);
-    if (p.extra) out.push('顾客指定');
-    return out.join(' · ');
-  }
-  function spStationPickLines(stations) {
-    var esc = (stations || []).map(function (s) { return escapeHtml(s); });
-    if (!esc.length) return [];
-    if (esc.length <= 2) return [esc.join(' · ')];
-    return [esc.slice(0, 2).join(' · ')].concat(esc.slice(2));
-  }
-  function spSummaryHtml(sid) {
-    var p = spSummaryParts(sid);
-    if (!p) return '';
-    var stations = p.stations || [];
-    var stationLines = spStationPickLines(stations);
-    if (stations.length === 1 && p.extra) {
-      return stationLines[0] + ' · ' + escapeHtml('顾客指定');
-    }
-    var lines = stationLines.slice();
-    if (p.extra) {
-      if (!lines.length) return '<span class="staff-card__pick-x">顾客指定</span>';
-      lines.push('<span class="staff-card__pick-x">顾客指定</span>');
-    }
-    if (!lines.length) return '';
-    if (lines.length === 1) return lines[0];
-    return '<div class="staff-card__pick-stack">' +
-      lines.map(function (ln) {
-        return '<div class="staff-card__pick-line">' + ln + '</div>';
-      }).join('') +
-      '</div>';
-  }
-  function staffJobTitleHtml(st) {
-    var title = st && st.role ? String(st.role).trim() : '';
-    if (!title) return '';
-    return '<div class="staff-card__title">' + escapeHtml(title) + '</div>';
-  }
-  function spCardPickLineHtml(st, done) {
-    var jobTitle = staffJobTitleHtml(st);
-    if (!done) return jobTitle;
-    if (!spNeedsPick()) return jobTitle;
-    var sum = spSummaryHtml(st.id);
-    if (!sum) return jobTitle;
-    return '<div class="staff-card__title staff-card__title--pick">' + sum + '</div>';
-  }
-  function staffAvatarHtml(st) {
-    if (st.avatar) {
-      return '<img class="staff-card__avatar" src="' + escapeHtml(st.avatar) + '" alt="" loading="lazy" referrerpolicy="no-referrer">';
-    }
-    var letter = (st.short || st.name || '?').toString().slice(0, 2);
-    return '<span class="staff-card__avatar staff-card__avatar--ph" aria-hidden="true">' + escapeHtml(letter) + '</span>';
+
+    return p ? p.main : '';
+
   }
 
-  function spCssMs(name, fallback) {
-    try {
-      var raw = String(getComputedStyle(document.documentElement).getPropertyValue(name) || '').trim();
-      var m = /^([\d.]+)(ms|s)$/.exec(raw);
-      if (!m) return fallback;
-      return m[2] === 's' ? parseFloat(m[1]) * 1000 : parseFloat(m[1]);
-    } catch (e) { return fallback; }
-  }
-  function spCheckMs() {
-    return spCssMs('--sp-check-red', SP_CHECK_RED_FALLBACK) +
-      spCssMs('--sp-check-draw', SP_CHECK_DRAW_FALLBACK);
-  }
-  function spUncheckMs() {
-    return spCssMs('--sp-uncheck-draw', SP_UNCHECK_DRAW_FALLBACK) +
-      spCssMs('--sp-uncheck-red', SP_UNCHECK_RED_FALLBACK);
-  }
-  function spCheckMsFor(on) { return on ? spCheckMs() : spUncheckMs(); }
 
-  var spGate = { checkUntil: 0, morphUntil: 0, timer: 0, floorTimer: 0, token: null };
-  var spActiveRoot = null;
-  var spEditSeq = 0;
 
-  function spGateBusy() { return Date.now() < Math.max(spGate.checkUntil, spGate.morphUntil); }
-  function spCheckAnims(root) {
-    var out = [];
-    var push = function (el) {
-      if (!el || typeof el.getAnimations !== 'function') return;
-      el.getAnimations().forEach(function (a) { out.push(a); });
-    };
-    if (!root) return out;
-    push(root);
-    if (root.querySelector) push(root.querySelector('svg path'));
-    return out;
-  }
-  function spSnapChecks() {
-    var root = spActiveRoot;
-    if (!root || !root.querySelectorAll) return;
-    Array.prototype.slice.call(root.querySelectorAll('.is-draw, .is-undraw')).forEach(function (el) {
-      spCheckAnims(el).forEach(function (a) { try { a.finish(); } catch (e) { /* ignore */ } });
-    });
-  }
-  function spGateAfter(roots, apply, minMs) {
-    if (spReduceMotion()) { apply(); return null; }
-    var list = Array.isArray(roots) ? roots : [roots];
-    var floor = minMs || 0;
-    var tok = { done: false };
-    tok.fire = function () {
-      if (tok.done) return;
-      tok.done = true;
-      if (spGate.token === tok) spGate.token = null;
-      if (spGate.timer) { clearTimeout(spGate.timer); spGate.timer = 0; }
-      if (spGate.floorTimer) { clearTimeout(spGate.floorTimer); spGate.floorTimer = 0; }
-      spGate.checkUntil = 0;
-      apply();
-    };
-    var anims = [];
-    list.forEach(function (r) { spCheckAnims(r).forEach(function (a) { anims.push(a); }); });
-    var animsDone = !anims.length;
-    var floorDone = !floor;
-    if (animsDone && floorDone) { tok.fire(); return tok; }
-    var maybe = function () { if (animsDone && floorDone) tok.fire(); };
-    spGate.token = tok;
-    var guard = Math.max(spCheckMs() + 300, floor + 300);
-    spGate.checkUntil = Date.now() + guard;
-    spGate.timer = setTimeout(tok.fire, guard);
-    if (!animsDone) {
-      var left = anims.length;
-      anims.forEach(function (a) {
-        var one = function () { if (--left === 0) { animsDone = true; maybe(); } };
-        try { a.finished.then(one, one); } catch (e) { one(); }
-      });
+  /* 头像：优先图片，缺图回退姓名首字 */
+
+  function spAvatarHtml(st, sizeCls) {
+
+    var cls = 'sp-av ' + (sizeCls || '');
+
+    if (st && st.avatar) {
+
+      return '<img class="' + cls + '" src="' + escapeHtml(st.avatar) + '" alt="" loading="lazy" referrerpolicy="no-referrer">';
+
     }
-    if (!floorDone) {
-      spGate.floorTimer = setTimeout(function () { spGate.floorTimer = 0; floorDone = true; maybe(); }, floor);
-    }
-    return tok;
-  }
-  function spGateHoldOnly(ms) {
-    var wait = spReduceMotion() ? 0 : ms;
-    if (!wait) return;
-    spGate.morphUntil = Math.max(spGate.morphUntil, Date.now() + wait);
-  }
-  function spGateFlush() {
-    var tok = spGate.token;
-    if (spGate.timer) { clearTimeout(spGate.timer); spGate.timer = 0; }
-    if (spGate.floorTimer) { clearTimeout(spGate.floorTimer); spGate.floorTimer = 0; }
-    spGate.checkUntil = 0;
-    spGate.token = null;
-    spSnapChecks();
-    if (tok) tok.fire();
-  }
-  function spIntend(fn) {
-    if (spGateBusy()) spGateFlush();
-    fn();
-    return true;
+
+    var letter = (st && (st.short || st.name) ? (st.short || st.name) : '?').toString().slice(0, 2);
+
+    return '<span class="' + cls + ' sp-av--ph" aria-hidden="true">' + escapeHtml(letter) + '</span>';
+
   }
 
-  function spCollapseMs() {
-    var root = document.documentElement;
-    if (!root) return SP_COLLAPSE_FALLBACK_MS;
-    var v = getComputedStyle(root).getPropertyValue('--sp-collapse');
-    var n = parseFloat(v);
-    return isNaN(n) ? SP_COLLAPSE_FALLBACK_MS : (v.indexOf('ms') > 0 ? n : n * 1000);
-  }
-  function spCollapseTarget() {
-    var root = spActiveRoot;
-    if (!root) return null;
-    var grid = root.querySelector('.staff-grid');
-    if (!grid) return null;
-    var card = grid.querySelector(':scope > .staff-card.is-editing');
-    if (!card) return null;
-    var cards = Array.prototype.slice.call(grid.querySelectorAll(':scope > .staff-card'));
-    return { grid: grid, card: card, cards: cards };
-  }
-  function spCollapseMorph(done) {
-    var t = spReduceMotion() ? null : spCollapseTarget();
-    if (!t) { done(); return; }
-    var gridW = t.grid.clientWidth;
-    var idx = t.cards.indexOf(t.card);
-    if (gridW <= 0 || idx < 0) { done(); return; }
-    var cellW = (gridW - SP_GRID_GAP * 2) / 3;
-    var col = idx % 3;
-    var ms = spCollapseMs();
-    var sec = (ms / 1000) + 's';
-    var trans = 'transform ' + sec + ' ' + SP_EASE_STD + ', width ' + sec + ' ' + SP_EASE_STD;
-    for (var i = 0; i < 3; i++) {
-      var c = t.cards[idx - col + i];
-      if (!c || c === t.card) continue;
-      c.style.transition = 'opacity ' + sec + ' ' + SP_EASE_STD;
-      c.classList.remove('is-row-muted');
-    }
-    t.card.classList.add('is-collapsing');
-    t.card.style.zIndex = '6';
-    t.card.style.transition = trans;
-    void t.card.offsetWidth;
-    t.card.style.width = cellW + 'px';
-    t.card.style.transform = 'translateX(0)';
-    var fired = false;
-    var finish = function () {
-      if (fired) return;
-      fired = true;
-      t.card.style.transition = 'none';
-      done();
-    };
-    t.card.addEventListener('transitionend', function (e) {
-      if (e && e.propertyName === 'width') finish();
-    });
-    setTimeout(finish, ms + 40);
+
+
+  function spSlotHtml(sid, rowKey) {
+
+    var st = spStaffById(sid);
+
+    var nm = st ? st.name : sid;
+
+    var land = (spLandSid === sid) ? ' is-land' : '';
+
+    return '<button type="button" class="sp-slot' + land + '"' +
+
+      ' data-sr-rm="' + escapeHtml(sid) + '" data-sr-row="' + escapeHtml(rowKey) + '"' +
+
+      ' aria-label="移除 ' + escapeHtml(nm) + '">' +
+
+      spAvatarHtml(st, 'sp-av--slot') +
+
+      '<span class="sp-slot__nm">' + escapeHtml(nm) + '</span>' +
+
+      '</button>';
+
   }
 
-  var spRerenderFn = null;
-  function spEditChange(mutator, collapse) {
-    var seq = ++spEditSeq;
-    var commit = function () {
-      mutator();
-      spHaptic();
-      if (typeof spRerenderFn === 'function') spRerenderFn();
-    };
-    var attempt = function () {
-      if (seq !== spEditSeq) return;
-      var until = Math.max(spGate.checkUntil, spGate.morphUntil);
-      var busy = spReduceMotion() ? 0 : Math.max(0, until - Date.now());
-      if (busy > 0) { setTimeout(attempt, busy + 20); return; }
-      if (collapse && spCollapseTarget()) {
-        spGateHoldOnly(spCollapseMs());
-        spCollapseMorph(function () {
-          if (seq !== spEditSeq) return;
-          commit();
-        });
-        return;
-      }
-      commit();
-    };
-    var wait = spReduceMotion() ? 0 : Math.max(0, spGate.morphUntil - Date.now());
-    if (wait > 0) setTimeout(attempt, wait); else attempt();
-  }
-  function spApplyEdit(next) {
-    spEditChange(function () { staffCardEdit = next; }, next === null);
+  function spAddSlotHtml(rowKey, label) {
+
+    return '<button type="button" class="sp-slot sp-slot--add" data-sr-add="' + escapeHtml(rowKey) + '"' +
+
+      ' aria-label="添加' + escapeHtml(label) + '">' + SP_PLUS_SVG + '</button>';
+
   }
 
-  function spCheckHost(el) {
-    if (!el || typeof el.closest !== 'function') return null;
-    return el.closest('.staff-opt');
-  }
-  function spPlayCheck(el, on) {
-    if (!el || spReduceMotion()) return;
-    var host = spCheckHost(el);
-    el.classList.remove('is-draw', 'is-undraw');
-    if (host) host.classList.remove('is-undraw');
-    void el.offsetWidth;
-    el.classList.add(on ? 'is-draw' : 'is-undraw');
-    if (!on && host) host.classList.add('is-undraw');
-  }
-  function spOptBoxEl(sid, key) {
-    var root = spActiveRoot;
-    if (!root || !sid || !key) return null;
-    var btn = root.querySelector('[data-staff-opt="' + key + '"][data-staff-id="' + sid + '"]');
-    return btn ? btn.querySelector('.staff-opt__box') : null;
+  function spRowsHtml() {
+
+    return spRowDefs().map(function (r) {
+
+      var ids = spRowIds(r.key);
+
+      var slots = ids.map(function (sid) { return spSlotHtml(sid, r.key); }).join('');
+
+      if (ids.length < SP_ROW_MAX) slots += spAddSlotHtml(r.key, r.label);
+
+      return '<div class="sp-row' + (r.kind === 'extra' ? ' sp-row--extra' : '') + '" data-sr-row="' + r.key + '">' +
+
+          '<div class="sp-row__lbl">' + r.label + '</div>' +
+
+          '<div class="sp-row__slots">' + slots + '</div>' +
+
+        '</div>';
+
+    }).join('');
+
   }
 
-  function spSelectStaff(sid) {
-    if (staffRow.staffIds.indexOf(sid) < 0) staffRow.staffIds.push(sid);
-    staffRow.staffChosen[sid] = true;
-    staffFreshDone[sid] = true;
-  }
-  function spDropStaff(sid) {
-    staffRow.staffIds = staffRow.staffIds.filter(function (x) { return x !== sid; });
-    staffRow.staffChosen[sid] = false;
-    delete staffRow.staffRoles[sid];
-    delete staffRow.staffExtra[sid];
-  }
-  function spRemoveStaff(sid) {
-    if (!sid) return;
-    ensureStaffState();
-    spDropStaff(sid);
-    if (staffCardEdit && staffCardEdit.staffId === sid) staffCardEdit = null;
-    spHaptic();
-    if (typeof spRerenderFn === 'function') spRerenderFn();
+  function spPickHtml() {
+
+    var def = spRowDef(spPickRow);
+
+    if (!def) return '';
+
+    var ids = spRowIds(spPickRow);
+
+    var cards = STAFFS.map(function (st) {
+
+      var on = ids.indexOf(st.id) >= 0;
+
+      var full = !on && ids.length >= SP_ROW_MAX;
+
+      return '<button type="button" class="sp-pick' + (on ? ' is-on' : '') + (full ? ' is-full' : '') + '"' +
+
+        ' data-sr-pick="' + escapeHtml(st.id) + '"' + (full ? ' aria-disabled="true"' : '') + '>' +
+
+        spAvatarHtml(st, 'sp-av--pick') +
+
+        '<span class="sp-pick__nm">' + escapeHtml(st.name) + '</span>' +
+
+        '<span class="sp-pick__role">' + escapeHtml(st.role || '') + '</span>' +
+
+        '<span class="sp-pick__tick" aria-hidden="true">' + SP_TICK_SVG + '</span>' +
+
+        '</button>';
+
+    }).join('');
+
+    return '<div class="sp-picker__hd">' +
+
+        '<span class="t">选择' + def.label + '</span>' +
+
+        '<span class="s">最多 ' + SP_ROW_MAX + ' 人</span>' +
+
+        '<button type="button" class="sp-picker__cancel" data-sr-cancel>取消</button>' +
+
+      '</div>' +
+
+      '<div class="sp-picker__grid">' + cards + '</div>';
+
   }
 
-  function spApplyOptionToggle(sid, key) {
-    if (!sid || !key) return;
-    ensureStaffState();
-    var opt = spOptionByKey(key);
-    if (!opt) return;
-    var checked = spOptionChecked(sid, opt);
 
-    if (opt.kind === 'extra') {
-      if (checked) {
-        staffRow.staffExtra[sid] = false;
-        if (!spBasePicked(sid)) spDropStaff(sid);
-      } else {
-        staffRow.staffExtra[sid] = true;
-        spSelectStaff(sid);
-      }
-      spApplyEdit(null);
-      return;
-    }
-    if (opt.kind === 'plain') {
-      if (checked) {
-        spSetRoles(sid, []);
-        if (staffRow.staffExtra[sid] !== true) spDropStaff(sid);
-      } else {
-        spSetRoles(sid, [SP_PICK_AVG]);
-        spSelectStaff(sid);
-      }
-      spApplyEdit(null);
-      return;
-    }
-    var roles = spRolesOf(sid);
-    if (checked) {
-      roles = roles.filter(function (r) { return r !== key; });
-      spSetRoles(sid, roles);
-      if (!roles.length && staffRow.staffExtra[sid] !== true) spDropStaff(sid);
-    } else {
-      roles.push(key);
-      spSetRoles(sid, roles);
-      spSelectStaff(sid);
-    }
-    spApplyEdit(null);
-  }
-  function spTapOption(sid, key) {
-    if (!sid || !key) return;
-    if (!staffCardEdit || staffCardEdit.staffId !== sid) return;
-    if (spGateBusy()) spGateFlush();
-    var opt = spOptionByKey(key);
-    if (!opt) return;
-    var checked = spOptionChecked(sid, opt);
-    spPlayCheck(spOptBoxEl(sid, key), !checked);
-    spGateAfter(spOptBoxEl(sid, key), function () { spApplyOptionToggle(sid, key); }, spCheckMsFor(!checked));
-  }
-  function spToggleStaff(sid) {
-    if (!sid) return;
-    ensureStaffState();
-    if (spStaffIsChosen(sid)) { spRemoveStaff(sid); return; }
-    staffRow.staffExtra[sid] = false;
-    spSetRoles(sid, [SP_PICK_AVG]);
-    spSelectStaff(sid);
-    staffCardEdit = null;
-    spHaptic();
-    if (typeof spRerenderFn === 'function') spRerenderFn();
-  }
-  function spEnterEdit(sid) {
-    ensureStaffState();
-    if (!spNeedsPick()) {
-      spToggleStaff(sid);
-      return;
-    }
-    if (staffCardEdit && staffCardEdit.staffId !== sid && spCollapseTarget()) {
-      spEditChange(function () {
-        staffCardEdit = { staffId: sid, splitting: true };
-        spGateHoldOnly(SP_EXPAND_MS);
-      }, true);
-      return;
-    }
-    spEditSeq++;
-    staffCardEdit = { staffId: sid, splitting: true };
-    spHaptic();
-    spGateHoldOnly(SP_EXPAND_MS);
-    if (typeof spRerenderFn === 'function') spRerenderFn();
-  }
-
-  function spOptionsPanelHtml(sid) {
-    var opts = spOptionList();
-    var box = '<span class="staff-opt__box" aria-hidden="true">' + SP_CHECK_SVG + '</span>';
-    return '<div class="staff-card__opts" role="group" aria-label="选择工位或顾客指定">' +
-      opts.map(function (o) {
-        var on = spOptionChecked(sid, o);
-        return '<button type="button" class="staff-opt' + (on ? ' is-on' : '') +
-          (o.kind === 'extra' ? ' staff-opt--extra' : '') + '"' +
-          ' data-staff-opt="' + escapeHtml(o.key) + '" data-staff-id="' + escapeHtml(sid) + '"' +
-          ' aria-pressed="' + (on ? 'true' : 'false') + '">' +
-          box +
-          '<span class="staff-opt__txt">' + escapeHtml(o.label) + '</span>' +
-          '</button>';
-      }).join('') +
-      '</div>';
-  }
 
   function renderStaffPickerHtml() {
+
     ensureStaffState();
-    var edit = staffCardEdit;
-    var cards = STAFFS.map(function (st) {
-      var isChosen = staffRow.staffIds.indexOf(st.id) >= 0;
-      var done = isChosen;
-      var isEdit = !!(edit && edit.staffId === st.id);
-      var dim = !!(edit && !isEdit);
-      var baseBody = staffAvatarHtml(st) +
-        '<div class="staff-card__name">' + escapeHtml(st.name) + '</div>' +
-        spCardPickLineHtml(st, done);
-      if (isEdit) {
-        return '<div class="staff-card is-editing' + (done ? ' is-done' : '') + (edit.splitting ? ' is-splitting' : '') + '"' +
-          ' data-staff-card data-staff-id="' + escapeHtml(st.id) + '">' +
-          '<div class="staff-card__panel" data-face="opts">' + spOptionsPanelHtml(st.id) + '</div>' +
-          '<div class="staff-card__panel staff-card__panel--base" data-face="base" aria-hidden="true">' + baseBody + '</div>' +
-          '</div>';
-      }
-      return '<div class="staff-card' + (done ? ' is-done' : '') + (isChosen && staffFreshDone[st.id] ? ' is-pop' : '') + (dim ? ' is-dim' : '') + '"' +
-        ' data-staff-card data-staff-id="' + escapeHtml(st.id) + '">' +
-        '<button type="button" class="staff-card__panel" data-staff-card-hit data-staff-id="' + escapeHtml(st.id) + '" aria-label="' + escapeHtml(st.name) + '">' +
-        baseBody +
-        '</button>' +
-        '</div>';
-    }).join('');
-    return '<div class="detail-item__staff-block detail-item__staff-block--cards' + (edit ? ' is-picking' : '') + '">' +
-      (edit ? '<button type="button" class="staff-card-scrim" data-staff-scrim aria-label="取消选择"></button>' : '') +
-      '<div class="staff-grid' + (edit ? ' is-morphing' : '') + '">' + cards + '</div>' +
+
+    return '<div class="sp-box" data-picking="' + (spPickRow ? '1' : '0') + '"' +
+
+        (spPickRow ? ' data-pick-row="' + escapeHtml(spPickRow) + '"' : '') + '>' +
+
+        '<div class="sp-face sp-face--rows">' + spRowsHtml() + '</div>' +
+
+        '<div class="sp-face sp-face--pick" aria-hidden="' + (spPickRow ? 'false' : 'true') + '">' + spPickHtml() + '</div>' +
+
       '</div>';
+
   }
 
-  function animateStaffMorphLayout(grid) {
-    if (!grid) return;
-    var token = (grid._staffMorphToken = (grid._staffMorphToken || 0) + 1);
-    var cards = Array.prototype.slice.call(grid.querySelectorAll(':scope > .staff-card'));
-    var editing = cards.filter(function (c) { return c.classList.contains('is-editing'); })[0];
-    var reduce = spReduceMotion();
 
-    cards.forEach(function (c) {
-      c.classList.remove('is-expanding', 'is-row-muted');
-      c.style.transition = 'none';
-      c.style.transform = '';
-      c.style.width = '';
-      c.style.zIndex = '';
-    });
-    grid.classList.toggle('is-morphing', !!editing);
 
-    if (!editing) {
-      requestAnimationFrame(function () {
-        if (grid._staffMorphToken !== token) return;
-        cards.forEach(function (c) { c.style.transition = ''; });
-      });
-      return;
-    }
+  function afterStaffPickerPaint() {
 
-    var gap = SP_GRID_GAP;
-    var gridW = grid.clientWidth;
-    if (gridW <= 0) return;
-    var cellW = (gridW - gap * 2) / 3;
-    var idx = cards.indexOf(editing);
-    if (idx < 0) return;
-    var col = idx % 3;
-    var rowStart = idx - col;
-    var dx = -(col * (cellW + gap));
-    var springTrans = 'transform ' + (SP_EXPAND_MS / 1000) + 's ' + SP_SPRING + ', width ' + (SP_EXPAND_MS / 1000) + 's ' + SP_SPRING;
+    /* 落位动效只在本次重绘里播一次 */
 
-    var muteRow = function (on) {
-      for (var i = 0; i < 3; i++) {
-        var card = cards[rowStart + i];
-        if (!card || card === editing) continue;
-        card.classList.toggle('is-row-muted', on);
-      }
-    };
-    var applyFinalLayout = function (withTransition) {
-      editing.style.transition = withTransition === false ? 'none' : springTrans;
-      editing.style.width = gridW + 'px';
-      editing.style.transform = 'translateX(' + dx + 'px)';
-      editing.style.zIndex = '6';
-      muteRow(true);
-    };
+    spLandSid = null;
 
-    editing.style.zIndex = '6';
-    if (reduce) {
-      editing.classList.add('is-expanding');
-      applyFinalLayout(false);
-      return;
-    }
-    editing.style.width = cellW + 'px';
-    editing.style.transform = 'translateX(0)';
-    void grid.offsetWidth;
-
-    requestAnimationFrame(function () {
-      if (grid._staffMorphToken !== token) return;
-      editing.classList.add('is-expanding');
-      applyFinalLayout();
-    });
-  }
-
-  function afterStaffPickerPaint(root) {
-    requestAnimationFrame(function () {
-      var grid = root && root.querySelector ? root.querySelector('.staff-grid') : null;
-      if (grid) animateStaffMorphLayout(grid);
-      if (staffCardEdit && staffCardEdit.splitting) {
-        setTimeout(function () {
-          if (staffCardEdit) staffCardEdit.splitting = false;
-          var el = root && root.querySelector ? root.querySelector('.staff-card.is-splitting') : null;
-          if (el) el.classList.remove('is-splitting');
-        }, spReduceMotion() ? 0 : 520);
-      }
-      staffFreshDone = {};
-    });
   }
 
   function renderStaffInto(root, row) {
+
     if (!root) return;
+
     spActiveRoot = root;
+
     root.innerHTML = row ? renderStaffPickerHtmlForRow(row) : renderStaffPickerHtml();
+
     afterStaffPickerPaint(root);
+
   }
+
   function renderStaffPickerHtmlForRow(row) {
+
     var saved = staffRow;
+
     staffRow = row;
+
     var html = renderStaffPickerHtml();
+
     staffRow = saved;
+
     return html;
+
   }
+
   window.__staffPickResetEdit = function () {
-    staffCardEdit = null;
-    staffFreshDone = {};
-    spEditSeq++;
+
+    spPickRow = null;
+
+    spLandSid = null;
+
   };
+
+
 
   /* 空员工行工厂（开单 / 直接收款 / 挂单还原共用） */
   function emptyStaffObj(id) {
@@ -4785,68 +4496,190 @@
     };
   }
 
-  // 员工卡片交互（document 级事件委托：内嵌容器以 [data-staff-root] 标记）
-  document.addEventListener('click', function (e) {
-    var root = e.target.closest('[data-staff-root]');
-    if (!root) return;
-    var ctx = root.getAttribute('data-ctx') || 'add';
-    /* 现网只存在两类宿主：quick（s2/s3 直接收款）、v2draft（添加 sheet 内嵌草稿）。
-       co / qco / 结算页选择员工旧分支已随 R12 只读摘要一并删除。
-       兜底：添加 sheet 的 `#asStaffGrid` 恒为 data-ctx="v2draft"，正常由 v2.js 写入
-       window.__v2DraftStaff；若某条路径（如遗留的 openAddSheet）没写，则回退到 addStaffRow，
-       避免整块员工面板失去交互。 */
-    if (ctx === 'quick') {
-      staffRow = quickStaffRow;
-    } else if (ctx === 'v2draft') {
-      staffRow = window.__v2DraftStaff || addStaffRow;
-    } else {
-      staffRow = addStaffRow;
-    }
-    migrateStaffRowShape(staffRow);
-    spActiveRoot = root;
-    var rerender = function () {
-      renderStaffInto(root);
-      if (ctx === 'v2draft' && typeof window.__v2OnDraftStaffChange === 'function') {
-        window.__v2OnDraftStaffChange();
-      }
-    };
-    spRerenderFn = function () {
-      if (ctx === 'quick') {
-        renderStaffInto(root);
-        renderQuickStaff();
-        return;
-      }
-      if (ctx === 'co') { renderCo(); return; }
-      if (ctx === 'qco') { renderQco(); return; }
-      rerender();
-    };
+  /* 宿主容器（[data-staff-root]）→ 数据落点：quick（s2/s3 直接收款）、v2draft（添加 sheet 草稿）、
 
-    if (e.target.closest('[data-staff-scrim]')) {
-      spIntend(function () { spApplyEdit(null); });
+     co / qco（结算页 s6 / s7 明细的「修改服务员工」sheet）、cosheet（结算页底部 sheet） */
+
+  function spHostCtx(root) {
+
+    var ctx = root.getAttribute('data-ctx') || 'add';
+
+    if (ctx === 'quick') staffRow = quickStaffRow;
+
+    else if (ctx === 'v2draft') staffRow = window.__v2DraftStaff || addStaffRow;
+
+    else if (ctx === 'cosheet' || ctx === 'co') staffRow = window.__coEditStaffRow || addStaffRow;
+
+    else if (ctx === 'qcosheet' || ctx === 'qco') staffRow = window.__qcoEditStaffRow || addStaffRow;
+
+    else staffRow = addStaffRow;
+
+    migrateStaffRowShape(staffRow);
+
+    spActiveRoot = root;
+
+    return ctx;
+
+  }
+
+  /* 重绘当前宿主（并同步宿主所属页面的摘要 / 结算合计） */
+
+  function spRepaint(root, ctx) {
+
+    renderStaffInto(root);
+
+    if (ctx === 'quick') {
+
+      if (typeof renderQuickStaff === 'function') renderQuickStaff();
+
       return;
+
     }
-    var optBtn = e.target.closest('[data-staff-opt]');
-    if (optBtn) {
+
+    if (ctx === 'cosheet' || ctx === 'co') {
+
+      if (typeof window.__coOnStaffChange === 'function') window.__coOnStaffChange();
+
+      return;
+
+    }
+
+    if (ctx === 'qcosheet' || ctx === 'qco') {
+
+      if (typeof window.__qcoOnStaffChange === 'function') window.__qcoOnStaffChange();
+
+      return;
+
+    }
+
+    if (ctx === 'v2draft' && typeof window.__v2OnDraftStaffChange === 'function') {
+
+      window.__v2OnDraftStaffChange();
+
+    }
+
+  }
+
+
+
+  // 员工槽位交互（document 级事件委托：宿主容器以 [data-staff-root] 标记）
+
+  document.addEventListener('click', function (e) {
+
+    var root = e.target.closest('[data-staff-root]');
+
+    if (!root) return;
+
+    var ctx = spHostCtx(root);
+
+
+
+    var addBtn = e.target.closest('[data-sr-add]');
+
+    if (addBtn) {
+
       e.preventDefault(); e.stopPropagation();
-      spTapOption(optBtn.getAttribute('data-staff-id'), optBtn.getAttribute('data-staff-opt'));
+
+      spPickRow = addBtn.getAttribute('data-sr-add');
+
+      spRepaint(root, ctx);
+
       return;
+
     }
-    var staffHit = e.target.closest('[data-staff-card-hit]');
-    if (staffHit) {
-      e.preventDefault();
-      var hitSid = staffHit.getAttribute('data-staff-id');
-      if (staffCardEdit && staffCardEdit.staffId === hitSid) {
-        spIntend(function () { spApplyEdit(null); });
+
+    var cancelBtn = e.target.closest('[data-sr-cancel]');
+
+    if (cancelBtn) {
+
+      e.preventDefault(); e.stopPropagation();
+
+      spPickRow = null;
+
+      spRepaint(root, ctx);
+
+      return;
+
+    }
+
+    var pickCard = e.target.closest('[data-sr-pick]');
+
+    if (pickCard) {
+
+      e.preventDefault(); e.stopPropagation();
+
+      var rowKey = spPickRow;
+
+      if (!rowKey) return;
+
+      var sid = pickCard.getAttribute('data-sr-pick');
+
+      var st = spStaffById(sid);
+
+      var def = spRowDef(rowKey);
+
+      /* 已在当前工位：再点即取消该行分配（选择页保持打开，便于连续调整） */
+
+      if (spRowsOf(sid).indexOf(rowKey) >= 0) {
+
+        spRemoveFromRow(sid, rowKey);
+
+        spHaptic();
+
+        spRepaint(root, ctx);
+
         return;
+
       }
-      spIntend(function () { spEnterEdit(hitSid); });
+
+      if (spRowFull(rowKey)) {
+
+        toast((def ? def.label : '该工位') + '最多 ' + SP_ROW_MAX + ' 人');
+
+        return;
+
+      }
+
+      if (spAddToRow(sid, rowKey)) {
+
+        spLandSid = sid;
+
+        spPickRow = null;              /* 落位后自动回到槽位行，右侧补出新空槽位 */
+
+        spHaptic();
+
+        spRepaint(root, ctx);
+
+      }
+
       return;
+
     }
-    if (staffCardEdit) {
-      e.preventDefault();
-      spIntend(function () { spApplyEdit(null); });
+
+    var rmBtn = e.target.closest('[data-sr-rm]');
+
+    if (rmBtn) {
+
+      e.preventDefault(); e.stopPropagation();
+
+      spRemoveFromRow(rmBtn.getAttribute('data-sr-rm'), rmBtn.getAttribute('data-sr-row'));
+
+      spHaptic();
+
+      spRepaint(root, ctx);
+
+      return;
+
     }
+
+    /* 点面内空白：拦住冒泡，避免误触宿主行级 onclick（如结算页明细行的展开） */
+
+    if (e.target.closest('.sp-box')) e.stopPropagation();
+
   });
+
+
+
   // ===== 确定 =====
   function unitPayableOf(payable, qty) {
     var q = Math.max(1, parseInt(qty, 10) || 1);
@@ -5271,11 +5104,6 @@
       applyItemBenefit(it);
     });
     total = cartItems.reduce(function (s, it) { return Math.round((s + it.actual) * 100) / 100; }, 0);
-    if (coPayOverride != null && (coPayBase == null || Math.abs(total - coPayBase) > 0.005)) {
-      coPayOverride = null;
-      coPayBase = null;
-      toast('明细已变化，已恢复系统应付');
-    }
 
     box.innerHTML = cartItems.map(function(it, i) {
       // 权益自动填充（仅未改价，且首次；用户取消后不再覆盖）
@@ -5299,7 +5127,7 @@
       }
       migrateStaffRowShape(it.staff);
       /* 只读摘要：每名员工一行「姓名 · 工位摘要（可含顾客指定）」 */
-      var staffCell = '<div class="co-row co-staff-row" data-ro="1">' +
+      var staffCell = '<div class="co-row co-staff-row" data-staff-edit="1" role="button" tabindex="0" onclick="openCoItemStaffSheet(' + i + ')">' +
         '<span class="lbl">服务员工</span>' +
         '<span class="co-staff-list">' +
           it.staff.staffIds.map(function(sid) {
@@ -5313,10 +5141,10 @@
               (meta ? '<span class="sep">·</span><span class="dim">' + escapeHtml(meta) + '</span>' : '') +
               '</span>';
           }).join('') +
-        '</span></div>';
-      // 权益：单条改价 / 整单改价（手输应付）时该明细不可用权益；否则右侧「值 + ›」为热区，点击打开「选择权益」sheet
+        '</span><span class="co-arr">' + coArrowSvg + '</span></div>';
+      // 单条改价的明细不可用权益；否则右侧「值 + ›」为热区，点击打开「选择权益」sheet
       var benCell = '';
-      if (it.discounted || coPayOverride != null) {
+      if (it.discounted) {
         benCell = '<div class="co-row is-benefit-locked" data-ro="1"><span class="lbl">权益<span class="help">?</span></span>' +
           '<span class="val gray">改价商品不可用权益</span></div>';
       } else {
@@ -5326,11 +5154,12 @@
           (it.benefit ? escapeHtml(it.benefit.name) : '无卡权益') +
           '<span class="co-arr">' + coArrowSvg + '</span></span></div>';
       }
-      /* 小计已移除，只保留「应付」（只读） */
+      /* 小计已移除，只保留「应付」（R16：整行为热区，铅笔提示可改价 → 数字键盘 sheet） */
       var sumRows = '' +
-        '<div class="co-sum-row pay" data-ro="1">' +
+        '<div class="co-sum-row pay" data-price-edit="1" role="button" tabindex="0" onclick="openCoItemPriceSheet(' + i + ')">' +
           '<span class="l">应付</span>' +
-          '<span class="r"><span class="amt"><span class="yen">¥</span><span class="num">' + it.actual.toFixed(2) + '</span></span></span>' +
+          '<span class="r"><span class="amt"><span class="yen">¥</span><span class="num">' + it.actual.toFixed(2) + '</span></span>' +
+            '<span class="co-pen">' + penSvg + '</span></span>' +
         '</div>';
       return '' +
         '<div class="co-item">' +
@@ -5353,48 +5182,62 @@
     // 自动带入 / 失效后同步「优惠券」行文案（行由 assets/v2.js 注入）
     if (typeof window.__v2RenderCouponRows === 'function') window.__v2RenderCouponRows();
     /* 底部应付 = 各项权益后应付之和 − 订单级优惠券抵扣（不满门槛则券不生效）；
-       若已手动改过应付，则以手输值为准。
-       失效判定使用「券前合计」：整单改价后仍可选用优惠券，换券不改变结算价、不触发失效；
-       明细 / 权益变化才会失效。 */
+       R16：应付总价不可修改，恒为系统计算值。 */
     var sysPay = Math.max(0, Math.round((total - orderCouponCut(total)) * 100) / 100);
-    paintCoBar((coPayOverride != null) ? coPayOverride : sysPay);
+    paintCoBar(sysPay);
     // 动态撑高页面，保证滚动到底
     var pg = document.querySelector('#s6 .page');
     if (pg) pg.style.height = (box.offsetTop + box.offsetHeight + 28) + 'px';
   }
 
-  /* ---- 结算页「应付」可手动修改（仅 s6） ----
-     整单改价的规则：
-     ① 本单所有明细的权益不再参与计算（权益行降权为只读），手输值即最终结算价；
-     ② 优惠券仍可选用并记入本单（视为已消耗），但不改变最终结算价；
-     ③ 失效判定只看「券前合计」（明细 / 权益变化 → 手输值失效，回到系统计算值）；
-        换券 / 取消券不触发失效，手输值清空后优惠券自动恢复参与抵扣。 */
-  var coPayOverride = null;   // 手输应付（null = 未改价）
-  var coPayBase = null;       // 改价时的「券前合计」，用于判断明细 / 权益是否已变化
+  /* ---- 结算页「修改应付」数字键盘 sheet（R16 改版）----
+     入口由「底栏整单应付」下移到**每项明细**的「应付」行（`data-price-edit`）：
+     s6 传 cartItems 索引，s7（直接收款单条明细）传 -1。
+     整单改价（`coPayOverride` / 「已改价」标签 / 底栏上方提示条）已整体移除，
+     底栏应付总价恒为系统计算值，不可修改。
+     单条改价规则：改价后该明细视为「改价商品」→ 权益不可用、金额并入小计与总价；
+     改回原价（原价 × 数量）即视为未改价，权益恢复自动匹配。 */
+  var payEditIdx = -1;    // -1 = 直接收款 s7 的单条明细；>= 0 = s6 明细索引
   var payEditBuf = '';
 
+  function payEditTarget() {
+    return (payEditIdx >= 0) ? cartItems[payEditIdx] : qcoItem;
+  }
+  /* 明细原价（改价基准）：单价 × 数量；「清零 / 留空」即回到此值 = 未改价 */
+  function payEditBase() {
+    var it = payEditTarget();
+    if (!it) return 0;
+    return Math.round((it.salePrice != null ? it.salePrice : it.price) * (it.qty || 1) * 100) / 100;
+  }
+  /* 明细改价：写回金额并按「改价商品」规则锁定权益 */
+  function applyItemPrice(it, n) {
+    if (!it) return;
+    var base = Math.round((it.salePrice != null ? it.salePrice : it.price) * (it.qty || 1) * 100) / 100;
+    var changed = Math.abs(n - base) > 0.001;
+    it.receivable = n;
+    it.payable = n;
+    it.actual = n;
+    it.discounted = changed;
+    if (changed) { it.benefit = null; it._benefitCleared = true; }
+    recalcOrderAmounts();
+  }
   function paintCoBar(shown) {
     var pay = document.getElementById('coPay');
     if (pay) pay.textContent = money2(shown);
-    var locked = (coPayOverride != null);
-    var tag = document.getElementById('coPayTag');
-    if (tag) tag.style.display = locked ? '' : 'none';
-    var note = document.getElementById('coLockNote');
-    if (note) note.style.display = locked ? '' : 'none';
-    var scr = document.getElementById('s6');
-    if (scr) scr.classList.toggle('is-pay-locked', locked);
   }
   function paintPayEdit() {
     var num = document.getElementById('coPayEditNum');
     var ph = document.getElementById('coPayEditPh');
-    var base = (coPayOverride != null) ? coPayOverride : currentPayable();
     if (num) { num.textContent = payEditBuf; num.style.display = payEditBuf ? '' : 'none'; }
     if (ph) {
-      ph.textContent = '当前 ¥' + money2(base);
+      ph.textContent = '原价 ¥' + money2(payEditBase());
       ph.style.display = payEditBuf ? 'none' : '';
     }
   }
-  function openPayEditSheet() {
+  /* 打开「修改应付」sheet：idx >= 0 → s6 明细；idx = -1 → s7 单条明细 */
+  function openCoItemPriceSheet(idx) {
+    payEditIdx = (typeof idx === 'number') ? idx : -1;
+    if (!payEditTarget()) return;
     payEditBuf = '';
     paintPayEdit();
     var m = document.getElementById('coPayMask');
@@ -5411,26 +5254,57 @@
     if (validKey(payEditBuf, k)) { payEditBuf += k; paintPayEdit(); }
   }
   function confirmPayEdit() {
-    if (!payEditBuf) {
-      coPayOverride = null;
-      coPayBase = null;
-      closePayEditSheet();
-      renderCo();
-      toast('已恢复系统应付');
-      return;
-    }
-    var n = Math.round((parseFloat(payEditBuf) || 0) * 100) / 100;
-    coPayOverride = n;
-    /* 失效基准用「券前合计」：改价后换券不改变结算价，也不触发失效 */
-    coPayBase = orderPayableSum();
+    var it = payEditTarget();
+    if (!it) { closePayEditSheet(); return; }
+    var base = payEditBase();
+    var n = payEditBuf
+      ? Math.round((parseFloat(payEditBuf) || 0) * 100) / 100
+      : base;
+    var wasChanged = !!it.discounted;
+    applyItemPrice(it, n);
     closePayEditSheet();
-    renderCo();
-    toast('应付已改为 ¥' + money2(n));
+    if (payEditIdx >= 0) renderCo(); else renderQco();
+    toast((Math.abs(n - base) < 0.005 && wasChanged)
+      ? '已恢复原价 ¥' + money2(n)
+      : '应付已改为 ¥' + money2(n));
   }
-  window.openPayEditSheet = openPayEditSheet;
+  window.openCoItemPriceSheet = openCoItemPriceSheet;
   window.closePayEditSheet = closePayEditSheet;
   window.payEditKey = payEditKey;
   window.confirmPayEdit = confirmPayEdit;
+
+  /* ---- 结算页「修改服务员工」sheet（R16）----
+     入口：s6 / s7 明细「服务员工」行（data-staff-edit）。sheet 内复用新的槽位式员工选择器：
+     4 行工位（大工 / 中工 / 小工 / 顾客指定）各带「＋」空槽位，点 ＋ 切到员工卡片选择页，
+     选中即落位（带落位动效）并在右侧补出新空槽位；每行最多 3 人。 */
+  var coStaffIdx = -1;
+
+  function openCoItemStaffSheet(idx) {
+    coStaffIdx = (typeof idx === 'number') ? idx : -1;
+    var it = (coStaffIdx >= 0) ? cartItems[coStaffIdx] : qcoItem;
+    if (!it || !it.staff) return;
+    window.__coEditStaffRow = it.staff;
+    window.__qcoEditStaffRow = it.staff;
+    var grid = document.getElementById('coStaffGrid');
+    if (grid) grid.setAttribute('data-ctx', coStaffIdx >= 0 ? 'co' : 'qco');
+    if (typeof window.__staffPickResetEdit === 'function') window.__staffPickResetEdit();
+    if (typeof renderStaffInto === 'function') renderStaffInto(grid, it.staff);
+    var m = document.getElementById('coStaffMask');
+    if (m) m.classList.add('show');
+  }
+  function closeCoItemStaffSheet() {
+    var m = document.getElementById('coStaffMask');
+    if (m) m.classList.remove('show');
+    window.__coEditStaffRow = null;
+    window.__qcoEditStaffRow = null;
+  }
+  /* 员工变化 → 立即刷新明细摘要（s6 / s7 各自重绘） */
+  window.__coOnStaffChange = function () {
+    if (coStaffIdx >= 0) renderCo(); else renderQco();
+  };
+  window.__qcoOnStaffChange = window.__coOnStaffChange;
+  window.openCoItemStaffSheet = openCoItemStaffSheet;
+  window.closeCoItemStaffSheet = closeCoItemStaffSheet;
 
   var empSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>';
   var coArrowSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
@@ -5684,13 +5558,13 @@
   // ---- 挂单 / 结账 ----
   /* ===== 页面14 挂单列表 =====
      字段：{ id, cust, vip, from, day, time, staff: [{name, role, designated}], items: [] }
-       from：挂单来源页 —— 'order' 开单页（s1 散客 / s5 会员）→ 取挂单回开单页
-                          'checkout' 结算页（s6）→ 取挂单回结算页
+       from：挂单来源页 —— 'order' 开单页（s1 散客 / s5 会员）→ 去开单回开单页
+                          'checkout' 结算页（s6）→ 去开单回结算页
        day ：相对天数（0=今天；<0 = 已过 24:00，自动失效并删除）
      staff 为挂单时全单服务员工的并集（按明细顺序去重），用于卡片「服务员工」字段；
-     items 内同时保存每行的员工状态，取挂单时可原样还原。
+     items 内同时保存每行的员工状态，去开单时可原样还原。
      ★ 挂单仅在三种情况下被删除：① 列表内「删除」按钮 ② 每日 24:00 超时自动删除
-       ③ 取挂单后进入结算并开单成功 */
+       ③ 去开单后进入结算并开单成功 */
   var holdOrders = [
     { id: 'h1001', cust: '陈女士', vip: true, from: 'order', day: 0, time: '今天 10:24',
       staff: [{ name: '林屿森', role: '大工', designated: true },
@@ -5699,7 +5573,7 @@
     { id: 'h1002', cust: '男散客', vip: false, from: 'order', day: 0, time: '今天 09:58',
       staff: [{ name: '阿Ken', role: '大工', designated: false }],
       items: [{ name: '染发', price: 358, qty: 1 }] },
-    /* 来源为结算页：取挂单后直接回到结算页 */
+    /* 来源为结算页：去开单后直接回到结算页 */
     { id: 'h1003', cust: '李女士', vip: true, from: 'checkout', day: 0, time: '今天 09:32',
       staff: [{ name: 'Lisa', role: '中工', designated: true }],
       items: [{ name: '时尚造型', price: 128, qty: 2 },
@@ -5747,7 +5621,7 @@
     });
     return out;
   }
-  /* 取挂单后每行员工的还原载体（随明细一起存，避免丢失顾客指定与工位） */
+  /* 去开单后每行员工的还原载体（随明细一起存，避免丢失顾客指定与工位） */
   function holdItemStaffSnap(st) {
     return cloneStaffObj(st);
   }
@@ -5776,7 +5650,7 @@
       return '<div class="hold-card" data-i="' + i + '" style="--i:' + i + '">' +
           '<div class="hc-hd">' +
             '<span class="nm">' + escapeHtml(h.cust) + '</span>' +
-            (h.vip ? '<span class="vip">VIP</span>' : '') +
+            (h.vip ? '<img class="vip-img" src="assets/ic_vip.svg" alt="VIP">' : '') +
             '<span class="tm">' + escapeHtml(h.time) + '</span>' +
           '</div>' +
           '<div class="hc-sep"></div>' +
@@ -5790,7 +5664,7 @@
             '<button type="button" class="btn-del" aria-label="删除挂单" onclick="delHold(' + i + ')">' +
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 7V5.5A1.5 1.5 0 0111.5 4h1A1.5 1.5 0 0114 5.5V7M6.5 7l.8 12.1A1.5 1.5 0 008.8 20.6h6.4a1.5 1.5 0 001.5-1.5L17.5 7M10 11v6M14 11v6"/></svg>' +
             '</button>' +
-            '<button type="button" class="btn-take" onclick="takeHold(' + i + ')">取挂单</button>' +
+            '<button type="button" class="btn-take" onclick="takeHold(' + i + ')">去开单</button>' +
           '</div>' +
         '</div>';
     }).join('');
@@ -5844,7 +5718,7 @@
     if (card) card.classList.add('is-take');
     setTimeout(function () { doTakeHold(i, h); }, card ? 165 : 0);
   }
-  /* 取挂单：明细取回当前单据，挂单本身保留（可重复取）；
+  /* 去开单：明细取回当前单据，挂单本身保留（可重复取）；
      只有「开单成功」才会把该挂单移除（见 checkoutToSuccess）。
      前往页面按挂单来源：结算页挂单 → 回结算页；开单页挂单 → 回开单页 */
   function doTakeHold(i, h) {
@@ -5854,7 +5728,7 @@
     setCust(kind);
     setCoCust(kind);
     setQcoCust(kind);
-    /* 取挂单 = 取回该挂单的单据：覆盖当前草稿，并清掉草稿上的券 / 权益手工状态 */
+    /* 去开单 = 取回该挂单的单据：覆盖当前草稿，并清掉草稿上的券 / 权益手工状态 */
     cartItems.length = 0;
     window.__v2OrderCoupon = null;
     window.__v2OrderCouponTouched = false;
@@ -6073,10 +5947,10 @@
       var isCard = !!(qcoItem && qcoItem.benefit && qcoCust === 'member');
       if (isCard) items = [qcoItem];
     } else {
-      /* 已手动改价：以手输值为本次实收金额（整单改价后权益不参与计算，只记非卡方式） */
-      amount = (coPayOverride != null) ? coPayOverride : currentPayable();
+      /* R16：底栏应付总价不可修改，实收金额恒为系统计算值 */
+      amount = currentPayable();
       cust = coCust;
-      items = (coPayOverride != null) ? [] : cartItems.slice();
+      items = cartItems.slice();
     }
     return { amount: amount, pays: buildPays(items, amount, cust) };
   }
@@ -6169,7 +6043,7 @@
       date: (billDate ? billDate.replace(/-/g, '.') : todayDot()),
       no: coManualNo || genCoManual()
     };
-    /* 本单已结：把来源挂单移除（挂单删除的第三种情形：取挂单后开单成功） */
+    /* 本单已结：把来源挂单移除（挂单删除的第三种情形：去开单后开单成功） */
     if (activeHoldId) {
       holdOrders = holdOrders.filter(function (h) { return h.id !== activeHoldId; });
       activeHoldId = null;
@@ -6405,7 +6279,7 @@
     }
     migrateStaffRowShape(it.staff);
     /* 只读摘要：每名员工一行「姓名 · 工位摘要（可含顾客指定）」 */
-    var staffCell = '<div class="co-row co-staff-row" data-ro="1">' +
+    var staffCell = '<div class="co-row co-staff-row" data-staff-edit="1" role="button" tabindex="0" onclick="openCoItemStaffSheet(-1)">' +
       '<span class="lbl">服务员工</span>' +
       '<span class="co-staff-list">' +
         it.staff.staffIds.map(function(sid) {
@@ -6419,7 +6293,7 @@
             (meta ? '<span class="sep">·</span><span class="dim">' + escapeHtml(meta) + '</span>' : '') +
             '</span>';
         }).join('') +
-      '</span></div>';
+      '</span><span class="co-arr">' + coArrowSvg + '</span></div>';
     var benCell;
     if (it.discounted) {
       benCell = '<div class="co-row" data-ro="1"><span class="lbl">权益<span class="help">?</span></span>' +
@@ -6431,11 +6305,12 @@
         (it.benefit ? escapeHtml(it.benefit.name) : '无卡权益') +
         '<span class="co-arr">' + coArrowSvg + '</span></span></div>';
     }
-    /* 小计已移除，只保留「应付」（只读） */
+    /* 小计已移除，只保留「应付」（R16：整行为热区，铅笔提示可改价 → 数字键盘 sheet） */
     var sumRows = '' +
-      '<div class="co-sum-row pay" data-ro="1">' +
+      '<div class="co-sum-row pay" data-price-edit="1" role="button" tabindex="0" onclick="openCoItemPriceSheet(-1)">' +
         '<span class="l">应付</span>' +
-        '<span class="r"><span class="amt"><span class="yen">¥</span><span class="num">' + it.actual.toFixed(2) + '</span></span></span>' +
+        '<span class="r"><span class="amt"><span class="yen">¥</span><span class="num">' + it.actual.toFixed(2) + '</span></span>' +
+          '<span class="co-pen">' + penSvg + '</span></span>' +
       '</div>';
 
     box.innerHTML =

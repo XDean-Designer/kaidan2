@@ -161,7 +161,9 @@
     });
   }
 
-  /* 把单个顾客行包成「行 + 开单/直接收款操作区」，返回 wrap（已插入 DOM） */
+  /* 把单个顾客行包成「行 + 常驻操作区（开单 | 收款）」。
+     R16：删除折叠区与整行点击 —— 顾客行本身不响应点击，
+     右侧常驻一枚分段胶囊，左段「开单」为主、右段「收款」为次，两段各自一次点击直达。 */
   function wrapOnePickRow(row) {
     if (!row) return null;
     if (row.parentNode && row.parentNode.classList &&
@@ -182,20 +184,11 @@
     else if (nm === '马婷') key = 'ma';
     else key = nm || 'member';
     row.removeAttribute('onclick');
-    row.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var open = wrap.classList.contains('is-open');
-      $all('.pick-row-wrap.is-open').forEach(function (w) {
-        w.classList.remove('is-open');
-      });
-      if (typeof closeAddMember === 'function') closeAddMember();
-      if (!open) wrap.classList.add('is-open');
-    });
     var actions = document.createElement('div');
     actions.className = 'pick-row-actions';
     actions.innerHTML =
-      '<button type="button" class="pick-act bill" data-a="bill">开单</button>' +
-      '<button type="button" class="pick-act quick" data-a="quick">直接收款</button>';
+      '<button type="button" class="pick-seg pick-seg--main" data-a="bill">开单</button>' +
+      '<button type="button" class="pick-seg pick-seg--sec" data-a="quick" aria-label="直接收款">收款</button>';
     actions.onclick = function (e) {
       var b = e.target.closest('[data-a]');
       if (!b) return;
@@ -312,9 +305,6 @@
   }
 
   function applyPick(kind, key, act, displayName, gender) {
-    $all('.pick-row-wrap.is-open').forEach(function (w) {
-      w.classList.remove('is-open');
-    });
     closeAddMember();
     if (kind === 'guest') {
       if (window.setGuestGender) window.setGuestGender(key);
@@ -441,7 +431,6 @@
     var wrap = addMemberWrap();
     if (!wrap) return;
     var open = wrap.classList.contains('is-open');
-    $all('.pick-row-wrap.is-open').forEach(function (w) { w.classList.remove('is-open'); });
     if (open) { closeAddMember(); return; }
     resetAddMemberForm(wrap);
     wrap.classList.add('is-open');
@@ -467,10 +456,8 @@
         (gender === 'male' ? 'assets/avatar_male2.png' : 'assets/avatar_female2.png') +
         '" alt=""></div>' +
       '<div class="info">' +
-        '<div class="line1"><span class="nm">' + esc(display) + '</span>' +
-          (phone ? '<span class="phone">' + esc(phone) + '</span>' : '') +
-        '</div>' +
-        '<div class="sub">最近消费：未消费</div>' +
+        '<div class="line1"><span class="nm">' + esc(display) + '</span></div>' +
+        (phone ? '<div class="line2"><span class="phone">' + esc(phone) + '</span></div>' : '') +
       '</div>';
     var wrap = wrapOnePickRow(row);
     if (head) {
@@ -529,8 +516,6 @@
     closeAddMember();
     if (!row) return;
     var w = row.closest ? row.closest('.pick-row-wrap') : null;
-    $all('.pick-row-wrap.is-open').forEach(function (x) { x.classList.remove('is-open'); });
-    if (w) w.classList.add('is-open');
     scrollPickListTo(w || row);
     toast('已添加会员 · ' + display);
   }
@@ -904,29 +889,11 @@
         '<span class="v2-ccard__mc-rest">' + esc(c.rest) + '</span>' +
       '</div>';
   }
-  /* 会员持卡中的最优「折扣」权益（陈女士＝超值折扣卡 8.0折）。
-     口径与结算页自动匹配的权益同源；计次卡 / 储值卡按项目抵扣、规则不同，
-     不参与价目表「权益最优价」。无卡会员返回 null（价目表维持单色原价）。 */
-  function memberBestDiscountRate() {
-    if (window.__v2MemberNoBenefit) return null;
-    var best = null;
-    memberCardList().forEach(function (c) {
-      if (c.type !== '折扣卡') return;
-      var m = String(c.rest || '').match(/([\d.]+)\s*折/);
-      if (!m) return;
-      var r = parseFloat(m[1]) / 10;
-      if (!isFinite(r) || r <= 0 || r >= 1) return;
-      if (best == null || r < best) best = r;
-    });
-    return best;
-  }
-  /* 价目表价格单元格：无权益 → 单色原价；有权益 → 划线原价 + 红色权益价 */
-  function priceCellHtml(price, rate) {
-    var base = Number(price) || 0;
-    if (rate == null) return money(base);
-    var sale = Math.round(base * rate * 100) / 100;
-    return '<s class="v2-cat-price-old">' + money(base) + '</s>' +
-      '<span class="v2-cat-price-sale">' + money(sale) + '</span>';
+  /* 价目表价格单元格（R16）：取消划线价与权益价，任何身份都只显示原价，
+     原价字色由 `.v2-cat-price` 统一给 #929292。
+     会员权益不再在价目表预告，只在结算页「权益」行参与折算。 */
+  function priceCellHtml(price) {
+    return money(Number(price) || 0);
   }
   function memberCardsHtml() {
     var list = memberCardList();
@@ -1037,8 +1004,7 @@
     var items = g === '全部'
       ? cat.items.slice()
       : cat.items.filter(function (it) { return it.g === g; });
-    /* 会员页价目表按「权益最优价」展示（划线原价 + 红色权益价）；散客页维持单色原价 */
-    var rate = (screenId === 's5') ? memberBestDiscountRate() : null;
+    /* R16：价目表不再展示权益最优价（划线原价 + 红价），散客 / 会员一律单色原价 */
     var list = items.map(function (it, idx) {
       var key = screenId + '_' + tab + '_' + g + '_' + idx;
       return '<div class="v2-cat-item" data-ikey="' + key + '" data-name="' +
@@ -1046,8 +1012,8 @@
         (tab === 'product' ? '1' : '0') + '" data-group="' + esc(it.g) + '">' +
         '<div class="v2-cat-main">' +
           '<div class="v2-cat-info"><div class="v2-cat-name">' + esc(it.name) +
-          '</div><div class="v2-cat-price' + (rate == null ? '' : ' has-sale') + '">' +
-          priceCellHtml(it.price, rate) + '</div></div>' +
+          '</div><div class="v2-cat-price">' +
+          priceCellHtml(it.price) + '</div></div>' +
           '<div class="v2-cat-right" data-right></div>' +
         '</div>' +
       '</div>';
@@ -1131,6 +1097,14 @@
     var q = sheetEl('asQty');
     var pay = sheetEl('asPayable');
     var grid = sheetEl('asStaffGrid');
+    var layout = sheetEl('asGrid');
+    var priceCell = sheetEl('asPriceCell');
+    var staffLabel = sheetEl('asStaffLabel');
+    /* R16：项目 sheet 删掉「数量」卡片 → 网格转单列、价格卡通栏；
+       产品 sheet 仍为「数量 + 价格」并排 */
+    if (layout) layout.classList.toggle('is-single', !draft.isProd);
+    if (priceCell) priceCell.classList.toggle('is-wide', !draft.isProd);
+    if (staffLabel) staffLabel.textContent = draft.isProd ? '销售人员' : '服务员工';
     if (t) t.textContent = draft.name;
     if (q) q.textContent = String(draft.qty);
     if (pay) {
@@ -1638,23 +1612,12 @@
       $all('.co-row', el).forEach(function (row) {
         var lbl = row.querySelector('.lbl');
         var t = lbl ? lbl.textContent : '';
-        /* 「服务员工」改为只读摘要，不可点不可编辑；「权益」行保持可点选 */
+        /* 「服务员工」改为可编辑热区（R16：右侧 › 打开「修改服务员工」sheet），
+           旧的只读降权（data-ro / 去 onclick）已移除；「权益」行保持可点选 */
         if (t.indexOf('服务员工') >= 0 || t.indexOf('选择员工') >= 0) {
-          row.setAttribute('data-ro', '1');
-          row.removeAttribute('onclick');
-          row.onclick = null;
+          if (!row.hasAttribute('data-staff-edit')) row.setAttribute('data-staff-edit', '1');
         }
         if (t.indexOf('开单内容') >= 0) row.style.display = 'none';
-      });
-      $all('.co-sum-row', el).forEach(function (row) {
-        if (row.classList.contains('pay')) return;
-        row.setAttribute('data-ro', '1');
-        row.removeAttribute('onclick');
-        var input = row.querySelector('input');
-        if (input) {
-          input.readOnly = true;
-          input.onfocus = function (ev) { ev.target.blur(); };
-        }
       });
     });
   }

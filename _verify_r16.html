@@ -1,0 +1,230 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<script>
+/* R16 验收：① 价目去划线价 ② 添加 sheet 布局/员工槽位选择 ③ s4 行常驻分段胶囊
+   ④ s6/s7 单项可改应付 + 可改服务员工、应付总价只读 ⑤ 挂单/去开单改名
+   ⑥ s15 操作组移到卡片下方 ⑦ s14 VIP 换红色图标 */
+var log = [];
+function P() { log.push(Array.prototype.slice.call(arguments).join(' ')); }
+var f = document.createElement('iframe');
+f.src = 'index.html?bust=' + Date.now();
+f.style.width = '390px'; f.style.height = '844px'; f.style.border = 'none';
+document.body.appendChild(f);
+var w, d, SC = 1;
+function q(s) { return d.querySelector(s); }
+function qa(s) { return Array.prototype.slice.call(d.querySelectorAll(s)); }
+function txt(s) { var e = q(s); return e ? e.textContent.replace(/\s+/g, '') : 'N/A'; }
+function cs(s, p) { var e = q(s); return e ? getComputedStyle(e)[p] : 'N/A'; }
+function has(s, c) { var e = q(s); return e ? e.classList.contains(c) : 'N/A'; }
+function n(s) { return qa(s).length; }
+function W(s, p) { var e = q(s); return e ? Math.round(e.getBoundingClientRect()[p] / SC) : NaN; }
+function vis() {
+  return qa('.screen').filter(function (s) { return getComputedStyle(s).display !== 'none'; })
+    .map(function (s) { return s.id; }).join(',');
+}
+function names() { return w.cartItems.map(function (i) { return i.name + 'x' + i.qty + '=' + i.actual; }).join('|'); }
+
+var steps = [];
+function S(fn) { steps.push(fn); }
+function next() {
+  if (!steps.length) return finish();
+  var fn = steps.shift();
+  try { fn(); } catch (e) { log.push('ERR ' + e.message); }
+  setTimeout(next, 240);
+}
+function finish() {
+  var pre = document.createElement('pre');
+  pre.textContent = log.join('\n');
+  document.body.appendChild(pre);
+}
+
+f.addEventListener('load', function () {
+  w = f.contentWindow; d = f.contentDocument;
+  w.addEventListener('error', function (e) { log.push('WINDOW-ERR ' + e.message); });
+  setTimeout(function () {
+    SC = (q('#s0') ? q('#s0').getBoundingClientRect().width : 390) / 390;
+    P('== 缩放系数 ' + SC.toFixed(3) + '（getBoundingClientRect 已按此换算回 390 逻辑宽）');
+    setTimeout(next, 400);
+  }, 400);
+
+  /* ===== A. 价目表去划线价（s1 散客 + s5 会员） ===== */
+  S(function () { w.setCust('guest'); w.go('s1'); });
+  S(function () {
+    P('A1 划线价元素数 s1', n('#s1 .v2-cat-price-old') + '/' + n('#s1 .v2-cat-price-sale') + '/' + n('#s1 s'));
+    P('A2 原价字色', cs('#s1 .v2-cat-item .v2-cat-price', 'color'), '文本=' + txt('#s1 .v2-cat-item .v2-cat-price'));
+  });
+  S(function () {
+    w.__v2Member = { name: '陈女士', gender: 'female', avatar: 'assets/avatar_card_female.png',
+      lastVisit: '2026-09-01', cards: '10', balance: '2049', discount: '8', isNew: false };
+    w.__v2MemberNoBenefit = false;
+    w.setCust('member'); w.go('s5');
+  });
+  S(function () {
+    P('A3 会员价目无划线价', n('#s5 .v2-cat-price-old') + '/' + n('#s5 .v2-cat-price-sale'));
+    P('A4 会员原价字色', cs('#s5 .v2-cat-item .v2-cat-price', 'color'), '文本=' + txt('#s5 .v2-cat-item .v2-cat-price'));
+  });
+
+  /* ===== B. 添加 sheet：应付→价格（元） + 项目删数量卡片 ===== */
+  S(function () { w.setCust('guest'); w.go('s1'); });
+  S(function () { q('#s1 .v2-cat-item .v2-add-btn').click(); });
+  S(function () {
+    P('B1 sheet 标题', txt('#asTitle'), '价格标签=' + txt('#asPriceCell .lbl'));
+    P('B2 grid 类', (q('#asGrid') || {}).className, '价格格类=' + ((q('#asPriceCell') || {}).className));
+    P('B3 数量卡片 display', cs('#asQtyCell', 'display'), '价格格宽=' + W('#asPriceCell', 'width') + '（通栏≈366）');
+    P('B4 价格默认值', (q('#asPayable') || {}).value);
+    q('#addSheetMask .addsheet__foot .btn-confirm').click();
+  });
+
+  /* ===== B2. 员工槽位选择 UI（4 行 + ＋ 槽位 + 选择页 + 落位） ===== */
+  S(function () { q('#s1 .v2-cat-item .v2-add-btn').click(); });
+  S(function () {
+    P('B5 槽位行数', n('#asStaffGrid .sp-row'),
+      '行名=' + qa('#asStaffGrid .sp-row .sp-row__lbl').map(function (e) { return e.textContent.trim(); }).join('/'));
+    P('B6 ＋槽位数', n('#asStaffGrid .sp-slot--add'));
+    q('#asStaffGrid .sp-row .sp-slot--add').click();
+  });
+  S(function () {
+    P('B7 选择页 picking=' + ((q('#asStaffGrid .sp-box') || {}).getAttribute ? q('#asStaffGrid .sp-box').getAttribute('data-picking') : '-'),
+      '标题=' + txt('#asStaffGrid .sp-picker__hd .t'), '卡片数=' + n('#asStaffGrid .sp-pick'));
+    q('#asStaffGrid .sp-pick').click();
+  });
+  S(function () {
+    P('B8 落位：已选卡片=' + n('#asStaffGrid .sp-slot:not(.sp-slot--add)') +
+      ' 回到槽位行=' + (q('#asStaffGrid .sp-box') || {}).getAttribute('data-picking') +
+      ' ＋槽位仍为=' + n('#asStaffGrid .sp-slot--add'));
+    var row = q('#asStaffGrid .sp-row');
+    P('B9 落位卡片名=' + (row ? row.textContent.replace(/\s+/g, '') : '-'));
+  });
+  /* 同一行再加 2 人 → 满 3 后 ＋ 槽位消失 */
+  S(function () { q('#asStaffGrid .sp-row .sp-slot--add').click(); });
+  S(function () { q('#asStaffGrid .sp-pick:not(.is-on):not(.is-full)').click(); });
+  S(function () { q('#asStaffGrid .sp-row .sp-slot--add').click(); });
+  S(function () { q('#asStaffGrid .sp-pick:not(.is-on):not(.is-full)').click(); });
+  S(function () {
+    P('B10 满 3 人后', '已选=' + n('#asStaffGrid .sp-row:first-child .sp-slot:not(.sp-slot--add)'),
+      '＋槽位=' + n('#asStaffGrid .sp-row:first-child .sp-slot--add'),
+      '选择页卡全满=' + n('#asStaffGrid .sp-pick.is-full'));
+    q('#addSheetMask .addsheet__foot .btn-confirm').click();
+  });
+
+  /* ===== C. s4：删最近消费 / 手机号下移 / 常驻分段胶囊 / 挂单(N) ===== */
+  S(function () { w.go('s4'); });
+  S(function () {
+    P('C1 最近消费残留', n('#s4 .pick-row .info .sub'), '手机号在 line2=' +
+      n('#s4 .pick-row .info .line2 .phone') + '/line1 残留=' + n('#s4 .pick-row .info .line1 .phone'));
+    P('C2 常驻分段胶囊行数', n('#s4 .pick-row-wrap .pick-row-actions'), '分段数=' + n('#s4 .pick-row-wrap .pick-seg'));
+    P('C3 旧折叠按钮', n('#s4 .pick-act'), '残留展开态=' + n('#s4 .pick-row-wrap.is-open'));
+    P('C4 标题栏入口', txt('#s4 .nav-hold'));
+    P('C5 主段底色/次段底色', cs('#s4 .pick-row-wrap .pick-seg--main', 'backgroundColor'),
+      '/', cs('#s4 .pick-row-wrap .pick-seg--sec', 'backgroundColor'));
+    var row = q('#s4 .pick-row-wrap .pick-row');
+    P('C6 行高=' + W('#s4 .pick-row-wrap .pick-row', 'height') +
+      ' 胶囊高=' + W('#s4 .pick-row-wrap .pick-row-actions', 'height') +
+      ' 胶囊右距=' + W('#s4 .pick-row-wrap .pick-row-actions', 'right').toString() +
+      '（列表右缘=' + W('#s4 .pick-list', 'right') + '）');
+  });
+  S(function () { q('#s4 .pick-row-wrap .pick-row').click(); });
+  S(function () { P('C7 点行本身无反应', n('#s4 .pick-row-wrap.is-open') + '/' + vis()); });
+  S(function () { q('#s4 .pick-row-wrap .pick-seg--sec').click(); });
+  S(function () { P('C8 点「收款」→', vis()); });
+  S(function () { w.go('s4'); q('#s4 .pick-row-wrap .pick-seg--main').click(); });
+  S(function () { P('C9 点「开单」→', vis()); });
+
+  /* ===== D. s14：VIP 红色图标 + 「去开单」 ===== */
+  S(function () { w.openHoldList(); });
+  S(function () {
+    P('D1 页面', vis(), '卡片数=' + n('#holdList .hold-card'));
+    var im = q('#holdList .hold-card .vip-img');
+    P('D2 VIP', 'vip-img=' + n('#holdList .hold-card .vip-img') + '/旧胶囊=' + n('#holdList .hold-card .vip'),
+      'src=' + (im ? im.getAttribute('src') : '-'),
+      '尺寸=' + (im ? cs('#holdList .hold-card .vip-img', 'width') + '×' + cs('#holdList .hold-card .vip-img', 'height') : '-'));
+    P('D3 对照开单页 VIP 尺寸', cs('#s5 .v2-ccard__vip', 'width') + '×' + cs('#s5 .v2-ccard__vip', 'height'));
+    P('D4 按钮文案', qa('#holdList .hold-card .btn-take').map(function (b) { return b.textContent.trim(); }).join('/'));
+  });
+
+  /* ===== E. s6：单项改应付 / 改服务员工 / 底栏只读 ===== */
+  S(function () { w.go('s1'); });
+  S(function () { q('#s1 .v2-cat-item .v2-add-btn').click(); });
+  S(function () { q('#addSheetMask .addsheet__foot .btn-confirm').click(); });
+  S(function () { q('#s1 [data-next="s1"]').click(); });
+  S(function () {
+    P('E1 页面', vis(), '明细=' + names(), '底栏=' + txt('#coPay'));
+    P('E2 应付行可编辑', n('#s6 .co-item [data-price-edit]'), '铅笔=' + n('#s6 .co-item .co-pen svg'));
+    P('E3 服务员工行可编辑', n('#s6 .co-item [data-staff-edit]'), '箭头=' +
+      cs('#s6 .co-item [data-staff-edit] .co-arr', 'display'));
+    P('E4 底栏应付', q('#coPayBox') ? q('#coPayBox').tagName : 'N/A',
+      '已改价标签=' + n('#coPayTag'), '锁价说明=' + n('#coLockNote'), 'coPayOverride=' + (typeof w.coPayOverride));
+  });
+  S(function () { q('#s6 .co-item [data-price-edit]').click(); });
+  S(function () {
+    P('E5 数字键盘 sheet', cs('#coPayMask', 'display'), '标题=' + txt('#coPaySheetTitle'), '提示=' + txt('#coPayEditPh'));
+    w.payEditKey('5'); w.payEditKey('0');
+    P('E6 缓冲=' + txt('#coPayEditNum'));
+    q('#coPayMask .k.is-ok').click();
+  });
+  S(function () {
+    P('E7 改价后', names(), '底栏=' + txt('#coPay'), 'toast=' + txt('#toast'));
+    P('E8 权益锁定', n('#s6 .co-item .is-benefit-locked'), txt('#s6 .co-item .is-benefit-locked .val'));
+  });
+  S(function () { q('#s6 .co-item [data-price-edit]').click(); });
+  S(function () { w.payEditKey('clear'); q('#coPayMask .k.is-ok').click(); });
+  S(function () { P('E9 清零＝恢复原价', names(), '权益锁定残留=' + n('#s6 .co-item .is-benefit-locked'), 'toast=' + txt('#toast')); });
+
+  /* 服务员工 sheet */
+  S(function () { q('#s6 .co-item [data-staff-edit]').click(); });
+  S(function () {
+    P('E10 员工 sheet', cs('#coStaffMask', 'display'), 'ctx=' + q('#coStaffGrid').getAttribute('data-ctx'),
+      '槽位行=' + n('#coStaffGrid .sp-row'),
+      '行名=' + qa('#coStaffGrid .sp-row .sp-row__lbl').map(function (e) { return e.textContent.trim(); }).join('/'));
+    q('#coStaffGrid .sp-row .sp-slot--add').click();
+  });
+  S(function () { P('E11 选择页', n('#coStaffGrid .sp-pick')); q('#coStaffGrid .sp-pick:not(.is-on)').click(); });
+  S(function () {
+    P('E12 落位后摘要行数', n('#s6 .co-item .co-staff-list .co-staff-line'));
+    q('#coStaffMask .addsheet__foot .btn-confirm').click();
+  });
+  S(function () { P('E13 sheet 关', cs('#coStaffMask', 'display')); });
+
+  /* ===== F. s7：同样可改 ===== */
+  S(function () { w.setCust('guest'); w.setQcoCust('guest'); w.go('s2'); w.goQuickCheckout(); });
+  S(function () {
+    P('F1 页面', vis(), '应付行=' + n('#s7 .co-item [data-price-edit]'),
+      '员工行=' + n('#s7 .co-item [data-staff-edit]'), '底栏=' + txt('#qcoPay'));
+    q('#s7 .co-item [data-price-edit]').click();
+  });
+  S(function () {
+    P('F2 sheet', cs('#coPayMask', 'display'), '标题=' + txt('#coPaySheetTitle'));
+    w.payEditKey('8'); w.payEditKey('8'); q('#coPayMask .k.is-ok').click();
+  });
+  S(function () { P('F3 改价后', '底栏=' + txt('#qcoPay'), 'discounted=' + (w.qcoItem && w.qcoItem.discounted), 'toast=' + txt('#toast')); });
+  S(function () { q('#s7 .co-item [data-staff-edit]').click(); });
+  S(function () {
+    P('F4 员工 sheet', cs('#coStaffMask', 'display'), 'ctx=' + q('#coStaffGrid').getAttribute('data-ctx'),
+      '槽位行=' + n('#coStaffGrid .sp-row'));
+    q('#coStaffMask .addsheet__foot .btn-confirm').click();
+  });
+
+  /* ===== G. s15：操作组移到卡片下方，4 等分，底栏 3 项 ===== */
+  S(function () { w.go('s1'); });
+  S(function () { q('#s1 .v2-cat-item .v2-add-btn').click(); });
+  S(function () { q('#addSheetMask .addsheet__foot .btn-confirm').click(); });
+  S(function () { q('#s1 [data-next="s1"]').click(); });
+  S(function () { q('#s6 .co-bar .btn-c').click(); });
+  S(function () {
+    P('G1 页面', vis(), '金额=' + txt('#sucAmt'));
+    var cb = q('#sucCard').getBoundingClientRect(), ab = q('#s15 .suc-acts').getBoundingClientRect();
+    P('G2 操作组在卡片下方', (ab.top >= cb.bottom - 1), '间距=' + Math.round((ab.top - cb.bottom) / SC) + 'px');
+    P('G3 操作组', n('#s15 .suc-act'), qa('#s15 .suc-act').map(function (b) { return b.textContent.trim(); }).join('/'));
+    P('G4 各格等分宽', qa('#s15 .suc-act').map(function (b) { return Math.round(b.getBoundingClientRect().width / SC); }).join('/'));
+    P('G5 底栏', qa('#s15 .suc-bar button').map(function (b) { return b.textContent.trim() || b.getAttribute('aria-label'); }).join('/'));
+    P('G6 卡片内字段行', qa('#s15 #sucCard .suc-row').map(function (r) { return r.textContent.replace(/\s+/g, ''); }).join(' / '));
+    P('G7 旧 suc-meta 残留', n('#s15 .suc-meta'));
+  });
+  S(function () { q('#s15 [data-suc-cust]').click(); });
+  S(function () { P('G8 客户详情', 'toast=' + txt('#toast'), '页面=' + vis()); });
+  S(function () { q('#s15 [data-suc-home]').click(); });
+  S(function () { P('G9 返回首页', vis()); });
+});
+</script>
+</body></html>

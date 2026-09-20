@@ -141,6 +141,65 @@ function start() {
     });
     return;
   }
+  /* R16：添加 sheet 内员工槽位行 → 点 ＋ 进入员工卡片选择页 */
+  if (v === 'staff') {
+    w.setCust('guest');
+    goto('s1', function () {
+      phase = 's1';
+      setTimeout(function () {
+        d.querySelector('#s1 .v2-add-btn').click();
+        phase = 'sheet';
+        waitFor(function () { return d.querySelector('#asStaffGrid .sp-slot--add'); }, function () {
+          setTimeout(function () {
+            d.querySelector('#asStaffGrid .sp-row .sp-slot--add').click();
+            phase = 'staff-pick';
+          }, 520);
+        });
+      }, 500);
+    });
+    return;
+  }
+  /* R16：s6 明细「应付」行 → 数字键盘 sheet */
+  if (v === 'co-price') {
+    toSettle(function () {
+      waitFor(function () { return d.querySelector('#s6 .co-item [data-price-edit]'); }, function () {
+        setTimeout(function () {
+          d.querySelector('#s6 .co-item [data-price-edit]').click();
+          phase = 'co-price';
+        }, 400);
+      });
+    });
+    return;
+  }
+  /* R16：s6 明细「服务员工」行 → 修改服务员工 sheet（槽位行） */
+  if (v === 'co-staff') {
+    toSettle(function () {
+      waitFor(function () { return d.querySelector('#s6 .co-item [data-staff-edit]'); }, function () {
+        setTimeout(function () {
+          d.querySelector('#s6 .co-item [data-staff-edit]').click();
+          phase = 'co-staff';
+        }, 400);
+      });
+    });
+    return;
+  }
+  /* R16：s6 明细「服务员工」sheet → 点 ＋ 进入员工卡片选择页 */
+  if (v === 'co-staff-pick') {
+    toSettle(function () {
+      waitFor(function () { return d.querySelector('#s6 .co-item [data-staff-edit]'); }, function () {
+        setTimeout(function () {
+          d.querySelector('#s6 .co-item [data-staff-edit]').click();
+          waitFor(function () { return d.querySelector('#coStaffGrid .sp-slot--add'); }, function () {
+            setTimeout(function () {
+              d.querySelector('#coStaffGrid .sp-row .sp-slot--add').click();
+              phase = 'co-staff-pick';
+            }, 520);
+          });
+        }, 400);
+      });
+    });
+    return;
+  }
   if (v === 's7') {
     setMember(); w.setCust('member'); w.setQcoCust('member');
     goto('s1', function () {
@@ -150,7 +209,31 @@ function start() {
     return;
   }
   if (v === 's6') { toSettle(function () {}); return; }
-  if (v === 's15') { toSettle(function () { d.querySelector('#s6 .co-bar .btn-c').click(); phase = 's15'; }); return; }
+  if (v === 's15') {
+    toSettle(function () {
+      d.querySelector('#s6 .co-bar .btn-c').click();
+      phase = 's15';
+      /* 无头虚拟时间下 rAF 计数 + 入场动效可能未跑完：
+         截图前把 s15 直接落到终态，保证截出的图就是用户看到的最终画面 */
+      setTimeout(function () {
+        try {
+          var el = d.getElementById('sucAmt');
+          var target = (w.sucInfo && w.sucInfo.amount) ? String(w.sucInfo.amount) : el.textContent;
+          /* 虚拟时间下 rAF 计数停在中途：用 MutationObserver 钉住终态金额 */
+          if (el) {
+            new MutationObserver(function () {
+              if (el.textContent !== target) el.textContent = target;
+            }).observe(el, { childList: true, characterData: true, subtree: true });
+            el.textContent = target;
+          }
+          d.querySelectorAll('#s15 .suc-head img, #s15 .suc-head .t, #s15 .suc-card, #s15 .suc-acts, #s15 .suc-bar')
+            .forEach(function (e) { e.style.animation = 'none'; e.style.opacity = '1'; e.style.transform = 'none'; });
+          phase = 's15-settled';
+        } catch (e) { phase = 's15-settleErr:' + e.message; }
+      }, 900);
+    });
+    return;
+  }
   /* 挂单成功 toast → 跳到挂单列表（保持 toast 常显便于截图） */
   if (v === 'hold-toast') {
     w.setCust('guest');

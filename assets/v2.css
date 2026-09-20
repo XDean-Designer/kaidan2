@@ -56,30 +56,39 @@
 .v2-home-tabs .ti.on { color: #F32F41; font-weight: 600; }
 .v2-home-tabs .ti .ic { display: block; font-size: 18px; line-height: 22px; margin-bottom: 2px; }
 
-/* —— 选顾客：取挂单入口已移至标题栏右侧（.nav-bar .nav-hold）—— */
+/* —— 选顾客：挂单列表入口在标题栏右侧（.nav-bar .nav-hold）—— */
 /* s4 底部 34px 安全区露出的底色跟随列表（白），避免出现灰色分带 */
 #s4 { background: #fff; }
 #s4 .pick-list { top: calc(var(--chrome-top, 97px) + 50px); }
 /* 搜索态：隐藏右侧 A-Z 索引条 */
 #s4 .pick-list.is-searching ~ .index-bar { display: none; }
 
-.pick-row-wrap { background: #fff; border-bottom: 1px solid #f5f5f5; }
-.pick-row-wrap .pick-row { border-bottom: 0; height: auto; min-height: 74px; }
+/* —— 顾客行 + 常驻操作区（R16）——
+   删除折叠区与整行点击：行本身无响应，右侧常驻一枚「开单 | 收款」分段胶囊。
+   左段实心红＝主（开单），右段白底红字＝次（收款），1px 分隔同一枚控件，两段各一次点击直达。 */
+.pick-row-wrap {
+  display: flex; align-items: center; gap: 10px;
+  padding-right: 12px;
+  background: #fff; border-bottom: 1px solid #f5f5f5;
+}
+.pick-row-wrap .pick-row {
+  width: auto; flex: 1; min-width: 0; height: auto; min-height: 74px;
+  border-bottom: 0; padding-right: 0;
+}
 .pick-row-actions {
-  display: none; padding: 12px 16px 12px 70px; gap: 10px; justify-content: flex-end;
+  flex: none; display: inline-flex; align-items: stretch; height: 32px;
+  border: 1px solid #F32F41; border-radius: 16px; overflow: hidden; background: #fff;
 }
-.pick-row-wrap.is-open .pick-row-actions { display: flex; }
-.pick-row-wrap.is-open,
-.pick-row-wrap.is-open .pick-row,
-.pick-row-wrap.is-open .pick-row-actions {
-  background: #EFF0FF !important;
+.pick-seg {
+  border: 0; background: #fff; color: #F32F41;
+  font-family: inherit; font-size: 13px; font-weight: 500; line-height: 1;
+  padding: 0 12px; cursor: pointer; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .14s ease, color .14s ease;
 }
-.pick-act {
-  height: 34px; min-width: 84px; padding: 0 14px; border-radius: 8px;
-  border: 0; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
-}
-.pick-act.bill { background: #F32F41; color: #fff; }
-.pick-act.quick { background: #FF8956; color: #fff; }
+.pick-seg.pick-seg--main { background: #F32F41; color: #fff; border-right: 1px solid #F32F41; }
+.pick-seg.pick-seg--main:active { background: #D9233A; }
+.pick-seg.pick-seg--sec:active { background: #FFF2F2; }
 
 /* —— 开单页：demo 结构（无会员卡/直接收款入口） —— */
 .v2-bill-body {
@@ -294,10 +303,7 @@
   font-family: var(--font-data); font-variant-numeric: tabular-nums;
 }
 .v2-cat-price .yen { font-size: 12px; font-weight: 500; line-height: 14px; margin-top: 2px; }
-/* 会员权益价：划线原价（12/400 灰）+ 权益价（15/700 红），与「直接收款」会员态同一口径 */
-.v2-cat-price.has-sale { gap: 8px; align-items: baseline; }
-.v2-cat-price-old { font-size: 12px; font-weight: 400; color: #B2B2B2; line-height: 18px; text-decoration: line-through; }
-.v2-cat-price-sale { color: #F32F41; }
+/* 会员权益价已取消（R16）：价目表只显示原价 #929292，划线价 / 红色权益价样式一并删除 */
 
 /* 空价目表提示（项目/产品都为空时显示，本期仅说明文案） */
 .v2-cat-empty {
@@ -459,17 +465,13 @@
 .co-item.v2-compact { padding: 0; }
 .co-item.v2-compact .co-thumb { display: none !important; }
 .co-item.v2-compact .co-emp-detail { display: none !important; }
-.co-item.v2-compact .co-sum-row input {
-  pointer-events: none; border: 0; background: transparent; width: 64px; color: inherit;
-}
-.co-item.v2-compact .co-sum-row .pen { display: none !important; }
-/* 仅「权益」行保留 ＞ 箭头（服务员工为只读摘要，无箭头） */
+/* R16：结算页每项可改「应付 / 服务员工」——
+   「权益」行与「服务员工」行保留 › 箭头；「应付」行走铅笔图标。 */
 .co-item.v2-compact .co-arr { display: none !important; }
 .co-item.v2-compact .co-row[data-benefit="1"] .co-arr { display: inline-flex !important; }
-.co-item.v2-compact .co-row[data-ro="1"] { pointer-events: none; opacity: .95; cursor: default; }
-.co-item.v2-compact .co-sum-row[data-ro="1"] { pointer-events: none; }
+.co-item.v2-compact .co-row[data-staff-edit="1"] .co-arr { display: inline-flex !important; }
 
-/* 结算页：服务员工只读摘要（每名员工一行：姓名 · 工位 · 顾客指定） */
+/* 结算页：服务员工摘要（每名员工一行：姓名 · 工位 · 顾客指定） */
 .co-staff-list { margin-left: auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 /* R13：宽度不再用固定 236px 上限，改为「能占多少占多少」
    —— 行内可用宽 = 390 - 左右内距 32 - 左标签「服务员工」56 = 302px。

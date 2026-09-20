@@ -1,0 +1,40 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<pre id="rep">pending</pre>
+<script>
+/* 无读图能力时的像素级校验：统计暗像素（文字/图标）与平均色，判断截图是否渲染完整 */
+var files = (new URLSearchParams(location.search).get('f') || '').split(',').filter(Boolean);
+var out = [];
+var i = 0;
+function done() {
+  document.getElementById('rep').textContent = out.join('\n');
+}
+function step() {
+  if (i >= files.length) return done();
+  var f = files[i++];
+  var img = new Image();
+  img.onload = function () {
+    var c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    var g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    var data = g.getImageData(0, 0, c.width, c.height).data;
+    var dark = 0, red = 0, n = 0, sr = 0, sg = 0, sb = 0;
+    for (var p = 0; p < data.length; p += 16) {   /* 每 4 像素采样一次 */
+      var r = data[p], gg = data[p + 1], b = data[p + 2];
+      n++; sr += r; sg += gg; sb += b;
+      if (r + gg + b < 240) dark++;
+      if (r > 180 && gg < 110 && b < 110) red++;
+    }
+    out.push(f + ' ' + c.width + 'x' + c.height +
+      ' 暗像素=' + dark + '/' + n + ' 红像素=' + red +
+      ' 均色=' + Math.round(sr / n) + ',' + Math.round(sg / n) + ',' + Math.round(sb / n));
+    step();
+  };
+  img.onerror = function () { out.push(f + ' LOAD-FAIL'); step(); };
+  img.src = f;
+}
+step();
+</script>
+</body></html>
