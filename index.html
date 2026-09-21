@@ -2003,20 +2003,29 @@
       #FBF5E3 79.087%, #FAF6EB 83.269%, #F9F7F1 87.452%, #F9F8F5 91.635%,
       #F8F8F7 95.817%, #F7F7F7 100%);
   }
+  /* R26：除底栏外整区滚动 —— 徽标 + 金额卡 + 操作组同属 .suc-scroll；仅 .suc-bar 固定 */
+  #s15 .suc-scroll {
+    position:absolute; left:0; right:0; top:0;
+    bottom:calc(64px + var(--safe-bottom));
+    z-index:2; overflow-x:hidden; overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    box-sizing:border-box;
+    padding:98px 16px 16px;
+  }
   /* 「开单成功」徽标行（页面唯一主标题）：对勾 22×22 + 18px Semibold */
   #s15 .suc-head {
-    position:absolute; left:0; top:98px; width:390px; height:26px; z-index:2;
+    position:relative; width:100%; height:26px; margin:0 0 14px;
     display:flex; align-items:center; justify-content:center; gap:10px;
   }
   #s15 .suc-head img { width:22px; height:22px; display:block; flex:none; }
   #s15 .suc-head .t { font-size:18px; font-weight:600; color:#1a1a1a; letter-spacing:.2px; }
   /* ③ 内容区操作组（R16 改版）：改日期 / 改单号 / 看流水 / 客户详情
      由「卡片上方一行」移到「金额卡下方」，4 等分白底托板，每格竖排「图标 + 文字」，
-     格间 0.5px 发丝竖线分隔 —— 与上方金额卡同一视觉族，但权重更低（无投影层级）。 */
+     格间 0.5px 发丝竖线分隔 —— 与上方金额卡同一视觉族，但权重更低（无投影层级）。
+     R26：不再单独滚动，随 .suc-scroll 一起滚。 */
   #s15 .suc-body {
-    position:absolute; left:16px; right:16px; top:138px;
-    bottom:calc(64px + var(--safe-bottom) + 16px);
-    z-index:2; display:flex; flex-direction:column; overflow-y:auto;
+    position:relative; left:auto; right:auto; top:auto; bottom:auto;
+    display:flex; flex-direction:column; overflow:visible;
   }
   #s15 .suc-acts {
     flex:none; margin-top:14px; height:62px;
@@ -3357,7 +3366,9 @@
       </div>
     </div>
     <div class="suc-bg" aria-hidden="true"></div>
-    <!-- 本页无标题栏：标题栏文案与「开单成功」徽标重复，已删除，避免双标题 -->
+    <!-- 本页无标题栏：标题栏文案与「开单成功」徽标重复，已删除，避免双标题
+         R26：徽标 + 金额卡 + 操作组同属 .suc-scroll，除底栏外整区滚动 -->
+    <div class="suc-scroll">
     <div class="suc-head">
       <img src="assets/suc_check.svg" alt="">
       <span class="t">开单成功</span>
@@ -3396,6 +3407,7 @@
       <button type="button" class="suc-act" data-suc-act="cust" data-suc-cust onclick="toast('查看客户详情')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6"/></svg>客户详情
       </button>
+    </div>
     </div>
     </div>
     <div class="suc-bar">
@@ -3723,21 +3735,7 @@
   }
   function pickChen() {
     setCust('member');
-    var prev = navStack[navStack.length - 2];
-    if (prev === 's6') {
-      setCoCust('member');
-      goBack();
-      renderCo();
-      return;
-    }
-    if (prev === 's7') {
-      setQcoCust('member');
-      goBack();
-      renderQco();
-      return;
-    }
-    if (prev === 's2' || prev === 's3') { goBack(); }
-    else { goBack(); go('s5'); }
+    returnFromCustPick('member');
   }
   // 选择男散客/女散客：切散客身份 + 更新性别头像，返回来源页
   function setGuestGender(g) {
@@ -3766,24 +3764,40 @@
   function toggleGuestGender() {
     go('s4');
   }
+  /* R26：从 s4 选完顾客后，若上一页是开单/结算/直接收款 → goBack 保留本单；
+     开单页身份翻转时落到对应页（s1↔s5），购物车不清空。权益按政策 A 重算。 */
+  function returnFromCustPick(type) {
+    var member = (type === 'member');
+    setCoCust(member ? 'member' : 'guest');
+    setQcoCust(member ? 'member' : 'guest');
+    if (typeof window.__v2RefreshBenefitsA === 'function') {
+      window.__v2RefreshBenefitsA(member ? 'member' : 'guest');
+    }
+    var prev = navStack[navStack.length - 2];
+    var billPages = { s1:1, s2:1, s3:1, s5:1, s6:1, s7:1 };
+    if (prev && billPages[prev]) {
+      goBack();
+      if (prev === 's1' || prev === 's5') {
+        var target = member ? 's5' : 's1';
+        if (prev !== target) {
+          if (navStack[navStack.length - 1] === prev) navStack[navStack.length - 1] = target;
+          activate(target);
+        }
+      } else if (prev === 's6') {
+        renderCo();
+      } else if (prev === 's7') {
+        renderQco();
+      }
+      return;
+    }
+    /* 首页 / 演示入口首次选客：先离开 s4，再进对应开单页 */
+    if (navStack[navStack.length - 1] === 's4') goBack();
+    go(member ? 's5' : 's1');
+  }
   function pickGuest(g) {
     setGuestGender(g);
     setCust('guest');
-    var prev = navStack[navStack.length - 2];
-    if (prev === 's6') {
-      setCoCust('guest');
-      goBack();
-      renderCo();
-      return;
-    }
-    if (prev === 's7') {
-      setQcoCust('guest');
-      goBack();
-      renderQco();
-      return;
-    }
-    if (prev === 's5') { go('s1'); }
-    else { goBack(); }
+    returnFromCustPick('guest');
   }
   setCust('guest');
 
@@ -6031,13 +6045,14 @@
     var noCard = it ? benPickNoCard() : false;
     if (noCard && benPickDraft !== 0) benPickDraft = 0;
     if (!benefitUsableFor(CARD_BENEFITS[benPickDraft], it)) benPickDraft = 0;
-    var idxs = noCard ? [0] : CARD_BENEFITS.map(function (b, i) { return i; });
+    /* R26：不适用权益直接隐藏（不再渲染 is-off）；演示态仍展示全部。优惠券 sheet 不动。 */
+    var idxs = noCard ? [0] : CARD_BENEFITS.map(function (b, i) { return i; })
+      .filter(function (i) { return !it || benefitUsableFor(CARD_BENEFITS[i], it); });
     el.innerHTML = idxs.map(function (i) {
       var b = CARD_BENEFITS[i];
       var on = (i === benPickDraft);
-      var usable = benefitUsableFor(b, it);
-      return '<div class="ben-row' + (usable ? (on ? ' is-on' : '') : ' is-off') + '"' +
-        (usable ? ' role="button" onclick="pickBenDraft(' + i + ')"' : ' aria-disabled="true"') + '>' +
+      return '<div class="ben-row' + (on ? ' is-on' : '') + '"' +
+        ' role="button" onclick="pickBenDraft(' + i + ')">' +
         '<span class="nm">' + escapeHtml(b.name) + '</span>' +
         '<span class="rd"><img src="assets/ic_radio_' + (on ? 'on' : 'off') + '.svg" alt=""></span>' +
         '</div>';

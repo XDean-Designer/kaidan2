@@ -363,6 +363,15 @@
 </ol>
 <p class="note">验收用例见 <b>10.3（309–330）</b>；<b>R17 见 10.4（331–342）</b>；<b>R18 见 10.5（343–352）</b>；<b>R19 见 10.6（353–364）</b>。</p>
 
+<p class="note"><b>R26 本轮变更摘要（2026-09-21）</b></p>
+<ol>
+  <li><b>s15 开单成功页滚动</b>：除底栏 <code>suc-bar</code> 外，<b>「开单成功」徽标 + 金额卡 + 操作组</b>同属 <code>.suc-scroll</code> 一起滚；徽标不再固定在视口顶部。</li>
+  <li><b>顶部顾客卡整卡进 s4 重选</b>：开单（s1/s5）、结算（s6/s7）、直接收款（s2/s3）顶部淡色卡<b>整卡可点</b>进 s4（折叠 chevron / 添加会员入口 / 持卡列表除外）；选完顾客 <code>goBack</code> 回到进入前那一页，<b>购物车明细 / 员工 / 数量 / 改价 / 优惠券一律保留</b>；开单页若散客⇄会员翻转则落到对应页（s1↔s5）且不清空购物车。</li>
+  <li><b>换顾客后权益政策 A</b>：明细 / 员工 / 改价保留；按新身份<b>重算权益</b>——散客清空全部权益；会员清空后由结算页重新自动匹配。优惠券过程数据保留。</li>
+  <li><b>「选择权益」sheet：不适用权益直接隐藏</b>（不再渲染 <code>is-off</code> 置灰行）；只留可用权益 +「不使用权益」。左侧导航演示态（无目标明细）仍展示全部。<b>优惠券 sheet 口径不动</b>（不满门槛仍置灰展示）。</li>
+  <li>验收用例见 Markdown 版 <b>§10.9（442–450）</b>。</li>
+</ol>
+
 <p class="note"><b>R25 本轮变更摘要（2026-09-21）</b></p>
 <ol>
 <li><b>s4 顾客卡：整卡按「竖线」二分热区</b>（<b>6.8</b>）：每行右侧的「开单 | 收款」不再要求精准点中两个小字，改为<b>一条贯穿整卡的分界</b> —— <b>竖线（<code>.pick-seg__div</code>，逻辑 x <code>309–310</code>）左侧的整卡任意位置 = 开单</b>；<b>竖线右侧到「收款」文字右缘（逻辑 x <code>360</code>）= 收款</b>；<b><code>360–390</code> 的 30px 留白为死区</b>（点了不触发任何动作，避免误触进收款）。实现：整行点击由父级 <code>.pick-row-wrap</code> 统一接管（<code>pickSegAction()</code> 按 <code>e.clientX</code> 分派 <code>bill / quick</code>），<b>两段文字退化为纯视觉</b>（不再各自挂 <code>onclick</code>）→ 不存在「点空白没反应」或「双重触发」。<b>按下反馈</b>：整卡 iOS 浅灰 <code>#F7F7F8</code>（<code>.pick-row-wrap:active</code>，<code>.14s ease</code>），两段文字仍各自 <code>opacity:.5</code>；整卡 <code>cursor:pointer</code>。<b>行高 / 行内距 / 索引条避让与 R17 完全一致</b>（实测竖线 309–310、收款右缘 360、卡右缘 390）。</li>
@@ -450,7 +459,7 @@
 </ol>
 <table>
   <tr><th>字段</th><th>内容</th></tr>
-  <tr><td>文档版本</td><td>v2.0-draft（R24 · 2026-09-21）</td></tr>
+  <tr><td>文档版本</td><td>v2.0-draft（R26 · 2026-09-21；s15 整区滚动 / 整卡重选顾客 / 不适用权益隐藏）</td></tr>
   <tr><td>日期</td><td>2026-09-21</td></tr>
   <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code></td></tr>
   <tr><td>画布</td><td>390 × 844</td></tr>
@@ -1072,7 +1081,7 @@
     <ul>
       <li><b>只对绑定项目可用的权益</b>：<b>次卡类（<code>计次卡抵扣</code>）与固定金额类（<code>固定金额98元（美发卡3000元）</code>）</b> —— 仅当当前明细的<b>项目名在绑定清单内</b>时可选中，<b>其余项目 / 产品一律置灰不可选</b>；<b>折扣卡 / 储值卡演示为全场通用</b>（不置灰）。<b>R11：<code>套餐卡抵扣</code>（绑定 烫发 / 染发）、<code>周期卡抵扣</code>（绑定 洗剪吹 / 时尚洗吹）同为次卡类，适用性规则一致。</b></li>
       <li><b>演示绑定</b>（常量 <code>BENEFIT_SCOPE</code>）：<code>计次卡抵扣</code> → <b>洗剪吹、时尚造型</b>；<code>固定金额98元（美发卡3000元）</code> → <b>洗剪吹</b>。</li>
-      <li><b>置灰样式（R10 修订）</b>：名称 <code>#B2B2B2</code> + <b>单选圈不透明 45%</b> + 行底 <code>#FAFAFA</code>；<b>整行不可点</b>（无 <code>onclick</code>、<code>aria-disabled="true"</code>），点击<b>不改变选中态、不关闭 sheet</b>。<b>R10：行尾不再显示「不适用」灰标签</b>（不可用只靠置灰表达，行内更干净）。</li>
+      <li><b>隐藏口径（R26）</b>：不适用行<b>不渲染</b>（DOM 中无对应 <code>.ben-row</code>，不再有 <code>is-off</code>）；<b>优惠券 sheet 仍按原口径置灰展示</b>，本条不波及。R9/R10 的「置灰不可选」口径对本 sheet <b>作废</b>。</li>
       <li><b>散客 / 无卡顾客</b>：列表<b>只保留「不使用权益」一行</b>（不显示任何卡权益，<b>不显示空态说明文案</b>）。</li>
       <li><b>回落保护</b>：打开本 sheet 时若当前权益对当前明细<b>不适用</b>（或身份为散客 / 无卡），自动回落为「不使用权益」。</li>
     </ul>
@@ -2436,6 +2445,18 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
 <li><b>静息态外观不变 · 选择页矩形完整包住后层（R25 再补）</b>：<b>Given</b> 选择页停稳（<code>data-picking="1"</code> + <code>.is-picking</code>），<b>Then</b> 选择页矩形 <code>[12, 260] 366 × 469</code> <b>完整包住</b>价格卡 <code>[12, 260] 366 × 56</code>、标签行、白卡（366 宽）与灰卡（342 宽）：余量 上 <b>0</b> / 左 <b>0</b> / 右 <b>0</b> / 下 <b>≥ 18px</b>；<b>And</b> 后层仍 <code>visible</code>、底色不变 —— <b>只被盖住，不靠隐藏</b>；<b>And</b> 与旧实现的静息态像素差 = <b>23px（占取样区 0.04%）</b>（仅选择页 12px 圆角处的抗锯齿）。</li>
 <li><b>本轮回归口径（R25 再补）</b>：<b>Then</b> 无头浏览器 harness <b>90 条全部通过</b>（含覆盖式移入「底面不动」断言）；<b>And</b> 原型与 PRD 中作为<b>现行实现</b>的「价格 / 数量卡或标签行 <code>visibility:hidden</code>」「白卡 / 灰卡 <code>background: transparent</code>」<b>0 命中</b>（仅保留注释里的历史说明）；<b>And</b> ≤ 5 人紧凑形态、s6 / s7 / s2 / s3 四类宿主的既有断言全部保持通过（无回归）。</li>
 <li><b>覆盖式移入 · 底面横向不动、仅顶面移入 / 移出（R25 三补）</b>：<b>Given</b> 添加项目 sheet（&gt; 5 人）进出选择页各采样一次，<b>Then</b> 进入动画段选择页 <code>left</code> 跨度 <b>&gt; 300px</b>、槽位行面 <code>left</code> 跨度 <b>&lt; 1.2px</b>；返回同理；<b>And</b> <code>.sp-face--pick</code> 的 <code>z-index</code> &gt; <code>.sp-face--rows</code> 且自带不透明灰底 <code>#FAFAFA</code>；<b>And</b> <code>spFacePush()</code> 兜底<b>只动画顶面</b>（不再给槽位行播 <code>translateX(-100%)</code>）。</li>
+</ol>
+<h3>10.9 R26 验收用例（442–450）</h3>
+<ol start="442">
+  <li><b>Given</b> s15 且内容足够高，<b>When</b> 滚动 <code>.suc-scroll</code>，<b>Then</b> 「开单成功」徽标与金额卡、操作组一起上移；<code>.suc-bar</code> 位置不变。DOM 中 <code>.suc-head</code> / <code>.suc-body</code> 均为 <code>.suc-scroll</code> 子节点。</li>
+  <li><b>Given</b> s1（或 s5）顶部淡色顾客卡，<b>When</b> 点击卡面（非 chevron / 非添加会员），<b>Then</b> 进 s4；再选顾客后回到进入前开单页（身份翻转时 s1↔s5），购物车明细保留。</li>
+  <li><b>Given</b> s6 已有明细 + 优惠券，<b>When</b> 点顶部顾客卡 → s4 → 选另一顾客，<b>Then</b> 回到 s6；明细 / 员工 / 改价 / 优惠券均保留。</li>
+  <li><b>Given</b> s2（或 s3），<b>When</b> 点顶部顾客卡 → s4 → 选顾客，<b>Then</b> <code>goBack</code> 回 s2/s3，过程数据保留。</li>
+  <li><b>Given</b> s6 会员态明细挂着自动匹配折扣，<b>When</b> 换为散客，<b>Then</b> 权益按政策 A 清空/回落，不得仍挂会员折扣卡名。</li>
+  <li><b>Given</b> s6 散客态有明细，<b>When</b> 换为会员，<b>Then</b> 未改价明细按新会员重新自动匹配最优可用权益。</li>
+  <li><b>Given</b> 明细为「时尚造型」，打开「选择权益」sheet，<b>Then</b> DOM 中不存在「固定金额98元」对应 <code>.ben-row</code>；无 <code>.ben-row.is-off</code>；可用权益仍可见。</li>
+  <li><b>Given</b> 订单金额不满某券门槛，打开「选择优惠券」sheet，<b>Then</b> 该券卡仍以 <code>is-off</code> 置灰展示（不隐藏）。</li>
+  <li><b>Given</b> 左侧导航「12 选择权益」（无目标明细），<b>Then</b> 列出全部权益行，无隐藏、无置灰。</li>
 </ol>
 <h3>10.7 R20–R24 验收用例（365–414）</h3>
 <ol start="365">

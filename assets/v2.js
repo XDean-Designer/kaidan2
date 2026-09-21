@@ -337,6 +337,26 @@
       setMemberProfile(nm, g, pickListAvatar(nm), false);
       if (window.setCust) window.setCust('member');
     }
+    /* R26：从开单 / 结算 / 直接收款进 s4 重选 → 回上一页并保留本单（忽略「开单|收款」） */
+    var stack = window.navStack;
+    var prev = (stack && stack.length >= 2) ? stack[stack.length - 2] : null;
+    var reselect = { s1:1, s2:1, s3:1, s5:1, s6:1, s7:1 };
+    if (prev && reselect[prev]) {
+      if (typeof window.returnFromCustPick === 'function') {
+        window.returnFromCustPick(kind === 'guest' ? 'guest' : 'member');
+      } else if (window.goBack) {
+        window.goBack();
+      }
+      paintMemberCards();
+      syncGuestLite(currentGuestG());
+      if (prev === 's1' || prev === 's5') {
+        var billId = (kind === 'guest') ? 's1' : 's5';
+        setTimeout(function () { rebuildBill(billId); }, 30);
+      } else if (prev === 's2' || prev === 's3' || prev === 's6' || prev === 's7') {
+        setTimeout(function () { replaceLegacyCustomerCards(); }, 30);
+      }
+      return;
+    }
     var sid = kind === 'guest' ? 's1' : 's5';
     if (act === 'quick') {
       /* 直接收款：会员卡与散客卡都要按最新档案渲染 */
@@ -699,12 +719,22 @@
     go('s4');
   }
 
+  /* R26：整张顶部顾客卡可点进 s4（折叠 chevron / 添加会员 / 持卡展开控件除外） */
+  function isCcardExemptTarget(t) {
+    if (!t || !t.closest) return false;
+    return !!t.closest(
+      '[data-ccard-toggle], [data-addmem-toggle], [data-addmem-panel],' +
+      '.v2-ccard__chev, .v2-ccard__addmem, .fold-btn, .v2-ccard__cards'
+    );
+  }
+
   function wireCcard(root) {
     if (!root) return;
-    var av = root.querySelector('.v2-ccard__avatar');
-    var info = root.querySelector('.v2-ccard__info');
-    if (av) av.onclick = goPickCustomer;
-    if (info) info.onclick = goPickCustomer;
+    root.style.cursor = 'pointer';
+    root.onclick = function (e) {
+      if (isCcardExemptTarget(e.target)) return;
+      goPickCustomer(e);
+    };
     var chev = root.querySelector('[data-ccard-toggle]');
     if (chev) {
       chev.onclick = function (e) {
@@ -821,6 +851,26 @@
     if (id === 's6' && window.renderCo) window.renderCo();
     if (id === 's7' && window.renderQco) window.renderQco();
   }
+
+  /* R26 政策 A：换顾客后按新身份重算权益 —— 散客清空全部权益；会员清空后由结算页重新自动匹配。
+     明细 / 员工 / 改价 / 优惠券过程数据保留。 */
+  function refreshBenefitsPolicyA(type) {
+    function wipe(it) {
+      if (!it || it.discounted) return;
+      it.benefit = null;
+      it._benefitCleared = false;
+      it._benefitAuto = false;
+    }
+    (window.cartItems || []).forEach(wipe);
+    if (window.qcoItem) wipe(window.qcoItem);
+    window.__lastCoCust = null;
+    window.__lastQcoCust = null;
+    var active = document.querySelector('.screen.active');
+    var id = active ? active.id : '';
+    if (id === 's6' && window.renderCo) window.renderCo();
+    if (id === 's7' && window.renderQco) window.renderQco();
+  }
+  window.__v2RefreshBenefitsA = refreshBenefitsPolicyA;
 
   /* 注册为会员：写入档案 + 切会员身份 + 全端重绘顶部卡 */
   function registerCardMember(display, phone, gender) {
@@ -1650,7 +1700,16 @@
   function patchNav() {
     if (window.navStack) window.navStack = ['s0'];
     if (typeof window.activate === 'function') window.activate('s0');
-    window.pickGuest = function (g) { applyPick('guest', g, 'bill'); };
+    /* R26：散客 / 会员选择统一走 returnFromCustPick（保留本单 / 政策 A） */
+    window.pickGuest = function (g) {
+      if (window.setGuestGender) window.setGuestGender(g);
+      if (window.setCust) window.setCust('guest');
+      if (typeof window.returnFromCustPick === 'function') window.returnFromCustPick('guest');
+    };
+    window.pickChen = function () {
+      if (window.setCust) window.setCust('member');
+      if (typeof window.returnFromCustPick === 'function') window.returnFromCustPick('member');
+    };
   }
 
   function onGoHook() {
