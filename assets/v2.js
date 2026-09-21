@@ -165,7 +165,18 @@
      R16：删除折叠区与整行点击 —— 顾客行本身不响应点击，
      右侧常驻一枚控件，左段「开单」为主、右段「收款」为次，两段各自一次点击直达。
      R17：控件由「实心红分段胶囊」改为 iOS 列表语言的「纯文字 + 发丝竖线」
-     （开单 = #F32F41 13/600，收款 = #8E8E93 13/500，中间 .pick-seg__div 1px 竖线）。 */
+     （开单 = #F32F41 13/600，收款 = #8E8E93 13/500，中间 .pick-seg__div 1px 竖线）。
+     R25：热区改为「整卡二分」—— 以那条 1px 竖线为分界，左侧（卡左缘 → 竖线）全部是开单、
+     右侧（竖线 → 「收款」右缘）全部是收款；控件本身不再各自计热区，点击统一由 wrap 判定。 */
+  function pickSegAction(x, div, sec) {
+    var d = div && div.getBoundingClientRect ? div.getBoundingClientRect() : null;
+    if (!d || !d.width) return 'bill';                 /* 量不到竖线（尚未布局）：整卡按开单 */
+    if (x < d.right) return 'bill';                    /* 竖线左侧：卡左缘 / 头像 / 姓名 / 手机号 / 「开单」两字 */
+    var s = sec && sec.getBoundingClientRect ? sec.getBoundingClientRect() : null;
+    if (!s) return 'quick';
+    return x <= s.right ? 'quick' : null;              /* 竖线右侧＝收款；「收款」右缘外 30px 留白＝死区 */
+  }
+
   function wrapOnePickRow(row) {
     if (!row) return null;
     if (row.parentNode && row.parentNode.classList &&
@@ -192,11 +203,15 @@
       '<button type="button" class="pick-seg pick-seg--main" data-a="bill">开单</button>' +
       '<span class="pick-seg__div" aria-hidden="true"></span>' +
       '<button type="button" class="pick-seg pick-seg--sec" data-a="quick" aria-label="直接收款">收款</button>';
-    actions.onclick = function (e) {
-      var b = e.target.closest('[data-a]');
-      if (!b) return;
+    /* R25：两段控件只保留视觉与自身按压反馈（.pick-seg:active），点击一律冒泡到整卡 wrap 上，
+       由竖线做二分判定 —— 左侧＝开单、右侧＝收款，右下 30px 留白＝死区。 */
+    var segDiv = actions.querySelector('.pick-seg__div');
+    var segSec = actions.querySelector('.pick-seg--sec');
+    wrap.onclick = function (e) {
+      var act = pickSegAction(e.clientX, segDiv, segSec);
+      if (!act) return;
       e.stopPropagation();
-      applyPick(kind, key, b.getAttribute('data-a'), nm, row.getAttribute('data-gender') || '');
+      applyPick(kind, key, act, nm, row.getAttribute('data-gender') || '');
     };
     wrap.setAttribute('data-kind', kind);
     wrap.setAttribute('data-nm', nm);
