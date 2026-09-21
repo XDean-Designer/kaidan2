@@ -1259,29 +1259,31 @@
 
   .staff-embed { position: relative; }
 
-  .sp-box { position: relative; }
-
-
-
-  /* 两层「面」：槽位行 / 选择页。用 max-height + opacity + scale 做 iOS 式 morph */
-
-  .sp-face {
-
-    overflow: hidden;
-
-    transition: opacity .2s ease, transform .28s cubic-bezier(.32,.72,0,1),
-
-      max-height .3s cubic-bezier(.32,.72,0,1);
-
+  /* R24：槽位行 ⇄ 选择页 改为「iOS 全幅推入」切换（此前是 max-height + opacity + scale 的折叠 morph）。
+     ① 两层「面」绝对定位叠放（top/left/right 0，高度自然撑开），位移只走 translateX；
+     ② 容器高度由 JS 实测两面高度驱动（--sp-rows-h / --sp-pick-h → --sp-box-h），与位移同一拍
+        （.34s / cubic-bezier(.32,.72,0,1)）；
+     ③ 「滑出容器」的那一层由 .sp-box{overflow:hidden} 裁掉 —— 进入时选择页从右侧推入、
+        返回时原路从右侧退出，两页位移幅度都是 100%（全幅推入，中途零重叠、不依赖不透明白底）；
+     ④ 位移只作用于 .sp-box 这一块：sheet 标题栏、页脚按钮、宿主本身都不参与位移动画
+        （推入不作用于标题栏）；「数量 / 价格」卡的收起见下方 .is-picking 规则，与推入同一拍。
+        注：添加 sheet 是底锚（bottom:0）+ 高度贴合内容 —— 容器长高时整条 sheet 的顶边会跟着上移，
+        实测标题栏纵移量 == sheet 长高量（无额外动画），这是底锚 sheet 的既有行为，不是推入带来的。
+     （≤ 5 人的紧凑形态不渲染 .sp-box，本节规则与它无关。） */
+  .sp-box {
+    position: relative; overflow: hidden;
+    height: var(--sp-box-h, 0);
+    transition: height .34s cubic-bezier(.32,.72,0,1);
   }
-
-  .sp-face--rows { max-height: 440px; opacity: 1; transform: none; }
-
-  .sp-face--pick { max-height: 0; opacity: 0; transform: scale(.985); pointer-events: none; }
-
-  .sp-box[data-picking="1"] .sp-face--rows { max-height: 0; opacity: 0; transform: scale(.985); pointer-events: none; }
-
-  .sp-box[data-picking="1"] .sp-face--pick { max-height: var(--sp-pick-h, 560px); opacity: 1; transform: none; pointer-events: auto; }
+  .sp-face {
+    position: absolute; top: 0; left: 0; right: 0;
+    overflow: hidden;
+    transition: transform .34s cubic-bezier(.32,.72,0,1);
+  }
+  .sp-face--rows { transform: translateX(0); }
+  .sp-face--pick { transform: translateX(100%); pointer-events: none; }
+  .sp-box[data-picking="1"] .sp-face--rows { transform: translateX(-100%); pointer-events: none; }
+  .sp-box[data-picking="1"] .sp-face--pick { transform: translateX(0); pointer-events: auto; }
 
 
 
@@ -1528,17 +1530,32 @@
     100% { transform: scale(1); }
   }
 
-  /* —— R20：选择页（>5 人）高度自适应 & 焦点收拢 ——
-     ① 选择页高度由内容决定（渲染后实测写入 --sp-pick-h），4 行卡（12 人）不再被 560px 提前截断；
-     ② 进入选择页时隐藏「价格（元）」卡，sheet 只留「员工」一件事，腾出的高度全部给卡片；
-     ③ sheet 上限 85% → 92%（仅抬上限，高度仍由内容决定）。 */
+  /* —— R20 / R24：选择页（>5 人）高度自适应 & 焦点收拢 ——
+     ① 选择页高度由内容决定（渲染后实测写入 --sp-pick-h，见 spMeasureBox），4 行卡（12 人）不再被
+        560px 提前截断；
+     ② 进入选择页时「价格（元）」卡隐藏，sheet 只留「员工」一件事，腾出的高度全部给卡片；
+     ③ R24：产品 sheet 的「数量」卡同样隐藏（与项目 sheet 对齐）—— 数量 + 价格 + 网格一起折叠掉；
+     ④ R24：这个「隐藏」必须是 fold 而不是 display:none —— 卡片消失会让 sheet 内容瞬间矮 81px、
+        顶边先下跳再随选择页推入涨回去（实测 85px 下跳 + 242px 回升的抖一下）。改成同拍折叠
+        （max-height 76 → 0 / margin-top 12 → 0 / opacity → 0，.34s 同曲线），顶边就只剩一条
+        顺滑的单向位移：进入上行 78px、返回下行 78px。
+        上限 76px 的依据：实测槽位行态 #asGrid 高 —— 产品 sheet（数量 + 价格两列）71px、
+        项目 sheet（价格通栏 is-wide）56px；两个格子的 min-height 分别是 66 / 56。
+     ⑤ sheet 上限 85% → 92%（仅抬上限，高度仍由内容决定）。 */
   .sp-pick-inner { display: block; }
   #addSheetMask .addsheet.is-picking { max-height: 92%; }
-  #addSheetMask .addsheet.is-picking #asPriceCell { display: none; }
+  #addSheetMask .addsheet #asGrid {
+    max-height: 76px; overflow: hidden;
+    transition: max-height .34s cubic-bezier(.32,.72,0,1), margin-top .34s cubic-bezier(.32,.72,0,1),
+      opacity .24s ease;
+  }
+  #addSheetMask .addsheet.is-picking #asGrid {
+    max-height: 0; margin-top: 0; opacity: 0; pointer-events: none;
+  }
 
   @media (prefers-reduced-motion: reduce) {
 
-    .sp-face, .sp-slot, .sp-pick, .sp-card { transition: none !important; }
+    .sp-face, .sp-slot, .sp-pick, .sp-card, .sp-box, #addSheetMask .addsheet #asGrid { transition: none !important; }
 
     .sp-slot.is-land, .sp-card.is-land { animation: none !important; }
 
@@ -3819,6 +3836,7 @@
     panel.classList.toggle('is-cards', spSmallStaff());
     renderStaffInto(panel);
     panel.classList.add('open');
+    spMeasureHost(panel.id);           /* R24：宿主刚可见，重量一次容器高度 */
     var top = (row.offsetTop + row.offsetHeight + 8);
     panel.style.top = top + 'px';
     var arr = row.querySelector('.opt .arr');
@@ -4023,6 +4041,7 @@
     var gridRoot = document.getElementById('asStaffGrid');
     if (gridRoot) renderStaffInto(gridRoot);
     openMask('addSheetMask');
+    spMeasureHost('asStaffGrid');      /* R24：宿主刚可见，重量一次容器高度 */
   }
 
   /* R20：关闭「设置内容」sheet 的统一出口 —— 顺带退出员工扩编演示态 */
@@ -4634,18 +4653,29 @@
 
 
 
-  function renderStaffPickerHtml() {
+  function renderStaffPickerHtml(forcePicking) {
 
     ensureStaffState();
 
     if (spSmallStaff()) return spCardsHtml();
-    return '<div class="sp-box" data-picking="' + (spPickRow ? '1' : '0') + '"' +
+    /* R24：进入选择页时先渲染在「槽位行」态（data-picking="0"），下一帧再翻成 "1" ——
+       否则新节点一出生就是终态、CSS 过渡不会播（旧实现正是如此，观感等于瞬切）。
+       forcePicking=true 表示「本来就在选择页里重绘」（如选择页内点卡取消该行分配），直接渲染终态。 */
+    var picking = (spPickRow && forcePicking) ? '1' : '0';
+    /* 每次重绘都会重建 .sp-box（新元素）。若把高度留给「插入后 JS 再写」，浏览器会把
+       「出生高度 0 → 实测高度」当成一次真实变化播出来（实测：重绘后容器从 0 爬到 281，
+       340ms 的展开动画），所以这里用上一次实测值把新容器直接生在正确高度上。 */
+    var initH = (picking === '1') ? spLastPickH : spLastRowsH;
+    var boxStyle = (initH > 0)
+      ? ' style="--sp-rows-h:' + (spLastRowsH || 0) + 'px;--sp-pick-h:' + (spLastPickH || 0) + 'px;--sp-box-h:' + initH + 'px"'
+      : '';
+    return '<div class="sp-box"' + boxStyle + ' data-picking="' + picking + '"' +
 
         (spPickRow ? ' data-pick-row="' + escapeHtml(spPickRow) + '"' : '') + '>' +
 
-        '<div class="sp-face sp-face--rows">' + spRowsHtml() + '</div>' +
+        '<div class="sp-face sp-face--rows" aria-hidden="' + (picking === '1' ? 'true' : 'false') + '">' + spRowsHtml() + '</div>' +
 
-        '<div class="sp-face sp-face--pick" aria-hidden="' + (spPickRow ? 'false' : 'true') + '"><div class="sp-pick-inner">' + spPickHtml() + '</div></div>' +
+        '<div class="sp-face sp-face--pick" aria-hidden="' + (picking === '1' ? 'false' : 'true') + '"><div class="sp-pick-inner">' + spPickHtml() + '</div></div>' +
 
       '</div>';
 
@@ -4668,7 +4698,15 @@
 
     spActiveRoot = root;
 
-    root.innerHTML = row ? renderStaffPickerHtmlForRow(row) : renderStaffPickerHtml();
+    /* R24：重绘前先读旧 DOM 处在哪一面 —— 已在选择页里（data-picking="1"）就直接渲染终态，
+       避免「选择页内点卡取消分配」这类重绘把进入动效又播一遍。 */
+    var prevBox = root.querySelector ? root.querySelector('.sp-box') : null;
+    var stayPicking = !!(prevBox && prevBox.getAttribute('data-picking') === '1');
+
+    spDropFaceROs();          /* 旧容器即将重建：先收起它的 ResizeObserver */
+    spCancelLeave();          /* 本次重绘接管落点：作废尚未执行的「退出后重绘」 */
+
+    root.innerHTML = row ? renderStaffPickerHtmlForRow(row, stayPicking) : renderStaffPickerHtml(stayPicking);
 
     afterStaffPickerPaint(root);
 
@@ -4676,34 +4714,145 @@
 
   }
 
-  /* R20：宿主（添加 sheet / 结算 sheet / 直接收款面板）在重绘后的同步：
-     ① 添加 sheet：进入选择页时隐藏「价格（元）」卡（.is-picking）；
-     ② 选择页高度按内容自适应 —— 渲染后实测内容高写入 --sp-pick-h，
-        4 行卡（12 人）也能完整展开、不被原来固定的 560px 截断。 */
+  /* R20 / R24：宿主（添加 sheet / s6 员工 sheet / s2·s3 直接收款面板）在重绘后的同步：
+     ① 添加 sheet：进入选择页时隐藏「价格（元）+ 数量」卡（.is-picking）；
+     ② 选择页高度按内容自适应 —— 渲染后实测写入 --sp-pick-h，4 行卡（12 人）完整展开；
+     ③ R24：两层「面」绝对定位后，容器高度必须由实测决定（spMeasureBox）；
+     ④ R24：若本次要进选择页，则在下一帧翻 data-picking（spEnterPick）——「初始态」与「目标态」
+        分两帧写，CSS 过渡才有起点可播。 */
   function syncStaffHostState(root) {
     var box = root.querySelector ? root.querySelector('.sp-box') : null;
     var mask = (root.closest && root.closest('.addsheet-mask')) || null;
     if (mask && mask.id === 'addSheetMask') {
       var sheet = mask.querySelector('.addsheet');
-      if (sheet) sheet.classList.toggle('is-picking', !!spPickRow);
+      /* R24：「折叠价格 / 数量卡」必须与推入同一拍 —— 进入时延到 spEnterPick 翻页那一刻再加，
+         否则卡片会先于推入折叠（sheet 顶边先抖一下）；返回时由 spLeavePick 立刻摘掉，同拍。 */
+      var entering = !!(spPickRow && box && box.getAttribute('data-picking') !== '1');
+      if (sheet && !entering) sheet.classList.toggle('is-picking', !!spPickRow);
     }
     if (!box) return;
-    if (spPickRow) {
-      var inner = box.querySelector('.sp-pick-inner');
-      var h = inner ? inner.offsetHeight : 0;
-      if (h > 0) box.style.setProperty('--sp-pick-h', h + 'px');
-    } else {
-      box.style.removeProperty('--sp-pick-h');
-    }
+    spSnapBox(box);                                    /* 新容器先禁高度过渡，避免「0 → 展开」 */
+    spMeasureBox(box);                                 /* --sp-rows-h / --sp-pick-h / --sp-box-h */
+    spObserveBox(box);                                 /* 宿主可见性 / 尺寸变化时重量 */
+    if (spPickRow && box.getAttribute('data-picking') !== '1') spEnterPick(box);
   }
 
-  function renderStaffPickerHtmlForRow(row) {
+  /* ===== R24：选择页「iOS 全幅推入」（从右侧进 / 原路从右侧出）=====
+     时长与 .sp-face / .sp-box 的 CSS 过渡一致（.34s）。 */
+  var SP_FACE_MS = 340;
+  var spLeaveTimer = 0;
+  var spFaceROs = [];
+  var spLastRowsH = 0, spLastPickH = 0;   /* 上一次实测的两面高度（见 renderStaffPickerHtml 的 boxStyle） */
+
+  /* 两层「面」绝对定位后 .sp-box 的高度只能实测；量到 0（宿主 display:none / 尚未布局）就跳过，
+     等 ResizeObserver 或「宿主打开」时再量，绝不把可用高度写成 0。 */
+  function spMeasureBox(box) {
+    if (!box) return;
+    var rows = box.querySelector('.sp-face--rows');
+    var pick = box.querySelector('.sp-face--pick');
+    var rh = rows ? rows.offsetHeight : 0;
+    var ph = pick ? pick.offsetHeight : 0;
+    if (rh > 0) { box.style.setProperty('--sp-rows-h', rh + 'px'); spLastRowsH = rh; }
+    if (ph > 0) { box.style.setProperty('--sp-pick-h', ph + 'px'); spLastPickH = ph; }
+    var h = box.getAttribute('data-picking') === '1' ? ph : rh;
+    if (h > 0) box.style.setProperty('--sp-box-h', h + 'px');
+  }
+
+  /* 新建容器的那一帧先禁掉高度过渡（避免「0 → 实测高度」被播成展开动效），下一帧恢复；
+     恢复之后才允许 spEnterPick 改高度 → 那一刻才是真正要播的推入动画。 */
+  function spSnapBox(box) {
+    box.style.transition = 'none';
+    window.requestAnimationFrame(function () {
+      if (box.isConnected) box.style.transition = '';
+    });
+  }
+
+  /* 宿主打开后（display:none → block）必须重量一次：那一刻 layout 已经可用，
+     直接读 offsetHeight 就能拿到真实高度，不用等 ResizeObserver 的下一拍。 */
+  function spMeasureHost(id) {
+    var el = document.getElementById(id);
+    var box = el ? el.querySelector('.sp-box') : null;
+    if (box) spMeasureBox(box);
+  }
+
+  function spDropFaceROs() {
+    for (var i = 0; i < spFaceROs.length; i++) {
+      try { spFaceROs[i].disconnect(); } catch (e) {}
+    }
+    spFaceROs = [];
+  }
+
+  function spObserveBox(box) {
+    if (!box || typeof ResizeObserver !== 'function') return;
+    spDropFaceROs();
+    var ro = new ResizeObserver(function () { spMeasureBox(box); });
+    var faces = box.querySelectorAll('.sp-face');
+    for (var i = 0; i < faces.length; i++) ro.observe(faces[i]);
+    spFaceROs.push(ro);
+  }
+
+  /* 进入：本帧渲染的是「槽位行」态，下一帧翻 data-picking → 选择页从右 100% 推入、
+     槽位行左移 100%，容器高度同拍长到选择页高度。 */
+  function spEnterPick(box) {
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(function () {
+        if (!box.isConnected || !spPickRow) return;
+        if (box.getAttribute('data-picking') === '1') return;
+        var ph = parseFloat(box.style.getPropertyValue('--sp-pick-h')) || 0;
+        if (ph <= 0) {
+          var pf = box.querySelector('.sp-face--pick');
+          ph = pf ? pf.offsetHeight : 0;            /* 宿主刚可见时的兜底重量 */
+        }
+        box.setAttribute('data-picking', '1');
+        if (ph > 0) box.style.setProperty('--sp-box-h', ph + 'px');
+        /* 同一帧折叠「价格 / 数量」卡：与推入合起来只剩一条单向的 sheet 顶边位移 */
+        var addMask = box.closest ? box.closest('.addsheet-mask') : null;
+        var addSheet = (addMask && addMask.id === 'addSheetMask') ? addMask.querySelector('.addsheet') : null;
+        if (addSheet) addSheet.classList.add('is-picking');
+        var r = box.querySelector('.sp-face--rows');
+        var p = box.querySelector('.sp-face--pick');
+        if (r) r.setAttribute('aria-hidden', 'true');
+        if (p) p.setAttribute('aria-hidden', 'false');
+      });
+    });
+  }
+
+  function spCancelLeave() {
+    if (spLeaveTimer) { window.clearTimeout(spLeaveTimer); spLeaveTimer = 0; }
+  }
+
+  /* 返回：先翻回「槽位行」态（选择页原路从右侧移出、槽位行从左侧回来），滑完再重绘数据 ——
+     落位卡片的弹跳动效在重绘那一刻播（与 iOS 返回一致：先回上一页，再更新内容）。 */
+  function spLeavePick(root, ctx) {
+    var box = root.querySelector ? root.querySelector('.sp-box') : null;
+    if (box) {
+      var rows = box.querySelector('.sp-face--rows');
+      var rh = rows ? rows.offsetHeight : 0;
+      box.setAttribute('data-picking', '0');
+      if (rh > 0) box.style.setProperty('--sp-box-h', rh + 'px');
+      var r = box.querySelector('.sp-face--rows');
+      var p = box.querySelector('.sp-face--pick');
+      if (r) r.setAttribute('aria-hidden', 'false');
+      if (p) p.setAttribute('aria-hidden', 'true');
+    }
+    /* 同一帧把「价格 / 数量」卡放回来：与滑出合起来只剩一条单向的 sheet 顶边位移 */
+    var hostMask = root.closest ? root.closest('.addsheet-mask') : null;
+    var hostSheet = (hostMask && hostMask.id === 'addSheetMask') ? hostMask.querySelector('.addsheet') : null;
+    if (hostSheet) hostSheet.classList.remove('is-picking');
+    spCancelLeave();
+    spLeaveTimer = window.setTimeout(function () {
+      spLeaveTimer = 0;
+      spRepaint(root, ctx);
+    }, SP_FACE_MS);
+  }
+
+  function renderStaffPickerHtmlForRow(row, forcePicking) {
 
     var saved = staffRow;
 
     staffRow = row;
 
-    var html = renderStaffPickerHtml();
+    var html = renderStaffPickerHtml(forcePicking);
 
     staffRow = saved;
 
@@ -4837,7 +4986,7 @@
 
       spPickRow = null;
 
-      spRepaint(root, ctx);
+      spLeavePick(root, ctx);        /* R24：先播「选择页从右侧移出」，滑完再重绘 */
 
       return;
 
@@ -4890,7 +5039,7 @@
 
         spHaptic();
 
-        spRepaint(root, ctx);
+        spLeavePick(root, ctx);        /* R24：先播「选择页从右侧移出」，滑完再重绘（落位弹跳此刻播） */
 
       }
 
@@ -5561,6 +5710,7 @@
     if (typeof renderStaffInto === 'function') renderStaffInto(grid, it.staff);
     var m = document.getElementById('coStaffMask');
     if (m) m.classList.add('show');
+    spMeasureHost('coStaffGrid');      /* R24：宿主刚可见，重量一次容器高度 */
   }
   function closeCoItemStaffSheet() {
     var m = document.getElementById('coStaffMask');
