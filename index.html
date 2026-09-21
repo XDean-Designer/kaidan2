@@ -1263,10 +1263,11 @@
   /* R24：槽位行 ⇄ 选择页 改为「iOS 全幅推入」切换（此前是 max-height + opacity + scale 的折叠 morph）。
      ① 两层「面」绝对定位叠放（top/left/right 0），位移只走 translateX；
      ② 「滑出容器」的那一层由 .sp-box{overflow:hidden} 裁掉 —— 进入时选择页从右侧推入、
-        返回时原路从右侧退出，两页位移幅度都是 100%（全幅推入，中途零重叠、不依赖不透明白底）；
+        返回时原路从右侧退出，两页位移幅度都是 100%（全幅推入，中途零重叠）；
      ③ 位移只作用于 .sp-box 这一块：sheet 标题栏、页脚按钮、宿主本身都不参与位移动画
-        （推入不作用于标题栏）；「数量 / 价格」卡的隐藏见下方 .is-picking 规则
-        （R25 补：由「同拍折叠」改为「被选择页覆盖」，两态下纵向位移都是 0）。
+        （推入不作用于标题栏）；「数量 / 价格」卡与「服务员工」标签行见下方 .is-picking 规则
+        （R25 补：由「同拍折叠」改为「被选择页覆盖」；R25 再补：后层不隐藏、不改底色，
+         全程保持完整可见，只由不透明选择页盖住 —— 两态下纵向位移都是 0）。
      R25：容器高度始终等于「槽位行」态的高度（--sp-box-h）——选择页态由 .is-picking 规则
         向上 / 左右 / 向下扩成「覆盖几何」（另见 --sp-rise / --sp-inset / --sp-extra，
         外边距反向抵消 → 版式零变化），于是进出选择页时 sheet 的外高与顶边零位移、零抖动；
@@ -1552,6 +1553,8 @@
      ① 选择页不再被固定 560px 提前截断（R20 起由实测决定；R25 改「锁定槽位行高度」，见 ⑥）；
      ② 进入选择页时「价格（元）」卡隐藏，sheet 只留「员工」一件事，腾出的高度全部给卡片；
      ③ R24：产品 sheet 的「数量」卡同样隐藏（与项目 sheet 对齐）—— 数量 + 价格 + 网格一起折叠掉；
+        ⚠ ②③④ 是 R20 / R24 的旧决策，R25 起已作废：现在**既不再折叠、也不再隐藏**，
+        改为由不透明的选择页整幅覆盖（见下方「R25 补 / R25 再补」两段）。
      ④ R24：这个「隐藏」必须是 fold 而不是 display:none —— 卡片消失会让 sheet 内容瞬间矮 81px、
         顶边先下跳再随选择页推入涨回去（实测 85px 下跳 + 242px 回升的抖一下）。改成同拍折叠
         （max-height 76 → 0 / margin-top 12 → 0 / opacity → 0，.34s 同曲线），顶边就只剩一条
@@ -1567,10 +1570,18 @@
        · .sp-box（推入视口）向上扩 --sp-rise、左右各扩 --sp-inset（＝与价格卡同宽 366）、
          向下多盖 --sp-extra（白卡 / 灰卡的下内距）；同时 margin-bottom 反向抵消
          → 外边距盒高不变 → 版式零变化，sheet 外高与下方所有元素都不动；
-       · 选择页自带灰底（#FAFAFA + 12px 圆角）把被隐藏的价格卡与标签行逐帧盖住 —— 白卡宽 342 → 366；
+       · 选择页自带不透明灰底（#FAFAFA + 12px 圆角、矩形与价格卡完全重合）把后层整幅盖住；
        · .sp-face--rows 用同一组 rise / inset 反向偏移 → 槽位行原地不动。
-     于是进出两向都只剩纯粹的横向位移（纵向 0.00px），价格卡是「被推入页盖住」而不是瞬移消失。
-     （--sp-rise / --sp-inset / --sp-extra 由 spPrepPickRegion 在翻页前实测写入。） */
+     于是进出两向都只剩纯粹的横向位移（纵向 0.00px）。
+
+     R25 再补（本轮）：后层**一律不隐藏、不改底色** —— 只由不透明的选择页去盖。
+     旧实现（"#asGrid / 标签行 visibility:hidden + 白卡 / 灰卡背景转透明"）在「翻页那一帧」就把后层
+     抹掉，而选择页此时还完全在视口外、要 340ms 才滑到位：这段窗口里那块区域没有任何东西可画，
+     于是「价格（元）/ 数量」卡与「服务员工」标签行先整块消失、再随推入逐帧出现（返回时相反：
+     选择页滑走的全程后层都是空的，滑完才一起跳回来）。逐帧像素实测（取样价格卡左半矩形）：
+     翻页帧非白像素 1875 → 0、标准差 31.5 → 0；返回段连续多帧恒为 0。
+     改成「不隐藏」后，后层全程是完整的上一页，前层（选择页）整体滑入 / 滑出并把它盖住 ——
+     恒为「完整的两层页面」，且静息态外观与旧实现像素级一致（选择页矩形本就完全包住价格卡与白卡）。 */
   #addSheetMask .addsheet.is-picking .sp-box {
     margin-top: calc(-1 * var(--sp-rise, 0px));
     margin-left: calc(-1 * var(--sp-inset, 0px));
@@ -1584,11 +1595,12 @@
     right: var(--sp-inset, 0px);
   }
   #addSheetMask .addsheet.is-picking .sp-face--pick { background: #FAFAFA; border-radius: 12px; }
-  #addSheetMask .addsheet.is-picking .addsheet-staff-embed,
-  #addSheetMask .addsheet.is-picking .staff-embed { background: transparent; }
+  /* R25 再补：后层不做任何隐藏 / 透明处理，只保留「被盖住时点不到」——
+     ① 选择页那张不透明灰底负责整幅覆盖（矩形 = 价格卡矩形，向下多 18px，白卡 366 宽也全包住）；
+     ② pointer-events:none 只影响命中测试，不影响绘制，所以后层在推入 / 移出全程始终完整可见。 */
   #addSheetMask .addsheet.is-picking #asGrid,
   #addSheetMask .addsheet.is-picking .addsheet-staff-embed .staff-embed__head {
-    visibility: hidden; pointer-events: none;
+    pointer-events: none;
   }
 
   /* R25：添加 sheet 的「高度锁定」——
@@ -1601,8 +1613,9 @@
   /* R25：选择页两段式 —— 「选择XX / 取消」在滚动区之外（天然吸顶），只有卡片网格滚。 */
   .sp-pick-inner { display: flex; flex-direction: column; height: 100%; min-height: 0; }
   #addSheetMask .addsheet.is-picking { max-height: 92%; }
-  /* R25 补：价格 / 数量卡在推入期间只「被选择页盖住」（属性和显隐规则见上方 .is-picking 组），
-     不再折叠 → 它占的高度一动不动 → 推入方向恒为水平。 */
+  /* R25 补：价格 / 数量卡与「服务员工」标签行在推入期间只「被选择页盖住」，
+     既不再折叠、也不再隐藏 / 变透明（覆盖规则见上方 .is-picking 组）
+     → 它们占的位置、显隐、底色全程一动不动 → 推入方向恒为水平、后层全程完整。 */
 
   @media (prefers-reduced-motion: reduce) {
 
@@ -4788,7 +4801,9 @@
   }
 
   /* R20 / R24 / R25：宿主（添加 sheet / s6 员工 sheet / s2·s3 直接收款面板）在重绘后的同步：
-     ① 添加 sheet：进入选择页时隐藏「价格（元）+ 数量」卡（.is-picking；R25 补：改为被选择页覆盖）；
+     ① 添加 sheet：进入选择页时给 sheet 挂 .is-picking —— R25 起它只负责「把选择页的不透明灰底
+        扩成覆盖几何 + 让被盖住的价格卡 / 标签行点不到」，不再隐藏、不再折叠、不再改底色
+        （R25 再补：见下方 .is-picking 组注释 —— 隐藏会让后层在推入 / 移出期间出现空白带）；
      ② R25：视口高度始终等于「槽位行」态（选择页态另扩成覆盖几何，见 spPrepPickRegion）
         —— 版式零变化，进出选择页时 sheet 外高与顶边零位移；
      ③ R24：两层「面」绝对定位后，容器高度必须由实测决定（spMeasureBox）；
@@ -4958,7 +4973,8 @@
         box.setAttribute('data-picking', '1');
         if (rh > 0) box.style.setProperty('--sp-box-h', rh + 'px');
         /* 同一帧把 sheet 定死在上方那个外高（.is-sp-lock + --sp-sheet-h），并给 sheet 挂 .is-picking
-           （价格 / 数量卡与标签行转由选择页覆盖，不再折叠 → 版式零变化、纵向零位移）。 */
+           （价格 / 数量卡与标签行改由不透明的选择页整幅盖住 —— 不折叠、不隐藏 → 版式零变化、
+           纵向零位移，后层在推入全程始终完整可见）。 */
         var addMask = box.closest ? box.closest('.addsheet-mask') : null;
         var addSheet = (addMask && addMask.id === 'addSheetMask') ? addMask.querySelector('.addsheet') : null;
         if (addSheet) { spLockSheet(); addSheet.classList.add('is-picking'); }
