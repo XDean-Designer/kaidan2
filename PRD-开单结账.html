@@ -371,7 +371,8 @@
 <li><b>&gt; 5 人：选择页删掉「服务员工」白卡，灰卡成为内容区</b>（<b>6.11.10 D</b>）：选择页态下白卡内距归零（12 → 0）+ 标签行高度归零（24 → 0），灰卡（「选择XX」+ 取消 + 卡片网格）宽 <b>342 → 366px</b>（吃满整行）成为唯一内容区。两处都用<b>可插值属性</b>（<code>padding / max-height / margin-bottom</code>）随 <b>.34s 同曲线</b>收起，<b>不用 <code>display:none</code></b>；返回时同拍还原。<b>只作用于添加 sheet</b> —— s6 / s7「修改服务员工」sheet 与 s2 / s3 面板本就没有白卡。</li>
 <li><b>&gt; 5 人：选择页「选择XX / 取消」吸顶，只有卡片网格滚动</b>（<b>6.11.10 D</b>）：<code>.sp-picker__hd</code> 在滚动区之外（<code>flex:none</code>），<code>.sp-picker__grid</code> 独占剩余空间（<code>flex:1 1 auto; min-height:0; overflow-y:auto</code> + <code>overscroll-behavior:contain</code>）。12 人（4 行卡）时网格 <b>415px</b>、内容 <b>415px</b> —— <b>不溢出、不滚动</b>；注入 3 倍卡片强行溢出后实测 <b>标题行位移 0.00px、卡片滚动 −150px</b>，且<b>滚动过程中 sheet 与容器高度都不动</b>。</li>
 <li><b>范围与实测</b>：高度锁定覆盖 <b>4 类宿主 / 5 个入口</b>（添加项目 sheet 647 → 647px、添加产品 sheet 662 → 662px、s6「修改服务员工」sheet 519 → 519px、s2 / s3 直接收款面板 355 → 355px），进出选择页外高<b>均零位移</b>；产品 sheet 的「数量 + 价格」整体折叠（71 → 0）；无头浏览器 <b>R25 共 48 项断言全通过</b>（含 s4 二分热区的 4 个左侧点 / 2 个右侧点 / 1 个死区点、返回后自动摘锁、选择页内重绘仍锁定、溢出注入下的吸顶滚动、≤ 5 人紧凑形态回归）。</li>
-<li><b>PRD 同步范围</b>：<b>6.8</b>、<b>6.9</b>、<b>6.11.1</b>、<b>6.11.7</b>、<b>6.11.9</b>、<b>6.11.10 新增 D</b>、模块 <b>10.8 新增 415–430</b>。</li>
+<li><b>推入必播（无障碍豁免 + JS 兜底）</b>：<code>.sp-face</code> 从 <code>@media (prefers-reduced-motion: reduce)</code> 的过渡关闭列表里<b>移除</b> ——「槽位行 ⇄ 选择页」的横向推入是<b>导航级主转场</b>（R24 起的核心评审对象），系统开「减少动态效果」时若被压成硬切，评审端就完全看不到「从右侧水平移入」；装饰性动效（落位弹跳 / 勾选绘制 / 卡面过渡 / 网格折叠）<b>仍按无障碍偏好关闭</b>。另加一层 JS 兜底 <code>spFacePush()</code>：过渡时长若被环境压成 <code>0s</code>，用 <b>WAAPI</b> 按同样 <b>.34s / <code>cubic-bezier(.32,.72,0,1)</code></b> 补播同一段推入。见 <b>6.11.10 E</b>。</li>
+<li><b>PRD 同步范围</b>：<b>6.8</b>、<b>6.9</b>、<b>6.11.1</b>、<b>6.11.7</b>、<b>6.11.9</b>、<b>6.11.10 新增 D / E</b>、模块 <b>10.8 新增 415–432</b>。</li>
 </ol>
 <p class="note"><b>R24 本轮变更摘要（2026-09-21）</b></p>
 <ol>
@@ -1220,7 +1221,7 @@
   <tr><td>sheet 外高</td><td><b>R25 起为「锁定」</b>：进入的同一帧给 <code>.addsheet</code> 加 <code>.is-sp-lock</code>，<code>height: var(--sp-sheet-h)</code>（＝进入前那一刻的实测外高，实测 <b>647px</b>）定死；内容区用 flex 吃掉「价格 / 数量卡折叠 + 白卡内距归零 + 标签行收起」释放的高度 → <b>外高与顶边全程零位移</b>；返回动画播完（340ms）才摘锁</td></tr>
   <tr><td>落位帧序</td><td>进入时<b>先渲染槽位行态（<code>data-picking="0"</code>）→ 下一帧才翻 <code>"1"</code></b>（否则新节点一出生就是终态、CSS 过渡不会播）；新 <code>.sp-box</code> 用 <code>spLastRowsH</code> 直接生在正确高度（两态同高）—— 宿主打开时<b>不会出现「0 → 实测高度」的展开动效</b></td></tr>
   <tr><td>遮挡 / 点击</td><td>停框外的那一层由 <code>.sp-box{overflow:hidden}</code> 裁掉，并 <code>pointer-events:none</code>（实测：进入后槽位行面 <code>none</code> / 选择页面 <code>auto</code>）</td></tr>
-  <tr><td>无头环境</td><td>视口 <code>prefers-reduced-motion: reduce</code> 下 <code>.sp-face / .sp-box / #asGrid</code> 过渡关闭，直接落定</td></tr>
+  <tr><td>无障碍 / 兜底</td><td><b>R25 补</b>：<code>prefers-reduced-motion: reduce</code> 下 <b>本行豁免</b>（推入是导航级主转场，仍播 .34s）；过渡若被环境压成 <code>0s</code>，由 <code>spFacePush()</code> 用 WAAPI 补播同一段，见 <b>E</b></td></tr>
 </table>
 <p><b>B. 覆盖范围（4 类宿主 / 5 个入口，逐一实测）</b></p>
 <table>
@@ -1259,6 +1260,14 @@
   <li><b>覆盖实测</b>（4 类宿主 / 5 个入口，进出双向）：添加项目 sheet（<b>647 → 647px</b>）、添加产品 sheet（<b>662 → 662px</b>，且「数量 + 价格」整体折叠 71 → 0）、s6「修改员工」sheet（<b>519 → 519px</b>）、s2 / s3 直接收款面板（<b>355 → 355px</b>）—— <b>全部零位移</b>。</li>
   <li><b>选人落位与选择页内重绘</b>：选择页内点卡落位 → 自动回到槽位行（高度不变 647 → 647px、锁在同一帧摘掉、<code>#asGrid</code> 与白卡随动画还原）；选择页内点<b>已选</b>卡移出（重绘、仍留在选择页）→ 高度仍锁定、灰卡仍 <b>366px</b>。</li>
   <li><b>被本修订作废的口径</b>：6.11.9 C② 的「高度自适应」、本章 B 表的「高度 281→442 / Δy = sheet 长高量」、<b>10.7 的 #380 / #405 / #406 / #413</b> —— 均以本节为准（见 <b>10.8</b> 的 415–430）。</li>
+</ul>
+
+<p><b>E. 推入必播（R25 补：无障碍豁免 + WAAPI 兜底）</b></p>
+<ul>
+  <li><b>豁免</b>：<code>.sp-face</code> 已从 <code>@media (prefers-reduced-motion: reduce)</code> 的 <code>transition: none !important</code> 列表里<b>移除</b> —— 横向推入是本原型的<b>导航级主转场</b>（R24 起的核心评审对象），系统「减少动态效果」打开时若被压成硬切，评审端会以为「点击槽位后选择页没有动」；其余装饰性动效（<code>.sp-slot / .sp-pick / .sp-card / .sp-box / #asGrid</code> 过渡、落位弹跳）<b>仍照关</b>。实测：<code>prefers-reduced-motion: reduce</code> 下 <code>.sp-face</code> 的 <code>transition-duration</code> 仍为 <b>0.34s</b>，进入 <code>translateX 322 → 0</code> 之间有 <b>34 个中间帧</b>。</li>
+  <li><b>兜底</b>：<code>spFacePush(box, dir)</code> 每次翻面后检测一次过渡时长 —— 正常环境（<b>0.34s</b>）<b>直接返回、不插手</b>；一旦被压成 <b>0s</b>（系统设置 / 内嵌 webview 动效开关 / 其它覆盖），用 <b>WAAPI</b> 播同一段：进入 = 槽位行 <code>0 → −100%</code>、选择页 <code>+100% → 0</code>，返回反之；<code>fill:none</code> 收尾与 class 静态度重合，<b>不与 CSS 过渡叠加</b>。实测强行 <code>transition: none</code> 后仍 <code>322 → 0</code>、<b>34 个中间帧</b>，<code>getAnimations()</code> 由 0 → 1。</li>
+  <li><b>自检</b>：加载时若命中 <code>prefers-reduced-motion: reduce</code>，控制台留一行 <code>[原型提示]</code>，说明「哪些动效被关、主转场已豁免」，便于评审端自查为什么某些动效看不到。</li>
+  <li><b>回归</b>：4 类宿主 / 5 个入口的推入全部实测在播（位移 = 容器宽：添加项目 / 添加产品 322、s6 sheet 346、s2 面板 338）；正常环境<b>不调用 WAAPI</b>，故与 R24 位移口径、R25 高度锁定口径<b>完全一致</b>。</li>
 </ul>
 
 <h3>6.12 底部工具栏 <span class="badge-new">本期变更</span></h3>
@@ -2326,7 +2335,7 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
 </ol>
 
 <p class="note"><b>R22 / R23 说明：</b>本节 <b>#370 / #372 / #383</b> 三条中关于紧凑卡「右上角勾选控件」的表述已按 <b>R23 改写</b> —— R21 删勾标（会压字）→ R23 以「控件挂在卡右上角外侧、三态常驻同一坐标」<b>加回</b>，判定口径由「<b>没有</b> <code>.sp-card__tick</code>」反转为「<b>有</b>、三态都常驻、且与姓名 / 职位不相交」；R22 的三态色值以 <b>385–390</b> 为准，R23 的勾选控件与行间距以 <b>391–400</b> 为准。<b>R24 说明</b>：<b>#397</b> 中 &gt; 5 人槽位形态的行间距已按 R24 口径校正为 <b>21.0px</b>（原 20.5px 系选择页态带 <code>scale(.985)</code> 时测得）；<b>&gt; 5 人「槽位行 ⇄ 选择页」的切换动效</b>（#379–381 里「morph / <code>max-height</code> 收起」的表述）<b>已整体改写为 iOS 全幅推入</b>（#402–408），产品 sheet 的「数量」隐藏见 <b>#410–412</b>，本模块新增 <b>401–414</b>。</p>
-<p class="note"><b>R25 说明：</b><b>#380 / #405 / #406 / #413</b> 四条里「选择页高度自适应 / 容器高度同拍插值 / 12 张卡全部可见且 sheet 不滚动」的表述<b>已按 R25 改写为「高度锁定 + 内容区内部滚动」</b> —— sheet 外高 = 上一页那一刻的高度、容器两态同值 <b>337px</b>、白卡删除后灰卡 <b>366px</b>、只有卡片网格滚；<b>&gt; 5 人槽位行</b>也从「标签 + 槽位同行」改为 <b>「标题一行 + 槽位一行」</b>；s4 顾客卡的点击方式见 <b>415–418</b>，本模块新增 <b>10.8（415–430）</b>。</p>
+<p class="note"><b>R25 说明：</b><b>#380 / #405 / #406 / #413</b> 四条里「选择页高度自适应 / 容器高度同拍插值 / 12 张卡全部可见且 sheet 不滚动」的表述<b>已按 R25 改写为「高度锁定 + 内容区内部滚动」</b> —— sheet 外高 = 上一页那一刻的高度、容器两态同值 <b>337px</b>、白卡删除后灰卡 <b>366px</b>、只有卡片网格滚；<b>&gt; 5 人槽位行</b>也从「标签 + 槽位同行」改为 <b>「标题一行 + 槽位一行」</b>；s4 顾客卡的点击方式见 <b>415–418</b>，本模块新增 <b>10.8（415–432）</b>。</p>
 <p class="note"><b>R18 说明：</b>本节 <b>#315</b>（删「最多 3 人」）、<b>#335</b>（顾客指定回主文字色）两条已按 R18 改写，另见 <b>10.5（343–352）</b>。</p>
 
 <p class="note"><b>R17 说明：</b>本节第 <b>#281 / #282 / #301 / #322</b> 四条已按 R17 改写（打印小票入口由「卡内右上角图标」改为「卡片底部整行」）；s4 相关条目里「分段胶囊 / 左段实心红」的表述以 <b>6.8</b> 与 <b>10.4（331–334）</b> 为准。</p>
@@ -2358,7 +2367,7 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
   <li><b>Given</b> s6/s7 明细「服务员工」行，<b>When</b> 点击，<b>Then</b> 打开「修改服务员工」sheet（4 行槽位、<code>data-ctx</code> 为 <code>co</code> / <code>qco</code>）；落位员工后<b>摘要即时更新且金额不变</b>。</li>
   <li><b>Given</b> s7 明细，<b>When</b> 查看「应付」行，<b>Then</b> <b>同样可编辑</b>（R16 前为只读），改价规则与 s6 一致。</li>
 </ol>
-<h3>10.8 R25 验收用例（415–430）</h3>
+<h3>10.8 R25 验收用例（415–432）</h3>
 <ol start="415">
 <li><b>Given</b> s4 任一顾客行（散客 / 会员；「添加会员」行除外），<b>Then</b> 行的点击由父级 <code>.pick-row-wrap</code> 接管（<code>cursor:pointer</code>、<code>-webkit-tap-highlight-color:transparent</code>），两段文字（<code>.pick-seg--main / --sec</code>）<b>不再各自挂 <code>onclick</code></b>；<b>And</b> 实测竖线 <code>.pick-seg__div</code> 的 <b>left = 309.0 / right = 310.0</b>、收款段 <b>right = 360.0</b>、卡右缘 <b>390.0</b>（与 R17 完全一致）。</li>
 <li><b>Given</b> 点击竖线<b>左侧</b>的 x（实测 <b>60 / 200 / 280 / 305</b>，含头像区、姓名区、竖线前 4px），<b>Then</b> <b>全部进入开单</b>：散客 → <b>s1</b>、会员 → <b>s5</b>；<b>无一次落到 s2</b>。</li>
@@ -2376,6 +2385,8 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
 <li><b>Given</b> 选择页内点一张<b>未选</b>卡，<b>Then</b> 落位并自动回到槽位行（<code>data-picking</code> 1 → 0、锁已摘、sheet <b>647 → 647px</b>）；<b>Given</b> 再进选择页后点同一张<b>已选</b>卡（移出、重绘、仍留在选择页），<b>Then</b> <code>data-picking = 1</code>、锁仍在、<code>--sp-sheet-h</code> 仍 <b>647px</b>、灰卡仍 <b>366px</b>、sheet 高 <b>647 → 647px</b>。</li>
 <li><b>Given</b> 门店 5 人（退出演示态），<b>Then</b> 仍是紧凑形态：无 <code>.sp-box</code>、4 个 <code>.sp-cards__t</code>、≥ 20 张 <code>.sp-card</code>、<code>.addsheet</code> <b>无</b> <code>.is-sp-lock</code>；<b>Given</b> 关闭添加 sheet 后重开，<b>Then</b> 草稿干净、形态不变。</li>
 <li><b>When</b> 逐条跑 R25 校验清单（开发期临时 harness，不入库），<b>Then</b> <b>48 条全部通过</b>：s4 二分热区 <b>9 条</b> + &gt; 5 人两行 / 锁定 / 白卡 / 滚动与其它宿主 <b>38 条</b> + ≤ 5 人回归 <b>1 条</b>。</li>
+<li><b>Given</b> 视口 <code>prefers-reduced-motion: reduce</code>（系统「减少动态效果」已开），<b>Then</b> <code>.sp-face--pick</code> 的 <code>transition-duration</code> 仍为 <b>0.34s</b>（<code>.sp-face</code> 已从该媒体查询的关闭列表移除），点「＋」后 <code>translateX 322 → 0</code> 之间有 <b>34 个中间帧</b>；<b>And</b> 同一视口下装饰性动效仍按偏好关闭（<code>.sp-slot.is-land</code> 无 <code>animation</code>、<code>#asGrid</code> 的 <code>max-height</code> 无过渡）。</li>
+<li><b>Given</b> 强行 <code>.sp-face { transition: none !important }</code>（模拟过渡被环境压掉），<b>Then</b> 点「＋」后 <code>spFacePush()</code> 生效（<code>face.getAnimations()</code> 由 0 → 1），实测 <code>translateX 322 → 0</code> 之间 <b>34 个中间帧</b>、槽位行同步滑到 <code>−100%</code>（添加项目 sheet 实测 −346 = 容器最终宽）；<b>Given</b> 正常环境（<code>transition-duration: 0.34s</code>），<b>Then</b> <code>spFacePush()</code> <b>不插手</b>（<code>getAnimations()</code> = 0），动画仍由 CSS 过渡播放。</li>
 </ol>
 <h3>10.7 R20–R24 验收用例（365–414）</h3>
 <ol start="365">
