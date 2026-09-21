@@ -1260,20 +1260,17 @@
 
   .staff-embed { position: relative; }
 
-  /* R24：槽位行 ⇄ 选择页 改为「iOS 全幅推入」切换（此前是 max-height + opacity + scale 的折叠 morph）。
-     ① 两层「面」绝对定位叠放（top/left/right 0），位移只走 translateX；
-     ② 「滑出容器」的那一层由 .sp-box{overflow:hidden} 裁掉 —— 进入时选择页从右侧推入、
-        返回时原路从右侧退出，两页位移幅度都是 100%（全幅推入，中途零重叠）；
-     ③ 位移只作用于 .sp-box 这一块：sheet 标题栏、页脚按钮、宿主本身都不参与位移动画
-        （推入不作用于标题栏）；「数量 / 价格」卡与「服务员工」标签行见下方 .is-picking 规则
-        （R25 补：由「同拍折叠」改为「被选择页覆盖」；R25 再补：后层不隐藏、不改底色，
-         全程保持完整可见，只由不透明选择页盖住 —— 两态下纵向位移都是 0）。
-     R25：容器高度始终等于「槽位行」态的高度（--sp-box-h）——选择页态由 .is-picking 规则
-        向上 / 左右 / 向下扩成「覆盖几何」（另见 --sp-rise / --sp-inset / --sp-extra，
-        外边距反向抵消 → 版式零变化），于是进出选择页时 sheet 的外高与顶边零位移、零抖动；
-        选择页内容高于视口时，由内部网格自己滚（见 .sp-face--pick / .sp-picker__grid）。
-        高度值不再有过渡：它必须在翻页那一帧一次性切成覆盖几何，否则底锚 sheet 会先矮一截再长回来（＝抖动）。
-        位移仍走 .34s，且两态之间的纵向位移恒为 0。
+  /* R24 起：槽位行 ⇄ 选择页 改为横向切换（此前是 max-height + opacity + scale 的折叠 morph）。
+     R25 三补（本轮）：改成「覆盖式」—— 底下一层（槽位行 / 灰卡内容）全程不动，
+     只由顶上一层（选择页）从右侧移入 / 移出。
+     ① 两层「面」绝对定位叠放（top/left/right 0）；选择页面 z-index 更高 + 不透明灰底；
+     ② 位移只走 translateX，且**只作用在 .sp-face--pick**：进入 `+100% → 0`、返回 `0 → +100%`；
+        `.sp-face--rows` 恒为 `translateX(0)`（被盖住时只加 pointer-events:none）；
+     ③ 「滑出容器」的顶面由 .sp-box{overflow:hidden} 裁掉；中途左侧会短暂露出底面 —— 覆盖式正常表现；
+     ④ sheet 标题栏、页脚、宿主本身都不参与位移动画；「数量 / 价格」卡与标签行见下方 .is-picking
+        （R25 补 / 再补：被选择页盖住、不隐藏、不改底色）。
+     R25：容器高度始终等于「槽位行」态（--sp-box-h）；添加 sheet 选择页态另扩「覆盖几何」
+        （--sp-rise / --sp-inset / --sp-extra），sheet 外高与顶边零位移；选择页内容更高时由网格自滚。
      （≤ 5 人的紧凑形态不渲染 .sp-box，本节规则与它无关。） */
   .sp-box {
     position: relative; overflow: hidden;
@@ -1284,11 +1281,15 @@
     overflow: hidden;
     transition: transform .34s cubic-bezier(.32,.72,0,1);
   }
-  .sp-face--rows { transform: translateX(0); }
+  .sp-face--rows { transform: translateX(0); z-index: 0; }
   /* R25：选择页「面」定高＝容器高度（100%），容器因此不会被选择页内容撑高；
-     超出部分交给 .sp-picker__grid 自己滚，「选择XX / 取消」在滚动区之外＝天然吸顶。 */
-  .sp-face--pick { height: 100%; transform: translateX(100%); pointer-events: none; }
-  .sp-box[data-picking="1"] .sp-face--rows { transform: translateX(-100%); pointer-events: none; }
+     超出部分交给 .sp-picker__grid 自己滚，「选择XX / 取消」在滚动区之外＝天然吸顶。
+     R25 三补：自带不透明灰底 + 更高 z-index，才能在底面不动时整幅盖住它。 */
+  .sp-face--pick {
+    height: 100%; transform: translateX(100%); pointer-events: none;
+    z-index: 1; background: #FAFAFA;
+  }
+  .sp-box[data-picking="1"] .sp-face--rows { pointer-events: none; }
   .sp-box[data-picking="1"] .sp-face--pick { transform: translateX(0); pointer-events: auto; }
 
 
@@ -1619,10 +1620,10 @@
 
   @media (prefers-reduced-motion: reduce) {
 
-    /* R25 修订：`.sp-face` 已从本行移除 ——「槽位行 ⇄ 选择页」的 iOS 全幅推入是导航级主转场
-       （R24 起本原型的核心评审对象），系统开「减少动态效果」时若被压成硬切，评审端就完全
-       看不到「从右侧水平移入」。这里只关装饰性动效，主转场保留。
-       （另有一层 JS 兜底：spFacePush() 检测到过渡被关掉时会用 WAAPI 补播同一段推入。） */
+    /* R25 修订：`.sp-face` 已从本行移除 ——「槽位行 ⇄ 选择页」的覆盖式移入是导航级主转场
+       （R24 起本原型的核心评审对象；R25 三补改为底面不动、仅顶面移入），系统开「减少动态效果」
+       时若被压成硬切，评审端就完全看不到「从右侧水平移入」。这里只关装饰性动效，主转场保留。
+       （另有一层 JS 兜底：spFacePush() 检测到过渡被关掉时会用 WAAPI 补播顶面移入。） */
     .sp-slot, .sp-pick, .sp-card, .sp-box, #addSheetMask .addsheet #asGrid { transition: none !important; }
 
     .sp-slot.is-land, .sp-card.is-land { animation: none !important; }
@@ -4298,7 +4299,7 @@
   if (spReduceMotion()) {
     try {
       console.warn('[原型提示] 检测到系统「减少动态效果」已开启：落位弹跳 / 勾选绘制 / 卡面过渡 / 网格折叠等装饰性动效已按无障碍偏好关闭；'
-        + '「槽位行 ⇄ 选择页」的 iOS 全幅推入已豁免，仍会正常播放。');
+        + '「槽位行 ⇄ 选择页」的覆盖式移入（底面不动、仅顶面从右滑入）已豁免，仍会正常播放。');
     } catch (e) { /* ignore */ }
   }
   function escapeHtml(s) {
@@ -4829,7 +4830,7 @@
     if (spPickRow && box.getAttribute('data-picking') !== '1') spEnterPick(box);
   }
 
-  /* ===== R24：选择页「iOS 全幅推入」（从右侧进 / 原路从右侧出）=====
+  /* ===== R24 / R25 三补：选择页「覆盖式移入」（从右侧进 / 原路从右侧出；底面不动）=====
      时长与 .sp-face / .sp-box 的 CSS 过渡一致（.34s）。 */
   var SP_FACE_MS = 340;
   var spLeaveTimer = 0;
@@ -4953,28 +4954,24 @@
     spFaceROs.push(ro);
   }
 
-  /* 进入：本帧渲染的是「槽位行」态，下一帧翻 data-picking → 选择页从右 100% 推入、槽位行左移 100%。
-     R25：容器高度在翻转的同一帧切到「锁定值」（槽位行面高 + 被删掉的白卡/标签高度），
-     与「白卡内距归零 + 标签行隐藏 + 价格数量卡折叠」同帧发生 → sheet 外高自始至终不变。 */
+  /* 进入：本帧渲染的是「槽位行」态，下一帧翻 data-picking → 选择页从右移入盖住底面。
+     R25 三补：底面（槽位行）全程不动，只有顶面（选择页）做 +100% → 0 的横向位移。 */
   function spEnterPick(box) {
     window.requestAnimationFrame(function () {
       window.requestAnimationFrame(function () {
         if (!box.isConnected || !spPickRow) return;
         if (box.getAttribute('data-picking') === '1') return;
-        /* R25：进入选择页时容器不改成「选择页内容高」，而是保持锁定 ——
-           槽位行面高（此刻 data-picking 还是 "0"，槽位行还站在原地，量到就是基准值）+ 被删掉的
-           白卡/标签高度。于是 sheet 外高与上一页一模一样：只有内容在横向推入，顶边纹丝不动。 */
+        /* R25：进入选择页时容器保持锁定在槽位行面高 —— sheet 外高与上一页一模一样。 */
         var rowsEl = box.querySelector('.sp-face--rows');
         var rh = rowsEl ? rowsEl.offsetHeight : 0;
         if (rh <= 0) rh = parseFloat(box.style.getPropertyValue('--sp-box-h')) || 0;   /* 宿主刚可见的兜底 */
-        /* R25 补：翻页前先实测「覆盖几何」（此刻还是槽位行态、价格卡还站在原地，量到的就是基准值）。
-           翻页后视口向上 / 左右 / 向下扩到价格卡与白卡的边界，槽位行面用同一组量反向偏移。 */
+        /* R25 补：翻页前先实测「覆盖几何」（此刻还是槽位行态、价格卡还站在原地）。
+           翻页后视口向上 / 左右 / 向下扩到价格卡与白卡的边界；底面用同一组量反向偏移保持原位。 */
         spPrepPickRegion(box);
         box.setAttribute('data-picking', '1');
         if (rh > 0) box.style.setProperty('--sp-box-h', rh + 'px');
-        /* 同一帧把 sheet 定死在上方那个外高（.is-sp-lock + --sp-sheet-h），并给 sheet 挂 .is-picking
-           （价格 / 数量卡与标签行改由不透明的选择页整幅盖住 —— 不折叠、不隐藏 → 版式零变化、
-           纵向零位移，后层在推入全程始终完整可见）。 */
+        /* 同一帧把 sheet 定死在上方那个外高，并给 sheet 挂 .is-picking
+           （价格 / 数量卡与标签行由不透明选择页整幅盖住 —— 不折叠、不隐藏）。 */
         var addMask = box.closest ? box.closest('.addsheet-mask') : null;
         var addSheet = (addMask && addMask.id === 'addSheetMask') ? addMask.querySelector('.addsheet') : null;
         if (addSheet) { spLockSheet(); addSheet.classList.add('is-picking'); }
@@ -4991,30 +4988,25 @@
     if (spLeaveTimer) { window.clearTimeout(spLeaveTimer); spLeaveTimer = 0; }
   }
 
-  /* R25：推入的「JS 兜底」—— 正常环境靠 `.sp-face` 的 CSS 过渡（.34s 同曲线）播放；
-     若过渡被环境关掉（系统「减少动态效果」把 transition 压成 0s、或某些内嵌 webview 的动效开关），
-     class 翻转会变成硬切、评审端就完全看不到「从右侧水平移入」。
-     这里检测一次过渡时长：只要它被关掉，就用 WAAPI 把同一段推入补播一遍。 */
+  /* R25：覆盖式移入的「JS 兜底」—— 正常环境靠 `.sp-face--pick` 的 CSS 过渡（.34s 同曲线）播放；
+     若过渡被环境关掉，class 翻转会变成硬切、评审端就完全看不到「从右侧水平移入」。
+     R25 三补：只补播顶面（选择页）；底面（槽位行）全程不动，不再做 -100% 动画。 */
   function spFacePush(box, dir) {
-    var r = box.querySelector('.sp-face--rows');
     var p = box.querySelector('.sp-face--pick');
-    if (!r || !p || typeof p.animate !== 'function') return;
+    if (!p || typeof p.animate !== 'function') return;
     var dur = parseFloat(window.getComputedStyle(p).transitionDuration) || 0;
     if (dur > 0) return;                       /* CSS 过渡在，正常播放，不插手 */
     var enter = dir !== 'leave';
     var opt = { duration: SP_FACE_MS, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'none' };
     try {
-      r.animate(enter
-        ? [{ transform: 'translateX(0%)' }, { transform: 'translateX(-100%)' }]
-        : [{ transform: 'translateX(-100%)' }, { transform: 'translateX(0%)' }], opt);
       p.animate(enter
         ? [{ transform: 'translateX(100%)' }, { transform: 'translateX(0%)' }]
         : [{ transform: 'translateX(0%)' }, { transform: 'translateX(100%)' }], opt);
     } catch (e) { /* 动画不可用时退回硬切 */ }
   }
 
-  /* 返回：先翻回「槽位行」态（选择页原路从右侧移出、槽位行从左侧回来），滑完再重绘数据 ——
-     落位卡片的弹跳动效在重绘那一刻播（与 iOS 返回一致：先回上一页，再更新内容）。 */
+  /* 返回：先翻回「槽位行」态（选择页原路从右侧移出，底面始终在原位），滑完再重绘数据 ——
+     落位卡片的弹跳动效在重绘那一刻播（与 iOS 返回一致：先揭开上一页，再更新内容）。 */
   function spLeavePick(root, ctx) {
     var box = root.querySelector ? root.querySelector('.sp-box') : null;
     if (box) {
