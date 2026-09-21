@@ -1479,6 +1479,13 @@
      不横滑、不换行、不需要滚动。
      R21：去掉头像，改为「姓名 + 职位」双行文字，字加粗提升可读性；iOS 轻量外壳
      （圆角 12、描边 #E5E5EA、次要色 #8E8E93）。高度 52（去头像后略矮）。 */
+  /* —— 点选即勾选（不分工位 + 未开顾客指定）：无行标题，单层员工网格；>5 人可换行滚动 —— */
+  .sp-cards--flat { padding: 2px 0 4px; }
+  .sp-cards--flat .sp-cards__list--wrap {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    max-height: 360px; overflow-x: hidden; overflow-y: auto;
+    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  }
   .sp-cards__row { padding: 3px 0; }
   .sp-cards__row + .sp-cards__row { border-top: .5px solid #F0F0F0; }
   /* R23：「顾客指定」加 6px 上间距 → 行间 6.5 → 12.5px（与 >5 槽位形态同步），发丝线随该行一起下移。 */
@@ -2206,7 +2213,11 @@
     <button class="nav-item" onclick="openBenPickSheet(null)"><span class="idx">12</span>选择权益</button>
     <button class="nav-item" onclick="openCouponPickSheet()"><span class="idx">13</span>选择优惠券</button>
     <button class="nav-item" data-target="s14" onclick="openHoldList()"><span class="idx">14</span>挂单列表</button>
-    <button class="nav-item" onclick="demoStaffPicker12()"><span class="idx">16</span>员工选择（12 人）</button>
+    <button class="nav-item" onclick="demoStaffPick({station:true,extra:true,expand12:true,openPlus:true})"><span class="idx">16</span>员工·按工位+指定·12人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:false,extra:false,expand12:false})"><span class="idx">17</span>员工·点选即勾选·5人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:false,extra:true,expand12:false})"><span class="idx">18</span>员工·不分工位+指定·5人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:true,extra:false,expand12:false})"><span class="idx">19</span>员工·按工位无指定·5人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:false,extra:false,expand12:true})"><span class="idx">20</span>员工·点选即勾选·12人</button>
   </div>
   <div class="nav-group grow">
     <div class="g-t">文档</div>
@@ -4140,31 +4151,42 @@
     exitStaffDemo();
   }
 
-  /* 员工扩编演示（左侧导航「16 员工选择（12 人）」）：
-     门店只有 5 人时走新紧凑形态，>5 人走原「槽位 + 选择页」形态；
-     这一支要能评审，因此临时把员工池扩到 12 人，关闭 sheet 即还原。 */
+  /* 员工选人演示（左侧导航 16–20）：
+     全店统一态四态由 demoStaffPick 写入并保持，直到下次点另一演示入口；
+     仅「扩到 12 人」在关闭添加 sheet 时还原，避免日常开单一直带着扩编池。 */
   function exitStaffDemo() {
     if (!spDemoStaff) return;
     spDemoStaff = false;
+    spPickRow = null;
     var grid = document.getElementById('asStaffGrid');
     if (grid) grid.innerHTML = '';
   }
 
-  function demoStaffPicker12() {
-    spDemoStaff = true;
-    if (quickStaffOpen) toggleQuickStaff(quickStaffOpen);   /* 收起直接收款的面板，避免两个宿主同时亮着 */
+  /* opts: { station, extra, expand12, openPlus }
+     openPlus：>5 且非点选即勾选时，自动点第一个「＋」进入选择页（便于评审两层动效） */
+  function demoStaffPick(opts) {
+    opts = opts || {};
+    SP_NEED_STATION = !!opts.station;
+    SP_NEED_EXTRA = !!opts.extra;
+    spDemoStaff = !!opts.expand12;
+    spPickRow = null;
+    if (quickStaffOpen) toggleQuickStaff(quickStaffOpen);
     go('s1');
     setTimeout(function () {
       var addBtn = document.querySelector('#s1 .v2-cat-item .v2-add-btn');
       if (!addBtn) { exitStaffDemo(); toast('演示入口失效：未找到项目卡'); return; }
-      addBtn.click();                                       /* 打开「设置内容」sheet（已是 12 人池） */
+      addBtn.click();
+      if (!opts.openPlus || spDirectMode() || spSmallStaff()) return;
       setTimeout(function () {
         var plus = document.querySelector('#asStaffGrid .sp-slot--add');
-        if (plus) plus.click();                             /* 直接进入「选择大工」选择页 */
+        if (plus) plus.click();
       }, 320);
     }, 300);
   }
-  window.demoStaffPicker12 = demoStaffPicker12;
+  window.demoStaffPick = demoStaffPick;
+  window.demoStaffPicker12 = function () {
+    demoStaffPick({ station: true, extra: true, expand12: true, openPlus: true });
+  };
 
   // 遮罩点击关闭
   document.getElementById('addSheetMask').addEventListener('click', function(e) {
@@ -4243,7 +4265,7 @@
     if (el.value === '' && el.dataset.prev !== undefined) el.value = el.dataset.prev;
   }
 
-  // ===== 员工选择（对齐 ticheng 最新 UI/UX · 硬编码按工位+开顾客指定） =====
+  // ===== 员工选择（对齐 ticheng UI/UX · 全店统一态四态可切换） =====
   var STAFF_ROLE_OPTS = [
     { id: 'senior', label: '大工' },
     { id: 'mid', label: '中工' },
@@ -4252,9 +4274,11 @@
   var STAFF_STATION_IDS = ['senior', 'mid', 'junior'];
   var STAFF_ROLE_DEFAULT = 'senior';
   var SP_PICK_AVG = 'avg';
-  /* A1：按工位 + 开顾客指定（硬编码，与提成设置演示默认态一致） */
+  /* R27：全店统一态（不再按「项 × 员工」差异化）。
+     默认演示 = 按工位 + 开顾客指定；左侧导航 16–20 可切到其它三态。 */
   var SP_NEED_STATION = true;
   var SP_NEED_EXTRA = true;
+  function spDirectMode() { return !SP_NEED_STATION && !SP_NEED_EXTRA; }
 
   var STAFFS = [
     { id: 'st0', name: '顾清扬', short: '顾', role: '店主', avatar: 'assets/emp-avatars/man-e.jpg' },
@@ -4406,40 +4430,36 @@
   var SP_ROW_MAX = 3;
 
   var SP_ROW_DEFS = [
-
     { key: 'senior', kind: 'role', label: '大工' },
-
     { key: 'mid', kind: 'role', label: '中工' },
-
     { key: 'junior', kind: 'role', label: '小工' },
-
+    { key: 'avg', kind: 'role', label: '提成' },
     { key: 'extra', kind: 'extra', label: '顾客指定' }
-
   ];
 
   var spActiveRoot = null;
-
   var spPickRow = null;   /* 当前展开选择页的工位行 key；null = 展示槽位行 */
-
-  var spLandSid = null;   /* 刚落位的员工 id */
-  var spLandRow = null;   /* 刚落位的工位行：与 spLandSid 成对，避免同人跨行连带播 is-land */
+  var spLandSid = null;
+  var spLandRow = null;
 
   var SP_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
-
   var SP_TICK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
-  /* R23：槽位卡右上角「删除 ×」角标；纯视觉，热区仍是整张卡（卡根 data-sr-rm） */
   var SP_X_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
-
-
+  /* 四态行定义（全店统一）：
+     按工位+开指定 → 大/中/小工 + 顾客指定
+     按工位+未开   → 大/中/小工
+     不分工位+开   → 提成 + 顾客指定
+     不分工位+未开 → 无行（点选即勾选扁平网格） */
   function spRowDefs() {
-
-    return SP_ROW_DEFS.filter(function (r) {
-
-      return r.kind === 'extra' ? spNeedExtra() : spNeedStation();
-
-    });
-
+    var rows = [];
+    if (spNeedStation()) {
+      rows.push(SP_ROW_DEFS[0], SP_ROW_DEFS[1], SP_ROW_DEFS[2]);
+    } else if (spNeedExtra()) {
+      rows.push(SP_ROW_DEFS[3]); /* 提成 */
+    }
+    if (spNeedExtra()) rows.push(SP_ROW_DEFS[4]);
+    return rows;
   }
 
   function spRowDef(key) {
@@ -4458,22 +4478,16 @@
     return staffById(sid);
   }
 
-  /* 该员工当前所属的工位行（可多行：同一员工既可挂大工、也可同时计顾客指定提成） */
-
+  /* 该员工当前所属的工位 / 提成行（可多行） */
   function spRowsOf(sid) {
-
     var out = [];
-
     if (spNeedStation()) {
-
       spStationIds().forEach(function (rid) { if (spHasRole(sid, rid)) out.push(rid); });
-
+    } else if (spHasRole(sid, SP_PICK_AVG)) {
+      out.push(SP_PICK_AVG);
     }
-
     if (spNeedExtra() && staffRow.staffExtra[sid] === true) out.push('extra');
-
     return out;
-
   }
 
   /* 某工位行内的员工（顺序 = 选择顺序，即 staffIds 的顺序） */
@@ -4560,22 +4574,37 @@
 
 
 
-  /* 摘要：按员工所属工位行拼「大工 · 中工 · 顾客指定」（未在任何工位行 → null） */
-
+  /* 摘要：按员工所属工位行拼「大工 · 中工 · 顾客指定」（未在任何工位行 → null）
+     点选即勾选态无后缀，只显示姓名。 */
   function spSummaryParts(sid) {
-
     if (!staffRow.staffIds || staffRow.staffIds.indexOf(sid) < 0) return null;
-
+    if (spDirectMode()) return { stations: [], main: '', extra: false };
     var keys = spRowsOf(sid);
-
     if (!keys.length) return null;
-
     var labels = keys.map(function (k) { var d = spRowDef(k); return d ? d.label : ''; }).filter(Boolean);
-
     if (!labels.length) return null;
-
     return { stations: labels, main: labels.join(' · '), extra: false };
+  }
 
+  /* 结算页自动带入首位员工时，按当前全店选人态写角色 */
+  function spAutoAttachFirstStaff(staff) {
+    if (!staff) return;
+    if (!Array.isArray(staff.staffIds)) staff.staffIds = [];
+    if (staff.staffIds.length) return;
+    var _first = STAFFS[0];
+    staff.staffIds = [_first.id];
+    staff.staffRoles = staff.staffRoles || {};
+    staff.staffExtra = staff.staffExtra || {};
+    staff.staffChosen = staff.staffChosen || {};
+    if (spDirectMode()) {
+      delete staff.staffRoles[_first.id];
+    } else if (spNeedStation()) {
+      staff.staffRoles[_first.id] = [STAFF_ROLE_DEFAULT];
+    } else {
+      staff.staffRoles[_first.id] = [SP_PICK_AVG];
+    }
+    staff.staffExtra[_first.id] = false;
+    staff.staffChosen[_first.id] = true;
   }
 
   /* 入口摘要文案（s2/s3 直接收款员工行、s6/s7 服务员工行、挂单卡片、已选商品 Sheet 共用） */
@@ -4686,6 +4715,50 @@
     }).join('') + '</div>';
   }
 
+  /* 点选即勾选：无行标题；点卡选中 / 再点取消；>5 人换行滚动 */
+  function spFlatCardHtml(st) {
+    var on = staffRow.staffIds.indexOf(st.id) >= 0;
+    var land = (spLandSid === st.id && spLandRow === '__direct__') ? ' is-land' : '';
+    var role = st.role || '';
+    var label = st.name + (role ? (' · ' + role) : '');
+    return '<button type="button" class="sp-card' + (on ? ' is-on' : '') + land + '"' +
+      ' data-sr-direct="' + escapeHtml(st.id) + '"' +
+      ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
+      ' aria-label="' + escapeHtml(label) + (on ? '（已选，点击取消）' : '（点击选择）') + '">' +
+      '<span class="sp-card__nm">' + escapeHtml(st.name) + '</span>' +
+      (role ? ('<span class="sp-card__role">' + escapeHtml(role) + '</span>') : '') +
+      '<span class="sp-card__tick" aria-hidden="true">' + SP_TICK_SVG + '</span>' +
+      '</button>';
+  }
+  function spFlatCardsHtml() {
+    ensureStaffState();
+    return '<div class="sp-cards sp-cards--flat">' +
+      '<div class="sp-cards__list sp-cards__list--wrap">' +
+      staffPool().map(spFlatCardHtml).join('') +
+      '</div></div>';
+  }
+  function spToggleDirect(sid) {
+    if (!sid) return false;
+    ensureStaffState();
+    var i = staffRow.staffIds.indexOf(sid);
+    if (i >= 0) {
+      staffRow.staffIds.splice(i, 1);
+      delete staffRow.staffChosen[sid];
+      delete staffRow.staffRoles[sid];
+      delete staffRow.staffExtra[sid];
+      spLandSid = null;
+      spLandRow = null;
+      return true;
+    }
+    staffRow.staffIds.push(sid);
+    staffRow.staffChosen[sid] = true;
+    staffRow.staffExtra[sid] = false;
+    delete staffRow.staffRoles[sid];
+    spLandSid = sid;
+    spLandRow = '__direct__';
+    return true;
+  }
+
   function spRowsHtml() {
 
     return spRowDefs().map(function (r) {
@@ -4753,33 +4826,22 @@
 
 
   function renderStaffPickerHtml(forcePicking) {
-
     ensureStaffState();
-
+    if (spDirectMode()) return spFlatCardsHtml();
     if (spSmallStaff()) return spCardsHtml();
     /* R24：进入选择页时先渲染在「槽位行」态（data-picking="0"），下一帧再翻成 "1" ——
        否则新节点一出生就是终态、CSS 过渡不会播（旧实现正是如此，观感等于瞬切）。
        forcePicking=true 表示「本来就在选择页里重绘」（如选择页内点卡取消该行分配），直接渲染终态。 */
     var picking = (spPickRow && forcePicking) ? '1' : '0';
-    /* 每次重绘都会重建 .sp-box（新元素）。若把高度留给「插入后 JS 再写」，浏览器会把
-       「出生高度 0 → 实测高度」当成一次真实变化播出来（实测：重绘后容器从 0 爬到 281，
-       340ms 的展开动画），所以这里用上一次实测值把新容器直接生在正确高度上。
-       R25：两态的容器高度都是同一个值（槽位行面高）—— 添加 sheet 在锁定态由 flex 撑开，
-       这里给的值只保证「出生那一帧」与终态等高，不播任何成长动画。 */
     var initH = spLastRowsH > 0 ? spLastRowsH : 0;
     var boxStyle = (initH > 0)
       ? ' style="--sp-box-h:' + initH + 'px"'
       : '';
     return '<div class="sp-box"' + boxStyle + ' data-picking="' + picking + '"' +
-
         (spPickRow ? ' data-pick-row="' + escapeHtml(spPickRow) + '"' : '') + '>' +
-
         '<div class="sp-face sp-face--rows" aria-hidden="' + (picking === '1' ? 'true' : 'false') + '">' + spRowsHtml() + '</div>' +
-
         '<div class="sp-face sp-face--pick" aria-hidden="' + (picking === '1' ? 'false' : 'true') + '"><div class="sp-pick-inner">' + spPickHtml() + '</div></div>' +
-
       '</div>';
-
   }
 
 
@@ -5252,6 +5314,17 @@
 
       return;
 
+    }
+
+    /* R27：点选即勾选 —— 无工位 / 无顾客指定，点卡选中、再点取消 */
+    var directBtn = e.target.closest('[data-sr-direct]');
+    if (directBtn) {
+      e.preventDefault(); e.stopPropagation();
+      if (spToggleDirect(directBtn.getAttribute('data-sr-direct'))) {
+        spHaptic();
+        spRepaint(root, ctx);
+      }
+      return;
     }
 
     /* R20：紧凑形态点卡 = 加入 / 移出该工位（无选择页，就地切换选中态） */
@@ -5740,17 +5813,8 @@
       }
       // 权益规则 → 应付（改价明细沿用改价后的应付）
       applyItemBenefit(it);
-      // 员工：默认自动填充首位员工
-      if (!it.staff.staffIds.length) {
-        var _first = STAFFS[0];
-        it.staff.staffIds = [_first.id];
-        it.staff.staffRoles = it.staff.staffRoles || {};
-        it.staff.staffRoles[_first.id] = [STAFF_ROLE_DEFAULT];
-        it.staff.staffExtra = it.staff.staffExtra || {};
-        it.staff.staffExtra[_first.id] = false;
-        it.staff.staffChosen = it.staff.staffChosen || {};
-        it.staff.staffChosen[_first.id] = true;
-      }
+      // 员工：默认自动填充首位员工（按当前全店选人态写角色）
+      spAutoAttachFirstStaff(it.staff);
       migrateStaffRowShape(it.staff);
       /* 只读摘要：每名员工一行「姓名 · 工位摘要（可含顾客指定）」 */
       var staffCell = '<div class="co-row co-staff-row" data-staff-edit="1" role="button" tabindex="0" onclick="openCoItemStaffSheet(' + i + ')">' +
@@ -6878,16 +6942,7 @@
     /* 底部应付 = 权益后应付 − 订单级优惠券抵扣（不满门槛则券不生效） */
     pay.textContent = Math.max(0, Math.round((it.actual - orderCouponCut(it.actual)) * 100) / 100).toFixed(2);
 
-    if (!it.staff.staffIds.length) {
-      var _f = STAFFS[0];
-      it.staff.staffIds = [_f.id];
-      it.staff.staffRoles = it.staff.staffRoles || {};
-      it.staff.staffRoles[_f.id] = [STAFF_ROLE_DEFAULT];
-      it.staff.staffExtra = it.staff.staffExtra || {};
-      it.staff.staffExtra[_f.id] = false;
-      it.staff.staffChosen = it.staff.staffChosen || {};
-      it.staff.staffChosen[_f.id] = true;
-    }
+    spAutoAttachFirstStaff(it.staff);
     migrateStaffRowShape(it.staff);
     /* 只读摘要：每名员工一行「姓名 · 工位摘要（可含顾客指定）」 */
     var staffCell = '<div class="co-row co-staff-row" data-staff-edit="1" role="button" tabindex="0" onclick="openCoItemStaffSheet(-1)">' +
