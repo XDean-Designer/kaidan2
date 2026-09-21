@@ -1265,12 +1265,14 @@
      ② 「滑出容器」的那一层由 .sp-box{overflow:hidden} 裁掉 —— 进入时选择页从右侧推入、
         返回时原路从右侧退出，两页位移幅度都是 100%（全幅推入，中途零重叠、不依赖不透明白底）；
      ③ 位移只作用于 .sp-box 这一块：sheet 标题栏、页脚按钮、宿主本身都不参与位移动画
-        （推入不作用于标题栏）；「数量 / 价格」卡的收起见下方 .is-picking 规则，与推入同一拍。
-     R25：容器高度改为「锁定」——始终等于「槽位行」态的高度（选择页态另补回被删掉的白卡内距
-        + 标签行 48px，见 §spLockedH），于是进出选择页时 sheet 的外高与顶边零位移、零抖动；
-        选择页内容高于锁定高度时，由内部网格自己滚（见 .sp-face--pick / .sp-picker__grid）。
-        高度值不再有过渡：它必须与「白卡内距归零 + 标签行 display:none」落在同一帧，
-        否则底锚 sheet 会先矮一截再长回来（＝抖动）。位移仍走 .34s。
+        （推入不作用于标题栏）；「数量 / 价格」卡的隐藏见下方 .is-picking 规则
+        （R25 补：由「同拍折叠」改为「被选择页覆盖」，两态下纵向位移都是 0）。
+     R25：容器高度始终等于「槽位行」态的高度（--sp-box-h）——选择页态由 .is-picking 规则
+        向上 / 左右 / 向下扩成「覆盖几何」（另见 --sp-rise / --sp-inset / --sp-extra，
+        外边距反向抵消 → 版式零变化），于是进出选择页时 sheet 的外高与顶边零位移、零抖动；
+        选择页内容高于视口时，由内部网格自己滚（见 .sp-face--pick / .sp-picker__grid）。
+        高度值不再有过渡：它必须在翻页那一帧一次性切成覆盖几何，否则底锚 sheet 会先矮一截再长回来（＝抖动）。
+        位移仍走 .34s，且两态之间的纵向位移恒为 0。
      （≤ 5 人的紧凑形态不渲染 .sp-box，本节规则与它无关。） */
   .sp-box {
     position: relative; overflow: hidden;
@@ -1560,48 +1562,47 @@
      ⑥ R25：「选择页高度」不再按内容自适应 —— 改为把整条 sheet 锁在「槽位行」态的高度上，
         选择页多出来的内容由 .sp-picker__grid 自己滚。于是进入 / 退出选择页时 sheet 的外高与顶边
         零位移、零抖动（实现见下方 .is-sp-lock）。 */
-  /* R25：选择页态删掉「服务员工 / 销售人员」那张白卡 —— 标签行收起 + 白卡内距归零，
-     让灰卡（「选择**」+ 取消 + 卡片网格）自己成为内容区：宽 342 → 366。
-     两处都用可插值的属性（padding / max-height / margin-bottom）随 .34s 同曲线收起，
-     释放的高度由 .is-sp-lock 的 flex 内容区逐帧吃掉 → sheet 外高一点不动（不靠计时对齐）。 */
-  #addSheetMask .addsheet .addsheet-staff-embed,
-  #addSheetMask .addsheet .addsheet-staff-embed .staff-embed__head {
-    transition: padding .34s cubic-bezier(.32,.72,0,1),
-      max-height .34s cubic-bezier(.32,.72,0,1), margin-bottom .34s cubic-bezier(.32,.72,0,1);
+  /* R25 补：选择页态不再「折叠」价格 / 数量卡与「服务员工」标签行 —— 折叠会让整块内容在推入的
+     同一拍纵向位移 114px，视觉上就是「从右下角斜着移入」。改走「推入视口覆盖」：
+       · .sp-box（推入视口）向上扩 --sp-rise、左右各扩 --sp-inset（＝与价格卡同宽 366）、
+         向下多盖 --sp-extra（白卡 / 灰卡的下内距）；同时 margin-bottom 反向抵消
+         → 外边距盒高不变 → 版式零变化，sheet 外高与下方所有元素都不动；
+       · 选择页自带灰底（#FAFAFA + 12px 圆角）把被隐藏的价格卡与标签行逐帧盖住 —— 白卡宽 342 → 366；
+       · .sp-face--rows 用同一组 rise / inset 反向偏移 → 槽位行原地不动。
+     于是进出两向都只剩纯粹的横向位移（纵向 0.00px），价格卡是「被推入页盖住」而不是瞬移消失。
+     （--sp-rise / --sp-inset / --sp-extra 由 spPrepPickRegion 在翻页前实测写入。） */
+  #addSheetMask .addsheet.is-picking .sp-box {
+    margin-top: calc(-1 * var(--sp-rise, 0px));
+    margin-left: calc(-1 * var(--sp-inset, 0px));
+    margin-right: calc(-1 * var(--sp-inset, 0px));
+    margin-bottom: calc(-1 * var(--sp-extra, 0px));
+    height: calc(var(--sp-box-h, 0px) + var(--sp-rise, 0px) + var(--sp-extra, 0px));
   }
-  #addSheetMask .addsheet .addsheet-staff-embed .staff-embed__head { max-height: 24px; overflow: hidden; }
-  #addSheetMask .addsheet.is-picking .addsheet-staff-embed { padding: 0; }
-  #addSheetMask .addsheet.is-picking .addsheet-staff-embed .staff-embed__head { max-height: 0; margin-bottom: 0; }
+  #addSheetMask .addsheet.is-picking .sp-face--rows {
+    top: var(--sp-rise, 0px);
+    left: var(--sp-inset, 0px);
+    right: var(--sp-inset, 0px);
+  }
+  #addSheetMask .addsheet.is-picking .sp-face--pick { background: #FAFAFA; border-radius: 12px; }
+  #addSheetMask .addsheet.is-picking .addsheet-staff-embed,
+  #addSheetMask .addsheet.is-picking .staff-embed { background: transparent; }
+  #addSheetMask .addsheet.is-picking #asGrid,
+  #addSheetMask .addsheet.is-picking .addsheet-staff-embed .staff-embed__head {
+    visibility: hidden; pointer-events: none;
+  }
 
   /* R25：添加 sheet 的「高度锁定」——
-     .is-sp-lock 把 sheet 定死在 --sp-sheet-h（= 进入选择页前那一刻的实测高，由 spEnterPick 写入），
-     内容区（.addsheet__body → 白卡 → 灰卡 → .sp-box）改用 flex 纵向拉伸：
-     价格 / 数量卡折叠、白卡内距与标签行收起所释放的高度，全部被容器逐帧吃掉，
-     所以 sheet 的外高自始至终分毫不差（顶边零位移、零抖动），内容区反而比 R24 更大；
-     装不下时由 .sp-picker__grid 自己滚。进出两向都锁 —— 退出动画播完才由 spLeavePick 摘掉，
+     .is-sp-lock 把 sheet 定死在 --sp-sheet-h（= 进入选择页前那一刻的实测高，由 spEnterPick 写入）。
+     R25 补：推入改成「视口覆盖」后版式本就不再变化（扩散量由 .sp-box 的负外边距 + 反向偏移给出），
+     锁定只作双保险：推入期间 sheet 外高与顶边分毫不动。
+     进出两向都锁 —— 退出动画播完才由 spLeavePick 摘掉，
      关闭 sheet 时由 closeAddSheet 一并清干净，避免下次打开带着旧高度。 */
   #addSheetMask .addsheet.is-sp-lock { height: var(--sp-sheet-h); }
-  #addSheetMask .addsheet.is-sp-lock .addsheet__body {
-    flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
-  }
-  #addSheetMask .addsheet.is-sp-lock .addsheet-staff-embed {
-    flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
-  }
-  #addSheetMask .addsheet.is-sp-lock .staff-embed {
-    flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
-  }
-  #addSheetMask .addsheet.is-sp-lock .sp-box { height: auto; flex: 1 1 auto; min-height: 0; }
   /* R25：选择页两段式 —— 「选择XX / 取消」在滚动区之外（天然吸顶），只有卡片网格滚。 */
   .sp-pick-inner { display: flex; flex-direction: column; height: 100%; min-height: 0; }
   #addSheetMask .addsheet.is-picking { max-height: 92%; }
-  #addSheetMask .addsheet #asGrid {
-    max-height: 76px; overflow: hidden;
-    transition: max-height .34s cubic-bezier(.32,.72,0,1), margin-top .34s cubic-bezier(.32,.72,0,1),
-      opacity .24s ease;
-  }
-  #addSheetMask .addsheet.is-picking #asGrid {
-    max-height: 0; margin-top: 0; opacity: 0; pointer-events: none;
-  }
+  /* R25 补：价格 / 数量卡在推入期间只「被选择页盖住」（属性和显隐规则见上方 .is-picking 组），
+     不再折叠 → 它占的高度一动不动 → 推入方向恒为水平。 */
 
   @media (prefers-reduced-motion: reduce) {
 
@@ -4101,11 +4102,12 @@
   /* R20：关闭「设置内容」sheet 的统一出口 —— 顺带退出员工扩编演示态 */
   function closeAddSheet() {
     closeMask('addSheetMask');
-    /* R25：若在「选择页」态被直接关掉（点遮罩），把高度锁与折叠态一并还原，
-       否则下次打开会带着上一轮定死的外高与折叠类。 */
+    /* R25：若在「选择页」态被直接关掉（点遮罩），把高度锁、覆盖几何与覆盖类一并还原，
+       否则下次打开会带着上一轮定死的外高与旧几何。 */
     var asMask = document.getElementById('addSheetMask');
     var asSheet = asMask ? asMask.querySelector('.addsheet') : null;
     if (asSheet) asSheet.classList.remove('is-picking');
+    spClearPickRegion(asMask ? asMask.querySelector('.sp-box') : null);
     spUnlockSheet();
     exitStaffDemo();
   }
@@ -4786,12 +4788,12 @@
   }
 
   /* R20 / R24 / R25：宿主（添加 sheet / s6 员工 sheet / s2·s3 直接收款面板）在重绘后的同步：
-     ① 添加 sheet：进入选择页时隐藏「价格（元）+ 数量」卡（.is-picking）；
-     ② R25：容器高度锁定在「槽位行」态（选择页态补回被删掉的白卡内距 + 标签行）
-        —— 因为高度不再随面变化，进出选择页时 sheet 外高与顶边零位移；
+     ① 添加 sheet：进入选择页时隐藏「价格（元）+ 数量」卡（.is-picking；R25 补：改为被选择页覆盖）；
+     ② R25：视口高度始终等于「槽位行」态（选择页态另扩成覆盖几何，见 spPrepPickRegion）
+        —— 版式零变化，进出选择页时 sheet 外高与顶边零位移；
      ③ R24：两层「面」绝对定位后，容器高度必须由实测决定（spMeasureBox）；
      ④ R24：若本次要进选择页，则在下一帧翻 data-picking（spEnterPick）——「初始态」与「目标态」
-        分两帧写，CSS 过渡才有起点可播（并同帧折叠价格 / 数量卡、同帧删掉白卡标签行）。 */
+        分两帧写，CSS 过渡才有起点可播（并同帧实测覆盖几何、挂 .is-picking）。 */
   function syncStaffHostState(root) {
     var box = root.querySelector ? root.querySelector('.sp-box') : null;
     var mask = (root.closest && root.closest('.addsheet-mask')) || null;
@@ -4805,6 +4807,9 @@
     if (!box) return;
     spSnapBox(box);                                    /* 新容器先禁高度过渡，避免「0 → 展开」 */
     spMeasureBox(box);                                 /* 写 --sp-rows-h / --sp-box-h（R25：锁定高度） */
+    /* R25 补：选择页里点卡会整块重绘、.sp-box 是新建的 —— 把上一轮实测的「覆盖几何」补回去，
+       否则视口会缩回「槽位行」态、选择页在重建那一帧整体错位。 */
+    if (box.getAttribute('data-picking') === '1') spApplyPickRegion(box);
     spObserveBox(box);                                 /* 宿主可见性 / 尺寸变化时重量 */
     if (spPickRow && box.getAttribute('data-picking') !== '1') spEnterPick(box);
   }
@@ -4818,8 +4823,8 @@
 
   /* R25：添加 sheet 的「整条 sheet 高度锁定」——
      进入选择页时用 .is-sp-lock 把 sheet 定死在 --sp-sheet-h（= 进入前那一刻的实测高），
-     内容区（body → 白卡 → 灰卡 → .sp-box）由 CSS 改成 flex 纵向拉伸：价格 / 数量卡折叠、
-     白卡内距与标签行收起所释放的高度会被逐帧吃掉 → sheet 外高一点不变（零抖动，不靠计时对齐）。
+     R25 补：推入改成「视口覆盖」后版式本就不再变化（扩散量由 .sp-box 的负外边距 + 反向偏移给出），
+     锁定只作双保险：sheet 外高与顶边在推入期间分毫不动（不靠计时对齐）。
      退出动画播完（spLeavePick 的定时器）才解锁；关闭 sheet 时由 closeAddSheet 清干净。 */
   function spLockSheet() {
     var mask = document.getElementById('addSheetMask');
@@ -4840,8 +4845,8 @@
 
   /* 两层「面」绝对定位后 .sp-box 的高度只能实测；量到 0（宿主 display:none / 尚未布局）就跳过，
      等 ResizeObserver 或「宿主打开」时再量，绝不把可用高度写成 0。
-     R25：写进 --sp-box-h 的始终是「槽位行面」高度（两态同一个值）—— 非添加 sheet 的宿主
-     就是靠这条把高度锁住；添加 sheet 在 .is-sp-lock 下由 flex 决定，这条只作为解锁后的兜底。 */
+     R25：写进 --sp-box-h 的始终是「槽位行面」高度（两态同一个值）—— 所有宿主都靠它把推入视口
+     定成槽位行的高度；添加 sheet 进入选择页时再由 --sp-rise / --sp-extra 把视口扩成覆盖几何。 */
   function spMeasureBox(box) {
     if (!box) return;
     var rows = box.querySelector('.sp-face--rows');
@@ -4851,6 +4856,53 @@
       box.style.setProperty('--sp-box-h', rh + 'px');
       spLastRowsH = rh;
     }
+  }
+
+  /* R25 补：添加 sheet 的「推入视口覆盖几何」——
+     翻页前量一次 .sp-box 与「价格 / 数量」卡、白卡的相对位置，写成三个 CSS 变量：
+       rise  = 视口顶 → 价格卡顶（视口向上扩这么多，把价格卡所在区域纳入视口）
+       inset = 视口左 → 价格卡左（视口左右各扩这么多 → 宽 322 → 366，与价格卡 / 白卡同宽）
+       extra = 视口底 → 白卡底（再向下多盖这么多，白卡 / 灰卡的下内距一起盖住，底部不留白边）
+     视口扩散时用 margin-bottom 反向抵消（见 CSS），所以外边距盒高不变 → 版式零变化。
+     量到的值缓存进 spPickRegionV：选择页内重绘（点卡取消分配）会重建 .sp-box，那时视口已经是
+     覆盖态、不能再量，只能把缓存值补写回去（spApplyPickRegion）。其余宿主没有价格卡 → 三项都是 0。 */
+  var spPickRegionV = { rise: '', inset: '', extra: '' };
+
+  function spPrepPickRegion(box) {
+    if (!box || !box.style) return;
+    spPickRegionV = { rise: '0px', inset: '0px', extra: '0px' };
+    var mask = box.closest ? box.closest('.addsheet-mask') : null;
+    if (!mask || mask.id !== 'addSheetMask') { spClearPickRegion(box); return; }
+    var price = document.getElementById('asGrid');
+    var white = mask.querySelector('.addsheet-staff-embed');
+    var br = box.getBoundingClientRect();
+    if (!price || !white || !(br.height > 0)) { spClearPickRegion(box); return; }
+    var pr = price.getBoundingClientRect();
+    var wr = white.getBoundingClientRect();
+    var k = box.offsetHeight / br.height || 1;      /* 原型逻辑 px / 页面 px（预览帧有缩放） */
+    var px = function (v) { return Math.max(0, Math.round(v * k)) + 'px'; };
+    spPickRegionV = {
+      rise: px(br.top - pr.top),
+      inset: px(br.left - pr.left),
+      extra: px(wr.bottom - br.bottom)
+    };
+    spApplyPickRegion(box);
+  }
+
+  function spApplyPickRegion(box) {
+    if (!box || !box.style) return;
+    if (spPickRegionV.rise) box.style.setProperty('--sp-rise', spPickRegionV.rise);
+    if (spPickRegionV.inset) box.style.setProperty('--sp-inset', spPickRegionV.inset);
+    if (spPickRegionV.extra) box.style.setProperty('--sp-extra', spPickRegionV.extra);
+  }
+
+  function spClearPickRegion(box) {
+    if (box && box.style) {
+      box.style.removeProperty('--sp-rise');
+      box.style.removeProperty('--sp-inset');
+      box.style.removeProperty('--sp-extra');
+    }
+    spPickRegionV = { rise: '', inset: '', extra: '' };
   }
 
   /* 新建容器的那一帧先禁掉高度过渡（避免「0 → 实测高度」被播成展开动效），下一帧恢复；
@@ -4900,10 +4952,13 @@
         var rowsEl = box.querySelector('.sp-face--rows');
         var rh = rowsEl ? rowsEl.offsetHeight : 0;
         if (rh <= 0) rh = parseFloat(box.style.getPropertyValue('--sp-box-h')) || 0;   /* 宿主刚可见的兜底 */
+        /* R25 补：翻页前先实测「覆盖几何」（此刻还是槽位行态、价格卡还站在原地，量到的就是基准值）。
+           翻页后视口向上 / 左右 / 向下扩到价格卡与白卡的边界，槽位行面用同一组量反向偏移。 */
+        spPrepPickRegion(box);
         box.setAttribute('data-picking', '1');
         if (rh > 0) box.style.setProperty('--sp-box-h', rh + 'px');
-        /* 同一帧把 sheet 定死在上方那个外高（.is-sp-lock + --sp-sheet-h），并折叠「价格 / 数量」卡。
-           R25：定死之后高度不再由 JS 计算 —— 折叠释放多少、容器就吃掉多少，sheet 顶边一动不动。 */
+        /* 同一帧把 sheet 定死在上方那个外高（.is-sp-lock + --sp-sheet-h），并给 sheet 挂 .is-picking
+           （价格 / 数量卡与标签行转由选择页覆盖，不再折叠 → 版式零变化、纵向零位移）。 */
         var addMask = box.closest ? box.closest('.addsheet-mask') : null;
         var addSheet = (addMask && addMask.id === 'addSheetMask') ? addMask.querySelector('.addsheet') : null;
         if (addSheet) { spLockSheet(); addSheet.classList.add('is-picking'); }
@@ -4957,13 +5012,18 @@
       if (p) p.setAttribute('aria-hidden', 'true');
       spFacePush(box, 'leave');      /* R25：同 spFacePush —— 兜底保证「从右侧移出」也一定看得见 */
     }
-    /* 同一帧把「价格 / 数量」卡放回来：与滑出合起来只剩一条单向的 sheet 顶边位移 */
+    /* R25 补：推入期间不要提前摘掉「覆盖态」—— 选择页此刻还挂在视口右沿往回滑，
+       提前还原会让它的顶边在滑出途中瞬移一个 rise（正是「斜着移出」的来源）；
+       等动画播完、内容重绘时再一起还原（见下方定时器）。 */
     var hostMask = root.closest ? root.closest('.addsheet-mask') : null;
     var hostSheet = (hostMask && hostMask.id === 'addSheetMask') ? hostMask.querySelector('.addsheet') : null;
-    if (hostSheet) hostSheet.classList.remove('is-picking');
     spCancelLeave();
     spLeaveTimer = window.setTimeout(function () {
       spLeaveTimer = 0;
+      /* R25 补：此刻选择页已完全移出、槽位行已站定 —— 「视口缩回原位」与「摘掉槽位行的反向偏移」
+         落在同一帧（紧随其后的重绘还会重建容器），净位移为 0，用户看不到任何跳动。 */
+      if (hostSheet) hostSheet.classList.remove('is-picking');
+      spClearPickRegion(box);
       spRepaint(root, ctx);
       /* R25：返回动画播完、内容重绘后再解锁高度 —— 此时 sheet 已回到「槽位行」态，
          解锁发生在用户看不见的那一帧之后，松手不会产生任何位移。 */
