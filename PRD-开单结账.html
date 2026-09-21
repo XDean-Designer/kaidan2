@@ -363,6 +363,15 @@
 </ol>
 <p class="note">验收用例见 <b>10.3（309–330）</b>；<b>R17 见 10.4（331–342）</b>；<b>R18 见 10.5（343–352）</b>；<b>R19 见 10.6（353–364）</b>。</p>
 
+<p class="note"><b>R23 本轮变更摘要（2026-09-21）</b></p>
+<ol>
+<li><b>≤ 5 人紧凑态：加回勾选组件（0 遮挡）</b>（<b>6.11.9</b>）：R21 曾因「59×52 文字卡上勾标会压姓名 / 职位」删掉勾标；本轮改用 <b>「内嵌右上角 + 选中态文字整块左移让位」</b> —— <code>.sp-card__tick</code> = <b>14×14 品牌圆点（<code>#F32F41</code>）+ 8px 白勾</b>，<code>top:2px / right:2px</code>；选中态 <code>.sp-card.is-on</code> 新增 <b><code>padding-right:16px</code></b>（<code>padding-right .18s ease</code> 过渡），姓名与职位<b>一起</b>居中于剩下的 <b>40px</b>。<b>实测 0 遮挡</b>：文字右缘 <b>42.5</b> 与勾标左缘 <b>42.5</b> 恰好相切（矩形不相交）；文字轴 <b>卡左 + 29.5（未选中 / 内容 54）→ 卡左 + 22.5（选中 / 内容 40）</b>，即<b>整体左移 7px</b>，姓名与职位<b>永远共轴</b>（实测同心 582.50 / 582.50）。<b>只作用于选中态</b>：未选中与置灰（<code>is-full</code>）<b>不让位（<code>padding-right</code> 仍 2px）、不显示勾标</b>；<b>&gt; 5 人选择页的 <code>.sp-pick__tick</code>（16×16）不动</b>。</li>
+<li><b>&gt; 5 人槽位卡：右上角补「删除 ×」角标</b>（<b>6.11.1</b> / <b>6.11.9</b>）：<code>.sp-slot__x</code> = <b>14×14 <code>#C7C7CC</code> 实心圆点 + 8px 白 ×</b>，<code>top:1px / right:1px</code>，<b><code>pointer-events:none</code></b>。<b>删除热区与以前完全一致 = 整张卡</b>（<code>data-sr-rm</code> 与 <code>aria-label="移除 {姓名}"</code> 仍挂卡根，<b>未新增任何独立热区</b>）—— 角标只是把「点一下 = 移除」这件看不见的事<b>画出来</b>。<b>实测不压任何内容</b>：角标 14×14 落在 <b>x 46.5–60.5</b>，头像右缘 <b>41.25</b>（留 5px）、姓名在 <b>y 34–47</b> 与角标 <b>y 1.5–15.5</b> <b>垂直不重叠</b>；<code>elementFromPoint(× 中心)</code> 命中的是 <b><code>BUTTON.sp-slot</code> 本体</b>，点该位置仍正常移除。</li>
+<li><b>「顾客指定」行加大与「小工」的间距</b>（两套形态同步）：<code>.sp-row--extra</code> / <code>.sp-cards__row--extra</code> 各加 <b><code>margin-top: 6px</code></b> —— 槽位形态行间 <b>14.5 → 20.5px</b>、紧凑形态行间 <b>6.5 → 12.5px</b>；发丝线仍贴在该行顶部（随之一起下移）。「顾客指定」在数据上不是工位（只有提成语义），拉开间距后与前三行<b>一眼可分</b>。</li>
+<li><b>范围与实测</b>：3 项改动覆盖 <b>4 个入口</b>（添加「设置内容」sheet、s6·s7「修改服务员工」sheet、s2·s3 直接收款面板）+ <b>&gt; 5 人选择页</b>；无头浏览器 <b>97 项断言全通过</b>（含勾标 / × 矩形不相交、文字轴位移 7px、卡列 <code>scrollWidth = clientWidth</code>、s2 面板 <code>max-height:388px</code> 不滚动、&gt; 5 槽位卡整卡热区仍生效）。</li>
+<li>完整细则与验收用例见 Markdown 版 <b>§6.11.1 / §6.11.9</b> 与 <b>§10.7（第 383 / 391–397 条）</b>。</li>
+</ol>
+
 <p class="note"><b>R22 本轮变更摘要（2026-09-20）</b></p>
 <ol>
 <li><b>问题</b>：≤ 5 人紧凑态员工卡「选中 / 未选中」<b>视觉上没有差别</b>。无头浏览器实测确认根因 —— 两态<b>姓名计算样式完全相同</b>（均 <code>#1A1A1A / 600</code>）、<b>职位也完全相同</b>（均 <code>#8E8E93 / 400</code>）：R21 改文字卡时，<code>.sp-card.is-on .sp-card__nm / __role</code> 的取色沿用了「与未选中同色」的值，这两条规则当时等于<b>空操作</b>。唯一真实差异只剩 1px 品牌描边（淡粉底渐变最浅端 <code>#FFF8F8</code> 几乎等于白色，在白 sheet 上感知不到）。</li>
@@ -385,7 +394,7 @@
 <p class="note"><b>R20 本轮变更摘要（2026-09-20）：</b></p>
 <ol>
 <li><b>s14 挂单卡按钮文案定稿「去结单」</b>（<b>6.22</b> · <b>6.22.1</b>）：R16 的「取挂单 → 去开单」再收敛为 <b>「去结单」</b> —— 该按钮的动作是<b>取回挂单进入结算</b>，与 s4/s0 的「挂单（N）/取挂单」入口区分开。功能零变化（不删除挂单、仅还原顾客 + 明细 + 员工状态，按 <code>from</code> 回跳 s1/s5/s6），函数名 <code>takeHold()</code> 与字段 <code>activeHoldId</code> 不动。</li>
-<li><b>选择服务员工按门店员工数分成两套形态</b>（<b>6.11</b> · 新增 <b>6.11.9</b>）：<b>员工 &gt; 5 人</b>沿用「工位槽位行 + 员工选择页」，仅两点修改 —— ① 进入选择页时<b>隐藏「价格（元）」卡</b>（值仍留在 input 内，退出即恢复）；② 选择页高度<b>按内容自适应</b>（<code>--sp-pick-h</code>）+ sheet 上限 <b>85% → 92%</b>，4 行卡（12 人）592px / 5 行卡（15 人）695px 都在 776px 内，<b>卡片全部可见、sheet 不滚动</b>。<b>员工 ≤ 5 人</b>改为<b>新紧凑形态</b>：4 个工位标题各自独占一行（仍在左侧），<b>标题下一行横列全部员工卡、第一张与标题左对齐</b>，<b>点卡即选中＝加入该槽位、再点即移出</b>，每行上限仍 3 人（满员其余卡置灰 + toast）；<b>不再有「＋」槽位、也不再 morph 到选择页</b>。卡宽 <b>59</b>、间距 6：5 张 = 319px，最窄宿主恰好落满一行、不横滑不换行不滚动。<b>R21：卡改为无头像的「姓名 + 职位」双行文字卡</b>（见 R21 摘要 / 6.11.9）。两套形态<b>共用同一数据模型</b>，摘要 / 结算 / 挂单还原 / 拆行规则完全不变；覆盖添加 sheet、s6/s7「修改服务员工」sheet、s2/s3 直接收款面板 4 个入口。</li>
+<li><b>选择服务员工按门店员工数分成两套形态</b>（<b>6.11</b> · 新增 <b>6.11.9</b>）：<b>员工 &gt; 5 人</b>沿用「工位槽位行 + 员工选择页」，仅两点修改 —— ① 进入选择页时<b>隐藏「价格（元）」卡</b>（值仍留在 input 内，退出即恢复）；② 选择页高度<b>按内容自适应</b>（<code>--sp-pick-h</code>）+ sheet 上限 <b>85% → 92%</b>，4 行卡（12 人）592px / 5 行卡（15 人）695px 都在 776px 内，<b>卡片全部可见、sheet 不滚动</b>。<b>员工 ≤ 5 人</b>改为<b>新紧凑形态</b>：4 个工位标题各自独占一行（仍在左侧），<b>标题下一行横列全部员工卡、第一张与标题左对齐</b>，<b>点卡即选中＝加入该槽位、再点即移出</b>，每行上限仍 3 人（满员其余卡置灰 + toast）；<b>不再有「＋」槽位、也不再 morph 到选择页</b>。卡宽 <b>59</b>、间距 6：5 张 = 319px，最窄宿主恰好落满一行、不横滑不换行不滚动。<b>R21：卡改为无头像的「姓名 + 职位」双行文字卡</b>（见 R21 摘要 / 6.11.9）。<b>R23：加回右上角勾标（内嵌 14×14 + 选中态文字左移 7px 让位，0 遮挡）、「顾客指定」行间距 +6px</b>（见 R23 摘要 / 6.11.9）。两套形态<b>共用同一数据模型</b>，摘要 / 结算 / 挂单还原 / 拆行规则完全不变；覆盖添加 sheet、s6/s7「修改服务员工」sheet、s2/s3 直接收款面板 4 个入口。</li>
 <li><b>取消进入成功页的数字滚动动效</b>（<b>6.23</b>）：删除 <code>sucCountUp()</code>（0 → 目标值 620ms easeOutCubic）与 <code>sucAmtRaf</code>，<b>金额进入本页即为终值</b>；对勾回弹与标题 / 操作组 / 金额卡 / 底栏的错峰上浮<b>全部保留</b>。</li>
 <li><b>左侧导航新增演示入口「16 员工选择（12 人）」</b>：把员工池临时扩到 12 人并直接落到「选择大工」选择页（评审「&gt; 5 人」分支）；<b>关闭 sheet 即还原为 5 人</b>（<code>STAFFS</code> 本体不变，多出的 7 人在 <code>STAFF_EXTRA</code>）。</li>
 <li>完整细则与验收用例见 Markdown 版 <b>§6.11.9</b> / <b>§6.22</b> / <b>§6.23</b> / <b>§10.7（第 365–382 条）</b>。</li>
@@ -417,7 +426,7 @@
 </ol>
 <table>
   <tr><th>字段</th><th>内容</th></tr>
-  <tr><td>文档版本</td><td>v2.0-draft（R22 · 2026-09-20）</td></tr>
+  <tr><td>文档版本</td><td>v2.0-draft（R23 · 2026-09-21）</td></tr>
   <tr><td>日期</td><td>2026-09-20</td></tr>
   <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code></td></tr>
   <tr><td>画布</td><td>390 × 844</td></tr>
@@ -1149,25 +1158,27 @@
 
 <p class="note"><b>R18 修订：</b>① <b>选择页标题行去掉「最多 3 人」提示</b> —— 只保留「选择{行名}」+「取消」（<code>.sp-picker__hd .s</code> 元素与其样式一并删除）；<b>每行上限 3 人的规则完整保留</b>（满员该行「＋」消失、<code>spAddToRow()</code> 仍拦第 4 人、<code>SP_ROW_MAX</code> = 3）。② <b>第 4 行行名「顾客指定」改回主文字色 <code>#1a1a1a</code></b>（<b>R17 的橙 <code>#F97316</code> 作废</b>，<code>.sp-row--extra .sp-row__lbl</code> 着色规则整体删除）—— 4 行工位靠行名文案区分，不再靠颜色；<code>sp-row--extra</code> 类名保留（业务语义仍在）。</p>
 
-<h4>6.11.9 两种形态分流：按门店员工数<span class="badge-new">R20 新增 · R21 修订卡面 · R22 压弱未选中态</span></h4>
+<h4>6.11.9 两种形态分流：按门店员工数<span class="badge-new">R20 新增 · R21 修订卡面 · R22 压弱未选中态 · R23 加回勾标 + 指定行间距</span></h4>
 <p class="reader-note"><b>员工 &gt; 5 人</b>用「槽位行 + 员工选择页」（6.11.1）；<b>员工 ≤ 5 人</b>用「标题 + 卡列」的紧凑形态。两套形态<b>只换皮、不换数据</b>（<code>staffIds / staffRoles / staffExtra</code> 与摘要、结算、挂单还原规则完全一致）。判定口径 = <b>门店在职员工总数</b>；5 这个阈值的来历：一张卡 59px + 6px 间距，<b>5 张 = 319px</b> 正好落满最窄宿主（添加 sheet 内 322px）。</p>
 <ul>
-    <li><b>紧凑形态（≤ 5 人）</b>：4 个工位块，<b>块内第一行是工位标题</b>（大工 / 中工 / 小工 / 顾客指定，13px <code>#1a1a1a</code>，仍在左侧），<b>第二行是该工位的卡列 —— 横列「全部」员工卡</b>，<b>第一张卡与标题左对齐</b>；块之间 0.5px 发丝线 <code>#F0F0F0</code>。卡（<b>R21</b>）<b>59×52</b>，<b>无头像</b>；上＝姓名 <b>13px</b>（<code>st.name</code>），下＝职位 <code>st.role</code> <b>11px</b>；白底、圆角 <b>12</b>、间距 6。工位由行标题表达，卡内不写工位名。<b>三态色值见下表（R22 定稿）</b>。</li>
+    <li><b>紧凑形态（≤ 5 人）</b>：4 个工位块，<b>块内第一行是工位标题</b>（大工 / 中工 / 小工 / 顾客指定，13px <code>#1a1a1a</code>，仍在左侧），<b>第二行是该工位的卡列 —— 横列「全部」员工卡</b>，<b>第一张卡与标题左对齐</b>；块之间 0.5px 发丝线 <code>#F0F0F0</code>。卡（<b>R21</b>）<b>59×52</b>，<b>无头像</b>；上＝姓名 <b>13px</b>（<code>st.name</code>），下＝职位 <code>st.role</code> <b>11px</b>；白底、圆角 <b>12</b>、间距 6。工位由行标题表达，卡内不写工位名。<b>三态色值见下表（R22 定稿 · R23 增列勾标与文字轴）</b>。</li>
 </ul>
 <table>
-  <tr><th>状态</th><th>描边</th><th>姓名</th><th>职位</th><th>姓名对比度</th></tr>
-  <tr><td><b>未选中</b></td><td>0.5px <code>#EDEDED</code></td><td><code>#55595E</code> / <b>500</b></td><td><code>#A6A6AB</code> / 400</td><td><b>7.05:1</b></td></tr>
-  <tr><td><b>选中</b>（<code>.is-on</code>）</td><td>0.5px <code>#F32F41</code> + 0.5px 外扩阴影＝视觉 1px</td><td><code>#1A1A1A</code> / <b>600</b></td><td><code>#8E8E93</code> / 400</td><td><b>≈15.8:1</b></td></tr>
-  <tr><td><b>置灰</b>（<code>.is-full</code>，该行满 3 人）</td><td>沿用未选中描边 + <b>40% 透明</b></td><td><code>#1A1A1A</code> / 600（合成后 <code>#A3A3A3</code>）</td><td><code>#8E8E93</code> / 400</td><td><b>2.52:1</b></td></tr>
+  <tr><th>状态</th><th>描边</th><th>姓名</th><th>职位</th><th>右上角勾标</th><th>内距 / 文字轴</th><th>姓名对比度</th></tr>
+  <tr><td><b>未选中</b></td><td>0.5px <code>#EDEDED</code></td><td><code>#55595E</code> / <b>500</b></td><td><code>#A6A6AB</code> / 400</td><td><b>无</b></td><td><code>padding-right:2px</code> → 内容 54，文字轴 <b>卡左 + 29.5</b></td><td><b>7.05:1</b></td></tr>
+  <tr><td><b>选中</b>（<code>.is-on</code>）</td><td>0.5px <code>#F32F41</code> + 0.5px 外扩阴影＝视觉 1px</td><td><code>#1A1A1A</code> / <b>600</b></td><td><code>#8E8E93</code> / 400</td><td><b>有</b>（14×14 <code>#F32F41</code> 圆点 + 8px 白勾，<code>top:2 / right:2</code>）</td><td><code>padding-right:16px</code> → 内容 40，文字轴 <b>卡左 + 22.5</b></td><td><b>≈15.8:1</b></td></tr>
+  <tr><td><b>置灰</b>（<code>.is-full</code>，该行满 3 人）</td><td>沿用未选中描边 + <b>40% 透明</b></td><td><code>#1A1A1A</code> / 600（合成后 <code>#A3A3A3</code>）</td><td><code>#8E8E93</code> / 400</td><td><b>无</b></td><td><code>padding-right:2px</code>（不让位）</td><td><b>2.52:1</b></td></tr>
 </table>
 <p class="note"><b>R22 关键点：</b>选中态<b>一行没改</b>，改动全部落在<b>未选中态</b>上（<code>#E5E5EA→#EDEDED</code>、<code>#1A1A1A/600→#55595E/500</code>、<code>#8E8E93→#A6A6AB</code>）。R21 时未选中姓名是 <code>#1A1A1A/600</code>，与选中<b>完全同色</b>，两态只差一条 1px 描边 → 实测「看不出差别」；压弱未选中后，<code>.is-on</code> 那两条 <code>color:#1a1a1a / #8E8E93</code> 才真正起到区分作用。<b>两条防回归护栏</b>：① <code>.sp-card.is-on .sp-card__nm</code> 必须钉住 <code>font-weight:600</code>，否则被压弱后的 500 带跑；② <code>.sp-card.is-full .sp-card__nm / __role</code> 必须钉回 <code>#1a1a1a / #8E8E93</code> —— 否则 40% 透明下姓名合成值会从 <code>#A3A3A3</code>（2.52:1）掉到 <code>#BBBDBF</code>（<b>1.88:1</b>，看不清是谁）。</p>
 <p class="note"><b>R22 的附带收益</b>：R21 曾把紧凑卡描边从 <code>#EDEDED</code> 提到 <code>#E5E5EA</code>，而 <b>&gt; 5 人选择页的 <code>.sp-pick</code> 一直是 <code>1px #EDEDED</code></b>；R22 改回 <code>#EDEDED</code> 后，两套形态的发丝描边<b>颜色重新统一</b>（线宽仍各自为紧凑 <code>0.5px</code> / 选择页 <code>1px</code>）。</p>
+<p class="note"><b>R23 勾选组件（加回 · 0 遮挡）：</b>R21 删勾标是因为「59×52 文字卡上勾标会压姓名 / 职位」；R23 按需求加回，改为 <b>「内嵌右上角 + 选中态文字整块左移让位」</b>：<code>.sp-card__tick</code> = <b>14×14 品牌圆点（<code>#F32F41</code>）+ 8px 白勾</b>（<code>top:2px / right:2px</code>、<code>border-radius:50%</code>，默认 <code>display:none</code>，<code>.is-on</code> 时 <code>display:flex</code>）；选中态 <code>.sp-card.is-on</code> 加 <b><code>padding-right:16px</code></b>，并在 <code>.sp-card</code> 的过渡链首位加 <code>padding-right .18s ease</code> → <b>勾标淡入与文字左移同一拍</b>，姓名与职位<b>一起</b>居中于剩下的 40px。<b>实测 0 遮挡</b>：文字右缘 <b>42.5</b>（= 卡右 − 0.5 边 − 16 内距）与勾标左缘 <b>42.5</b> 恰好相切，两者<b>矩形不相交</b>；文字轴 <b>卡左 + 29.5 → 卡左 + 22.5</b>（整块左移 <b>7px</b>），姓名与职位<b>始终共轴</b>。未选中与置灰卡<b>不让位（<code>padding-right</code> 仍 2px）、不显示勾标</b>；<b>&gt; 5 人选择页的 <code>.sp-pick__tick</code>（16×16 / <code>top:5 right:5</code>）不动</b>。</p>
 <ul>
 
-  <li><b>点卡即选中＝加入该槽位</b>：卡变选中态（品牌描边 + 淡粉底；<b>无右上角勾标</b>）+ 落位弹跳（<code>spCardLand</code>，<b>只给「员工 id + 工位行」都匹配的那一张</b>播一次；同人其它行不连带）；<b>再点同一张卡即移出</b>。某行满 3 人后该行其余卡<b>置灰</b>（<code>opacity:.4</code> + <code>pointer-events:none</code>）并 toast「{工位}最多 3 人」；同一员工可同时占「大工」与「顾客指定」，两行选中态互不排斥。<b>R22：未选中态压弱后，「选中 / 未选中」的姓名由同色变为 <code>#1A1A1A</code> vs <code>#55595E</code>、字重 600 vs 500，并叠加品牌描边与淡粉底；一屏 12 张选中卡时仍不糊。</b></li>
-  <li><b>没有的</b>：❌「＋」虚线空槽位、❌ 员工选择页（morph）、❌「最多 3 人」提示条。</li>
-  <li><b>实测几何</b>（5 人）：4 行高 90 / 91 / 91 / 91 = 363px；添加 sheet 673px（上限 85% = 717px）不滚动；s6「修改服务员工」sheet 545px 不滚动；s2 直接收款面板 358×381（上限 320 → <b>388px</b>），面板底不越过手机框底、4 行全部可见。<b>R22 复核：</b>卡列 <code>scrollWidth = clientWidth = 322</code>；添加 sheet 高 <b>633px</b>（上限 85%）、s6 sheet <b>395px</b>、s2 面板 <b>388px</b>（上限）—— 三处 body 均 <code>scrollHeight = clientHeight</code>，<b>不滚动</b>；4 个入口逐个实测，<b>24 项断言全通过</b>。</li>
-  <li><b>槽位 + 选择页形态（&gt; 5 人）的两点修改</b>：① 选择页<b>隐藏「价格（元）」卡</b>（<code>.is-picking #asPriceCell{display:none}</code>，仅隐藏显示、值仍在 input 内，退出选择页立即恢复；只作用于添加 sheet）；② <code>.sp-face--pick</code> 由固定 <code>max-height:560px</code> 改为按内容自适应（<code>--sp-pick-h</code> = 实测内容高）+ 选择页态 sheet 上限 <b>85% → 92%</b> —— 12 人（4 行卡）选择页 442px、sheet 696px、<b>不滚动</b>；推演 6 / 9 / 12 / 15 人 = 386 / 489 / 592 / 695px 都在 776px 内，18 人起才滚动。槽位行、落位动效、上限 3 人、摘要文案、数据键一律不变。</li>
+  <li><b>点卡即选中＝加入该槽位</b>：卡变选中态（品牌描边 + 淡粉底 + <b>右上角勾标</b>，R23）+ 落位弹跳（<code>spCardLand</code>，<b>只给「员工 id + 工位行」都匹配的那一张</b>播一次；同人其它行不连带）；<b>再点同一张卡即移出</b>。某行满 3 人后该行其余卡<b>置灰</b>（<code>opacity:.4</code> + <code>pointer-events:none</code>）并 toast「{工位}最多 3 人」；同一员工可同时占「大工」与「顾客指定」，两行选中态互不排斥。<b>R22：未选中态压弱后，「选中 / 未选中」的姓名由同色变为 <code>#1A1A1A</code> vs <code>#55595E</code>、字重 600 vs 500，并叠加品牌描边与淡粉底；一屏 12 张选中卡时仍不糊。</b></li>
+  <li><b>没有的</b>：❌「＋」虚线空槽位、❌ 员工选择页（morph）、❌「最多 3 人」提示条。<b>（「右上角勾标」R23 已加回，不再是「没有的」——见上方勾选组件说明）</b></li>
+  <li><b>「顾客指定」行间距（R23）</b>：<code>.sp-cards__row--extra</code> 加 <b><code>margin-top:6px</code></b> → 与「小工」行行间 <b>6.5 → 12.5px</b>（发丝线随该行下移）；<b>&gt; 5 人槽位形态同步</b>（<code>.sp-row--extra</code>，14.5 → 20.5px）。</li>
+  <li><b>实测几何</b>（5 人）：4 行高 90 / 91 / 91 / 91 = 363px；添加 sheet 673px（上限 85% = 717px）不滚动；s6「修改服务员工」sheet 545px 不滚动；s2 直接收款面板 358×381（上限 320 → <b>388px</b>），面板底不越过手机框底、4 行全部可见。<b>R22 复核：</b>卡列 <code>scrollWidth = clientWidth = 322</code>；添加 sheet 高 <b>633px</b>（上限 85%）、s6 sheet <b>395px</b>、s2 面板 <b>388px</b>（上限）—— 三处 body 均 <code>scrollHeight = clientHeight</code>，<b>不滚动</b>；4 个入口逐个实测，<b>24 项断言全通过</b>。<b>R23 复核：</b>卡尺寸、卡列宽度、三处宿主高度<b>与 R22 完全一致</b>（勾标绝对定位、不参与布局；让位只改 <code>padding-right</code>，卡宽恒 59，5 张 = 319px 的结论不变）；<b>4 个入口 + &gt; 5 人选择页共 97 项断言全通过</b>。</li>
+  <li><b>槽位 + 选择页形态（&gt; 5 人）的两点修改</b>：① 选择页<b>隐藏「价格（元）」卡</b>（<code>.is-picking #asPriceCell{display:none}</code>，仅隐藏显示、值仍在 input 内，退出选择页立即恢复；只作用于添加 sheet）；② <code>.sp-face--pick</code> 由固定 <code>max-height:560px</code> 改为按内容自适应（<code>--sp-pick-h</code> = 实测内容高）+ 选择页态 sheet 上限 <b>85% → 92%</b> —— 12 人（4 行卡）选择页 442px、sheet 696px、<b>不滚动</b>；推演 6 / 9 / 12 / 15 人 = 386 / 489 / 592 / 695px 都在 776px 内，18 人起才滚动。槽位行、落位动效、上限 3 人、摘要文案、数据键一律不变。<b>R23 新增 ③ 槽位卡右上角删除 × 角标</b>：<code>.sp-slot__x</code> = <b>14×14 <code>#C7C7CC</code> 实心圆点 + 8px 白 ×</b>（<code>top:1px / right:1px</code>、<code>pointer-events:none</code>，<code>.sp-slot</code> 加 <code>position:relative</code>）—— <b>删除热区仍只有整张卡</b>（<code>data-sr-rm</code> / <code>aria-label="移除 {姓名}"</code> 挂卡根，<b>未新增独立热区</b>）；实测角标 x <b>46.5–60.5</b>、y <b>1.5–15.5</b>，与头像（右缘 41.25）留 5px、与姓名（y 34–47）<b>垂直不重叠</b>，<code>elementFromPoint(× 中心)</code> 命中 <code>BUTTON.sp-slot</code> 本体，点该点位仍正常移除。<b>④「顾客指定」行间距</b>：<code>.sp-row--extra</code> 加 <code>margin-top:6px</code> → 行间 <b>14.5 → 20.5px</b>。</li>
   <li><b>演示入口</b>：左侧导航 <b>「16 员工选择（12 人）」</b> → 员工池临时扩到 12 人并直接落到「选择大工」选择页；<b>关闭 sheet 即还原 5 人</b>。演示态下选中的人（<code>st5</code>–<code>st11</code>）在摘要 / 购物车 / 挂单里都能正常显示姓名（姓名查找统一走 <code>staffById()</code>，覆盖扩编池）。</li>
 </ul>
 
@@ -2235,6 +2246,7 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
   <li><b>Given</b> 打开「修改单号 / 手工单号」sheet，<b>When</b> 量测单号输入框，<b>Then</b> 宽 <b>240px</b>（<code>flex-basis:240px</code>）、<b>右缘距 sheet 右 16px</b>，与页脚「确定」按钮右缘<b>同列</b>（实测两者均为 16px，差 0）；<b>Given</b> 填入 20 位数字，<b>Then</b> 文字不溢出（可用宽 216px ≥ 20 位数字 182px）；<b>Given</b> sheet 收窄，<b>Then</b> 输入框按 <code>flex-shrink:1</code> 收缩、不溢出。</li>
 </ol>
 
+<p class="note"><b>R22 / R23 说明：</b>本节 <b>#370 / #372 / #383</b> 三条中关于紧凑卡「右上角勾标」的表述已按 <b>R23 改写</b> —— R21 删勾标（会压字）→ R23 以「内嵌右上角 + 选中态文字整块左移让位」<b>加回</b>，判定口径由「<b>没有</b> <code>.sp-card__tick</code>」反转为「<b>有</b>、且与姓名 / 职位矩形不相交」；R22 的三态色值以 <b>385–390</b> 为准，R23 的角标与行间距以 <b>391–397</b> 为准。</p>
 <p class="note"><b>R18 说明：</b>本节 <b>#315</b>（删「最多 3 人」）、<b>#335</b>（顾客指定回主文字色）两条已按 R18 改写，另见 <b>10.5（343–352）</b>。</p>
 
 <p class="note"><b>R17 说明：</b>本节第 <b>#281 / #282 / #301 / #322</b> 四条已按 R17 改写（打印小票入口由「卡内右上角图标」改为「卡片底部整行」）；s4 相关条目里「分段胶囊 / 左段实心红」的表述以 <b>6.8</b> 与 <b>10.4（331–334）</b> 为准。</p>
@@ -2266,7 +2278,7 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
   <li><b>Given</b> s6/s7 明细「服务员工」行，<b>When</b> 点击，<b>Then</b> 打开「修改服务员工」sheet（4 行槽位、<code>data-ctx</code> 为 <code>co</code> / <code>qco</code>）；落位员工后<b>摘要即时更新且金额不变</b>。</li>
   <li><b>Given</b> s7 明细，<b>When</b> 查看「应付」行，<b>Then</b> <b>同样可编辑</b>（R16 前为只读），改价规则与 s6 一致。</li>
 </ol>
-<h3>10.7 R20–R22 验收用例（365–390）</h3>
+<h3>10.7 R20–R23 验收用例（365–397）</h3>
 <ol start="365">
 <li><b>Given</b> s14 挂单列表，<b>When</b> 取挂单卡操作行，<b>Then</b> 主按钮文案为 <b>「去结单」</b>（不是「去开单」/「取挂单」），样式仍为高 34 / 圆角 17 / <code>#F32F41</code> 实心；与左侧删除按钮成对，每卡一个。</li>
 <li><b>Given</b> 全原型渲染后的 DOM，<b>When</b> 检索「去开单」字样，<b>Then</b> <b>命中 0</b>（文案、注释、PRD 一并收敛）。</li>
@@ -2275,19 +2287,19 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
 <li><b>Given</b> 该紧凑区，<b>Then</b> 有 <b>4 个 <code>.sp-cards__row</code></b>，标题依次为 <b>大工 / 中工 / 小工 / 顾客指定</b>；<b>每行 5 张卡</b>（横列全部员工）。</li>
 <li><b>Given</b> 任一 <code>.sp-card</code>，<b>Then</b> 尺寸 <b>59×52</b>、<b>无头像</b>、姓名 <b>13px</b>（取自 <code>st.name</code>）、职位 <b>11px <code>st.role</code></b>、卡圆角 <b>12</b>；行标题仍 <b>13px <code>#1a1a1a</code></b>。<b>三态色值见 385–387</b>（R22 起未选中描边为 <code>#EDEDED</code>，不再是 <code>#E5E5EA</code>）。</li>
 <li><b>Given</b> 某行标题与卡列，<b>Then</b> <b>第一张卡的左边缘 = 标题的左边缘</b>（误差 &lt; 1px）；卡列 <code>flex-wrap:nowrap</code> 且 <code>scrollWidth ≤ clientWidth</code>（<b>5 张恰好落满、不横滑不换行</b>）；卡间距 6px。</li>
-<li><b>Given</b> 点某行第 1 张卡，<b>Then</b> 该卡变选中态（<code>is-on</code>：品牌描边 + 淡粉底 + <code>aria-pressed="true"</code>；<b>无</b> <code>.sp-card__tick</code>）、播一次落位弹跳，<b>数据层</b> <code>staffRoles[sid]</code> 加入该工位；<b>再点一次</b> → 取消选中、数据层移出该工位（若该员工不在其它工位，则从本单移除）。</li>
+<li><b>Given</b> 点某行第 1 张卡，<b>Then</b> 该卡变选中态（<code>is-on</code>：品牌描边 + 淡粉底 + <b>右上角勾标显示</b>（R23，见 392）+ <code>aria-pressed="true"</code>）、播一次落位弹跳，<b>数据层</b> <code>staffRoles[sid]</code> 加入该工位；<b>再点一次</b> → 取消选中、数据层移出该工位（若该员工不在其它工位，则从本单移除）。</li>
 <li><b>Given</b> 某行已选 3 人，<b>Then</b> 该行<b>其余卡置灰</b>（<code>opacity .4</code> + <code>pointer-events:none</code>）、带 <code>aria-disabled="true"</code>；点第 4 张 → toast「{工位}最多 3 人」且<b>人数仍为 3</b>。</li>
 <li><b>Given</b> 同一员工分别点「大工」与「顾客指定」两行的卡，<b>Then</b> <b>两张卡同时选中</b>，摘要文案 = <code>大工 · 顾客指定</code>（跨行可重复，互不排斥）。</li>
 <li><b>Given</b> 5 人门店的添加 sheet，<b>Then</b> <b>「价格（元）」卡仍显示</b>（<code>#asPriceCell</code> 不是 <code>display:none</code>）、body <code>scrollHeight = clientHeight</code>（不滚动）、4 行卡都在 sheet 可视区内。</li>
 <li><b>Given</b> s6「修改服务员工」sheet 与 s2/s3 直接收款面板，<b>Then</b> 同样渲染紧凑形态（4 行 × 5 卡）；<b>s6 sheet 不滚动</b>；<b>s2 面板 <code>max-height:388px</code>、<code>scrollHeight = clientHeight</code>、面板底不越过手机框底且 4 行末行在面板内</b>。</li>
 <li><b>Given</b> 关闭添加 sheet 后重新打开，<b>Then</b> 草稿是干净的（<code>.sp-card.is-on</code> 命中 <b>0</b>），且仍是紧凑形态。</li>
-<li><b>Given</b> 紧凑态任一张卡，<b>When</b> 检查 DOM，<b>Then</b> <b>没有</b> <code>.sp-av</code> / <code>img</code> 头像节点；<b>有</b> <code>.sp-card__nm</code> 与 <code>.sp-card__role</code>；<b>没有</b> <code>.sp-card__tick</code>；<code>aria-label</code> 含「姓名 · 职位」；<b>Given</b> 左侧导航「16」进入 &gt;5 人选择页，<b>Then</b> 选择页卡仍<b>保留头像与勾标</b>（本轮不改）。</li>
-<li><b>Given</b> 同一员工已在「大工」行选中，<b>When</b> 再点「顾客指定」行的同人卡，<b>Then</b> <b>只有刚点的那一张</b>带 <code>is-land</code>（播落位弹跳），「大工」行同人卡<b>仅保持 <code>is-on</code>、不带 <code>is-land</code></b>。</li>
-<li><b>Given</b> 左侧导航「16 员工选择（12 人）」，<b>When</b> 点击，<b>Then</b> 员工池扩到 <b>12 人</b>、打开添加 sheet 并<b>停在「选择大工」选择页</b>（<code>data-picking="1"</code>）；员工区<b>没有</b> <code>.sp-cards</code>。</li>
-<li><b>Given</b> 该选择页，<b>Then</b> <b>12 张 <code>.sp-pick</code>（4 行 × 3 列）</b>、每张 <b>102×95</b>；<code>#asPriceCell</code> 的 <code>display</code> = <b>none</b>；<code>.addsheet</code> 的 <code>max-height</code> = <b>92%</b>。</li>
-<li><b>Given</b> 该选择页，<b>Then</b> <code>.sp-box</code> 的 <code>--sp-pick-h</code> 已写入且<b>等于 <code>.sp-pick-inner</code> 的高度</b>（实测 442px）、<code>.sp-face--pick</code> 高度与之相等；body <code>scrollHeight = clientHeight</code>（<b>12 张卡全部可见、sheet 不滚动</b>），最后一张卡底边在 sheet 可视区内。</li>
-<li><b>Given</b> 点选择页任一张卡，<b>Then</b> 自动回到槽位行（<code>data-picking="0"</code>）、该员工落入对应工位槽位、<b>价格卡随即恢复显示</b>、<code>.addsheet</code> 上限恢复 <b>85%</b>；<b>关闭 sheet 后员工池还原为 5 人</b>，再开添加 sheet 回到紧凑形态。</li>
-<li><b>Given</b> s15，<b>When</b> 进入本页，<b>Then</b> 金额<b>立即等于应付终值</b>（≠ 0、无中间态；连续两次采样值不变），源码中 <code>sucCountUp</code> / <code>sucAmtRaf</code> / 620ms 计数常量<b>均为 0 命中</b>；<b>同时</b>对勾 <code>sucPop</code> 与标题 / 金额卡 / 操作组 / 底栏的 <code>sucRise</code> <b>5 条入场动画仍在</b>。</li>
+<li value="383"><b>Given</b> 紧凑态任一张卡，<b>When</b> 检查 DOM，<b>Then</b> <b>没有</b> <code>.sp-av</code> / <code>img</code> 头像节点；<b>有</b> <code>.sp-card__nm</code> 与 <code>.sp-card__role</code>；<b>每张卡都有 <code>.sp-card__tick</code> 节点</b>（<b>R23 反转</b>：R21–R22 曾断言「没有勾标」），但<b>只有 <code>.is-on</code> 的卡显示</b>（未选中 / 置灰 <code>display:none</code>）；<code>aria-label</code> 含「姓名 · 职位」；<b>Given</b> 左侧导航「16」进入 &gt;5 人选择页，<b>Then</b> 选择页卡仍<b>保留头像与勾标</b>（<code>.sp-pick__tick</code> 未被 R23 改动，见 394）。</li>
+<li value="384"><b>Given</b> 同一员工已在「大工」行选中，<b>When</b> 再点「顾客指定」行的同人卡，<b>Then</b> <b>只有刚点的那一张</b>带 <code>is-land</code>（播落位弹跳），「大工」行同人卡<b>仅保持 <code>is-on</code>、不带 <code>is-land</code></b>。</li>
+<li value="378"><b>Given</b> 左侧导航「16 员工选择（12 人）」，<b>When</b> 点击，<b>Then</b> 员工池扩到 <b>12 人</b>、打开添加 sheet 并<b>停在「选择大工」选择页</b>（<code>data-picking="1"</code>）；员工区<b>没有</b> <code>.sp-cards</code>。</li>
+<li value="379"><b>Given</b> 该选择页，<b>Then</b> <b>12 张 <code>.sp-pick</code>（4 行 × 3 列）</b>、每张 <b>102×95</b>；<code>#asPriceCell</code> 的 <code>display</code> = <b>none</b>；<code>.addsheet</code> 的 <code>max-height</code> = <b>92%</b>。</li>
+<li value="380"><b>Given</b> 该选择页，<b>Then</b> <code>.sp-box</code> 的 <code>--sp-pick-h</code> 已写入且<b>等于 <code>.sp-pick-inner</code> 的高度</b>（实测 442px）、<code>.sp-face--pick</code> 高度与之相等；body <code>scrollHeight = clientHeight</code>（<b>12 张卡全部可见、sheet 不滚动</b>），最后一张卡底边在 sheet 可视区内。</li>
+<li value="381"><b>Given</b> 点选择页任一张卡，<b>Then</b> 自动回到槽位行（<code>data-picking="0"</code>）、该员工落入对应工位槽位、<b>价格卡随即恢复显示</b>、<code>.addsheet</code> 上限恢复 <b>85%</b>；<b>关闭 sheet 后员工池还原为 5 人</b>，再开添加 sheet 回到紧凑形态。</li>
+<li value="382"><b>Given</b> s15，<b>When</b> 进入本页，<b>Then</b> 金额<b>立即等于应付终值</b>（≠ 0、无中间态；连续两次采样值不变），源码中 <code>sucCountUp</code> / <code>sucAmtRaf</code> / 620ms 计数常量<b>均为 0 命中</b>；<b>同时</b>对勾 <code>sucPop</code> 与标题 / 金额卡 / 操作组 / 底栏的 <code>sucRise</code> <b>5 条入场动画仍在</b>。</li>
 
 <li><b>Given</b> 紧凑态任一<b>未选中</b>卡，<b>Then</b> 描边 <b>0.5px <code>#EDEDED</code></b>、姓名 <b><code>#55595E</code> / font-weight 500</b>、职位 <b><code>#A6A6AB</code> / 400</b>（R22 前为 <code>#E5E5EA</code> / <code>#1A1A1A</code>·600 / <code>#8E8E93</code>）。</li>
 <li><b>Given</b> 紧凑态任一<b>选中</b>卡（<code>is-on</code>），<b>Then</b> 姓名 <b><code>#1A1A1A</code> / font-weight 600</b>、职位 <b><code>#8E8E93</code></b>、描边 <code>#F32F41</code>（0.5px 边 + 0.5px 外扩阴影）、淡粉底 —— <b>与 R22 之前完全一致</b>（选中态本轮不动）；<b>Given</b> 同一屏上的未选中卡，<b>Then</b> 两态<b>姓名颜色不同</b>（<code>#1A1A1A</code> ≠ <code>#55595E</code>）、<b>字重不同</b>（600 ≠ 500）。</li>
@@ -2295,6 +2307,13 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
 <li><b>Given</b> R22 后的紧凑态，<b>Then</b> 三态姓名对比度依次为 <b>未选中 7.05:1 / 选中 ≈15.8:1 / 置灰 ≈2.52:1</b>（无头浏览器计算样式 + WCAG 公式实测），三档均 ≥ 2.5:1 且层次可辨。</li>
 <li><b>Given</b> 卡尺寸与排布，<b>Then</b> 仍为 <b>59×52</b>、圆角 12、卡间距 6，卡列 <code>scrollWidth = clientWidth</code>（<b>5 张恰好落满、不横滑不换行</b>），宿主（添加 sheet / s6 sheet / s2 面板）<b>不产生滚动</b>。</li>
 <li><b>Given</b> 4 个入口（添加「设置内容」sheet、s6 · s7「修改服务员工」sheet、s2 · s3 直接收款面板），<b>When</b> 逐个渲染紧凑态，<b>Then</b> 均使用同一套三态色值（未选中 <code>#55595E/500</code>、选中 <code>#1A1A1A/600</code>）；<b>Given</b> 左侧导航「16」进入 &gt;5 人选择页（<code>.sp-pick</code>），<b>Then</b> 卡面色值<b>不受本轮影响</b>。</li>
+<li><b>Given</b> 紧凑态任一<b>未选中</b>或<b>置灰</b>（<code>is-full</code>）卡，<b>Then</b> 卡内<b>有</b> <code>.sp-card__tick</code> 节点但 <code>display = none</code>，且 <code>.sp-card</code> 的 <code>padding-right = 2px</code>（<b>不让位</b>）；<b>Given</b> 同一屏上的未选中卡，<b>Then</b> 文字轴 = <b>卡左 + 29.5</b>（内容宽 54 居中）。</li>
+<li><b>Given</b> 点某卡使其选中，<b>Then</b> 该卡 <code>.sp-card__tick</code> 的 <code>display = flex</code>、<b>尺寸 14×14</b>、<code>border-radius:50%</code>、<code>background-color = rgb(243,47,65)</code>（<code>#F32F41</code>）、内含 1 个 <b>8px 白勾 svg</b>（<code>stroke-width:3.4</code>），<code>top/right = 2px</code>；<b>同时</b> <code>.sp-card</code> 的 <code>padding-right = 16px</code>（内容缩到 40px），且该属性在 <code>.sp-card</code> 的 <code>transition</code> 链里带 <b><code>.18s ease</code></b>。</li>
+<li><b>Given</b> 选中卡，<b>When</b> 取姓名 / 职位 / 勾标三个元素的矩形，<b>Then</b> <b>姓名与勾标不相交、职位与勾标不相交</b>（文字右缘 ≤ 勾标左缘，实测两侧同为 <b>42.5px</b>），且文字轴 = <b>卡左 + 22.5</b>（比未选中整体<b>左移 7px</b>）；<b>Given</b> 同一张卡的姓名与职位，<b>Then</b> 两者<b>共轴</b>（中心 X 之差 ≤ 1px）；<b>Given</b> 卡宽，<b>Then</b> 仍为 <b>59</b>（让位只改内距、不改卡宽，5 张 = 319px 的落满结论不变）。</li>
+<li><b>Given</b> 左侧导航「16」进入 &gt; 5 人选择页，<b>Then</b> <code>.sp-pick__tick</code> 仍为 <b>16×16 / <code>top:5</code> / <code>right:5</code></b>（<b>未被 R23 改动</b>）；<b>Given</b> 选择页内任意卡，<b>Then</b> <b>不出现</b> <code>.sp-slot__x</code>。</li>
+<li><b>Given</b> &gt; 5 人槽位行任一已落位卡，<b>Then</b> 卡内<b>有</b> <code>.sp-slot__x</code>：<b>14×14</b>、<code>border-radius:50%</code>、<code>background-color = rgb(199,199,204)</code>（<code>#C7C7CC</code>）、<code>top/right = 1px</code>、<b><code>pointer-events: none</code></b>；<code>.sp-slot</code> 为 <code>position:relative</code>；卡根仍带 <b><code>data-sr-rm</code></b> 与 <code>aria-label="移除 {姓名}"</code>。</li>
+<li><b>Given</b> 该角标，<b>When</b> 取角标 / 头像 / 姓名的矩形，<b>Then</b> <b>均不相交</b>（角标 x <b>46.5–60.5</b>、y <b>1.5–15.5</b>；头像右缘 <b>41.25</b>、姓名 y <b>34–47</b>）；<b>Given</b> <code>document.elementFromPoint(角标中心)</code>，<b>Then</b> 命中 <b><code>BUTTON.sp-slot</code> 本体</b>；<b>When</b> 点该点位，<b>Then</b> 该员工被移除、该行<b>补回「＋」</b> —— 证明<b>删除热区仍是整张卡、未新增独立热区</b>。</li>
+<li><b>Given</b> 紧凑形态任一入口，<b>When</b> 量测「小工」行与「顾客指定」行的<b>内容到内容</b>间距，<b>Then</b> 为 <b>12.5px</b>（<code>.sp-cards__row--extra</code> 的 <code>margin-top = 6px</code>，改前 6.5px）；<b>Given</b> &gt; 5 人槽位形态，<b>Then</b> 为 <b>20.5px</b>（<code>.sp-row--extra</code> 的 <code>margin-top = 6px</code>，改前 14.5px）；<b>Given</b> 两种形态，<b>Then</b> 发丝线仍贴在「顾客指定」行顶部（随该行一起下移）。</li>
 </ol>
 <h3>10.6 R19 验收用例（353–364）</h3>
 <ol start="353">

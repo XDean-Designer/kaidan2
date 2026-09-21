@@ -1290,6 +1290,9 @@
   .sp-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; }
 
   .sp-row + .sp-row { border-top: .5px solid #F0F0F0; }
+  /* R23：「顾客指定」在数据上不是工位（只有提成语义），与前三行匀着排会读成「第四个工位」。
+     给这一行整体加 6px 上间距 → 行间 14.5 → 20.5px，发丝线随之一起下移（位置不变）。 */
+  .sp-row--extra { margin-top: 6px; }
 
   .sp-row__lbl {
 
@@ -1308,6 +1311,7 @@
 
   .sp-slot {
 
+    position: relative;
     width: 62px; height: 54px; padding: 4px 2px 3px; box-sizing: border-box;
 
     border: .5px solid #EDEDED; border-radius: 10px; background: #fff;
@@ -1329,6 +1333,17 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 
   }
+
+  /* R23：槽位卡右上角补「删除 ×」角标。删除热区本来就已经是整张卡（data-sr-rm 挂在卡根），
+     这里只是把「点一下 = 移除」这件看不见的事画出来 —— × 自身 pointer-events:none，
+     不改变热区、也不改变点击落到的元素。实测 14×14 角标落在 x 46.5–60.5，
+     头像右缘 x 41.25（留 5px）、姓名在 y 34–47 与角标 y 1.5–15.5 垂直不重叠 → 不压任何内容。 */
+  .sp-slot__x {
+    position: absolute; top: 1px; right: 1px; width: 14px; height: 14px; border-radius: 50%;
+    background: #C7C7CC; color: #fff; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sp-slot__x svg { width: 8px; height: 8px; display: block; }
 
   .sp-slot--add { border-style: dashed; border-color: #DCDCDC; background: #FCFCFC; color: #C4C4C4; }
 
@@ -1444,6 +1459,8 @@
      （圆角 12、描边 #E5E5EA、次要色 #8E8E93）。高度 52（去头像后略矮）。 */
   .sp-cards__row { padding: 3px 0; }
   .sp-cards__row + .sp-cards__row { border-top: .5px solid #F0F0F0; }
+  /* R23：「顾客指定」加 6px 上间距 → 行间 6.5 → 12.5px（与 >5 槽位形态同步），发丝线随该行一起下移。 */
+  .sp-cards__row--extra { margin-top: 6px; }
   .sp-cards__t { font-size: 13px; line-height: 18px; color: #1a1a1a; padding: 0 0 4px; }
   .sp-cards__list { display: flex; flex-wrap: nowrap; gap: 6px; }
   .sp-card {
@@ -1451,7 +1468,7 @@
     border: .5px solid #EDEDED; border-radius: 12px; background: #fff;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
     font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
-    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .1s ease-out;
+    transition: padding-right .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .1s ease-out;
   }
   .sp-card:active { transform: scale(.95); }
   /* R22：未选中态刻意「压弱」—— 描边 #E5E5EA→#EDEDED、姓名 #1a1a1a/600→#55595E/500、职位 #8E8E93→#A6A6AB。
@@ -1467,9 +1484,12 @@
   }
   /* 选中：0.5px 描边 + 0.5px 外扩阴影＝视觉 1px 品牌边（59px 宽的小卡上 0.5px 太弱）
      R21 补：去掉右上角勾标 —— 59×52 文字卡上勾标会压姓名/职位，描边+粉底已足够表达选中。
+     R23 再补：勾选组件按你的要求加回来了，做法改为「内嵌右上角 + 选中时文字整块左移让位」——
+     勾标 14×14 落在本规则新增的 padding-right:16px 里，姓名与职位一起居中于剩下的 40px，
+     文字右缘（42.5）与勾标左缘（42.5）恰好相切 → 0 遮挡；未选中态不占位、文字仍居中。
      R22：选中态本身不动（仍是 #1a1a1a/600 + #8E8E93 + 淡粉底），但必须在这里把字号/字重钉死，
      否则会被上面「未选中态压弱」的 500 带跑；颜色规则也在此刻起真正生效（与未选中态拉开）。 */
-  .sp-card.is-on { border-color: var(--brand); box-shadow: 0 0 0 .5px var(--brand); background: linear-gradient(180deg, #FFF8F8 0%, #FFF2F2 100%); }
+  .sp-card.is-on { border-color: var(--brand); box-shadow: 0 0 0 .5px var(--brand); background: linear-gradient(180deg, #FFF8F8 0%, #FFF2F2 100%); padding-right: 16px; }
   .sp-card.is-on .sp-card__nm { color: #1a1a1a; font-weight: 600; }
   .sp-card.is-on .sp-card__role { color: #8E8E93; }
   /* R22：置灰（该行满 3 人）卡在 40% 透明下，若沿用压弱后的 #55595E，实测合成后 ≈ #BBBDBF（1.88:1）几乎看不清；
@@ -1479,6 +1499,17 @@
   .sp-card.is-full .sp-card__role { color: #8E8E93; }
   .sp-card.is-full { opacity: .4; pointer-events: none; }
   /* 选中落位：只给「刚点的那一张」弹一下（spLandSid + spLandRow 双键匹配，避免同人跨行连带弹） */
+  /* R23：勾选组件（≤5 紧凑卡专用）。14×14 品牌圆点 + 8px 白勾，内嵌右上角（top/right 各 2px）；
+     它独占 .sp-card.is-on 的 16px 右内距，故永远不与姓名/职位相交（见上方 .sp-card.is-on 注释）。
+     >5 人选择页的 .sp-pick__tick（16×16、top/right 各 5px）不动。 */
+  .sp-card__tick {
+    position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--brand); color: #fff; display: none;
+    align-items: center; justify-content: center;
+  }
+  .sp-card__tick svg { width: 8px; height: 8px; display: block; }
+  .sp-card.is-on .sp-card__tick { display: flex; }
+
   .sp-card.is-land { animation: spCardLand .34s cubic-bezier(.34,1.3,.64,1) both; }
   @keyframes spCardLand {
     0% { transform: scale(.82); }
@@ -4267,6 +4298,8 @@
   var SP_PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 
   var SP_TICK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+  /* R23：槽位卡右上角「删除 ×」角标；纯视觉，热区仍是整张卡（卡根 data-sr-rm） */
+  var SP_X_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
 
 
@@ -4465,6 +4498,8 @@
       spAvatarHtml(st, 'sp-av--slot') +
 
       '<span class="sp-slot__nm">' + escapeHtml(nm) + '</span>' +
+      /* R23：右上角删除 × 角标（pointer-events:none，点击仍落到整张卡上） */
+      '<span class="sp-slot__x" aria-hidden="true">' + SP_X_SVG + '</span>' +
 
       '</button>';
 
@@ -4496,7 +4531,8 @@
     var role = st.role || '';
     var label = st.name + (role ? (' · ' + role) : '');
     /* R21：紧凑态去头像，改为「姓名 + 职位」双行文字；工位仍由行标题表达，卡内不重复。
-       去勾标：描边+粉底已表达选中，右上角勾在 59×52 卡上会压字。 */
+       R21 曾去勾标（59×52 卡上会压字）；R23 按需求加回，改为「内嵌右上角 + 选中态文字整块左移让位」，
+       勾标独占 .sp-card.is-on 的 padding-right:16px，与文字不相交（详见 CSS 注释）。 */
     return '<button type="button" class="sp-card' + (on ? ' is-on' : '') + (full ? ' is-full' : '') + land + '"' +
       ' data-sr-card="' + escapeHtml(st.id) + '" data-sr-row="' + escapeHtml(rowKey) + '"' +
       (full ? ' aria-disabled="true"' : '') +
@@ -4504,6 +4540,7 @@
       ' aria-label="' + escapeHtml(label) + (on ? '（已加入此工位，点击移除）' : '') + '">' +
       '<span class="sp-card__nm">' + escapeHtml(st.name) + '</span>' +
       (role ? ('<span class="sp-card__role">' + escapeHtml(role) + '</span>') : '') +
+      '<span class="sp-card__tick" aria-hidden="true">' + SP_TICK_SVG + '</span>' +
       '</button>';
   }
 
