@@ -1468,7 +1468,7 @@
     border: .5px solid #EDEDED; border-radius: 12px; background: #fff;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
     font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
-    transition: padding-right .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .1s ease-out;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .1s ease-out;
   }
   .sp-card:active { transform: scale(.95); }
   /* R22：未选中态刻意「压弱」—— 描边 #E5E5EA→#EDEDED、姓名 #1a1a1a/600→#55595E/500、职位 #8E8E93→#A6A6AB。
@@ -1484,12 +1484,11 @@
   }
   /* 选中：0.5px 描边 + 0.5px 外扩阴影＝视觉 1px 品牌边（59px 宽的小卡上 0.5px 太弱）
      R21 补：去掉右上角勾标 —— 59×52 文字卡上勾标会压姓名/职位，描边+粉底已足够表达选中。
-     R23 再补：勾选组件按你的要求加回来了，做法改为「内嵌右上角 + 选中时文字整块左移让位」——
-     勾标 14×14 落在本规则新增的 padding-right:16px 里，姓名与职位一起居中于剩下的 40px，
-     文字右缘（42.5）与勾标左缘（42.5）恰好相切 → 0 遮挡；未选中态不占位、文字仍居中。
+     R23 再补：勾选组件按你的要求加回来了。方案 2（内嵌 + 选中时文字左移 7px 让位）实机观感不佳已否决，
+     最终定为方案 1「勾标挂在卡片右上角外侧」—— 卡内内距、文字位置三态完全不动，见下方 .sp-card__tick。
      R22：选中态本身不动（仍是 #1a1a1a/600 + #8E8E93 + 淡粉底），但必须在这里把字号/字重钉死，
      否则会被上面「未选中态压弱」的 500 带跑；颜色规则也在此刻起真正生效（与未选中态拉开）。 */
-  .sp-card.is-on { border-color: var(--brand); box-shadow: 0 0 0 .5px var(--brand); background: linear-gradient(180deg, #FFF8F8 0%, #FFF2F2 100%); padding-right: 16px; }
+  .sp-card.is-on { border-color: var(--brand); box-shadow: 0 0 0 .5px var(--brand); background: linear-gradient(180deg, #FFF8F8 0%, #FFF2F2 100%); }
   .sp-card.is-on .sp-card__nm { color: #1a1a1a; font-weight: 600; }
   .sp-card.is-on .sp-card__role { color: #8E8E93; }
   /* R22：置灰（该行满 3 人）卡在 40% 透明下，若沿用压弱后的 #55595E，实测合成后 ≈ #BBBDBF（1.88:1）几乎看不清；
@@ -1499,16 +1498,28 @@
   .sp-card.is-full .sp-card__role { color: #8E8E93; }
   .sp-card.is-full { opacity: .4; pointer-events: none; }
   /* 选中落位：只给「刚点的那一张」弹一下（spLandSid + spLandRow 双键匹配，避免同人跨行连带弹） */
-  /* R23：勾选组件（≤5 紧凑卡专用）。14×14 品牌圆点 + 8px 白勾，内嵌右上角（top/right 各 2px）；
-     它独占 .sp-card.is-on 的 16px 右内距，故永远不与姓名/职位相交（见上方 .sp-card.is-on 注释）。
+  /* R23 方案 1：勾选组件（≤5 紧凑卡专用）挂在卡片右上角「外侧」——
+     R23 二次修订：控件在**三态常驻同一个位置**，只有外观随状态切换（此前是「选中才出现」，未选中时该位置是空的）：
+       未选中 / 置灰（is-full）：**白底 + 1px #C7C7CC 空心圈**、圈内无勾；
+       选中（.is-on）：**品牌实心圆 + 8px 白勾**，描边同时转 #fff，把品牌圆点与卡片的品牌描边分开
+       （border-box → 内圈 12px）。「同一位置 空心圈 ⇄ 实心勾」＝ iOS 勾选语义，且不占任何卡内空间。
+     位置恒为 top/right:-4px、尺寸恒 14×14。绝对定位的偏移基准是卡片的「内边距盒」，
+     卡自身有 .5px 描边 → 实测控件外探出卡框约 3px（正是方案 1 想要的「只压圆角外的空白角落」）。
+     卡尺寸（59）、卡内内距（padding-right 恒 2px）、文字位置三态完全一致（文字轴恒 卡左+29.5），
+     不存在「选中瞬间文字位移」。实测控件圆（半径 7）与姓名 / 职位的内容盒（Range 实测）均不相交。
+     外探 3px 落在宿主内距里（最窄宿主「添加 sheet」：卡列 322，外层 .addsheet__body 还有 12px 内距）→ 不被裁。
+     置灰卡的圈随整卡 opacity:.4 一起淡出（三态口径统一：未选中 / 置灰＝空心圈，只有选中＝实心勾）。
      >5 人选择页的 .sp-pick__tick（16×16、top/right 各 5px）不动。 */
   .sp-card__tick {
-    position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%;
-    background: var(--brand); color: #fff; display: none;
+    position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; border-radius: 50%;
+    border: 1px solid #C7C7CC; box-sizing: border-box;
+    background: #fff; color: #fff; display: flex;
     align-items: center; justify-content: center;
+    transition: background-color .18s ease, border-color .18s ease;
   }
-  .sp-card__tick svg { width: 8px; height: 8px; display: block; }
-  .sp-card.is-on .sp-card__tick { display: flex; }
+  .sp-card__tick svg { width: 8px; height: 8px; display: none; }
+  .sp-card.is-on .sp-card__tick { border-color: #fff; background: var(--brand); }
+  .sp-card.is-on .sp-card__tick svg { display: block; }
 
   .sp-card.is-land { animation: spCardLand .34s cubic-bezier(.34,1.3,.64,1) both; }
   @keyframes spCardLand {
@@ -4531,8 +4542,10 @@
     var role = st.role || '';
     var label = st.name + (role ? (' · ' + role) : '');
     /* R21：紧凑态去头像，改为「姓名 + 职位」双行文字；工位仍由行标题表达，卡内不重复。
-       R21 曾去勾标（59×52 卡上会压字）；R23 按需求加回，改为「内嵌右上角 + 选中态文字整块左移让位」，
-       勾标独占 .sp-card.is-on 的 padding-right:16px，与文字不相交（详见 CSS 注释）。 */
+       R21 曾去勾标（59×52 卡上会压字）；R23 按需求加回，做法定为「勾标挂在卡片右上角外侧」：
+       卡尺寸 / 卡内内距 / 文字位置三态不动，勾标只压圆角外的空白角落，与姓名 / 职位永不相交。
+       R23 二次修订：控件在**三态常驻同一位置**——未选中 / 置灰是白底 + 1px #C7C7CC 空心圈、
+       选中才换成品牌实心圆 + 白勾（同尺寸同坐标，只切外观，故仍是 0 位移 0 遮挡，详见 CSS 注释）。 */
     return '<button type="button" class="sp-card' + (on ? ' is-on' : '') + (full ? ' is-full' : '') + land + '"' +
       ' data-sr-card="' + escapeHtml(st.id) + '" data-sr-row="' + escapeHtml(rowKey) + '"' +
       (full ? ' aria-disabled="true"' : '') +
