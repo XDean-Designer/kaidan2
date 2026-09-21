@@ -1317,6 +1317,8 @@
   /* 「顾客指定」行标签：R17 曾用橙 #F97316，R18 起改回主文字色 #1A1A1A
      （规则仍保留：仅此处标签，与前三行工位标签同色、不再做颜色区分）。 */
 
+  /* R29：槽位一行固定排 5 格（含「＋」），第 6 起换行；格宽 = (100% − 4×6) / 5。
+     选择页员工卡网格仍为 3 列，本规则只作用于槽位页。 */
   .sp-row__slots { display: flex; flex-wrap: wrap; gap: 6px; }
 
 
@@ -1324,7 +1326,10 @@
   .sp-slot {
 
     position: relative;
-    width: 62px; height: 54px; padding: 4px 2px 3px; box-sizing: border-box;
+    flex: 0 0 calc((100% - 24px) / 5);
+    width: calc((100% - 24px) / 5);
+    max-width: calc((100% - 24px) / 5);
+    height: 54px; padding: 4px 2px 3px; box-sizing: border-box;
 
     border: .5px solid #EDEDED; border-radius: 10px; background: #fff;
 
@@ -1481,22 +1486,31 @@
      （圆角 12、描边 #E5E5EA、次要色 #8E8E93）。高度 52（去头像后略矮）。 */
   /* —— 点选即勾选（不分工位 + 未开顾客指定 · ≤5）：无行标题，单层员工网格。
      R28：>5 改走单行「服务员工」槽位 + 选择页（与其它态同源），本扁平网格仅 ≤5。
-     A1：勾选圈 top/right:-4px —— 外层与列表加内边距、overflow 不裁切外探角标。 */
-  .sp-cards--flat { padding: 6px 4px 8px; overflow: visible; }
-  .sp-cards--flat .sp-cards__list--wrap {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    padding: 4px 6px 2px 2px; box-sizing: border-box;
-    max-height: 360px; overflow-x: visible; overflow-y: auto;
-    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
-  }
+     R29：一行固定 5 张（与紧凑卡列 / 槽位同源口径）；勾选圈靠上/右内边距避裁。 */
+  .sp-cards--flat { padding: 4px 0 6px; overflow: visible; }
   .sp-cards__row { padding: 3px 0; }
   .sp-cards__row + .sp-cards__row { border-top: .5px solid #F0F0F0; }
   /* R23：「顾客指定」加 6px 上间距 → 行间 6.5 → 12.5px（与 >5 槽位形态同步），发丝线随该行一起下移。 */
   .sp-cards__row--extra { margin-top: 6px; }
   .sp-cards__t { font-size: 13px; line-height: 18px; color: #1a1a1a; padding: 0 0 4px; }
-  .sp-cards__list { display: flex; flex-wrap: nowrap; gap: 6px; }
+  /* R29：紧凑 / 扁平卡列一行 5 张；≤5 用 nowrap，宽度用 calc 保证落满不掉行。
+     上/右各留 4px 给勾选圈外探（top/right:-4px），不占用卡宽计算。 */
+  .sp-cards__list {
+    display: flex; flex-wrap: nowrap; gap: 6px;
+    padding: 4px 4px 0 0; box-sizing: border-box;
+  }
+  .sp-cards--flat .sp-cards__list--wrap {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 4px 4px 2px 0; box-sizing: border-box;
+    max-height: 360px; overflow-x: visible; overflow-y: auto;
+    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  }
   .sp-card {
-    position: relative; width: 59px; height: 52px; padding: 6px 2px; box-sizing: border-box;
+    position: relative;
+    flex: 0 0 calc((100% - 24px) / 5);
+    width: calc((100% - 24px) / 5);
+    max-width: calc((100% - 24px) / 5);
+    height: 52px; padding: 6px 2px; box-sizing: border-box;
     border: .5px solid #EDEDED; border-radius: 12px; background: #fff;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
     font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
