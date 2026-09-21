@@ -1254,7 +1254,7 @@
 
      每行右侧一个「+」入口；点开 → 整块内容 morph 成员工选择页 → 点员工卡即落位
 
-     （带落位反馈动效）并自动返回，右侧自动补出一个新的空槽位；每行上限 3 人。
+     （带落位反馈动效）并自动返回，右侧自动补出一个新的空槽位；**不设人数上限**（R28）。
 
      点已落位卡片 = 移除该员工在该行的分配（点选中的卡片再次点击亦可取消）。 */
 
@@ -1297,7 +1297,7 @@
   /* —— 工位行：R25 起改成「标题独占一行 + 槽位在下一行」（参照 ≤ 5 人的 .sp-cards__row）——
      原先是「标签固定 52px 宽 + 槽位同行」，槽位区只剩 260px；两行后槽位拿到通栏 322px，
      标题与第一张槽位卡左对齐（同一个左内距 → 连成一条竖线），行高 68 → 82。
-     发丝线、每行上限 3 人、卡片尺寸（62×54：26 头像 + 姓名）全部不变。 */
+     发丝线、卡片尺寸（62×54：26 头像 + 姓名）全部不变；R28 起不设人数上限。 */
 
   .sp-row { display: block; padding: 3px 0; }
 
@@ -1474,16 +1474,19 @@
   /* —— R20 紧凑形态：员工总数 ≤ 5 人（R21：文字卡，无头像）——
      布局：每个工位标题独占一行（仍在左侧），标题下一行横列「全部」员工卡，
      第一张卡与标题左对齐（同一左内距 → 标题与卡列成一条竖线）。
-     点卡即选中＝加入该槽位，再点移出；某行满 3 人后该行其余卡置灰。
+     点卡即选中＝加入该槽位，再点移出；**R28 不设人数上限**（不再置灰）。
      尺寸：5 张卡 59 + 4×6 间距 = 319px，最窄宿主（添加 sheet 内 322px）也恰好落满一行，
      不横滑、不换行、不需要滚动。
      R21：去掉头像，改为「姓名 + 职位」双行文字，字加粗提升可读性；iOS 轻量外壳
      （圆角 12、描边 #E5E5EA、次要色 #8E8E93）。高度 52（去头像后略矮）。 */
-  /* —— 点选即勾选（不分工位 + 未开顾客指定）：无行标题，单层员工网格；>5 人可换行滚动 —— */
-  .sp-cards--flat { padding: 2px 0 4px; }
+  /* —— 点选即勾选（不分工位 + 未开顾客指定 · ≤5）：无行标题，单层员工网格。
+     R28：>5 改走单行「服务员工」槽位 + 选择页（与其它态同源），本扁平网格仅 ≤5。
+     A1：勾选圈 top/right:-4px —— 外层与列表加内边距、overflow 不裁切外探角标。 */
+  .sp-cards--flat { padding: 6px 4px 8px; overflow: visible; }
   .sp-cards--flat .sp-cards__list--wrap {
     display: flex; flex-wrap: wrap; gap: 6px;
-    max-height: 360px; overflow-x: hidden; overflow-y: auto;
+    padding: 4px 6px 2px 2px; box-sizing: border-box;
+    max-height: 360px; overflow-x: visible; overflow-y: auto;
     -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
   }
   .sp-cards__row { padding: 3px 0; }
@@ -2213,11 +2216,14 @@
     <button class="nav-item" onclick="openBenPickSheet(null)"><span class="idx">12</span>选择权益</button>
     <button class="nav-item" onclick="openCouponPickSheet()"><span class="idx">13</span>选择优惠券</button>
     <button class="nav-item" data-target="s14" onclick="openHoldList()"><span class="idx">14</span>挂单列表</button>
-    <button class="nav-item" onclick="demoStaffPick({station:true,extra:true,expand12:true,openPlus:true})"><span class="idx">16</span>员工·按工位+指定·12人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:false,extra:false,expand12:false})"><span class="idx">17</span>员工·点选即勾选·5人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:false,extra:true,expand12:false})"><span class="idx">18</span>员工·不分工位+指定·5人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:true,extra:false,expand12:false})"><span class="idx">19</span>员工·按工位无指定·5人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:false,extra:false,expand12:true})"><span class="idx">20</span>员工·点选即勾选·12人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:true,extra:true,expand12:false})"><span class="idx">16</span>员工·按工位+指定·5人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:true,extra:true,expand12:true,openPlus:true})"><span class="idx">17</span>员工·按工位+指定·12人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:true,extra:false,expand12:false})"><span class="idx">18</span>员工·按工位无指定·5人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:true,extra:false,expand12:true,openPlus:true})"><span class="idx">19</span>员工·按工位无指定·12人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:false,extra:true,expand12:false})"><span class="idx">20</span>员工·不分工位+指定·5人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:false,extra:true,expand12:true,openPlus:true})"><span class="idx">21</span>员工·不分工位+指定·12人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:false,extra:false,expand12:false})"><span class="idx">22</span>员工·点选即勾选·5人</button>
+    <button class="nav-item" onclick="demoStaffPick({station:false,extra:false,expand12:true,openPlus:true})"><span class="idx">23</span>员工·点选即勾选·12人</button>
   </div>
   <div class="nav-group grow">
     <div class="g-t">文档</div>
@@ -4151,8 +4157,8 @@
     exitStaffDemo();
   }
 
-  /* 员工选人演示（左侧导航 16–20）：
-     全店统一态四态由 demoStaffPick 写入并保持，直到下次点另一演示入口；
+  /* 员工选人演示（左侧导航 16–23：四态 × ≤5/>5）：
+     全店统一态由 demoStaffPick 写入并保持，直到下次点另一演示入口；
      仅「扩到 12 人」在关闭添加 sheet 时还原，避免日常开单一直带着扩编池。 */
   function exitStaffDemo() {
     if (!spDemoStaff) return;
@@ -4163,7 +4169,7 @@
   }
 
   /* opts: { station, extra, expand12, openPlus }
-     openPlus：>5 且非点选即勾选时，自动点第一个「＋」进入选择页（便于评审两层动效） */
+     openPlus：>5 时自动点第一个「＋」进入选择页（含点选即勾选·12人的「服务员工」行） */
   function demoStaffPick(opts) {
     opts = opts || {};
     SP_NEED_STATION = !!opts.station;
@@ -4176,7 +4182,7 @@
       var addBtn = document.querySelector('#s1 .v2-cat-item .v2-add-btn');
       if (!addBtn) { exitStaffDemo(); toast('演示入口失效：未找到项目卡'); return; }
       addBtn.click();
-      if (!opts.openPlus || spDirectMode() || spSmallStaff()) return;
+      if (!opts.openPlus || spSmallStaff()) return;
       setTimeout(function () {
         var plus = document.querySelector('#asStaffGrid .sp-slot--add');
         if (plus) plus.click();
@@ -4421,20 +4427,18 @@
 
   /* ===== 选择服务员工（R16 重构：按工位槽位 · iOS 风格选择页） =====
 
-     4 行（大工 / 中工 / 小工 / 顾客指定）各占一行，每行一个「+」槽位入口；
+     行数由全店统一态决定（R27）；>5 时点「＋」→ 选择页 → 点卡即落位并返回，
+     右侧始终补出新空槽位。**R28：不设人数上限**（废止 SP_ROW_MAX / 满员置灰 / toast）。
 
-     点开 → 整块 morph 成员工选择页 → 点员工卡即落位（带落位反馈动效）并自动返回，
-
-     右侧自动补出新的空槽位；每行上限 3 人。点已落位卡片即移除该行的分配。 */
-
-  var SP_ROW_MAX = 3;
+     点选即勾选（不分工位+未开）：≤5 扁平网格；>5 单行「服务员工」槽位+选择页（B1）。 */
 
   var SP_ROW_DEFS = [
     { key: 'senior', kind: 'role', label: '大工' },
     { key: 'mid', kind: 'role', label: '中工' },
     { key: 'junior', kind: 'role', label: '小工' },
     { key: 'avg', kind: 'role', label: '提成' },
-    { key: 'extra', kind: 'extra', label: '顾客指定' }
+    { key: 'extra', kind: 'extra', label: '顾客指定' },
+    { key: 'direct', kind: 'direct', label: '服务员工' }
   ];
 
   var spActiveRoot = null;
@@ -4450,8 +4454,11 @@
      按工位+开指定 → 大/中/小工 + 顾客指定
      按工位+未开   → 大/中/小工
      不分工位+开   → 提成 + 顾客指定
-     不分工位+未开 → 无行（点选即勾选扁平网格） */
+     不分工位+未开 → 单行「服务员工」（≤5 走扁平网格，不渲染本行） */
   function spRowDefs() {
+    if (spDirectMode()) {
+      return [SP_ROW_DEFS[5]]; /* 服务员工 */
+    }
     var rows = [];
     if (spNeedStation()) {
       rows.push(SP_ROW_DEFS[0], SP_ROW_DEFS[1], SP_ROW_DEFS[2]);
@@ -4480,6 +4487,9 @@
 
   /* 该员工当前所属的工位 / 提成行（可多行） */
   function spRowsOf(sid) {
+    if (spDirectMode()) {
+      return (staffRow.staffIds && staffRow.staffIds.indexOf(sid) >= 0) ? ['direct'] : [];
+    }
     var out = [];
     if (spNeedStation()) {
       spStationIds().forEach(function (rid) { if (spHasRole(sid, rid)) out.push(rid); });
@@ -4500,10 +4510,6 @@
 
   }
 
-  function spRowFull(rowKey) { return spRowIds(rowKey).length >= SP_ROW_MAX; }
-
-
-
   function spAddToRow(sid, rowKey) {
 
     var def = spRowDef(rowKey);
@@ -4514,9 +4520,19 @@
 
     if (spRowsOf(sid).indexOf(rowKey) >= 0) return false;
 
-    if (spRowFull(rowKey)) return false;
-
     if (staffRow.staffIds.indexOf(sid) < 0) staffRow.staffIds.push(sid);
+
+    if (def.kind === 'direct') {
+
+      staffRow.staffChosen[sid] = true;
+
+      staffRow.staffExtra[sid] = false;
+
+      delete staffRow.staffRoles[sid];
+
+      return true;
+
+    }
 
     if (def.kind === 'extra') {
 
@@ -4545,6 +4561,20 @@
     if (!def || !sid) return;
 
     ensureStaffState();
+
+    if (def.kind === 'direct') {
+
+      staffRow.staffIds = staffRow.staffIds.filter(function (x) { return x !== sid; });
+
+      delete staffRow.staffChosen[sid];
+
+      delete staffRow.staffRoles[sid];
+
+      delete staffRow.staffExtra[sid];
+
+      return;
+
+    }
 
     if (def.kind === 'extra') {
 
@@ -4675,7 +4705,7 @@
 
      标题（大工 / 中工 / 小工 / 顾客指定）各自独占一行、仍在左侧；
      标题下一行横列「全部」员工卡，第一张卡与标题左对齐（同一个左内距）。
-     点卡即选中＝加入该槽位，再点即移出；某行满 3 人后该行其余卡置灰并提示。
+     点卡即选中＝加入该槽位，再点即移出；**R28 不设人数上限**（不再置灰 / toast）。
      没有「＋」虚线槽位，也不再 morph 到选择页 —— 5 张卡恰好落满一行，不需要滚动。 */
   var SP_SMALL_MAX = 5;
 
@@ -4683,7 +4713,6 @@
 
   function spCardHtml(st, rowKey) {
     var on = spRowsOf(st.id).indexOf(rowKey) >= 0;
-    var full = !on && spRowIds(rowKey).length >= SP_ROW_MAX;
     /* 落位弹跳按「员工 + 工位行」双键匹配：只让刚点的那一张播，同人其它行的卡只变选中态 */
     var land = (spLandSid === st.id && spLandRow === rowKey) ? ' is-land' : '';
     var role = st.role || '';
@@ -4693,9 +4722,8 @@
        卡尺寸 / 卡内内距 / 文字位置三态不动，勾标只压圆角外的空白角落，与姓名 / 职位永不相交。
        R23 二次修订：控件在**三态常驻同一位置**——未选中 / 置灰是白底 + 1px #C7C7CC 空心圈、
        选中才换成品牌实心圆 + 白勾（同尺寸同坐标，只切外观，故仍是 0 位移 0 遮挡，详见 CSS 注释）。 */
-    return '<button type="button" class="sp-card' + (on ? ' is-on' : '') + (full ? ' is-full' : '') + land + '"' +
+    return '<button type="button" class="sp-card' + (on ? ' is-on' : '') + land + '"' +
       ' data-sr-card="' + escapeHtml(st.id) + '" data-sr-row="' + escapeHtml(rowKey) + '"' +
-      (full ? ' aria-disabled="true"' : '') +
       ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
       ' aria-label="' + escapeHtml(label) + (on ? '（已加入此工位，点击移除）' : '') + '">' +
       '<span class="sp-card__nm">' + escapeHtml(st.name) + '</span>' +
@@ -4715,13 +4743,12 @@
     }).join('') + '</div>';
   }
 
-  /* 点选即勾选：无行标题；点卡选中 / 再点取消；>5 人换行滚动 */
+  /* 点选即勾选 · ≤5：无行标题；点卡选中 / 再点取消（A1：就地切 is-on，不整块重绘） */
   function spFlatCardHtml(st) {
     var on = staffRow.staffIds.indexOf(st.id) >= 0;
-    var land = (spLandSid === st.id && spLandRow === '__direct__') ? ' is-land' : '';
     var role = st.role || '';
     var label = st.name + (role ? (' · ' + role) : '');
-    return '<button type="button" class="sp-card' + (on ? ' is-on' : '') + land + '"' +
+    return '<button type="button" class="sp-card' + (on ? ' is-on' : '') + '"' +
       ' data-sr-direct="' + escapeHtml(st.id) + '"' +
       ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
       ' aria-label="' + escapeHtml(label) + (on ? '（已选，点击取消）' : '（点击选择）') + '">' +
@@ -4746,16 +4773,12 @@
       delete staffRow.staffChosen[sid];
       delete staffRow.staffRoles[sid];
       delete staffRow.staffExtra[sid];
-      spLandSid = null;
-      spLandRow = null;
       return true;
     }
     staffRow.staffIds.push(sid);
     staffRow.staffChosen[sid] = true;
     staffRow.staffExtra[sid] = false;
     delete staffRow.staffRoles[sid];
-    spLandSid = sid;
-    spLandRow = '__direct__';
     return true;
   }
 
@@ -4767,7 +4790,8 @@
 
       var slots = ids.map(function (sid) { return spSlotHtml(sid, r.key); }).join('');
 
-      if (ids.length < SP_ROW_MAX) slots += spAddSlotHtml(r.key, r.label);
+      /* R28：始终保留「＋」，不设人数上限 */
+      slots += spAddSlotHtml(r.key, r.label);
 
       return '<div class="sp-row' + (r.kind === 'extra' ? ' sp-row--extra' : '') + '" data-sr-row="' + r.key + '">' +
 
@@ -4793,11 +4817,9 @@
 
       var on = ids.indexOf(st.id) >= 0;
 
-      var full = !on && ids.length >= SP_ROW_MAX;
+      return '<button type="button" class="sp-pick' + (on ? ' is-on' : '') + '"' +
 
-      return '<button type="button" class="sp-pick' + (on ? ' is-on' : '') + (full ? ' is-full' : '') + '"' +
-
-        ' data-sr-pick="' + escapeHtml(st.id) + '"' + (full ? ' aria-disabled="true"' : '') + '>' +
+        ' data-sr-pick="' + escapeHtml(st.id) + '">' +
 
         spAvatarHtml(st, 'sp-av--pick') +
 
@@ -4827,8 +4849,9 @@
 
   function renderStaffPickerHtml(forcePicking) {
     ensureStaffState();
-    if (spDirectMode()) return spFlatCardsHtml();
-    if (spSmallStaff()) return spCardsHtml();
+    /* 点选即勾选：≤5 扁平网格；>5 单行「服务员工」槽位+选择页（与其它态同源） */
+    if (spDirectMode() && spSmallStaff()) return spFlatCardsHtml();
+    if (!spDirectMode() && spSmallStaff()) return spCardsHtml();
     /* R24：进入选择页时先渲染在「槽位行」态（data-picking="0"），下一帧再翻成 "1" ——
        否则新节点一出生就是终态、CSS 过渡不会播（旧实现正是如此，观感等于瞬切）。
        forcePicking=true 表示「本来就在选择页里重绘」（如选择页内点卡取消该行分配），直接渲染终态。 */
@@ -5183,9 +5206,7 @@
 
   /* 重绘当前宿主（并同步宿主所属页面的摘要 / 结算合计） */
 
-  function spRepaint(root, ctx) {
-
-    renderStaffInto(root);
+  function spNotifyHost(ctx) {
 
     if (ctx === 'quick') {
 
@@ -5216,6 +5237,14 @@
       window.__v2OnDraftStaffChange();
 
     }
+
+  }
+
+  function spRepaint(root, ctx) {
+
+    renderStaffInto(root);
+
+    spNotifyHost(ctx);
 
   }
 
@@ -5273,10 +5302,6 @@
 
       var sid = pickCard.getAttribute('data-sr-pick');
 
-      var st = spStaffById(sid);
-
-      var def = spRowDef(rowKey);
-
       /* 已在当前工位：再点即取消该行分配（选择页保持打开，便于连续调整） */
 
       if (spRowsOf(sid).indexOf(rowKey) >= 0) {
@@ -5286,14 +5311,6 @@
         spHaptic();
 
         spRepaint(root, ctx);
-
-        return;
-
-      }
-
-      if (spRowFull(rowKey)) {
-
-        toast((def ? def.label : '该工位') + '最多 ' + SP_ROW_MAX + ' 人');
 
         return;
 
@@ -5316,14 +5333,21 @@
 
     }
 
-    /* R27：点选即勾选 —— 无工位 / 无顾客指定，点卡选中、再点取消 */
+    /* R27/R28：点选即勾选 · ≤5 —— 就地切 is-on，不整块重绘、不播落位弹跳（A1 消抖） */
     var directBtn = e.target.closest('[data-sr-direct]');
     if (directBtn) {
       e.preventDefault(); e.stopPropagation();
-      if (spToggleDirect(directBtn.getAttribute('data-sr-direct'))) {
-        spHaptic();
-        spRepaint(root, ctx);
-      }
+      var dSid = directBtn.getAttribute('data-sr-direct');
+      if (!spToggleDirect(dSid)) return;
+      spHaptic();
+      var on = staffRow.staffIds.indexOf(dSid) >= 0;
+      var st = spStaffById(dSid);
+      var role = (st && st.role) || '';
+      var label = (st ? st.name : dSid) + (role ? (' · ' + role) : '');
+      directBtn.classList.toggle('is-on', on);
+      directBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      directBtn.setAttribute('aria-label', label + (on ? '（已选，点击取消）' : '（点击选择）'));
+      spNotifyHost(ctx);
       return;
     }
 
@@ -5333,17 +5357,12 @@
       e.preventDefault(); e.stopPropagation();
       var cRow = cardBtn.getAttribute('data-sr-row');
       var cSid = cardBtn.getAttribute('data-sr-card');
-      var cDef = spRowDef(cRow);
       if (spRowsOf(cSid).indexOf(cRow) >= 0) {
         spRemoveFromRow(cSid, cRow);
         spLandSid = null;
         spLandRow = null;
         spHaptic();
         spRepaint(root, ctx);
-        return;
-      }
-      if (spRowFull(cRow)) {
-        toast((cDef ? cDef.label : '该工位') + '最多 ' + SP_ROW_MAX + ' 人');
         return;
       }
       if (spAddToRow(cSid, cRow)) {
@@ -5964,9 +5983,8 @@
   window.confirmPayEdit = confirmPayEdit;
 
   /* ---- 结算页「修改服务员工」sheet（R16）----
-     入口：s6 / s7 明细「服务员工」行（data-staff-edit）。sheet 内复用新的槽位式员工选择器：
-     4 行工位（大工 / 中工 / 小工 / 顾客指定）各带「＋」空槽位，点 ＋ 切到员工卡片选择页，
-     选中即落位（带落位动效）并在右侧补出新空槽位；每行最多 3 人。 */
+     入口：s6 / s7 明细「服务员工」行（data-staff-edit）。sheet 内复用槽位式员工选择器：
+     行结构由全店统一态决定；点 ＋ 切到选择页，选中即落位；R28 不设人数上限。 */
   var coStaffIdx = -1;
 
   function openCoItemStaffSheet(idx) {
