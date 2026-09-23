@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/v2.css">
+<link rel="stylesheet" href="assets/v2-home-pay.css">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -616,8 +617,15 @@
     flex:1; height:32px; background:#f5f5f5; border-radius:16px;
     display:flex; align-items:center; gap:8px; padding:0 12px;
   }
-  .pick-search .box img { width:16px; height:16px; flex:none; }
-  .pick-search .box span { flex:1; font-size:14px; color:#878787; white-space:nowrap; overflow:hidden; }
+  .pick-search .box img,
+  .pick-search .box > span[aria-hidden] {
+    width:16px; height:16px; flex:none; display:block;
+    aspect-ratio:1 / 1; object-fit:contain;
+  }
+  .pick-search .box > span[aria-hidden] svg {
+    width:16px; height:16px; display:block;
+  }
+  .pick-search .box > span:not([aria-hidden]) { flex:1; font-size:14px; color:#878787; white-space:nowrap; overflow:hidden; }
   /* 真输入框：占满胶囊剩余宽度，去掉浏览器默认外观 */
   .pick-search .pick-inp {
     flex:1; min-width:0; height:100%;
@@ -1427,52 +1435,44 @@
   .sp-picker__grid::-webkit-scrollbar { width: 0; height: 0; }
 
   .sp-pick {
-
-    position: relative; padding: 10px 4px 8px; box-sizing: border-box;
-
+    position: relative; padding: 10px 8px 8px; box-sizing: border-box;
     border: 1px solid #EDEDED; border-radius: 12px; background: #fff;
-
     display: flex; flex-direction: column; align-items: center; gap: 4px;
-
     font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
-
     transition: border-color .18s ease, background .18s ease, transform .1s ease-out, box-shadow .18s ease;
-
+    overflow: visible;
   }
-
   .sp-pick:active { transform: scale(.96); }
-
   .sp-pick__nm {
-
     max-width: 100%; font-size: 12px; font-weight: 500; line-height: 16px; color: #1a1a1a;
-
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-
   }
-
   .sp-pick__role {
-
     max-width: 100%; font-size: 10px; line-height: 13px; color: #929292;
-
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-
   }
-
   .sp-pick__tick {
-
-    position: absolute; top: 5px; right: 5px; width: 16px; height: 16px; border-radius: 8px;
-
+    position: absolute; top: 6px; right: 6px; width: 16px; height: 16px; border-radius: 8px;
     background: var(--brand); color: #fff; display: none;
-
     align-items: center; justify-content: center;
-
+    z-index: 2;
   }
-
   .sp-pick__tick svg { width: 9px; height: 9px; display: block; }
-
   .sp-pick.is-on { border-color: var(--brand); background: linear-gradient(180deg, #FFF8F8 0%, #FFF2F2 100%); }
-
   .sp-pick.is-on .sp-pick__tick { display: flex; }
+  /* 抓取/sheet 内：勾选圈不被父级 overflow 裁切（≤5 紧凑卡 + >5 选择页） */
+  #coStaffMask .addsheet,
+  #addSheetMask .addsheet { overflow: visible; }
+  #coStaffMask .addsheet__body,
+  #addSheetMask .addsheet__body { overflow-x: visible; padding-right: 14px; padding-top: 10px; }
+  #coStaffMask .sp-picker__grid,
+  #addSheetMask .sp-picker__grid { overflow-x: visible; padding: 4px 4px 8px 0; }
+  #coStaffMask .sp-cards,
+  #addSheetMask .sp-cards,
+  #coStaffMask .sp-cards__list,
+  #addSheetMask .sp-cards__list,
+  #coStaffMask .sp-cards__row,
+  #addSheetMask .sp-cards__row { overflow: visible; }
 
   .sp-pick.is-full { opacity: .4; pointer-events: none; }
 
@@ -1506,7 +1506,7 @@
     -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
   }
   .sp-card {
-    position: relative;
+    position: relative; overflow: visible;
     flex: 0 0 calc((100% - 24px) / 5);
     width: calc((100% - 24px) / 5);
     max-width: calc((100% - 24px) / 5);
@@ -2041,7 +2041,8 @@
     position:relative; width:100%; height:26px; margin:0 0 14px;
     display:flex; align-items:center; justify-content:center; gap:10px;
   }
-  #s15 .suc-head img { width:22px; height:22px; display:block; flex:none; }
+  #s15 .suc-head .suc-check,
+  #s15 .suc-head .suc-check svg { width:22px; height:22px; display:block; flex:none; }
   #s15 .suc-head .t { font-size:18px; font-weight:600; color:#1a1a1a; letter-spacing:.2px; }
   /* ③ 内容区操作组（R16 改版）：改日期 / 改单号 / 看流水 / 客户详情
      由「卡片上方一行」移到「金额卡下方」，4 等分白底托板，每格竖排「图标 + 文字」，
@@ -2159,10 +2160,11 @@
   }
   #s15 .suc-pay-sub .r { margin-left:auto; padding-left:12px; font-family:var(--font-data); white-space:nowrap; }
   /* ⑤ 入场动效：对勾回弹 → 标题 / 操作组 / 金额卡 / 底栏错峰上浮，总计 ≤ 580ms */
+  /* 对勾只做缩放回弹，不用 opacity:0（display:none 切页 + fill-mode:both 时偶发卡在透明） */
   @keyframes sucPop {
-    0%   { transform:scale(.6); opacity:0; }
-    62%  { transform:scale(1.1); opacity:1; }
-    100% { transform:scale(1); opacity:1; }
+    0%   { transform:scale(.6); }
+    62%  { transform:scale(1.1); }
+    100% { transform:scale(1); }
   }
   @keyframes sucRise {
     from { opacity:0; transform:translateY(8px); }
@@ -2172,7 +2174,7 @@
     from { opacity:0; transform:translateY(10px) scale(.985); }
     to   { opacity:1; transform:translateY(0) scale(1); }
   }
-  #s15.active .suc-head img { animation:sucPop .40s cubic-bezier(.32,.72,0,1) both; }
+  #s15.active .suc-head .suc-check { animation:sucPop .40s cubic-bezier(.32,.72,0,1) forwards; }
   #s15.active .suc-head .t { animation:sucRise .32s cubic-bezier(.32,.72,0,1) .06s both; }
   #s15.active .suc-card { animation:sucRiseLg .38s cubic-bezier(.32,.72,0,1) .12s both; }
   #s15.active .suc-acts { animation:sucRise .32s cubic-bezier(.32,.72,0,1) .20s both; }
@@ -2249,45 +2251,32 @@
 </aside>
 <div class="stage">
 <div id="frame">
-  <!-- ============ 首页 s0 ============ -->
-  <div class="screen active v2-home" id="s0" data-name="首页">
-    <div class="status-bar" style="background:transparent;">
-      <div class="time" style="color:#fff;">9:41</div>
-      <div class="icons">
-        <img src="assets/ic_cellular.svg" height="13" style="filter:brightness(0) invert(1);">
-        <img src="assets/ic_wifi.svg" height="13" style="filter:brightness(0) invert(1);">
-        <img src="assets/ic_battery.svg" height="13" style="filter:brightness(0) invert(1);">
-      </div>
-    </div>
-    <div class="v2-home-hero" aria-hidden="true"></div>
-    <div class="v2-home-head">
-      <div class="v2-home-logo">悦</div>
-      <div class="v2-home-meta">
-        <div class="nm">悦己美发沙龙</div>
-        <div class="sub">店长：张淼</div>
-      </div>
-    </div>
-    <div class="v2-home-actions">
-      <button type="button" class="v2-home-btn bill" data-v2-home="bill">
-        <span class="ico">单</span>
-        <div class="t">开单</div>
-        <div class="s">开单 / 记账</div>
-      </button>
-      <button type="button" class="v2-home-btn card" data-v2-home="card">
-        <span class="ico">卡</span>
-        <div class="t">开卡</div>
-        <div class="s">办卡 / 充值</div>
-      </button>
-    </div>
-    <button type="button" class="v2-home-hold" onclick="openHoldList()">
-      <span>取挂单（<span class="n" data-hold-count>3</span>）</span>
-    </button>
-    <div class="v2-home-tabs" aria-hidden="true">
-      <div class="ti on"><span class="ic">⌂</span>首页</div>
-      <div class="ti"><span class="ic">人</span>客户</div>
-      <div class="ti"><span class="ic">◆</span>助手</div>
-      <div class="ti"><span class="ic">店</span>小店</div>
-      <div class="ti"><span class="ic">磁</span>获客</div>
+  <!-- ============ 首页 s0（截图整图 + 热区） ============ -->
+  <div class="screen active v2-home v2-home--shot" id="s0" data-name="首页">
+    <img class="v2-home-shot" src="assets/home/home-full.png" alt="首页" draggable="false">
+    <div class="v2-home-hots" aria-hidden="false">
+      <!-- 顶栏 -->
+      <button type="button" class="hot" data-home-toast="切店" style="left:12px;top:54px;width:200px;height:44px;" aria-label="门店"></button>
+      <button type="button" class="hot" data-home-toast="工作台" style="left:268px;top:58px;width:36px;height:36px;" aria-label="工作台"></button>
+      <button type="button" class="hot" data-home-toast="扫一扫" style="left:308px;top:58px;width:36px;height:36px;" aria-label="扫一扫"></button>
+      <button type="button" class="hot" data-home-toast="消息" style="left:348px;top:58px;width:36px;height:36px;" aria-label="消息"></button>
+      <!-- 业绩显隐 -->
+      <button type="button" class="hot" data-home-toast="业绩显隐" style="left:340px;top:118px;width:32px;height:28px;" aria-label="业绩显隐"></button>
+      <!-- 开单 / 开卡 -->
+      <button type="button" class="hot" data-v2-home="bill" style="left:12px;top:388px;width:178px;height:72px;" aria-label="开单"></button>
+      <button type="button" class="hot" data-v2-home="card" style="left:200px;top:388px;width:178px;height:72px;" aria-label="开卡"></button>
+      <!-- 快捷：验券 / 预约 / 挂单 / 会员卡 / 优惠 -->
+      <button type="button" class="hot" data-home-toast="验券" style="left:8px;top:488px;width:74px;height:72px;" aria-label="验券"></button>
+      <button type="button" class="hot" data-home-toast="预约" style="left:82px;top:488px;width:74px;height:72px;" aria-label="预约"></button>
+      <button type="button" class="hot" data-v2-home="hold" style="left:156px;top:488px;width:78px;height:72px;" aria-label="挂单"></button>
+      <button type="button" class="hot" data-home-toast="会员卡" style="left:234px;top:488px;width:74px;height:72px;" aria-label="会员卡"></button>
+      <button type="button" class="hot" data-home-toast="优惠" style="left:308px;top:488px;width:74px;height:72px;" aria-label="优惠"></button>
+      <!-- 底 Tab -->
+      <button type="button" class="hot" data-home-toast="首页" style="left:0;top:776px;width:78px;height:68px;" aria-label="首页"></button>
+      <button type="button" class="hot" data-home-toast="客户" style="left:78px;top:776px;width:78px;height:68px;" aria-label="客户"></button>
+      <button type="button" class="hot" data-home-toast="助手" style="left:156px;top:776px;width:78px;height:68px;" aria-label="助手"></button>
+      <button type="button" class="hot" data-home-toast="小店" style="left:234px;top:776px;width:78px;height:68px;" aria-label="小店"></button>
+      <button type="button" class="hot" data-home-toast="获客" style="left:312px;top:776px;width:78px;height:68px;" aria-label="获客"></button>
     </div>
   </div>
 
@@ -3401,7 +3390,12 @@
          R26：徽标 + 金额卡 + 操作组同属 .suc-scroll，除底栏外整区滚动 -->
     <div class="suc-scroll">
     <div class="suc-head">
-      <img src="assets/suc_check.svg" alt="">
+      <span class="suc-check" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="10" fill="#FF571A"/>
+          <path d="M6.5 10L9 12.5L14 7.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
       <span class="t">开单成功</span>
     </div>
     <div class="suc-body">
@@ -3655,6 +3649,112 @@
       </div>
       <div class="picker-foot">
         <button type="button" class="btn-main" onclick="confirmRemark()">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 确认支付底部 sheet（结账 → 确认支付 → s15；会员卡可切「选择扣款会员卡」） -->
+  <div class="pay-sheet-mask" id="paySheetMask" onclick="if(event.target===this)closePayConfirmSheet()">
+    <div class="pay-sheet" id="paySheetMain" role="dialog" aria-label="确认支付">
+      <div class="pay-sheet__hero">
+        <button type="button" class="pay-sheet__close" aria-label="关闭" onclick="closePayConfirmSheet()">
+          <img src="assets/pay/close.svg" alt="">
+        </button>
+        <div class="pay-sheet__coin" aria-hidden="true"><img src="assets/pay/coin.png" alt=""></div>
+        <div class="pay-sheet__amt"><span class="yen">¥</span><span class="num" id="paySheetAmt">0.00</span></div>
+      </div>
+      <div class="pay-sheet__list" id="paySheetList">
+        <div class="pay-row pay-row--member" id="payRowMember" hidden>
+          <div class="pay-mem-top">
+            <div class="ico"><img src="assets/pay/vip-badge.svg" alt=""></div>
+            <div class="nm">会员卡支付</div>
+            <div class="box" data-pay-box="member">
+              <input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="会员卡支付金额" readonly>
+              <span class="chev"><img src="assets/pay/chevron.svg" alt=""></span>
+            </div>
+          </div>
+          <div class="pay-mem-line" aria-hidden="true"></div>
+          <div class="pay-mem-bot">
+            <span class="tag">卡</span>
+            <span class="cn" id="payMemberCardName">美发卡3000元</span>
+            <span class="bal">本金：<b id="payMemberPrincipal">¥119</b></span>
+            <span class="bal">赠金：<b id="payMemberGift">¥210</b></span>
+          </div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/alipay.png" alt=""></div>
+          <div class="mid"><div class="nm">支付宝</div></div>
+          <div class="box" data-pay-box="alipay"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="支付宝金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/wechat.svg" alt=""></div>
+          <div class="mid"><div class="nm">微信</div></div>
+          <div class="box" data-pay-box="wechat"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="微信金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/meituan.png" alt=""></div>
+          <div class="mid"><div class="nm">美团</div></div>
+          <div class="box" data-pay-box="meituan"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="美团金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/dianping.png" alt=""></div>
+          <div class="mid"><div class="nm">大众点评</div></div>
+          <div class="box" data-pay-box="dianping"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="大众点评金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/douyin.png" alt=""></div>
+          <div class="mid"><div class="nm">抖音</div></div>
+          <div class="box" data-pay-box="douyin"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="抖音金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/koubei.png" alt=""></div>
+          <div class="mid"><div class="nm">口碑</div></div>
+          <div class="box" data-pay-box="koubei"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="口碑金额"></div>
+        </div>
+      </div>
+      <div class="pay-sheet__foot">
+        <button type="button" class="btn" onclick="confirmPaySheet()">确认支付</button>
+      </div>
+    </div>
+
+    <!-- 选择扣款会员卡 · Figma 496:431 -->
+    <div class="pay-sheet pay-sheet--alloc" id="paySheetAlloc" role="dialog" aria-label="选择扣款会员卡">
+      <div class="pay-alloc__hero">
+        <div class="pay-alloc__title">选择扣款会员卡</div>
+        <button type="button" class="pay-alloc__close" aria-label="关闭" onclick="closePayAllocSheet()">
+          <img src="assets/pay/alloc-close.svg" alt="">
+        </button>
+      </div>
+      <div class="pay-alloc__card">
+        <div class="pay-alloc__head">
+          <span class="tag">卡</span>
+          <span class="cn" id="payAllocCardName">美发卡3000元</span>
+          <span class="badge">本单使用</span>
+        </div>
+        <div class="pay-alloc__line" aria-hidden="true"></div>
+        <div class="pay-alloc__row">
+          <div class="meta">
+            <div class="lab">充值余额</div>
+            <div class="val" id="payAllocRechargeAvail">¥3000</div>
+          </div>
+          <div class="box on" data-alloc-box="recharge">
+            <input class="alloc-amt" id="payAllocRecharge" type="text" inputmode="decimal" value="0.00" aria-label="充值扣款">
+            <button type="button" class="clr" data-alloc-clear="recharge" aria-label="清除"><img src="assets/pay/input-clear.svg" alt=""></button>
+          </div>
+        </div>
+        <div class="pay-alloc__row">
+          <div class="meta">
+            <div class="lab">赠送余额</div>
+            <div class="val" id="payAllocGiftAvail">¥1000</div>
+          </div>
+          <div class="box on" data-alloc-box="gift">
+            <input class="alloc-amt" id="payAllocGift" type="text" inputmode="decimal" value="0.00" aria-label="赠送扣款">
+            <button type="button" class="clr" data-alloc-clear="gift" aria-label="清除"><img src="assets/pay/input-clear.svg" alt=""></button>
+          </div>
+        </div>
+      </div>
+      <div class="pay-sheet__foot">
+        <button type="button" class="btn" onclick="confirmPayAllocSheet()">确认支付</button>
       </div>
     </div>
   </div>
@@ -6737,7 +6837,7 @@
     };
     paintSuccessPage();
   }
-  /* 结账成功 → 成功页（toast 占位原「支付中→支付成功」弹窗后直接进入） */
+  /* 结账成功 → 成功页 */
   function checkoutToSuccess(kind) {
     var info = payInfoOf(kind);
     var billDate = (typeof window.__v2BillDate === 'function') ? window.__v2BillDate() : '';
@@ -6767,14 +6867,318 @@
     recalcOrderAmounts();
     updateCartBadge();
     paintSuccessPage();
-    /* 原型切掉了「结算 → 成功」之间的支付流程弹窗，用 toast 说明。
-       40 字折两行，按约 13 字/秒给到 3.0s（原 1.4s 读不完） */
-    toast('原型省略了结算与成功之间的支付流程弹窗（支付方式、收款确认等），开发时以线上为准', 3000);
     go('s15');
   }
+
+  /* ---- 确认支付 sheet（结账 → 确认支付 → s15） ----
+     灰框规则（R31）+ 会员卡分配页（R32 · Figma 496:431） */
+  var paySheetKind = 'co';
+  var paySheetPayable = 0;
+  /* 演示卡可用余额（分配页左侧展示 & 上限校验） */
+  var PAY_CARD_DEMO = {
+    name: '美发卡3000元',
+    rechargeAvail: 3000,
+    giftAvail: 1000,
+    principalShow: '119',
+    giftShow: '210'
+  };
+  var payCardAlloc = { recharge: 0, gift: 0 };
+
+  function paySheetAmtText(n) {
+    return money2(n);
+  }
+
+  function payBoxInput(box) {
+    return box ? box.querySelector('.pay-amt') : null;
+  }
+
+  function getPayBoxVal(box) {
+    var inp = payBoxInput(box);
+    if (!inp) return 0;
+    var n = parseFloat(String(inp.value).replace(/,/g, ''));
+    return isFinite(n) ? Math.max(0, Math.round(n * 100) / 100) : 0;
+  }
+
+  function setPayBoxVal(box, amount) {
+    var inp = payBoxInput(box);
+    if (!inp) return;
+    var n = Math.max(0, Math.round((parseFloat(amount) || 0) * 100) / 100);
+    inp.value = paySheetAmtText(n);
+    box.classList.toggle('on', n > 0);
+  }
+
+  function memberPayBox() {
+    return document.querySelector('#paySheetList [data-pay-box="member"]');
+  }
+
+  function syncPayBoxOnStates() {
+    var list = document.getElementById('paySheetList');
+    if (!list) return;
+    list.querySelectorAll('[data-pay-box]').forEach(function (box) {
+      box.classList.toggle('on', getPayBoxVal(box) > 0);
+    });
+  }
+
+  function resetPaySheetBoxes() {
+    var list = document.getElementById('paySheetList');
+    if (!list) return;
+    list.querySelectorAll('[data-pay-box]').forEach(function (box) {
+      setPayBoxVal(box, 0);
+    });
+    payCardAlloc = { recharge: 0, gift: 0 };
+    showPaySheetMain();
+  }
+
+  function showPaySheetMain() {
+    var mask = document.getElementById('paySheetMask');
+    if (mask) mask.classList.remove('is-alloc');
+  }
+
+  function showPaySheetAlloc() {
+    var mask = document.getElementById('paySheetMask');
+    if (mask) mask.classList.add('is-alloc');
+  }
+
+  function openPayConfirmSheet(kind) {
+    paySheetKind = kind || 'co';
+    var info = payInfoOf(paySheetKind);
+    paySheetPayable = info.amount;
+    var amtEl = document.getElementById('paySheetAmt');
+    if (amtEl) amtEl.textContent = paySheetAmtText(paySheetPayable);
+
+    var isMember = (paySheetKind === 'qco' ? qcoCust : coCust) === 'member';
+    var rowMem = document.getElementById('payRowMember');
+    if (rowMem) {
+      if (isMember) {
+        rowMem.hidden = false;
+        var nameEl = document.getElementById('payMemberCardName');
+        var pEl = document.getElementById('payMemberPrincipal');
+        var gEl = document.getElementById('payMemberGift');
+        if (nameEl) nameEl.textContent = PAY_CARD_DEMO.name;
+        if (pEl) pEl.textContent = '¥' + PAY_CARD_DEMO.principalShow;
+        if (gEl) gEl.textContent = '¥' + PAY_CARD_DEMO.giftShow;
+      } else {
+        rowMem.hidden = true;
+      }
+    }
+    resetPaySheetBoxes();
+    openMask('paySheetMask');
+  }
+
+  function closePayConfirmSheet() {
+    showPaySheetMain();
+    closeMask('paySheetMask');
+  }
+
+  function applyPayBoxFill(box) {
+    var list = document.getElementById('paySheetList');
+    if (!list || !box) return;
+    var othersSum = 0;
+    list.querySelectorAll('[data-pay-box]').forEach(function (b) {
+      if (b === box) return;
+      othersSum += getPayBoxVal(b);
+    });
+    othersSum = Math.round(othersSum * 100) / 100;
+    var payable = Math.round(paySheetPayable * 100) / 100;
+
+    if (othersSum > 0 && othersSum < payable) {
+      setPayBoxVal(box, Math.round((payable - othersSum) * 100) / 100);
+    } else {
+      list.querySelectorAll('[data-pay-box]').forEach(function (b) {
+        if (b !== box) setPayBoxVal(b, 0);
+      });
+      setPayBoxVal(box, payable);
+    }
+    syncPayBoxOnStates();
+    if (box.getAttribute('data-pay-box') === 'member') {
+      /* 会员卡新填额：默认优先充值分配（尚未进分配页） */
+      var m = getPayBoxVal(box);
+      var r = Math.min(m, PAY_CARD_DEMO.rechargeAvail);
+      payCardAlloc = { recharge: r, gift: Math.round((m - r) * 100) / 100 };
+    }
+  }
+
+  function parseAllocAmt(el) {
+    if (!el) return 0;
+    var n = parseFloat(String(el.value).replace(/,/g, ''));
+    return isFinite(n) ? Math.max(0, Math.round(n * 100) / 100) : 0;
+  }
+
+  function setAllocAmt(kind, amount) {
+    var id = kind === 'gift' ? 'payAllocGift' : 'payAllocRecharge';
+    var el = document.getElementById(id);
+    var box = document.querySelector('[data-alloc-box="' + kind + '"]');
+    var n = Math.max(0, Math.round((parseFloat(amount) || 0) * 100) / 100);
+    if (el) el.value = paySheetAmtText(n);
+    if (box) box.classList.toggle('on', n > 0);
+  }
+
+  function syncAllocBoxStyles() {
+    setAllocAmt('recharge', parseAllocAmt(document.getElementById('payAllocRecharge')));
+    setAllocAmt('gift', parseAllocAmt(document.getElementById('payAllocGift')));
+  }
+
+  function openPayAllocSheet() {
+    var mem = memberPayBox();
+    var m = mem ? getPayBoxVal(mem) : 0;
+    if (m <= 0) return;
+
+    var nameEl = document.getElementById('payAllocCardName');
+    var ra = document.getElementById('payAllocRechargeAvail');
+    var ga = document.getElementById('payAllocGiftAvail');
+    if (nameEl) nameEl.textContent = PAY_CARD_DEMO.name;
+    if (ra) ra.textContent = '¥' + PAY_CARD_DEMO.rechargeAvail;
+    if (ga) ga.textContent = '¥' + PAY_CARD_DEMO.giftAvail;
+
+    var sumPrev = Math.round((payCardAlloc.recharge + payCardAlloc.gift) * 100) / 100;
+    if (sumPrev > 0 && Math.abs(sumPrev - m) < 0.001) {
+      setAllocAmt('recharge', payCardAlloc.recharge);
+      setAllocAmt('gift', payCardAlloc.gift);
+    } else {
+      /* 默认优先充值 */
+      var r = Math.min(m, PAY_CARD_DEMO.rechargeAvail);
+      var g = Math.round((m - r) * 100) / 100;
+      if (g > PAY_CARD_DEMO.giftAvail) g = PAY_CARD_DEMO.giftAvail;
+      setAllocAmt('recharge', r);
+      setAllocAmt('gift', g);
+    }
+    showPaySheetAlloc();
+  }
+
+  function closePayAllocSheet() {
+    /* 关闭：丢弃未确认的编辑，回到列表（卡付金额不变） */
+    showPaySheetMain();
+  }
+
+  function confirmPayAllocSheet() {
+    var r = parseAllocAmt(document.getElementById('payAllocRecharge'));
+    var g = parseAllocAmt(document.getElementById('payAllocGift'));
+    if (r > PAY_CARD_DEMO.rechargeAvail) {
+      toast('充值扣款不能超过充值余额');
+      return;
+    }
+    if (g > PAY_CARD_DEMO.giftAvail) {
+      toast('赠送扣款不能超过赠送余额');
+      return;
+    }
+    var sum = Math.round((r + g) * 100) / 100;
+    payCardAlloc = { recharge: r, gift: g };
+    var mem = memberPayBox();
+    if (mem) setPayBoxVal(mem, sum);
+    syncPayBoxOnStates();
+    showPaySheetMain();
+  }
+
+  function clearAllocSide(kind) {
+    setAllocAmt(kind, 0);
+  }
+
+  function onPaySheetBoxClick(box) {
+    var key = box.getAttribute('data-pay-box');
+    if (key === 'member') {
+      if (getPayBoxVal(box) === 0) {
+        applyPayBoxFill(box);
+        /* 首次填额后留在列表；再点才进分配页 */
+        return;
+      }
+      openPayAllocSheet();
+      return;
+    }
+    if (getPayBoxVal(box) === 0) applyPayBoxFill(box);
+    else syncPayBoxOnStates();
+    var inp = payBoxInput(box);
+    if (inp) {
+      setTimeout(function () {
+        inp.focus();
+        try { inp.select(); } catch (e) {}
+      }, 0);
+    }
+  }
+
+  function onPayAmtInput(inp) {
+    var box = inp.closest('[data-pay-box]');
+    if (!box) return;
+    var v = inp.value;
+    if (v === '' || v === '.') {
+      box.classList.remove('on');
+      return;
+    }
+    var n = parseFloat(v);
+    if (!isFinite(n) || n <= 0) box.classList.remove('on');
+    else box.classList.add('on');
+  }
+
+  function onPayAmtBlur(inp) {
+    var box = inp.closest('[data-pay-box]');
+    if (!box) return;
+    var n = parseFloat(String(inp.value).replace(/,/g, ''));
+    if (!isFinite(n) || n < 0) n = 0;
+    if (n > 999999.99) n = 999999.99;
+    n = Math.round(n * 100) / 100;
+    setPayBoxVal(box, n);
+  }
+
+  function confirmPaySheet() {
+    closePayConfirmSheet();
+    checkoutToSuccess(paySheetKind);
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+
+    var clr = t.closest('[data-alloc-clear]');
+    if (clr) {
+      e.preventDefault();
+      e.stopPropagation();
+      clearAllocSide(clr.getAttribute('data-alloc-clear'));
+      return;
+    }
+
+    if (t.classList && t.classList.contains('alloc-amt')) return;
+
+    if (t.classList && t.classList.contains('pay-amt')) {
+      var boxInp = t.closest('[data-pay-box]');
+      if (!boxInp) return;
+      if (boxInp.getAttribute('data-pay-box') === 'member') {
+        e.preventDefault();
+        onPaySheetBoxClick(boxInp);
+        return;
+      }
+      if (getPayBoxVal(boxInp) === 0) applyPayBoxFill(boxInp);
+      return;
+    }
+    var box = t.closest('#paySheetList [data-pay-box]');
+    if (!box) return;
+    e.preventDefault();
+    onPaySheetBoxClick(box);
+  });
+
+  document.addEventListener('input', function (e) {
+    if (!e.target || !e.target.classList) return;
+    if (e.target.classList.contains('pay-amt')) onPayAmtInput(e.target);
+    if (e.target.classList.contains('alloc-amt')) {
+      var box = e.target.closest('[data-alloc-box]');
+      if (!box) return;
+      var n = parseFloat(e.target.value);
+      if (e.target.value === '' || e.target.value === '.' || !isFinite(n) || n <= 0) box.classList.remove('on');
+      else box.classList.add('on');
+    }
+  });
+  document.addEventListener('blur', function (e) {
+    if (!e.target || !e.target.classList) return;
+    if (e.target.classList.contains('pay-amt')) onPayAmtBlur(e.target);
+    if (e.target.classList.contains('alloc-amt')) {
+      var kind = e.target.id === 'payAllocGift' ? 'gift' : 'recharge';
+      var n = parseAllocAmt(e.target);
+      if (n > 999999.99) n = 999999.99;
+      setAllocAmt(kind, n);
+    }
+  }, true);
+
   function checkoutDone() {
     if (!cartItems.length) { toast('暂无结算项目'); return; }
-    checkoutToSuccess('co');
+    openPayConfirmSheet('co');
   }
   /* 改日期：底部 sheet 形态的日历（与标题栏日期控件同一数据源） */
   function sucChangeDate() {
@@ -7078,7 +7482,7 @@
   }
   function quickCheckoutDone() {
     if (!qcoItem) { toast('暂无结算项目'); return; }
-    checkoutToSuccess('qco');
+    openPayConfirmSheet('qco');
   }
 
   // ---- 门店流水 s8 页签 ----
@@ -7328,6 +7732,45 @@ html.capture-figma #toast { display:none !important; }
   try { cap = new URLSearchParams(location.search).get('capture'); } catch (e) {}
   if (!cap) return;
   document.documentElement.classList.add('capture-figma');
+  /* 抓取编排完成的标志位：外部脚本据此判断「目标态已就绪」再提交截图 */
+  var capReady = false;
+  window.__capProbe = function () {
+    var vis = function (el) { return !!(el && el.offsetParent !== null); };
+    var sheetBox = function (sel) {
+      var el = document.querySelector(sel);
+      if (!el) return null;
+      var r = el.getBoundingClientRect();
+      return { h: Math.round(r.height), y: Math.round(r.y), w: Math.round(r.width) };
+    };
+    return {
+      ready: capReady,
+      screens: Array.prototype.filter.call(document.querySelectorAll('div[id^="s"]'), function (e) {
+        return /^s\d+$/.test(e.id) && vis(e);
+      }).map(function (e) { return e.id; }),
+      masks: Array.prototype.filter.call(document.querySelectorAll('.addsheet-mask,.picker-mask'), function (e) {
+        return e.classList.contains('show') || e.classList.contains('open');
+      }).map(function (e) { return e.id; }),
+      moreOpen: !!(document.getElementById('navMoreMenu') && document.getElementById('navMoreMenu').classList.contains('show')),
+      dateOpen: !!(document.querySelector('[data-date-pop].show')),
+      addMemOpen: !!(document.querySelector('#s4 [data-add-wrap].is-open')),
+      cardAddMemOpen: !!(document.querySelector('#s1 .v2-bill-body [data-bill-card].is-open [data-addmem-panel], #s1 .v2-ccard-wrap .v2-ccard.is-open [data-addmem-panel]')),
+      sheet: sheetBox('.addsheet-mask.show .addsheet, .picker-mask.show .picker-sheet'),
+      coItems: document.querySelectorAll('#coItems .co-item').length,
+      staffSlots: document.querySelectorAll('#asStaffGrid .sp-slot, #coStaffGrid .sp-slot').length,
+      pickCards: document.querySelectorAll('.sp-picker__grid .sp-pick').length,
+      pickOn: document.querySelectorAll('.sp-pick.is-on').length,
+      staffLabel: (document.getElementById('asStaffLabel') || {}).textContent || '',
+      sheetTitle: (function () {
+        var m = document.querySelector('.addsheet-mask.show');
+        if (!m) return '';
+        var t = m.querySelector('.addsheet__title, #sucNoTitle, .picker-sheet__title');
+        return t ? String(t.textContent || '').trim() : '';
+      })(),
+      benRows: document.querySelectorAll('#benPickMask.show .ben-row').length,
+      coupCards: document.querySelectorAll('#cpPickMask.show .cp-card, #cpPickMask.show .cp-none').length,
+      picking: !!document.querySelector('.addsheet.is-picking')
+    };
+  };
 
   /* 展开区预置服务员工（林屿森=大工+顾客指定 / 何苏叶=中工） */
   var DRAFT_STAFF = {
@@ -7397,62 +7840,757 @@ html.capture-figma #toast { display:none !important; }
     });
   }
 
+  /* 结算明细来源（R30 修订）：改用「挂单列表 → 去结单」取回单据。
+     原「选陈女士 → 点开单 → 加两条明细」链路里的 `[data-a="bill"]` 选择器已失效，
+     且多步点选在抓取时容易停在中途（截图落成空白开单页）。挂单 #3「李女士」
+     来源＝结算页，取回后直接回到 s6 且自带 2 条明细，一步到位、可复现。 */
+  function buildTwoItems(cb) {
+    var take = window.takeHold;
+    if (typeof take === 'function') {
+      window.openHoldList();
+      waitFor(function () { return document.querySelectorAll('#holdList .hold-card').length > 0; }, function (he) {
+        if (he) { cb(he); return; }
+        take(2);
+        waitFor(function () { return document.querySelectorAll('#coItems .co-item').length > 0; }, function (e2) {
+          if (e2) { cb(e2); return; }
+          setTimeout(function () { cb(null); }, 900);
+        });
+      });
+      return;
+    }
+    /* 退化路径：挂单取回不可用时，退回点选流程 */
+    goPickMemberRow('陈女士', function (err, wrap) {
+      if (err) { cb(err); return; }
+      var billBtn = wrap.querySelector('[data-a="bill"]');
+      if (billBtn) billBtn.click();
+      setTimeout(function () {
+        openItem('s5', 2, function (e0) {
+          if (e0) { cb(e0); return; }
+          commitCurrent('s5', function (e1) {
+            if (e1) { cb(e1); return; }
+            openItem('s5', 0, function (e2) {
+              if (e2) { cb(e2); return; }
+              commitCurrent('s5', function (e3) {
+                if (e3) { cb(e3); return; }
+                setTimeout(function () {
+                  if (typeof window.setCust === 'function') window.setCust('member');
+                  if (typeof window.setCoCust === 'function') window.setCoCust('member');
+                  go('s6');
+                  waitFor(function () {
+                    return document.querySelectorAll('#coItems .co-item').length > 0;
+                  }, function () { setTimeout(function () { cb(null); }, 400); });
+                }, 500);
+              });
+            });
+          });
+        });
+      }, 600);
+    });
+  }
+  /* 会员开单页：选陈女士 → 进入 s5（点顾客行即进入开单页，无需再点「开单」按钮） */
+  function enterMemberBill(cb) {
+    goPickMemberRow('陈女士', function (err) {
+      if (err) { cb(err); return; }
+      setTimeout(function () { cb(null); }, 700);
+    });
+  }
+  /* 仅打开添加 sheet（含员工区），停在槽位页 */
+  function openSheetOnly(screen, idx, cb) {
+    waitFor(function () { return addBtns(screen).length > 0; }, function (err) {
+      if (err) { cb(err); return; }
+      openItem(screen, idx, cb);
+    });
+  }
+
   var FLOWS = {
-    /* S4 选择顾客：展开一行，露出「开单 / 直接收款」 */
-    's4-expand': function (done) {
-      goPickMemberRow('陈女士', function (err) {
-        if (err) { done(err); return; }
-        setTimeout(done, 600);
-      });
-    },
-    /* S1 散客开单：男散客 + 首行展开（服务员工已选） */
-    's1-expand': function (done) {
+    /* —— 选择顾客 / 开单页 —— */
+    's1': function (done) {
       if (window.pickGuest) window.pickGuest('male'); else go('s1');
-      setTimeout(function () { openItem('s1', 0, done); }, 600);
+      setTimeout(function () { done(null); }, 900);
     },
-    /* S5 会员开单：选陈女士 → 开单 → 首行展开 */
-    's5-expand': function (done) {
-      goPickMemberRow('陈女士', function (err, wrap) {
+    's5': function (done) {
+      enterMemberBill(function (err) {
         if (err) { done(err); return; }
-        wrap.querySelector('[data-a="bill"]').click();
-        setTimeout(function () { openItem('s5', 2, done); }, 600);
+        done(null);
       });
     },
-    /* S6 开单结算：加 2 条商品 → 进入结算页 */
-    's6-items': function (done) {
-      FLOWS['s5-expand'](function (err) {
+    's1-sheet': function (done) {
+      if (window.pickGuest) window.pickGuest('male'); else go('s1');
+      setTimeout(function () {
+        openSheetOnly('s1', 0, function (e2) {
+          if (e2) { done(e2); return; }
+          waitFor(function () {
+            var m = document.getElementById('addSheetMask');
+            var sh = m && m.querySelector('.addsheet');
+            return !!(m && m.classList.contains('show') && sh && sh.getBoundingClientRect().height > 120);
+          }, function () { setTimeout(function () { done(null); }, 500); });
+        });
+      }, 700);
+    },
+    's5-sheet': function (done) {
+      enterMemberBill(function (err) {
         if (err) { done(err); return; }
-        commitCurrent('s5', function (e1) {
-          if (e1) { done(e1); return; }
-          openItem('s5', 0, function (e2) {
-            if (e2) { done(e2); return; }
-            commitCurrent('s5', function (e3) {
-              if (e3) { done(e3); return; }
-              setTimeout(function () {
-                if (typeof window.setCust === 'function') window.setCust('member');
-                if (typeof window.setCoCust === 'function') window.setCoCust('member');
-                go('s6');
-                waitFor(function () {
-                  return document.querySelectorAll('#coItems .co-item').length > 0;
-                }, function () { setTimeout(done, 400); });
-              }, 500);
+        openSheetOnly('s5', 2, function (e2) {
+          if (e2) { done(e2); return; }
+          waitFor(function () {
+            var m = document.getElementById('addSheetMask');
+            var sh = m && m.querySelector('.addsheet');
+            return !!(m && m.classList.contains('show') && sh && sh.getBoundingClientRect().height > 120);
+          }, function () { setTimeout(function () { done(null); }, 500); });
+        });
+      });
+    },
+    /* s4：点「添加会员」行 → 展开姓名/手机号/性别表单 */
+    's4-addmem': function (done) {
+      go('s4');
+      waitFor(function () { return !!document.querySelector('#s4 [data-add-wrap]'); }, function (err) {
+        if (err) { done(err); return; }
+        var wrap = document.querySelector('#s4 [data-add-wrap]');
+        var row = wrap.querySelector('.pick-row') || wrap;
+        try { row.click(); } catch (e) {}
+        wrap.classList.add('is-open');
+        waitFor(function () {
+          var panel = wrap.querySelector('[data-add-panel], .pick-add-panel');
+          return !!(wrap.classList.contains('is-open') && panel &&
+            getComputedStyle(panel).display !== 'none' && panel.getBoundingClientRect().height > 40);
+        }, function () { setTimeout(function () { done(null); }, 600); });
+      });
+    },
+    /* s1 男散客卡：点右侧添加会员 → 展开卡内注册面板 */
+    's1-addmem': function (done) {
+      if (window.pickGuest) window.pickGuest('male'); else go('s1');
+      setTimeout(function () {
+        if (window.setGuestGender) window.setGuestGender('male');
+        var tries = 0;
+        (function waitCard() {
+          var body = document.querySelector('#s1 .v2-bill-body');
+          var wrap = document.querySelector('#s1 [data-ccard-wrap]');
+          var card = document.querySelector('#s1 .v2-bill-body [data-bill-card]') ||
+            document.querySelector('#s1 .v2-ccard-wrap .v2-ccard');
+          var btn = card && card.querySelector('[data-addmem-toggle]');
+          var panel = card && card.querySelector('[data-addmem-panel]');
+          if ((!card || !btn || !panel) && tries++ < 40) {
+            setTimeout(waitCard, 150);
+            return;
+          }
+          if (!card || !btn || !panel) { done(new Error('s1-addmem: no addmem controls')); return; }
+          if (body) body.classList.add('cust-open');
+          if (wrap) { wrap.style.height = 'auto'; wrap.style.overflow = 'visible'; }
+          if (!card.classList.contains('is-open')) {
+            try { btn.click(); } catch (e) {}
+            card.classList.add('is-open');
+          }
+          card.style.overflow = 'visible';
+          card.style.height = 'auto';
+          setTimeout(function () {
+            if (wrap) {
+              wrap.style.height = Math.ceil(card.getBoundingClientRect().height + 20) + 'px';
+              wrap.style.overflow = 'visible';
+            }
+            var ph = panel.getBoundingClientRect().height;
+            console.log('[capture] s1-addmem cardH=' + Math.round(card.getBoundingClientRect().height) +
+              ' panelH=' + Math.round(ph));
+            done(ph > 20 ? null : new Error('s1-addmem: panel not visible'));
+          }, 700);
+        })();
+      }, 900);
+    },
+    /* 顾客卡形态：① 男散客开单 ② 女性会员 + 会员卡展开（点 chevron 看权益/卡项） */
+    's1-male': function (done) {
+      if (window.pickGuest) window.pickGuest('male'); else go('s1');
+      setTimeout(function () {
+        if (window.setGuestGender) window.setGuestGender('male');
+        done(null);
+      }, 900);
+    },
+    's5-cards': function (done) {
+      enterMemberBill(function (err) {
+        if (err) { done(err); return; }
+        var tries = 0;
+        (function waitCard() {
+          /* 真正可见的是 v2-bill-body 里的 data-bill-card，不是 legacy .scroll 里被隐藏的 .member-card */
+          var body = document.querySelector('#s5 .v2-bill-body');
+          var wrap = document.querySelector('#s5 [data-ccard-wrap]');
+          var card = document.querySelector('#s5 .v2-bill-body [data-bill-card].v2-ccard--member') ||
+            document.querySelector('#s5 .v2-ccard-wrap .v2-ccard--member');
+          var list = card && card.querySelector('.v2-ccard__cards');
+          if ((!card || !list) && tries++ < 40) {
+            setTimeout(waitCard, 150);
+            return;
+          }
+          if (!card || !list) { done(new Error('s5-cards: no visible member card')); return; }
+          if (body) body.classList.add('cust-open');
+          if (wrap) {
+            wrap.style.height = 'auto';
+            wrap.style.overflow = 'visible';
+          }
+          var tog = card.querySelector('[data-ccard-toggle]');
+          if (!card.classList.contains('is-open') && tog) {
+            try { tog.click(); } catch (e) {}
+          }
+          card.classList.add('is-open');
+          card.style.overflow = 'visible';
+          card.style.height = 'auto';
+          setTimeout(function () {
+            /* 再量一次 wrap，确保展开高度写进 inline，避免 overflow 裁切 */
+            if (wrap) {
+              var h = Math.ceil(card.getBoundingClientRect().height + 16);
+              wrap.style.height = h + 'px';
+              wrap.style.overflow = 'visible';
+            }
+            console.log('[capture] s5-cards cardH=' + Math.round(card.getBoundingClientRect().height) +
+              ' listH=' + Math.round(list.getBoundingClientRect().height) +
+              ' wrapH=' + (wrap ? wrap.style.height : '-'));
+            done(null);
+          }, 700);
+        })();
+      });
+    },
+    /* 添加 sheet + 员工槽位页（12 人池，不自动进选择页） */
+    's1-staff-slot': function (done) {
+      window.demoStaffPick({ station: true, extra: true, expand12: true, openPlus: false });
+      waitFor(function () {
+        var m = document.getElementById('addSheetMask');
+        var slots = document.querySelectorAll('#asStaffGrid .sp-slot');
+        var picking = m && m.querySelector('.addsheet.is-picking');
+        return !!(m && m.classList.contains('show') && slots.length >= 3 && !picking);
+      }, function (err) {
+        if (err) { done(err); return; }
+        setTimeout(function () { done(null); }, 800);
+      }, 160);
+    },
+    /* 添加 sheet + 员工选择页：先进选择页选 1 人落位，再重进选择页，保证 is-on 勾可见且仍停在选择页 */
+    's1-staff': function (done) {
+      window.demoStaffPick({ station: true, extra: true, expand12: true, openPlus: true });
+      waitFor(function () {
+        return !!document.querySelector('#addSheetMask .addsheet.is-picking .sp-pick, #asStaffGrid .sp-pick');
+      }, function (err) {
+        if (err) { done(err); return; }
+        var pick = document.querySelector('#addSheetMask .sp-pick:not(.is-on)') ||
+          document.querySelector('#asStaffGrid .sp-pick:not(.is-on)');
+        if (pick) { try { pick.click(); } catch (e) {} }
+        setTimeout(function () {
+          var plus = document.querySelector('#asStaffGrid .sp-slot--add');
+          if (plus) { try { plus.click(); } catch (e2) {} }
+          waitFor(function () {
+            var picking = document.querySelector('#addSheetMask .addsheet.is-picking');
+            var on = document.querySelector('#addSheetMask .sp-pick.is-on, #asStaffGrid .sp-pick.is-on');
+            var tick = on && on.querySelector('.sp-pick__tick');
+            return !!(picking && on && tick && tick.getBoundingClientRect().width >= 14);
+          }, function () { setTimeout(function () { done(null); }, 700); }, 160);
+        }, 500);
+      }, 160);
+    },
+    /* S1 产品 tab → 添加产品 sheet（数量+价格并排，销售人员） */
+    's1-prod-sheet': function (done) {
+      go('s1');
+      setTimeout(function () {
+        var tab = document.querySelector('#s1 [data-btab="product"]');
+        if (tab) tab.click();
+        waitFor(function () {
+          var on = document.querySelector('#s1 [data-btab="product"].on');
+          var btns = document.querySelectorAll('#s1 .v2-cat-item [data-add]');
+          return !!(on && btns.length > 0);
+        }, function (err) {
+          if (err) { done(err); return; }
+          var btn = document.querySelector('#s1 .v2-cat-item [data-add]');
+          if (!btn) { done(new Error('s1-prod-sheet: no product add btn')); return; }
+          btn.click();
+          waitFor(function () {
+            var m = document.getElementById('addSheetMask');
+            var sh = m && m.querySelector('.addsheet');
+            var lbl = document.getElementById('asStaffLabel');
+            return !!(m && m.classList.contains('show') && sh && sh.getBoundingClientRect().height > 120 &&
+              lbl && lbl.textContent.indexOf('销售') >= 0);
+          }, function () { setTimeout(function () { done(null); }, 700); });
+        }, 160);
+      }, 800);
+    },
+    /* 结算页更多 → 手工单号 sheet */
+    's6-manual-no': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        coManualNoSheet();
+        waitFor(function () {
+          var m = document.getElementById('sucNoMask');
+          var t = document.getElementById('sucNoTitle');
+          return !!(m && m.classList.contains('show') && t && t.textContent.indexOf('手工单号') >= 0);
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+
+    /* —— 直接收款 —— */
+    's2-remark': function (done) {
+      if (typeof window.setCust === 'function') window.setCust('guest');
+      go('s2');
+      setTimeout(function () {
+        openMask('remarkSheetMask');
+        setTimeout(function () { done(null); }, 600);
+      }, 600);
+    },
+
+    /* —— 结算页及其弹层 —— */
+    's6-items': function (done) { buildTwoItems(done); },
+    's6-ben': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        openBenPickSheet(0);
+        waitFor(function () {
+          var m = document.getElementById('benPickMask');
+          return !!(m && m.classList.contains('show') && m.querySelector('.addsheet') &&
+            m.querySelector('.addsheet').getBoundingClientRect().height > 80);
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+    's6-coup': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        openCouponPickSheet();
+        waitFor(function () {
+          var m = document.getElementById('cpPickMask');
+          return !!(m && m.classList.contains('show') && m.querySelector('.addsheet') &&
+            m.querySelector('.addsheet').getBoundingClientRect().height > 80);
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+    's6-staff': function (done) {
+      /* 强制 12 人 + 分工位，保证打开的是选择页（sp-pick）而不是 ≤5 紧凑卡 */
+      SP_NEED_STATION = true;
+      SP_NEED_EXTRA = true;
+      spDemoStaff = true;
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        window.openCoItemStaffSheet(0);
+        waitFor(function () {
+          var m = document.getElementById('coStaffMask');
+          return !!(m && m.classList.contains('show'));
+        }, function (e2) {
+          if (e2) { done(e2); return; }
+          var plus = document.querySelector('#coStaffGrid .sp-slot--add, #coStaffMask .sp-slot--add');
+          if (plus) { try { plus.click(); } catch (err) {} }
+          setTimeout(function () {
+            var pick = document.querySelector('#coStaffMask .sp-pick:not(.is-on)');
+            if (pick) { try { pick.click(); } catch (err2) {} }
+            setTimeout(function () {
+              var plus2 = document.querySelector('#coStaffGrid .sp-slot--add, #coStaffMask .sp-slot--add');
+              if (plus2) { try { plus2.click(); } catch (err3) {} }
+              waitFor(function () {
+                var picking = document.querySelector('#coStaffMask .addsheet.is-picking');
+                var on = document.querySelector('#coStaffMask .sp-pick.is-on');
+                var tick = on && on.querySelector('.sp-pick__tick');
+                return !!(picking && on && tick && getComputedStyle(tick).display !== 'none' &&
+                  tick.getBoundingClientRect().width >= 14);
+              }, function () { setTimeout(function () { done(null); }, 700); }, 160);
+            }, 450);
+          }, 400);
+        });
+      });
+    },
+    's6-price': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        window.openCoItemPriceSheet(0);
+        waitFor(function () {
+          var m = document.getElementById('coPayMask');
+          return !!(m && m.classList.contains('show') && m.querySelector('.addsheet') &&
+            m.querySelector('.addsheet').getBoundingClientRect().height > 80);
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+    's6-more': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        openNavMoreMenu();
+        waitFor(function () {
+          var m = document.getElementById('navMoreMenu');
+          return !!(m && m.classList.contains('show') && m.getBoundingClientRect().height > 20);
+        }, function () { setTimeout(function () { done(null); }, 400); });
+      });
+    },
+    's6-date': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        coPickDateSheet();
+        waitFor(function () {
+          var pop = document.querySelector('[data-date-pop]');
+          return !!(pop && pop.classList.contains('show') && pop.getBoundingClientRect().height > 80);
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+
+    /* —— 直接收款结算 / 其它页 —— */
+    's7': function (done) {
+      if (typeof window.goQuickCheckout === 'function') window.goQuickCheckout(true);
+      else go('s7');
+      setTimeout(function () { done(null); }, 900);
+    },
+    's14': function (done) {
+      if (typeof window.openHoldList === 'function') window.openHoldList();
+      else go('s14');
+      setTimeout(function () { done(null); }, 900);
+    },
+
+    /* —— 开单成功页及其弹层 —— */
+    's15': function (done) {
+      go('s15');
+      setTimeout(function () { done(null); }, 800);
+    },
+    's15-no': function (done) {
+      go('s15');
+      setTimeout(function () {
+        sucChangeNo();
+        setTimeout(function () { done(null); }, 900);
+      }, 700);
+    },
+    's15-date': function (done) {
+      go('s15');
+      setTimeout(function () {
+        sucChangeDate();
+        setTimeout(function () { done(null); }, 1000);
+      }, 700);
+    },
+
+    /* ========== P0 状态变体 ========== */
+    /* A：已选商品 Sheet / 清空确认 */
+    's1-cart': function (done) {
+      seedCartThen(function (e) {
+        if (e) { done(e); return; }
+        openCartSheet();
+        waitFor(function () {
+          var m = document.getElementById('cartSheetMask');
+          return !!(m && m.classList.contains('show') &&
+            document.querySelectorAll('#cartSheetBody .cart-sheet__row').length > 0);
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+    's1-cart-clear': function (done) {
+      seedCartThen(function (e) {
+        if (e) { done(e); return; }
+        openCartSheet();
+        setTimeout(function () {
+          askClearCart();
+          waitFor(function () {
+            var m = document.getElementById('clearCartConfirmMask');
+            return !!(m && m.classList.contains('show'));
+          }, function () { setTimeout(function () { done(null); }, 400); });
+        }, 400);
+      });
+    },
+
+    /* B：员工矩阵 6 套（≤5 槽位/选择、已满位、无勾、s6 内嵌 ≤5） */
+    's1-staff-slot-5': function (done) {
+      window.demoStaffPick({ station: true, extra: true, expand12: false, openPlus: false });
+      waitFor(function () {
+        var m = document.getElementById('addSheetMask');
+        var cards = document.querySelectorAll('#asStaffGrid .sp-card, #asStaffGrid .sp-cards');
+        return !!(m && m.classList.contains('show') && cards.length >= 1 && !spDemoStaff);
+      }, function () { setTimeout(function () { done(null); }, 700); }, 160);
+    },
+    's1-staff-pick-5': function (done) {
+      window.demoStaffPick({ station: true, extra: true, expand12: false, openPlus: false });
+      waitFor(function () {
+        return !!document.querySelector('#asStaffGrid .sp-card');
+      }, function (err) {
+        if (err) { done(err); return; }
+        var card = document.querySelector('#asStaffGrid .sp-card:not(.is-on)');
+        if (card) { try { card.click(); } catch (e) {} }
+        setTimeout(function () {
+          var card2 = document.querySelector('#asStaffGrid .sp-cards__row[data-sr-row="mid"] .sp-card:not(.is-on)');
+          if (card2) { try { card2.click(); } catch (e2) {} }
+          waitFor(function () {
+            return document.querySelectorAll('#asStaffGrid .sp-card.is-on').length >= 1;
+          }, function () { setTimeout(function () { done(null); }, 600); }, 160);
+        }, 350);
+      }, 160);
+    },
+    's1-staff-full': function (done) {
+      window.demoStaffPick({ station: true, extra: true, expand12: true, openPlus: false });
+      waitFor(function () {
+        var m = document.getElementById('addSheetMask');
+        return !!(m && m.classList.contains('show') && window.__v2DraftStaff);
+      }, function (err) {
+        if (err) { done(err); return; }
+        fillAllStationSlots();
+        setTimeout(function () { done(null); }, 800);
+      }, 160);
+    },
+    's1-staff-nocheck': function (done) {
+      window.demoStaffPick({ station: true, extra: true, expand12: true, openPlus: true });
+      waitFor(function () {
+        var picking = document.querySelector('#addSheetMask .addsheet.is-picking');
+        var picks = document.querySelectorAll('#addSheetMask .sp-pick');
+        return !!(picking && picks.length >= 5);
+      }, function () {
+        /* 刻意不点选：选择页无勾 */
+        setTimeout(function () { done(null); }, 700);
+      }, 160);
+    },
+    's6-staff-slot-5': function (done) {
+      SP_NEED_STATION = true;
+      SP_NEED_EXTRA = true;
+      spDemoStaff = false;
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        window.openCoItemStaffSheet(0);
+        waitFor(function () {
+          var m = document.getElementById('coStaffMask');
+          var cards = document.querySelectorAll('#coStaffGrid .sp-card, #coStaffGrid .sp-cards');
+          var picking = document.querySelector('#coStaffMask .addsheet.is-picking');
+          return !!(m && m.classList.contains('show') && cards.length >= 1 && !picking);
+        }, function () { setTimeout(function () { done(null); }, 700); }, 160);
+      });
+    },
+    's6-staff-pick-5': function (done) {
+      SP_NEED_STATION = true;
+      SP_NEED_EXTRA = true;
+      spDemoStaff = false;
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        window.openCoItemStaffSheet(0);
+        waitFor(function () {
+          return !!document.querySelector('#coStaffGrid .sp-card');
+        }, function (err) {
+          if (err) { done(err); return; }
+          var card = document.querySelector('#coStaffGrid .sp-card:not(.is-on)');
+          if (card) { try { card.click(); } catch (e2) {} }
+          waitFor(function () {
+            return document.querySelectorAll('#coStaffGrid .sp-card.is-on').length >= 1;
+          }, function () { setTimeout(function () { done(null); }, 600); }, 160);
+        }, 160);
+      });
+    },
+
+    /* C：s4 搜索有/无结果、无会员 */
+    's4-search': function (done) {
+      go('s4');
+      waitFor(function () { return !!document.querySelector('#s4 [data-pick-search]'); }, function (err) {
+        if (err) { done(err); return; }
+        var inp = document.querySelector('#s4 [data-pick-search]');
+        inp.value = '陈';
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+        if (typeof window.__v2PickSearchRefresh === 'function') window.__v2PickSearchRefresh();
+        waitFor(function () {
+          var list = document.querySelector('#s4 .pick-list');
+          var hits = document.querySelectorAll('#s4 .pick-row-wrap');
+          var vis = 0;
+          for (var i = 0; i < hits.length; i++) {
+            if (hits[i].style.display !== 'none') vis++;
+          }
+          return !!(list && list.classList.contains('is-searching') && vis > 0);
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+    's4-search-empty': function (done) {
+      go('s4');
+      waitFor(function () { return !!document.querySelector('#s4 [data-pick-search]'); }, function (err) {
+        if (err) { done(err); return; }
+        var inp = document.querySelector('#s4 [data-pick-search]');
+        inp.value = 'zzzz无此人999';
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+        if (typeof window.__v2PickSearchRefresh === 'function') window.__v2PickSearchRefresh();
+        waitFor(function () {
+          var empty = document.querySelector('#s4 .pick-empty.show');
+          return !!empty;
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+    's4-nomember': function (done) {
+      go('s4');
+      waitFor(function () { return document.querySelectorAll('#s4 .pick-row').length > 0; }, function (err) {
+        if (err) { done(err); return; }
+        /* 只藏会员行；散客（男/女）与「添加会员」保留 */
+        document.querySelectorAll('#s4 .pick-row-wrap').forEach(function (w) {
+          if (w.getAttribute('data-kind') === 'guest') return;
+          w.style.display = 'none';
+        });
+        document.querySelectorAll('#s4 .pick-group-h').forEach(function (h) {
+          if (String(h.textContent || '').indexOf('散客') < 0) h.style.display = 'none';
+        });
+        waitFor(function () {
+          var male = false, female = false;
+          document.querySelectorAll('#s4 .pick-row, #s4 .pick-row-wrap').forEach(function (el) {
+            if (el.style.display === 'none') return;
+            var t = el.textContent || '';
+            if (t.indexOf('男散客') >= 0) male = true;
+            if (t.indexOf('女散客') >= 0) female = true;
+          });
+          return male && female;
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+
+    /* D：s1 产品列表 / 空价目 / 购物车有商品（s5 同构复用，不另出稿） */
+    's1-prod': function (done) {
+      go('s1');
+      setTimeout(function () {
+        var tab = document.querySelector('#s1 [data-btab="product"]');
+        if (tab) tab.click();
+        waitFor(function () {
+          return !!document.querySelector('#s1 [data-btab="product"].on') &&
+            document.querySelectorAll('#s1 .v2-cat-item').length > 0;
+        }, function () { setTimeout(function () { done(null); }, 600); });
+      }, 700);
+    },
+    's1-empty-price': function (done) {
+      go('s1');
+      setTimeout(function () {
+        var body = document.querySelector('#s1 .v2-bill-body');
+        var cat = document.querySelector('#s1 .v2-catalog');
+        if (cat) {
+          cat.innerHTML = '<div class="v2-cat-empty">暂无价目表，请先在「管理价目表」中添加项目或产品</div>';
+        }
+        document.querySelectorAll('#s1 .v2-group-tab').forEach(function (t) { t.style.display = 'none'; });
+        setTimeout(function () { done(body ? null : new Error('s1-empty-price: no body')); }, 500);
+      }, 800);
+    },
+    's1-carted': function (done) {
+      seedCartThen(function (e) {
+        if (e) { done(e); return; }
+        go('s1');
+        setTimeout(function () { done(null); }, 700);
+      });
+    },
+
+    /* E：s14 空态 / 权益说明 / 券三态 / 改价锁定与恢复 */
+    's14-empty': function (done) {
+      holdOrders = [];
+      syncHoldCount();
+      if (typeof window.openHoldList === 'function') window.openHoldList();
+      else { renderHoldList(false); go('s14'); }
+      waitFor(function () {
+        return !!document.querySelector('#s14 .hold-empty');
+      }, function () { setTimeout(function () { done(null); }, 500); });
+    },
+    's6-ben-help': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        openBenHelp();
+        waitFor(function () {
+          var m = document.getElementById('benHelpMask');
+          return !!(m && m.classList.contains('show'));
+        }, function () { setTimeout(function () { done(null); }, 400); });
+      });
+    },
+    's6-coup-rule': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        openCouponPickSheet();
+        waitFor(function () {
+          return !!document.querySelector('#cpPickMask.show .cp-card');
+        }, function (err) {
+          if (err) { done(err); return; }
+          toggleCoupRule(0);
+          waitFor(function () {
+            return !!document.querySelector('#cpPickMask.show .cp-card.is-open .cp-rules');
+          }, function () { setTimeout(function () { done(null); }, 500); });
+        });
+      });
+    },
+    's6-coup-off': function (done) {
+      /* 压低应付，让满200/满300 券呈 is-off，同时仍打开 sheet */
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        if (cartItems[0]) applyItemPrice(cartItems[0], 30);
+        if (cartItems[1]) applyItemPrice(cartItems[1], 20);
+        renderCo();
+        openCouponPickSheet();
+        waitFor(function () {
+          return document.querySelectorAll('#cpPickMask.show .cp-card.is-off').length >= 1;
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+    's6-coup-empty': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        COUPONS.length = 0;
+        openCouponPickSheet();
+        waitFor(function () {
+          var m = document.getElementById('cpPickMask');
+          var cards = document.querySelectorAll('#cpPickMask.show .cp-card');
+          return !!(m && m.classList.contains('show') && cards.length === 0);
+        }, function () { setTimeout(function () { done(null); }, 500); });
+      });
+    },
+    's6-price-locked': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        if (cartItems[0]) applyItemPrice(cartItems[0], 88);
+        renderCo();
+        waitFor(function () {
+          return !!document.querySelector('#coItems .co-row.is-benefit-locked');
+        }, function () { setTimeout(function () { done(null); }, 600); });
+      });
+    },
+    's6-price-restore': function (done) {
+      buildTwoItems(function (e) {
+        if (e) { done(e); return; }
+        var it = cartItems[0];
+        if (!it) { done(new Error('no item')); return; }
+        applyItemPrice(it, 88);
+        renderCo();
+        var base = Math.round((it.salePrice != null ? it.salePrice : it.price) * (it.qty || 1) * 100) / 100;
+        applyItemPrice(it, base);
+        it._benefitCleared = false;
+        renderCo();
+        waitFor(function () {
+          return !document.querySelector('#coItems .co-row.is-benefit-locked') &&
+            document.querySelectorAll('#coItems .co-item').length > 0;
+        }, function () { setTimeout(function () { done(null); }, 600); });
+      });
+    }
+  };
+
+  function seedCartThen(cb) {
+    if (cartItems && cartItems.length > 0) { cb(null); return; }
+    /* 取挂单回开单页也会带明细；优先直接往 cart 塞两条演示明细 */
+    if (typeof window.pickGuest === 'function') window.pickGuest('male');
+    else go('s1');
+    setTimeout(function () {
+      openItem('s1', 0, function (e0) {
+        if (e0) { cb(e0); return; }
+        commitCurrent('s1', function (e1) {
+          if (e1) { cb(e1); return; }
+          openItem('s1', 1, function (e2) {
+            if (e2) { cb(e2); return; }
+            commitCurrent('s1', function (e3) {
+              if (e3) { cb(e3); return; }
+              setTimeout(function () { cb(null); }, 400);
             });
           });
         });
       });
-    }
-  };
+    }, 600);
+  }
+  function fillAllStationSlots() {
+    var d = window.__v2DraftStaff;
+    if (!d) return;
+    d.staffIds = ['st1', 'st2', 'st3', 'st4', 'st5', 'st6', 'st7', 'st8'];
+    d.staffRoles = {
+      st1: ['senior'], st2: ['senior'],
+      st3: ['mid'], st4: ['mid'],
+      st5: ['junior'], st6: ['junior'],
+      st7: ['senior'], st8: ['mid']
+    };
+    d.staffExtra = { st1: true, st3: true, st5: true, st7: true };
+    d.staffChosen = {};
+    d.staffIds.forEach(function (id) { d.staffChosen[id] = true; });
+    if (typeof window.__v2OnDraftStaffChange === 'function') window.__v2OnDraftStaffChange();
+    var grid = document.getElementById('asStaffGrid');
+    if (grid && typeof renderStaffInto === 'function') renderStaffInto(grid, d);
+  }
 
   window.addEventListener('load', function () {
     var flow = FLOWS[cap];
     if (!flow) {
       if (document.getElementById(cap)) go(cap);
+      capReady = true;
       return;
     }
     setTimeout(function () {
       flow(function (err) {
         if (err) console.warn('[capture] ' + cap + ' 失败:', err.message || err);
         else console.log('[capture] ' + cap + ' 就绪');
+        capReady = true;
       });
     }, 200);
   });

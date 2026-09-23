@@ -1693,8 +1693,19 @@
   function wireHome() {
     var bill = $('[data-v2-home="bill"]');
     var card = $('[data-v2-home="card"]');
+    var hold = $('[data-v2-home="hold"]');
     if (bill) bill.onclick = function () { go('s4'); };
-    if (card) card.onclick = function () { toast('示意：开卡'); };
+    if (card) card.onclick = function () { toast('演示：暂未接入'); };
+    if (hold) hold.onclick = function () {
+      if (typeof window.openHoldList === 'function') window.openHoldList();
+    };
+    document.querySelectorAll('#s0 [data-home-toast]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        /* 首页 Tab「首页」本身：无提示 */
+        if (el.getAttribute('data-home-toast') === '首页') return;
+        toast('演示：暂未接入');
+      });
+    });
   }
 
   function patchNav() {
