@@ -6500,7 +6500,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind: 'quick',
       items: [{ id: 'fi-seed-q1', name: '直接收款', price: 50, type: 'quick', qty: 1 }],
       staff: '林屿森',
-      staffSpecify: false,
       payMethod: '现金',
       payments: [{ method: '现金', amount: 50 }],
       amount: 50,
@@ -6522,7 +6521,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind: 'quick',
       items: [{ id: 'fi-seed-q2', name: '直接收款', price: 88, type: 'quick', qty: 1 }],
       staff: '何苏叶',
-      staffSpecify: true,
       payMethod: '微信',
       payments: [{ method: '微信', amount: 88 }],
       amount: 88,
@@ -6544,7 +6542,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind: 'quick',
       items: [{ id: 'fi-seed-q3', name: '直接收款', price: 120, type: 'quick', qty: 1 }],
       staff: 'Lisa',
-      staffSpecify: false,
       payMethod: '支付宝',
       payments: [
         { method: '支付宝', amount: 80 },
@@ -6574,15 +6571,12 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         type: 'project',
         qty: 1,
         staffIds: ['st1'],
-        staffDesignated: { st1: false },
         staffRoles: { st1: 'mid' },
         staffAchievements: { st1: 68 },
         staffCommissions: { st1: 0 },
-        specify: false,
       }],
       staff: '林屿森',
-      staffSpecify: false,
-      staffs: [{ id: 'st1', name: '林屿森', specify: false, achievement: 68, commission: 0, role: 'mid' }],
+      staffs: [{ id: 'st1', name: '林屿森', achievement: 68, commission: 0, role: 'mid' }],
       payMethod: '现金',
       payments: [{ method: '现金', amount: 68 }],
       amount: 68,
@@ -6609,15 +6603,12 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         type: 'project',
         qty: 1,
         staffIds: ['st2'],
-        staffDesignated: { st2: true },
         staffRoles: { st2: 'senior' },
         staffAchievements: { st2: 168 },
         staffCommissions: { st2: 0 },
-        specify: true,
       }],
       staff: '何苏叶',
-      staffSpecify: true,
-      staffs: [{ id: 'st2', name: '何苏叶', specify: true, achievement: 168, commission: 0, role: 'senior' }],
+      staffs: [{ id: 'st2', name: '何苏叶', achievement: 168, commission: 0, role: 'senior' }],
       payMethod: '微信',
       payments: [
         { method: '微信', amount: 100 },
@@ -6646,7 +6637,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind: 'project',
       items: [{ id: 'fi-seed-3', name: '时尚洗吹', price: 58, type: 'project', qty: 1 }],
       staff: '阿Ken',
-      staffSpecify: true,
       payMethod: '会员卡',
       payments: [{ method: '会员卡', amount: 0 }],
       amount: 0,
@@ -6683,7 +6673,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind: 'product',
       items: [{ id: 'fi-seed-4', name: '剑琅修护洗发水', price: 128, type: 'product', qty: 1, spec: '500ml' }],
       staff: 'Lisa',
-      staffSpecify: false,
       payMethod: '支付宝',
       payments: [{ method: '支付宝', amount: 128 }],
       amount: 128,
@@ -6704,7 +6693,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind: 'card',
       items: [{ id: 'fi-seed-5', name: '办卡 · 尊享组合卡', price: 2000, type: 'card', qty: 1 }],
       staff: '林屿森',
-      staffSpecify: false,
       payMethod: '微信',
       payments: [{ method: '微信', amount: 2000 }],
       amount: 2000,
@@ -6725,7 +6713,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind: 'card',
       items: [{ id: 'fi-seed-6', name: '充值 · 老客续充卡', price: 1000, type: 'card', qty: 1 }],
       staff: '何苏叶',
-      staffSpecify: false,
       payMethod: '支付宝',
       payments: [{ method: '支付宝', amount: 1000 }],
       amount: 1000,
@@ -6746,7 +6733,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind: 'project',
       items: [{ id: 'fi-seed-7', name: '精致剪发', price: 98, type: 'project', qty: 1 }],
       staff: '阿Ken',
-      staffSpecify: false,
       payMethod: '现金',
       payments: [{ method: '现金', amount: 98 }],
       amount: 98,
@@ -6767,7 +6753,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind: 'project',
       items: [{ id: 'fi-seed-8', name: '头皮护理', price: 168, type: 'project', qty: 1 }],
       staff: '何苏叶',
-      staffSpecify: true,
       payMethod: '微信',
       payments: [{ method: '微信', amount: 168 }],
       amount: 168,
@@ -6788,7 +6773,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind: 'product',
       items: [{ id: 'fi-seed-9', name: '剑琅修护洗发水（500ml）', price: 128, type: 'product', qty: 1 }],
       staff: 'Lisa',
-      staffSpecify: false,
       payMethod: '支付宝',
       payments: [{ method: '支付宝', amount: 128 }],
       amount: 128,
@@ -7422,23 +7406,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return round2(estimated - paid);
   }
 
-  function flowStaffLineText(it) {
-    const pool = getStaffPool();
-    const ids = Array.isArray(it.staffIds) ? it.staffIds : [];
-    if (!ids.length) return '';
-    return ids.map(sid => {
-      const st = pool.find(s => s.id === sid);
-      const nm = st ? st.name : sid;
-      const designated = it.staffDesignated && it.staffDesignated[sid] != null
-        ? !!it.staffDesignated[sid]
-        : !!it.specify;
-      const des = designated ? '点客' : '散客';
-      const role = it.staffRoles && it.staffRoles[sid] && typeof staffRoleLabel === 'function'
-        ? staffRoleLabel(it.staffRoles[sid]) : '';
-      return role ? `${nm}（${des}·${role}）` : `${nm}（${des}）`;
-    }).join('、');
-  }
-
   /** 员工姓名（优先取开单2.0 的员工池：流水自带名单与开单名单不一致时，以开单为准，避免同一 id 两个名字） */
   function flowStaffNameById(sid) {
     if (!sid) return '';
@@ -7455,15 +7422,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (!ids.length) return '';
     return `<div class="flow-staff-pills">${ids.map(sid => {
       const nm = flowStaffNameById(sid);
-      const designated = it.staffDesignated && it.staffDesignated[sid] != null
-        ? !!it.staffDesignated[sid]
-        : !!it.specify;
-      const des = designated ? '点客' : '散客';
       const roleId = it.staffRoles && it.staffRoles[sid];
       const role = roleId && typeof staffRoleLabel === 'function' ? staffRoleLabel(roleId) : '';
       return `<div class="flow-staff-pill-row">
         <span class="flow-staff-pill-row__name">${escapeHtml(nm)}</span>
-        <span class="flow-pill flow-pill--guest${designated ? ' is-des' : ''}">${des}</span>
         <span class="flow-pill flow-pill--station${role ? '' : ' is-empty'}">${role ? escapeHtml(role) : '未设工位'}</span>
       </div>`;
     }).join('')}</div>`;
@@ -7472,12 +7434,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   function flowStaffPillsForOrderStaff(o, st) {
     const sid = st.id || st.name;
     const roles = flowStaffRoleLabelsForOrder(o, sid);
-    const designated = !!st.specify;
-    const des = designated ? '点客' : '散客';
     const roleTxt = roles.length ? roles.join('/') : '';
     return `<div class="flow-staff-pill-row">
       <span class="flow-staff-pill-row__name">${escapeHtml(st.name || '—')}</span>
-      <span class="flow-pill flow-pill--guest${designated ? ' is-des' : ''}">${des}</span>
       <span class="flow-pill flow-pill--station${roleTxt ? '' : ' is-empty'}">${roleTxt ? escapeHtml(roleTxt) : '未设工位'}</span>
     </div>`;
   }
@@ -7489,17 +7448,13 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       (it.staffIds || []).forEach(sid => {
         const st = pool.find(s => s.id === sid);
         const name = st ? st.name : sid;
-        const designated = it.staffDesignated && it.staffDesignated[sid] != null
-          ? !!it.staffDesignated[sid]
-          : !!it.specify;
         const role = it.staffRoles && it.staffRoles[sid] ? it.staffRoles[sid] : null;
         const ach = Number((it.staffAchievements && it.staffAchievements[sid]) || 0);
         const comm = Number((it.staffCommissions && it.staffCommissions[sid]) || 0);
         if (!map.has(sid)) {
-          map.set(sid, { id: sid, name, specify: designated, role: role || null, achievement: 0, commission: 0 });
+          map.set(sid, { id: sid, name, role: role || null, achievement: 0, commission: 0 });
         }
         const row = map.get(sid);
-        if (designated) row.specify = true;
         if (role) row.role = role;
         row.achievement = round2((Number(row.achievement) || 0) + ach);
         row.commission = round2((Number(row.commission) || 0) + comm);
@@ -7604,13 +7559,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       const prodHit = !isQuick && (PRODUCTS || []).find(p => p.id === line.id || p.name === line.name);
       const isProduct = !!(prodHit || line.kind === 'product' || line.type === 'product');
       const staffIds = Array.isArray(line.staffIds) ? line.staffIds.slice() : [];
-      const staffDesignated = {};
       const staffRoles = {};
       staffIds.forEach(sid => {
-        staffDesignated[sid] = !!(line.staffDesignated && line.staffDesignated[sid]);
         if (line.staffRoles && line.staffRoles[sid]) staffRoles[sid] = line.staffRoles[sid];
       });
-      const anyDes = staffIds.some(sid => staffDesignated[sid]);
       return {
         id: `fi-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`,
         name: line.name || (isQuick ? '直接收款' : (isProduct ? '产品' : '项目')),
@@ -7619,14 +7571,12 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         qty: Number(line.qty) || 1,
         spec: (prodHit && prodHit.spec) || line.spec || '',
         staffIds,
-        staffDesignated,
         staffRoles,
-        specify: anyDes,
       };
     });
     const items = cartItems.length
       ? cartItems
-      : [{ name: '开单消费', price: paid, type: 'project', qty: 1, staffIds: [], specify: false }];
+      : [{ name: '开单消费', price: paid, type: 'project', qty: 1, staffIds: [] }];
     const kind = flowKindFromItems(items);
     const defaultStaff = (STAFFS[0] && STAFFS[0].name) || '林屿森';
     const cashierStaff = getCashierStaff();
@@ -7638,11 +7588,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const staffs = lineStaffIds.length
       ? lineStaffIds.map(sid => {
           const st = pool.find(x => x.id === sid);
-          const designated = items.some(it => it.staffDesignated && it.staffDesignated[sid]);
           return {
             id: sid,
             name: st ? st.name : sid,
-            specify: designated,
             achievement: 0,
             commission: 0,
           };
@@ -7650,7 +7598,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       : [{
           id: (STAFFS[0] && STAFFS[0].id) || 'legacy-staff',
           name: state.technician && state.technician !== '未指定' ? state.technician : defaultStaff,
-          specify: !!(state.technician && state.technician !== '未指定'),
           achievement: paid || round2(Number(s.listTotal) || 0),
           commission: 0,
         }];
@@ -7678,7 +7625,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       kind,
       items,
       staff: staffs[0] ? staffs[0].name : defaultStaff,
-      staffSpecify: staffs[0] ? !!staffs[0].specify : false,
       staffs,
       payMethod,
       payments,
@@ -7880,7 +7826,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     }).join('');
     const staffs = Array.isArray(o.staffs) && o.staffs.length
       ? o.staffs
-      : flowAggregateStaffsFromItems(o.items, [{ name: o.staff, specify: o.staffSpecify, achievement: ach, commission: comm }]);
+      : flowAggregateStaffsFromItems(o.items, [{ name: o.staff, achievement: ach, commission: comm }]);
     const staffBlockHtml = staffs.map(st => {
       const sid = st.id || st.name;
       const roles = flowStaffRoleLabelsForOrder(o, sid);
@@ -8291,7 +8237,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const selected = new Set(state.flowRefundSelected);
     const allOn = o.items.length > 0 && o.items.every((_, i) => selected.has(i));
     body.innerHTML = `
-      <div class="flow-refund-rule">全选可原路退回或指定退款方式；部分退款仅支持指定退款方式。</div>
       <div class="flow-refund-toolbar">
         <span>已选 ${selected.size}/${o.items.length} 项</span>
         <button type="button" data-flow-refund-all>${allOn ? '取消全选' : '全选'}</button>
@@ -8377,7 +8322,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     body.innerHTML = `
       <div class="flow-detail-card">
         <div class="flow-detail-card__title">订单项目</div>
-        <p class="flow-edit-item__meta-line" style="padding:0 0 10px;margin:0">点进项目可设置服务员工、点客/散客、工位与业绩提成</p>
+        <p class="flow-edit-item__meta-line" style="padding:0 0 10px;margin:0">点进项目可设置服务员工、工位与业绩提成</p>
         ${d.items.map(it => {
           const tag = flowTypeTag(flowEditItemKind(it));
           const staffPills = flowStaffPillsHtml(it);
@@ -8389,14 +8334,16 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
           return `<div class="flow-edit-item-wrap">
             <button type="button" class="flow-edit-item" data-flow-edit-item="${escapeHtml(it.id)}">
               <span class="flow-type-tag ${tag.cls}">${tag.text}</span>
-              <div class="flow-refund-item__main">
+              <div class="flow-edit-item__main">
                 <div class="flow-refund-item__name">${escapeHtml(it.name)}</div>
                 <div class="flow-edit-item__meta-line">${specBit}×${it.qty || 1}</div>
                 ${cardBit ? `<div class="flow-edit-item__meta-line">${cardBit}</div>` : ''}
-                ${staffPills || `<div class="flow-edit-item__meta-line" style="margin-top:6px">${noStaffHint}</div>`}
+                ${staffPills || `<div class="flow-edit-item__meta-line is-empty">${noStaffHint}</div>`}
               </div>
-              <div class="flow-refund-item__price"><span class="yen">¥</span>${Number(it.price || 0).toFixed(2)}</div>
-              <span class="flow-edit-item__edit" aria-hidden="true">${flowIconPencil()}<span>编辑</span></span>
+              <div class="flow-edit-item__side">
+                <div class="flow-refund-item__price"><span class="yen">¥</span>${Number(it.price || 0).toFixed(2)}</div>
+                <span class="flow-edit-item__edit" aria-hidden="true">${flowIconPencil()}<span>编辑</span></span>
+              </div>
             </button>
             <button type="button" class="flow-edit-item__del" data-flow-edit-item-del="${escapeHtml(it.id)}" aria-label="删除项目">${flowIconTrash()}</button>
           </div>`;
@@ -8409,7 +8356,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       const estimated = flowOrderEstimatedDue(o, d.items);
       foot.innerHTML = `
         <div class="flow-edit-bar__amt">
-          <div class="flow-edit-bar__line flow-edit-bar__line--due"><span class="l">预估应付</span><span class="v">¥${estimated.toFixed(2)}</span></div>
+          <div class="flow-edit-bar__line flow-edit-bar__line--due"><span class="l">改后实付</span><span class="v">¥${estimated.toFixed(2)}</span></div>
           <div class="flow-edit-bar__line flow-edit-bar__line--was"><span class="l">原实付</span><span class="v">¥${paid.toFixed(2)}</span></div>
         </div>
         <div class="flow-edit-bar__btns">
@@ -8438,12 +8385,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         if (hit && hit.spec) spec = hit.spec;
       }
       const staffIds = Array.isArray(it.staffIds) ? it.staffIds.slice() : [];
-      const staffDesignated = it.staffDesignated ? Object.assign({}, it.staffDesignated) : {};
       const staffRoles = it.staffRoles ? Object.assign({}, it.staffRoles) : {};
       const staffAchievements = it.staffAchievements ? Object.assign({}, it.staffAchievements) : {};
       const staffCommissions = it.staffCommissions ? Object.assign({}, it.staffCommissions) : {};
       staffIds.forEach(sid => {
-        if (staffDesignated[sid] == null) staffDesignated[sid] = !!it.specify;
         if (!staffRoles[sid] && orderStaffMap.get(sid) && orderStaffMap.get(sid).role) {
           staffRoles[sid] = orderStaffMap.get(sid).role;
         }
@@ -8464,11 +8409,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         type,
         spec,
         staffIds,
-        staffDesignated,
         staffRoles,
         staffAchievements,
         staffCommissions,
-        specify: !!it.specify || staffIds.some(sid => !!staffDesignated[sid]),
       };
     });
   }
@@ -8478,7 +8421,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       return o.staffs.map(s => ({
         id: s.id || s.name,
         name: s.name || '员工',
-        specify: !!s.specify,
         role: s.role || null,
         achievement: Number(s.achievement) || 0,
         commission: Number(s.commission) || 0,
@@ -8487,7 +8429,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return flowAggregateStaffsFromItems(o.items, [{
       id: 'legacy-staff',
       name: o.staff || '未指定',
-      specify: !!o.staffSpecify,
       achievement: Number(o.achievement != null ? o.achievement : o.amount) || 0,
       commission: Number(o.commission) || 0,
     }]);
@@ -8754,11 +8695,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         type: tab,
         spec: p.spec || '',
         staffIds: [],
-        staffDesignated: {},
         staffRoles: {},
         staffAchievements: {},
         staffCommissions: {},
-        specify: false,
       });
     });
     state.flowEditAddSelected = [];
@@ -8773,11 +8712,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       type: 'card',
       spec: '',
       staffIds: [],
-      staffDesignated: {},
       staffRoles: {},
       staffAchievements: {},
       staffCommissions: {},
-      specify: false,
     };
     if (seg === 'recharge') {
       const cust = flowEditCustomer();
@@ -8855,7 +8792,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const typeLabel = flowTypeLabel(flowEditItemKind(it));
     if (!it.staffIds) it.staffIds = [];
     if (!it.staffRoles) it.staffRoles = {};
-    if (!it.staffDesignated) it.staffDesignated = {};
     if (!it.staffAchievements) it.staffAchievements = {};
     if (!it.staffCommissions) it.staffCommissions = {};
     const replaceBtn = !isCard
@@ -8926,7 +8862,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return out.join('');
   }
 
-  /** 已选员工的明细卡（点客/散客 · 工位 · 业绩 · 提成）——选择员工由开单2.0 槽位选择器负责 */
+  /** 已选员工的明细卡（工位 · 业绩 · 提成）——选择员工由开单2.0 槽位选择器负责 */
   function flowEditStaffCardsHtml(it) {
     const roleOpts = (typeof STAFF_ROLE_PICK_ORDER !== 'undefined' ? STAFF_ROLE_PICK_ORDER : ['senior', 'mid', 'junior']);
     const selectedStaff = (it.staffIds || []).map(sid => ({ id: sid, name: flowStaffNameById(sid) }));
@@ -8934,7 +8870,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       return `<div class="flow-edit-item__meta-line" style="padding:4px 0 0">暂未添加员工 · 点上方员工卡片即可加入本单</div>`;
     }
     return selectedStaff.map(st => {
-      const designated = it.staffDesignated[st.id] != null ? !!it.staffDesignated[st.id] : !!it.specify;
       const curRole = it.staffRoles[st.id] || '';
       const ach = Number(it.staffAchievements[st.id] || 0);
       const comm = Number(it.staffCommissions[st.id] || 0);
@@ -8942,13 +8877,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         <div class="flow-edit-item-staff-card__head">
           <span class="flow-edit-item-staff-card__name">${escapeHtml(st.name)}</span>
           <button type="button" class="flow-edit-staff-row__del" data-flow-edit-item-staff-del="${escapeHtml(st.id)}" aria-label="移除员工">${flowIconTrash()}</button>
-        </div>
-        <div class="flow-edit-item-staff-card__block">
-          <div class="flow-edit-item-staff-card__label">点客 / 散客</div>
-          <div class="flow-edit-specify-seg" role="group" aria-label="${escapeHtml(st.name)}点客或散客">
-            <button type="button" class="flow-edit-specify-seg__btn${!designated ? ' is-on' : ''}" data-flow-edit-item-staff-des="${escapeHtml(st.id)}" data-designate="0">散客</button>
-            <button type="button" class="flow-edit-specify-seg__btn${designated ? ' is-on' : ''}" data-flow-edit-item-staff-des="${escapeHtml(st.id)}" data-designate="1">点客</button>
-          </div>
         </div>
         <div class="flow-edit-item-staff-card__block">
           <div class="flow-edit-item-staff-card__label">工位</div>
@@ -8988,7 +8916,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
      数据落在 window.__flowEditStaffRow（开单2.0 的 staffRow 形状），双向同步到本项目条目。
      —— 选择器内点选/落位/取消 → 开单2.0 调 window.__flowOnStaffChange() → 这里只重绘「员工明细卡」，
         选择器自身 DOM 与动效完全不受影响；
-     —— 明细卡上改点客/散客、工位 → 写回条目后整页重绘（选择器跟着重新读一遍）。 */
+     —— 明细卡上改工位、业绩、提成 → 写回条目后整页重绘（选择器跟着重新读一遍）。 */
   const FLOW_EDIT_STAFF_ROW_ID = '__flow_edit_item__';
 
   function flowHostNeedStation() {
@@ -9011,7 +8939,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return keys;
   }
 
-  /** 条目 → 选择器行（staffRoles 为数组；提成/点客按当前全店态映射） */
+  /** 条目 → 选择器行（staffRoles 为数组；提成按当前全店态映射；顾客指定不参与流水本单） */
   function flowEditStaffRowFromItem(it) {
     const keys = flowHostRowKeys();
     const direct = keys.length === 1 && keys[0] === 'direct';
@@ -9025,7 +8953,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     };
     row.staffIds.forEach(sid => {
       row.staffChosen[sid] = true;
-      row.staffExtra[sid] = needExtra ? !!(it.staffDesignated && it.staffDesignated[sid]) : false;
+      if (needExtra) row.staffExtra[sid] = false;
       if (direct) return;
       const role = it.staffRoles ? it.staffRoles[sid] : '';
       let key = keys.indexOf(role) >= 0 ? role : '';
@@ -9036,14 +8964,12 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return row;
   }
 
-  /** 选择器行 → 条目（只同步选择器真正负责的字段：工位行存在时同步工位、顾客指定行存在时同步点客） */
+  /** 选择器行 → 条目（只同步选择器真正负责的字段：工位行存在时同步工位；业绩/提成由本页录入） */
   function flowEditApplyStaffRow(it, row) {
     if (!it || !row) return;
     const ids = Array.isArray(row.staffIds) ? row.staffIds.slice() : [];
     const syncRoles = flowHostNeedStation();
-    const syncDes = flowHostNeedExtra();
     if (!it.staffRoles) it.staffRoles = {};
-    if (!it.staffDesignated) it.staffDesignated = {};
     if (!it.staffAchievements) it.staffAchievements = {};
     if (!it.staffCommissions) it.staffCommissions = {};
     ids.forEach(sid => {
@@ -9053,15 +8979,13 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         if (hit) it.staffRoles[sid] = hit;
         else if (roles.indexOf('avg') >= 0) delete it.staffRoles[sid];   /* 提成不算工位 */
       }
-      if (syncDes) it.staffDesignated[sid] = !!(row.staffExtra && row.staffExtra[sid]);
       if (it.staffAchievements[sid] == null) it.staffAchievements[sid] = 0;
       if (it.staffCommissions[sid] == null) it.staffCommissions[sid] = 0;
     });
-    ['staffRoles', 'staffDesignated', 'staffAchievements', 'staffCommissions'].forEach(k => {
+    ['staffRoles', 'staffAchievements', 'staffCommissions'].forEach(k => {
       Object.keys(it[k] || {}).forEach(sid => { if (ids.indexOf(sid) < 0) delete it[k][sid]; });
     });
     it.staffIds = ids;
-    it.specify = ids.some(sid => !!it.staffDesignated[sid]);
   }
 
   function flowEditStaffPickerRender() {
@@ -9179,10 +9103,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (!Number.isFinite(qty) || qty < 1) return `「${name}」数量至少为 1`;
     const ids = Array.isArray(it.staffIds) ? it.staffIds : [];
     if (!ids.length) return null;
-    if (!it.staffDesignated) it.staffDesignated = {};
-    ids.forEach(sid => {
-      if (it.staffDesignated[sid] == null) it.staffDesignated[sid] = false;
-    });
     const missingRole = ids.some(sid => !(it.staffRoles && it.staffRoles[sid]));
     /* 全店「不分工位」态（开单2.0 的提成 / 点选即勾选）下不强制每个员工都有工位 */
     if (missingRole && flowHostNeedStation()) {
@@ -9219,7 +9139,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       staffs: Array.isArray(o.staffs) ? o.staffs.map(s => Object.assign({}, s)) : flowStaffsFromOrder(o),
     };
     o.items = d.items.map(it => Object.assign({}, it, {
-      staffDesignated: it.staffDesignated ? Object.assign({}, it.staffDesignated) : {},
       staffRoles: it.staffRoles ? Object.assign({}, it.staffRoles) : {},
       staffAchievements: it.staffAchievements ? Object.assign({}, it.staffAchievements) : {},
       staffCommissions: it.staffCommissions ? Object.assign({}, it.staffCommissions) : {},
@@ -9228,7 +9147,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     o.staffs = d.staffs.map(s => Object.assign({}, s));
     const primary = o.staffs[0];
     o.staff = primary ? primary.name : (o.staff || '未指定');
-    o.staffSpecify = primary ? !!primary.specify : !!o.staffSpecify;
     o.achievement = o.staffs.reduce((s, x) => s + (Number(x.achievement) || 0), 0);
     o.commission = o.staffs.reduce((s, x) => s + (Number(x.commission) || 0), 0);
     o.kind = flowKindFromItems(o.items);
@@ -9259,7 +9177,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       state.flowEditPendingDiff = { gap, estimated, paid };
       const body = document.getElementById('flowEditDiffBody');
       if (body) {
-        body.textContent = `预估应付 ¥${estimated.toFixed(2)}，原实付 ¥${paid.toFixed(2)}，${gap > 0 ? '少收' : '多收'} ¥${Math.abs(gap).toFixed(2)}。可仅保存项目与员工（实付锁定），或前往${gap > 0 ? '补收差价' : '退还差价'}。`;
+        body.textContent = `改后实付 ¥${estimated.toFixed(2)}，原实付 ¥${paid.toFixed(2)}，${gap > 0 ? '少收' : '多收'} ¥${Math.abs(gap).toFixed(2)}。可仅保存项目与员工（实付锁定），或前往${gap > 0 ? '补收差价' : '退还差价'}。`;
       }
       document.getElementById('flowEditDiffMask')?.classList.add('open');
       return;
@@ -9514,7 +9432,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       bizType: 'card_issue',
       staffIds: staffSnap ? (staffSnap.staffIds || []).slice() : [],
       staffRoles: staffSnap ? Object.assign({}, staffSnap.staffRoles || {}) : {},
-      staffDesignated: staffSnap ? Object.assign({}, staffSnap.staffDesignated || {}) : {},
     };
     state.cardIssuePayTemplateId = templateId;
     state.cardIssuePayAmount = payAmt;
@@ -12060,20 +11977,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (delStaff) {
       const sid = delStaff.dataset.flowEditItemStaffDel;
       it.staffIds = (it.staffIds || []).filter(id => id !== sid);
-      if (it.staffDesignated) delete it.staffDesignated[sid];
       if (it.staffRoles) delete it.staffRoles[sid];
       if (it.staffAchievements) delete it.staffAchievements[sid];
       if (it.staffCommissions) delete it.staffCommissions[sid];
-      it.specify = (it.staffIds || []).some(id => !!(it.staffDesignated && it.staffDesignated[id]));
-      renderFlowEditItem();
-      return;
-    }
-    const desBtn = e.target.closest('[data-flow-edit-item-staff-des]');
-    if (desBtn) {
-      const sid = desBtn.dataset.flowEditItemStaffDes;
-      if (!it.staffDesignated) it.staffDesignated = {};
-      it.staffDesignated[sid] = desBtn.dataset.designate === '1';
-      it.specify = (it.staffIds || []).some(id => !!it.staffDesignated[id]);
       renderFlowEditItem();
       return;
     }

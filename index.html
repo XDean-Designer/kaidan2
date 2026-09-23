@@ -3364,6 +3364,10 @@
               <button type="button" class="btn-back" id="flowRefundBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
               <div class="title">选择退款</div>
             </div>
+            <div class="flow-note-bar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+              <span>全选可原路退回或指定退款方式；部分退款仅支持指定退款方式。</span>
+            </div>
             <div class="page-body flow-refund-body" id="flowRefundBody"></div>
             <div class="flow-screen-foot" id="flowRefundFoot"></div>
           </div>
@@ -3464,7 +3468,7 @@
           <div class="dialog-mask" id="flowEditDiffMask">
             <div class="dialog" role="dialog" aria-labelledby="flowEditDiffTitle">
               <div class="dialog__title" id="flowEditDiffTitle">项目变动产生差额</div>
-              <div class="dialog__body" id="flowEditDiffBody">预估应付与原实付不一致。可仅保存项目与员工（实付锁定），或前往补收/退差。</div>
+              <div class="dialog__body" id="flowEditDiffBody">改后实付与原实付不一致。可仅保存项目与员工（实付锁定），或前往补收/退差。</div>
               <div class="dialog__actions dialog__actions--stack" style="flex-direction:column;gap:8px">
                 <button type="button" class="btn-main" id="flowEditDiffSaveOnly">仅保存项目与员工</button>
                 <button type="button" class="btn-main secondary" id="flowEditDiffGoSettle">去处理差额</button>
