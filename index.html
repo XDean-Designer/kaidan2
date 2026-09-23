@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/v2.css">
 <link rel="stylesheet" href="assets/v2-home-pay.css">
+<link rel="stylesheet" href="flow/flow.css?v=noweikuan4">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -2226,9 +2227,22 @@
     <button class="nav-item" data-target="s7" onclick="goQuickCheckout(true)"><span class="idx">7</span>开单结算</button>
   </div>
   <div class="nav-group">
+    <div class="g-t">订单流水</div>
+    <button type="button" class="nav-item" data-flow="flow-hub"><span class="idx">1</span>流水入口</button>
+    <button type="button" class="nav-item" data-flow="flow-list"><span class="idx">2</span>门店流水</button>
+    <button type="button" class="nav-item" data-flow="flow-detail"><span class="idx">3</span>订单详情</button>
+    <button type="button" class="nav-item" data-flow="flow-refund"><span class="idx">4</span>选择退款</button>
+    <button type="button" class="nav-item" data-flow="flow-edit"><span class="idx">5</span>修改订单</button>
+    <button type="button" class="nav-item" data-flow="flow-edit-log"><span class="idx">6</span>修改记录</button>
+    <button type="button" class="nav-item" data-flow="flow-edit-add"><span class="idx">7</span>添加项目</button>
+    <button type="button" class="nav-item" data-flow="flow-edit-item"><span class="idx">8</span>编辑项目</button>
+    <button type="button" class="nav-item" data-flow="flow-diff-collect"><span class="idx">9</span>补收差价</button>
+    <button type="button" class="nav-item" data-flow="flow-diff-refund"><span class="idx">10</span>退还差价</button>
+    <button type="button" class="nav-item" data-flow="flow-self"><span class="idx">11</span>自助收银</button>
+    <button type="button" class="nav-item" data-flow="flow-self-detail"><span class="idx">12</span>自助详情</button>
+  </div>
+  <div class="nav-group">
     <div class="g-t">逻辑补充</div>
-    <button class="nav-item" data-target="s8" onclick="go('s8')"><span class="idx">8</span>门店流水</button>
-    <button class="nav-item" data-target="s9" onclick="go('s9')"><span class="idx">9</span>选择退款项目</button>
     <button class="nav-item" onclick="openBenPickSheet(null)"><span class="idx">12</span>选择权益</button>
     <button class="nav-item" onclick="openCouponPickSheet()"><span class="idx">13</span>选择优惠券</button>
     <button class="nav-item" data-target="s14" onclick="openHoldList()"><span class="idx">14</span>挂单列表</button>
@@ -3259,8 +3273,8 @@
     </div>
   </div>
 
-  <!-- ============ 页面8 门店流水（直接收款展示） ============ -->
-  <div class="screen" id="s8" data-name="门店流水">
+  <!-- ============ 订单流水模块（外置 · 替换原 s8/s9） ============ -->
+  <div id="flowModuleRoot" class="flow-module-root" aria-label="订单流水">
     <div class="status-bar">
       <div class="time">9:41</div>
       <div class="icons">
@@ -3269,88 +3283,251 @@
         <img src="assets/ic_battery.svg" height="13">
       </div>
     </div>
-    <div class="nav-bar">
-      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
-      <div class="title">门店流水</div>
-      <div class="nav-ops">
-        <button class="op" type="button" onclick="toast('尾款单')">尾款单<span style="display:inline-flex;width:14px;height:14px;border:1px solid #1a1a1a;border-radius:2px;align-items:center;justify-content:center;font-size:10px;color:#ff5900;margin-left:2px;">¥</span></button>
-        <button class="op" type="button" onclick="toast('筛选')">筛选<img src="assets/ic_filter.svg" style="width:14px;height:14px;display:block;" alt=""></button>
-      </div>
-    </div>
-    <div class="flow-tabs">
-      <button class="tab on" type="button"><span class="lab">全部<span class="n">1</span></span><span class="bar"></span></button>
-      <button class="tab" type="button"><span class="lab">项目<span class="n">1</span></span><span class="bar"></span></button>
-      <button class="tab" type="button"><span class="lab">产品<span class="n">1</span></span><span class="bar"></span></button>
-      <button class="tab" type="button"><span class="lab">会员卡</span><span class="bar"></span></button>
-      <button class="tab" type="button"><span class="lab">作废</span><span class="bar"></span></button>
-    </div>
-    <div class="scroll">
-      <div class="flow-card">
-        <div class="hd">
-          <div class="av"><img src="assets/avatar_female3.png" alt=""></div>
-          <span class="nm">陈女士</span>
-          <span class="st">已完成</span>
-        </div>
-        <div class="goods">
-          <div class="thumb"><img src="assets/ic_lightning_outline.svg" alt=""></div>
-          <div class="g-main">
-            <div class="g-line">
-              <span class="bolt"><img src="assets/ic_lightning.svg" alt=""></span>
-              <span class="name">直接收款</span>
-              <span class="amt">¥ 491.00</span>
-            </div>
-            <div class="svc">服务人 <span class="sep">|</span> 刘敏</div>
-          </div>
-        </div>
-        <div class="pay-row">
-          <div class="wx"><img src="assets/ic_wechat_figma.svg" alt="">微信</div>
-          <span class="cut">-¥ 491.00</span>
-        </div>
-        <div class="total">实付总额：¥ 491.00</div>
-        <div class="dash"></div>
-        <div class="time"><span>开单时间：</span><span class="r">2026.08.20 15:55</span></div>
-      </div>
-    </div>
-  </div>
+    <div class="phone" data-flow-injected="1">
+<!-- ==== ORDER FLOW ==== -->
 
-  <!-- ============ 页面9 选择退款项目（直接收款） ============ -->
-  <div class="screen" id="s9" data-name="选择退款项目">
-    <div class="status-bar">
-      <div class="time">9:41</div>
-      <div class="icons">
-        <img src="assets/ic_cellular.svg" height="13">
-        <img src="assets/ic_wifi.svg" height="13">
-        <img src="assets/ic_battery.svg" height="13">
-      </div>
-    </div>
-    <div class="nav-bar">
-      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
-      <div class="title">选择退款项目</div>
-    </div>
-    <div class="scroll">
-      <div class="rf-tip">全选项目进行退款可以选择原路退回与指定退回，选择部分项目或已有退款项目则只可指定退回。</div>
-      <div class="rf-list">
-        <div class="rf-item" onclick="toggleRefundItem(this)">
-          <div class="thumb"><img src="assets/ic_lightning_outline.svg" alt=""></div>
-          <div class="main">
-            <div class="nm-line">
-              <span class="bolt"><img src="assets/ic_lightning.svg" alt=""></span>
-              <span class="name">直接收款</span>
+          <div id="screen-flow-hub" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowHubBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">订单流水</div>
             </div>
-            <div class="price-line">
-              <span class="o">原价:¥ 158.00</span>
-              <span class="p">实付: ¥ 158.00</span>
+            <div class="page-body flow-hub-body" id="flowHubBody"></div>
+          </div>
+
+<!-- 流水订单 · 门店流水列表 -->
+          <div id="screen-flow-list" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowListBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">门店流水</div>
+              <div class="flow-list-actions">
+                <button type="button" class="action" id="flowListFilter" aria-label="筛选">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>
+                  <span>筛选</span>
+                </button>
+                </div>
+            </div>
+            <div class="flow-list-tabs" id="flowListTabs" role="tablist"></div>
+            <div class="page-body" id="flowListBody"></div>
+          </div>
+
+          <!-- 流水订单 · 自助收银 -->
+          <div id="screen-flow-self" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowSelfBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">自助收银订单</div>
+            </div>
+            <div class="flow-self-filters-wrap">
+              <div class="flow-self-filters">
+                <button type="button" class="flow-self-filter" id="flowSelfDate" aria-label="日期筛选" aria-expanded="false">
+                  <span>今日</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <button type="button" class="flow-self-filter" id="flowSelfStatus" aria-label="状态筛选" aria-expanded="false">
+                  <span>全部状态</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+              </div>
+              <div class="flow-self-dd-mask hidden" id="flowSelfDdMask" aria-hidden="true"></div>
+              <div class="flow-self-dd hidden" id="flowSelfDd" role="listbox" aria-label="筛选选项"></div>
+            </div>
+            <div class="page-body" id="flowSelfBody"></div>
+          </div>
+
+          <!-- 流水订单 · 自定义时间范围 -->
+          <div class="picker-mask picker-mask--bottom" id="flowRangeMask" data-mask-close="flowRangeMask">
+            <div class="picker-sheet flow-balance-date-sheet" role="dialog" aria-label="选择时间范围">
+              <div class="picker-head"><span class="picker-head__title-main">选择时间范围</span></div>
+              <div class="flow-balance-cal-range" id="flowRangeCalRange"></div>
+              <div class="flow-balance-cal" id="flowRangeCal"></div>
+              <div class="flow-balance-cal__hint" id="flowRangeCalHint">请选择开始日期</div>
+              <div class="picker-foot picker-foot--row">
+                <button type="button" class="btn-main secondary" id="flowRangeCancel">取消</button>
+                <button type="button" class="btn-main" id="flowRangeOk">确定</button>
+              </div>
             </div>
           </div>
-          <div class="ck" id="rfItemCk"></div>
+
+          <!-- 流水订单 · 详情 -->
+          <div id="screen-flow-detail" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowDetailBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">订单详情</div>
+            </div>
+            <div class="page-body flow-detail-body" id="flowDetailBody"></div>
+            <div class="flow-detail-foot" id="flowDetailFoot"></div>
+          </div>
+
+
+          <!-- 流水订单 · 选择退款 -->
+          <div id="screen-flow-refund" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowRefundBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">选择退款</div>
+            </div>
+            <div class="page-body flow-refund-body" id="flowRefundBody"></div>
+            <div class="flow-screen-foot" id="flowRefundFoot"></div>
+          </div>
+
+          <!-- 流水订单 · 修改订单 -->
+          <div id="screen-flow-edit" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowEditBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">修改订单</div>
+            </div>
+            <div class="page-body flow-edit-body" id="flowEditBody"></div>
+            <div class="flow-screen-foot" id="flowEditFoot"></div>
+          </div>
+
+          <!-- 流水订单 · 添加项目（项目 / 产品 / 会员卡） -->
+          <div id="screen-flow-edit-add" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowEditAddBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">添加项目</div>
+            </div>
+            <div class="flow-edit-add-tabs" id="flowEditAddTabs" role="tablist"></div>
+            <div class="page-body flow-edit-body" id="flowEditAddBody"></div>
+            <div class="flow-screen-foot" id="flowEditAddFoot"></div>
+          </div>
+
+          <!-- 流水订单 · 编辑项目 -->
+          <div id="screen-flow-edit-item" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowEditItemBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title" id="flowEditItemTitle">编辑项目</div>
+            </div>
+            <div class="page-body flow-edit-body" id="flowEditItemBody"></div>
+            <div class="flow-screen-foot" id="flowEditItemFoot"></div>
+          </div>
+
+
+          <div id="screen-flow-self-detail" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowSelfDetailBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">自助收银详情</div>
+            </div>
+            <div class="page-body flow-self-detail-body" id="flowSelfDetailBody"></div>
+          </div>
+
+          <!-- 流水订单 · 筛选 Sheet -->
+          <div class="picker-mask picker-mask--bottom" id="flowFilterMask" data-mask-close="flowFilterMask">
+            <div class="picker-sheet tall flow-filter-sheet" role="dialog" aria-label="筛选流水">
+              <div class="picker-head">
+                <div class="picker-head__title">筛选</div>
+                <button type="button" class="picker-head__close" data-close="flowFilterMask" aria-label="关闭">
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M14 6L6 14M14 14L6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+              <div class="picker-body" id="flowFilterBody"></div>
+              <div class="flow-filter-foot">
+                <button type="button" class="btn-main secondary" id="flowFilterReset">重置</button>
+                <button type="button" class="btn-main" id="flowFilterApply">确定</button>
+              </div>
+              <div class="catalog-action-safe" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <!-- 流水订单 · 更多操作 -->
+          <div class="picker-mask picker-mask--bottom" id="flowMoreMask" data-mask-close="flowMoreMask">
+            <div class="picker-sheet picker-sheet--menu">
+              <div class="catalog-action-card">
+                <div class="picker-sheet__grabber" aria-hidden="true"></div>
+                <div class="picker-head picker-head--stack">
+                  <div class="picker-head__title">更多操作</div>
+                  <div class="picker-head__sub">客户退钱点退款；单子开错点作废；项目变动差额走补收/退差</div>
+                </div>
+                <div class="catalog-action-list">
+                  <button type="button" class="catalog-action-item" id="flowMoreRefund">申请退款</button>
+                  <button type="button" class="catalog-action-item" id="flowMoreCollect">补收差价</button>
+                  <button type="button" class="catalog-action-item" id="flowMoreRefundDiff">退还差价</button>
+                </div>
+              </div>
+              <div class="catalog-action-foot">
+                <button type="button" class="catalog-action-item catalog-action-item--cancel" data-close="flowMoreMask">取消</button>
+              </div>
+              <div class="catalog-action-safe" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <!-- 流水订单 · 作废确认 -->
+          <div class="dialog-mask" id="flowVoidMask">
+            <div class="dialog" role="dialog" aria-labelledby="flowVoidTitle">
+              <div class="dialog__title" id="flowVoidTitle">确定作废该订单？</div>
+              <div class="dialog__body">作废后不计入经营统计；若含会员卡消费，将恢复相应次数与面值额度。</div>
+              <div class="dialog__actions">
+                <button type="button" class="btn-main secondary" id="flowVoidCancel">取消</button>
+                <button type="button" class="btn-main" id="flowVoidConfirm">确定作废</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 流水订单 · 改单差额 -->
+          <div class="dialog-mask" id="flowEditDiffMask">
+            <div class="dialog" role="dialog" aria-labelledby="flowEditDiffTitle">
+              <div class="dialog__title" id="flowEditDiffTitle">项目变动产生差额</div>
+              <div class="dialog__body" id="flowEditDiffBody">预估应付与原实付不一致。可仅保存项目与员工（实付锁定），或前往补收/退差。</div>
+              <div class="dialog__actions dialog__actions--stack" style="flex-direction:column;gap:8px">
+                <button type="button" class="btn-main" id="flowEditDiffSaveOnly">仅保存项目与员工</button>
+                <button type="button" class="btn-main secondary" id="flowEditDiffGoSettle">去处理差额</button>
+                <button type="button" class="btn-soft" id="flowEditDiffCancel">取消</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 流水订单 · 补收/退差 -->
+          <div class="dialog-mask" id="flowDiffPayMask">
+            <div class="dialog" role="dialog" aria-labelledby="flowDiffPayTitle">
+              <div class="dialog__title" id="flowDiffPayTitle">补收差价</div>
+              <div class="dialog__body" id="flowDiffPayBody"></div>
+              <div class="dialog__actions">
+                <button type="button" class="btn-main secondary" id="flowDiffPayCancel">取消</button>
+                <button type="button" class="btn-main" id="flowDiffPayConfirm">确认</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 流水订单 · 补录备注 -->
+          <div class="dialog-mask" id="flowRemarkMask">
+            <div class="dialog" role="dialog" aria-labelledby="flowRemarkTitle">
+              <div class="dialog__title" id="flowRemarkTitle">订单备注</div>
+              <div class="dialog__body">
+                <textarea id="flowRemarkInput" maxlength="500" rows="4" placeholder="请输入备注" style="width:100%;box-sizing:border-box;border:1px solid #E8E8E8;border-radius:10px;padding:10px 12px;font-size:14px;resize:vertical"></textarea>
+                <div style="margin-top:6px;font-size:12px;color:#999;text-align:right"><span id="flowRemarkCount">0</span>/500</div>
+              </div>
+              <div class="dialog__actions">
+                <button type="button" class="btn-main secondary" id="flowRemarkCancel">取消</button>
+                <button type="button" class="btn-main" id="flowRemarkConfirm">保存</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 流水订单 · 修改记录 -->
+          <div class="dialog-mask" id="flowEditLogMask">
+            <div class="dialog dialog--edit-log" role="dialog" aria-labelledby="flowEditLogTitle">
+              <div class="dialog__title" id="flowEditLogTitle">修改记录</div>
+              <div class="dialog__scroll" id="flowEditLogBody"></div>
+              <div class="dialog__actions dialog__actions--single">
+                <button type="button" class="btn-main" id="flowEditLogClose">知道了</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 购物车 sheet：从开单底栏后方弹出上方列表，底栏固定不随抽屉整体上移 -->
+
+        <div class="picker-mask picker-mask--bottom" id="amountKeypadMask">
+          <div class="picker-sheet">
+            <div class="picker-head" id="amountKeypadTitle">输入金额</div>
+            <div class="amount-keypad-display is-empty" id="amountKeypadDisplay">请输入</div>
+            <div class="amount-keypad-grid" id="amountKeypadGrid"></div>
+            <div class="picker-foot picker-foot--row">
+              <button type="button" class="btn-main secondary" id="btnAmountKeypadCancel">取消</button>
+              <button type="button" class="btn-main" id="btnAmountKeypadOk">确定</button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    <div class="rf-bar">
-      <button class="all" id="rfAllBtn" type="button" onclick="toggleRefundAll()">
-        <span class="dot"></span>全选
-      </button>
-      <button class="btn" type="button" onclick="toast('确认退款')">确认退款</button>
+
+          <div id="billToastMsg" class="toast hidden"></div>
+
+<!-- ==== /ORDER FLOW ==== -->
     </div>
   </div>
 
@@ -5308,6 +5485,8 @@
 
     else if (ctx === 'qcosheet' || ctx === 'qco') staffRow = window.__qcoEditStaffRow || addStaffRow;
 
+    else if (ctx === 'flowedit') staffRow = window.__flowEditStaffRow || addStaffRow;
+
     else staffRow = addStaffRow;
 
     migrateStaffRowShape(staffRow);
@@ -5349,6 +5528,14 @@
     if (ctx === 'v2draft' && typeof window.__v2OnDraftStaffChange === 'function') {
 
       window.__v2OnDraftStaffChange();
+
+    }
+
+    /* 订单流水 · 修改订单 → 编辑项目：选择器只负责选人，员工明细卡由流水模块自己重绘 */
+
+    if (ctx === 'flowedit' && typeof window.__flowOnStaffChange === 'function') {
+
+      window.__flowOnStaffChange();
 
     }
 
@@ -8596,5 +8783,8 @@ html.capture-figma #toast { display:none !important; }
   });
 })();
 </script>
+<script src="flow/flow-keypad.js"></script>
+<script src="flow/flow.js"></script>
+<script src="flow/flow-bridge.js"></script>
 </body>
 </html>
