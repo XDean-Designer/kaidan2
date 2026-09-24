@@ -83,11 +83,11 @@
             <div class="flow-screen-foot" id="flowEditFoot"></div>
           </div>
 
-          <!-- 流水订单 · 添加项目（项目 / 产品 / 会员卡） -->
+          <!-- 流水订单 · 添加项（项目 / 产品 / 会员卡） -->
           <div id="screen-flow-edit-add" class="screen hidden">
             <div class="nav-bar">
               <button type="button" class="btn-back" id="flowEditAddBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
-              <div class="title">添加项目</div>
+              <div class="title">添加项</div>
             </div>
             <div class="flow-edit-add-tabs" id="flowEditAddTabs" role="tablist"></div>
             <div class="page-body flow-edit-body" id="flowEditAddBody"></div>
@@ -157,14 +157,14 @@
             </div>
           </div>
 
-          <!-- 流水订单 · 改单差额 -->
+          <!-- 流水订单 · 改单差额（须当场补记/退差，不可仅保存） -->
           <div class="dialog-mask" id="flowEditDiffMask">
             <div class="dialog" role="dialog" aria-labelledby="flowEditDiffTitle">
-              <div class="dialog__title" id="flowEditDiffTitle">项目变动产生差额</div>
-              <div class="dialog__body" id="flowEditDiffBody">改后实付与原实付不一致。可仅保存项目与员工（实付锁定），或前往补收/退差。</div>
+              <div class="dialog__title" id="flowEditDiffTitle">需补收差价</div>
+              <div class="dialog__body" id="flowEditDiffBody">改后实付与原实付不一致，请选择补记方式。</div>
               <div class="dialog__actions dialog__actions--stack" style="flex-direction:column;gap:8px">
-                <button type="button" class="btn-main" id="flowEditDiffSaveOnly">仅保存项目与员工</button>
-                <button type="button" class="btn-main secondary" id="flowEditDiffGoSettle">去处理差额</button>
+                <button type="button" class="btn-main" id="flowEditDiffSamePay">用原支付方式补记</button>
+                <button type="button" class="btn-main secondary" id="flowEditDiffGoSettle">选择其他支付方式</button>
                 <button type="button" class="btn-soft" id="flowEditDiffCancel">取消</button>
               </div>
             </div>

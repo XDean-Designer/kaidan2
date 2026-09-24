@@ -1,6 +1,17 @@
 
 /* host bridge */
-.flow-module-root{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg-page,#F7F7F7);overflow:hidden;z-index:5;font-family:var(--font-text,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif);color:var(--text,#1a1a1a)}
+.flow-module-root{
+  position:absolute;inset:0;display:none;flex-direction:column;
+  background:var(--bg-page,#F7F7F7);overflow:hidden;z-index:5;
+  /* 订单流水全局文案/金额：Noto Sans SC（与开单宿主一致；覆盖本文件 :root 旧思源/数字字体） */
+  --font-text:"Noto Sans SC","PingFang SC","Microsoft YaHei","Source Han Sans SC",sans-serif;
+  --font-data:"Noto Sans SC","PingFang SC","Microsoft YaHei","Source Han Sans SC",sans-serif;
+  font-family:var(--font-text);color:var(--text,#1a1a1a)
+}
+/* 状态栏时间保留系统/SF Pro（Q4A） */
+.flow-module-root>.status-bar .time{
+  font-family:"SF Pro Text","PingFang SC",sans-serif
+}
 .flow-module-root *,.flow-module-root *::before,.flow-module-root *::after{box-sizing:border-box}
 .flow-module-root.is-active{display:flex}
 .flow-module-root .phone{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:var(--bg-page,#F7F7F7)}
@@ -36,9 +47,9 @@ html.is-mobile .flow-module-root > .status-bar{display:none!important}
   --info-bg: #E7F1FF; --info-text: #1A70FE;
   --warn-bg: #FFF8E6; --warn-text: #E37318;
   --neutral-bg: #EDEDED; --neutral-text: #929292;
-  --font-data: "TCloudNumber", "DIN Alternate", "Helvetica Neue", monospace;
-  /* 文案/占位（如金额「请输入」）；有数字后金额栏切回 --font-data */
-  --font-text: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-data: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+  /* 文案与金额同源 Noto Sans SC（金额配合 tabular-nums） */
+  --font-text: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
   --phone-w: 390px; --phone-h: 844px; --phone-scale: 1.5;
   --phone-display-w: calc(var(--phone-w) * var(--phone-scale));
   --phone-display-h: calc(var(--phone-h) * var(--phone-scale));
@@ -46,7 +57,7 @@ html.is-mobile .flow-module-root > .status-bar{display:none!important}
   --bottom-surface-shadow: 0 -0.5px 4px 0 rgba(0, 0, 0, 0.08);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: "PingFang SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif; background: #e8eaed; color: var(--text); line-height: 1.5; }
+body { font-family: var(--font-text); background: #e8eaed; color: var(--text); line-height: 1.5; }
 .shell { max-width: 1320px; margin: 0 auto; padding: 20px; display: flex; gap: 24px; align-items: flex-start; }
 .toolbar { flex: 1; min-width: 280px; position: relative; z-index: 5; }
 .app-badge { display: inline-block; font-size: 12px; font-weight: 600; color: var(--brand); background: var(--brand-soft); border: 1px solid var(--brand-border); padding: 4px 10px; border-radius: 4px; margin-bottom: 6px; }
@@ -472,7 +483,7 @@ body { font-family: "PingFang SC", "Source Han Sans SC", "Microsoft YaHei", sans
   box-sizing: border-box; max-width: min(310px, calc(100% - 80px));
   padding: 10px 16px; border-radius: 4px;
   background: rgba(51, 51, 51, 0.9); color: #fff;
-  font-family: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-text);
   font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: 0;
   text-align: center; white-space: pre-line; word-break: break-word;
   z-index: 50; opacity: 0; transition: opacity .2s; pointer-events: none;
@@ -799,7 +810,7 @@ input[type=number]::-webkit-inner-spin-button {
 .issue-extend-custom-input {
   font-family: var(--font-data); font-weight: 400; font-size: 14px; font-variant-numeric: tabular-nums;
 }
-/* 空态「请输入」用思源黑体；有金额后仍走 --font-data */
+/* 空态「请输入」走 --font-text；有金额后走 --font-data（同源 Noto Sans SC + tabular-nums） */
 .input-amount:placeholder-shown,
 .mp-fixed-input:placeholder-shown,
 .issue-extend-custom-input:placeholder-shown {
@@ -1012,6 +1023,38 @@ input[type=number]::-webkit-inner-spin-button {
 /* demo L10040-10372 */
 .bill-staff-line__body { padding: 0 8px 12px; border-top: 0.5px solid #F0F0F0; }
 .bill-staff-line__body .detail-item__staff-block { margin: 0; }
+
+/* 开单明细类型标 · 与结算 .co-tag / 流水 .flow-type-tag 同规 */
+.detail-item__badge {
+  width: 17px;
+  height: 17px;
+  border-radius: 2.2px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  box-sizing: border-box;
+  background: #06f; /* 项 */
+  color: #fff;
+  font-family: var(--font-text);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.detail-item__badge--product { background: #F32F41; } /* 产 */
+.detail-item__badge--card { background: #2BA471; } /* 卡 */
+.detail-item__badge--group { background: #C164FF; } /* 团 */
+.detail-item__badge--quick {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+}
+.detail-item__badge--quick img {
+  width: 17px;
+  height: 17px;
+  display: block;
+}
 .search-bar--bill { margin: 8px 16px 4px; height: 42px; padding: 0 12px; gap: 6px; border-radius: 8px; border: 0.5px solid #d7d7d5; background: #fff; }
 .search-bar--bill:focus-within { border-color: #d7d7d5; }
 .search-bar--bill .search-go { color: #666; font-size: 14px; flex-shrink: 0; border: none; border-left: 0.5px solid #d7d7d5; background: none; cursor: pointer; font-family: inherit; padding-left: 10px; height: 26px; }
@@ -1211,7 +1254,7 @@ input[type=number]::-webkit-inner-spin-button {
   display: inline-flex; align-items: center; flex-shrink: 0;
   margin-left: 2px; padding: 1px 6px; border-radius: 4px;
   font-size: 10px; font-weight: 500; line-height: 1.3;
-  font-family: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-text);
   color: var(--text-sec); background: #F2F2F2;
 }
 #billBack.hidden { visibility: hidden; pointer-events: none; }
@@ -1699,17 +1742,69 @@ input[type=number]::-webkit-inner-spin-button {
 .flow-order-card__status.is-pending {
   color: var(--text-sec); background: var(--disabled);
 }
+.flow-order-card__status.is-refund {
+  color: #F32F41; background: #FFF2F2;
+}
+.flow-order-card__status.is-partial-refund {
+  color: #B54708; background: #FFF4E5;
+}
+.flow-order-card__refund-hint {
+  margin-top: 2px; font-size: 12px; line-height: 16px; color: #B54708;
+}
+.flow-detail-partial-banner {
+  margin: 0 16px 12px; padding: 10px 12px; border-radius: 8px;
+  background: #FFF4E5; color: #B54708; font-size: 13px; line-height: 18px;
+}
+.flow-detail-status-pill {
+  flex-shrink: 0; margin-left: 6px; font-size: 11px; font-weight: 500; line-height: 16px;
+  color: var(--brand); background: var(--brand-soft); border-radius: 4px; padding: 2px 6px;
+}
+.flow-detail-status-pill.is-refund { color: #F32F41; background: #FFF2F2; }
+.flow-detail-status-pill.is-partial-refund { color: #B54708; background: #FFF4E5; }
+.flow-detail-status-pill.is-void { color: var(--text-sec); background: var(--disabled); }
+.flow-refund-kind-tag {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0; height: 18px; padding: 0 6px; border-radius: 4px;
+  font-size: 11px; font-weight: 600; line-height: 18px;
+}
+.flow-refund-kind-tag--full { color: #F32F41; background: #FFF2F2; }
+.flow-refund-kind-tag--partial { color: #B54708; background: #FFF4E5; }
+.flow-refund-log-card__top { gap: 8px; }
+.flow-refund-log-card__amt { margin-left: auto; }
 .flow-order-card__item {
   display: flex; align-items: flex-start; gap: 8px;
 }
 .flow-type-tag {
-  flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px; border-radius: 4px;
-  background: var(--brand); color: #fff;
-  font-size: 11px; line-height: 18px; text-align: center; font-weight: 600;
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+  border-radius: 2.2px;
+  box-sizing: border-box;
+  background: #06f; /* 项 · 默认 */
+  color: #fff;
+  font-family: var(--font-text);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-.flow-type-tag--product { background: #FF8C2E; }
-.flow-type-tag--card { background: var(--success); }
-.flow-type-tag--quick { background: #5B6CFF; }
+.flow-type-tag--product { background: #F32F41; } /* 产 */
+.flow-type-tag--card { background: #2BA471; } /* 卡 */
+.flow-type-tag--group { background: #C164FF; } /* 团 · 团购核销 */
+.flow-type-tag--quick {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+}
+.flow-type-tag--quick img {
+  width: 17px;
+  height: 17px;
+  display: block;
+}
 .flow-order-card__item-main { flex: 1; min-width: 0; }
 .flow-order-card__item-name {
   font-size: 14px; font-weight: 400; color: var(--text); line-height: 20px;
@@ -1795,7 +1890,7 @@ input[type=number]::-webkit-inner-spin-button {
 .flow-detail-meta__row:last-child { padding-bottom: 0; }
 .flow-detail-meta__val {
   color: var(--text); text-align: right; word-break: break-all;
-  font-family: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-text);
   font-weight: 400;
 }
 .flow-detail-meta__val--num {
@@ -1882,24 +1977,43 @@ input[type=number]::-webkit-inner-spin-button {
   margin-top: 6px;
 }
 .flow-edit-item-staff-card {
-  padding: 12px;
-  border-radius: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
   background: #FAFAFA;
-  margin-top: 10px;
+  margin-top: 8px;
   box-sizing: border-box;
 }
 .flow-edit-item-staff-card__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  min-width: 0;
+}
+.flow-edit-item-staff-card__head-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .flow-edit-item-staff-card__name {
-  font-size: 15px;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text);
-  line-height: 21px;
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.flow-edit-item-staff-card__head-main .flow-pill {
+  flex-shrink: 0;
+}
+.flow-edit-item-staff-card__head .flow-edit-staff-row__del {
+  flex-shrink: 0;
 }
 .flow-edit-item-staff-card__label {
   font-size: 12px;
@@ -1909,6 +2023,69 @@ input[type=number]::-webkit-inner-spin-button {
 }
 .flow-edit-item-staff-card__block + .flow-edit-item-staff-card__block {
   margin-top: 10px;
+}
+.flow-edit-item-staff-card__metrics {
+  display: flex;
+  gap: 8px;
+}
+.flow-edit-item-staff-card__metric {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fff;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.flow-edit-item-staff-card__metric.is-readonly { cursor: default; }
+.flow-edit-item-staff-card__metric-lab {
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--text-sec);
+}
+.flow-edit-item-staff-card__metric-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.flow-edit-item-staff-card__metric-val,
+.flow-edit-item-staff-card__metric-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: var(--font-data);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: left;
+  outline: none;
+  box-sizing: border-box;
+}
+.flow-edit-item-staff-card__metric-val.is-ach { color: #8E8E93; }
+.flow-edit-item-staff-card__metric-input {
+  color: #FF7B00;
+  caret-color: transparent;
+  cursor: pointer;
+}
+.flow-edit-item-staff-card__metric-edit {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  color: #FF7B00;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.flow-edit-item-staff-card__metric-edit svg {
+  width: 14px;
+  height: 14px;
+  display: block;
 }
 .flow-edit-specify-seg--station {
   width: 100%;
@@ -1933,7 +2110,7 @@ input[type=number]::-webkit-inner-spin-button {
 }
 .flow-detail-metric__label {
   font-size: 12px; color: var(--text-sec); line-height: 18px;
-  font-family: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-text);
 }
 .flow-detail-metric__val-row {
   display: flex; align-items: center; gap: 6px; min-width: 0;
@@ -1964,7 +2141,7 @@ input[type=number]::-webkit-inner-spin-button {
 .flow-detail-edit__main { flex: 1; min-width: 0; }
 .flow-detail-edit__title {
   font-size: 15px; font-weight: 500; color: var(--text); line-height: 21px;
-  font-family: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-text);
 }
 .flow-detail-edit__hint {
   margin-top: 4px; font-size: 12px; color: var(--text-sec); line-height: 18px;
@@ -2164,7 +2341,7 @@ input[type=number]::-webkit-inner-spin-button {
 .flow-detail-pay-row:first-of-type { padding-top: 0; }
 .flow-detail-pay-row span:last-child {
   color: var(--text);
-  font-family: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-text);
 }
 .flow-detail-pay-row .flow-detail-pay-amt {
   font-family: var(--font-data); font-weight: 400; color: var(--text);

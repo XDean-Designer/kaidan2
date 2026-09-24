@@ -3956,12 +3956,24 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return !!(it.id && String(it.id).indexOf('quick-') === 0);
   }
   function cartItemBadgeMeta(it) {
-    if (isQuickCartItem(it)) return { text: '直', cls: ' detail-item__badge--quick' };
-    if (it.fromStock || it.skuId) return { text: '库', cls: ' detail-item__badge--product' };
-    if (it.category === '产品' || it.type === 'product' || it.kind === 'product') {
-      return { text: '产', cls: ' detail-item__badge--product' };
+    if (isQuickCartItem(it)) return { text: '直', cls: ' detail-item__badge--quick', kind: 'quick' };
+    if (it.type === 'card' || it.kind === 'card') return { text: '卡', cls: ' detail-item__badge--card', kind: 'card' };
+    if (it.type === 'group' || it.kind === 'group' || it.kind === 'tuangou') {
+      return { text: '团', cls: ' detail-item__badge--group', kind: 'group' };
     }
-    return { text: '项', cls: '' };
+    /* 库存/SKU 与产品同类：统一标「产」，不再用「库」 */
+    if (it.fromStock || it.skuId || it.category === '产品' || it.type === 'product' || it.kind === 'product') {
+      return { text: '产', cls: ' detail-item__badge--product', kind: 'product' };
+    }
+    return { text: '项', cls: '', kind: 'project' };
+  }
+
+  function cartItemBadgeHtml(it) {
+    const badge = cartItemBadgeMeta(it);
+    if (badge.kind === 'quick') {
+      return '<span class="detail-item__badge detail-item__badge--quick" aria-label="直接收款"><img src="assets/ic_lightning_tag.svg" alt="" width="17" height="17" draggable="false"></span>';
+    }
+    return `<span class="detail-item__badge${badge.cls}">${badge.text}</span>`;
   }
   function cartCount() { return state.cart.reduce((s, i) => s + i.qty, 0); }
   function cartListTotal() { return round2(state.cart.reduce((s, i) => s + lineUnit(i) * i.qty, 0)); }
@@ -5162,7 +5174,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const unit = lineUnit(it);
     const lineAmt = round2(unit * it.qty);
     const open = state.detailExpandedId === it.id;
-    const badge = cartItemBadgeMeta(it);
     const cardNames = lineBenefitCardNames(it);
     const benefitBlock = isMemberBill()
       ? `<div class="detail-staff-block">
@@ -5178,7 +5189,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       <div class="detail-item__track">
         <div class="detail-item__main">
           <div class="detail-item__top">
-            <span class="detail-item__badge${badge.cls}">${badge.text}</span>
+            ${cartItemBadgeHtml(it)}
             <div class="detail-item__name">${escapeHtml(it.name)}${it.qty > 1 ? ` ×${it.qty}` : ''}</div>
             <span class="detail-item__amt num">${formatYen(lineAmt)}</span>
             <button type="button" class="detail-item__expand" data-expand-item="${it.id}" aria-label="${open ? '收起' : '展开'}">${iconSvg(open ? 'chevron-up' : 'chevron-down')}</button>
@@ -6765,6 +6776,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       refunds: [{
         docType: 'refund',
         refundNo: '202607191001',
+        refundKind: 'full',
         time: '2026.07.19 12:05',
         operator: '何苏叶',
         mode: 'original',
@@ -6796,6 +6808,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       refunds: [{
         docType: 'refund',
         refundNo: '202607181002',
+        refundKind: 'full',
         time: '2026.07.18 16:10',
         operator: 'Lisa',
         mode: 'designated',
@@ -6803,6 +6816,42 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         totalRefund: 128,
         items: [{ itemIndex: 0, name: '剑琅修护洗发水（500ml）', qty: 1, listPrice: 128, paidShare: 128, refundAmount: 128 }],
         channels: [{ method: '支付宝', amount: 128 }],
+      }],
+    },
+    {
+      id: 'fo-seed-10',
+      flowNo: '202607211020',
+      customerId: 'm1',
+      customerName: '张雨晴',
+      avatar: 'assets/billing/avatar-female.png',
+      status: 'partial_refund',
+      kind: 'project',
+      items: [
+        { id: 'fi-seed-10a', name: '精致剪发', price: 98, type: 'project', qty: 1 },
+        { id: 'fi-seed-10b', name: '头皮护理', price: 168, type: 'project', qty: 1 },
+      ],
+      staff: '何苏叶',
+      payMethod: '微信',
+      payments: [{ method: '微信', amount: 266 }],
+      amount: 266,
+      paidAmount: 266,
+      achievement: 266,
+      commission: 0,
+      discount: 0,
+      benefitLabel: '无卡权益',
+      time: '2026.07.21 14:20',
+      cashier: '何苏叶',
+      refunds: [{
+        docType: 'refund',
+        refundNo: '202607211003',
+        refundKind: 'partial',
+        time: '2026.07.21 15:08',
+        operator: '何苏叶',
+        mode: 'designated',
+        remark: '只退剪发，护理已完成',
+        totalRefund: 98,
+        items: [{ itemIndex: 0, name: '精致剪发', qty: 1, listPrice: 98, paidShare: 98, refundAmount: 98 }],
+        channels: [{ method: '微信', amount: 98 }],
       }],
     },
   ];
@@ -6823,14 +6872,39 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   function flowStatusLabel(status) {
     if (status === 'void') return '已作废';
     if (status === 'refund') return '已退款';
+    if (status === 'partial_refund') return '部分退款';
     return '已完成';
+  }
+
+  function flowRefundKindLabel(kind) {
+    return kind === 'full' ? '全退' : '部分退';
+  }
+
+  /** 仍可申请退款 / 作废：已完成或未退完的部分退 */
+  function flowCanRefundOrVoid(o) {
+    return !!(o && (o.status === 'done' || o.status === 'partial_refund'));
+  }
+
+  /** 修改订单仅允许未发生退款的已完成单 */
+  function flowCanEditOrder(o) {
+    return !!(o && o.status === 'done');
   }
 
   function flowTypeTag(kind) {
     if (kind === 'product') return { text: '产', cls: 'flow-type-tag--product' };
     if (kind === 'card') return { text: '卡', cls: 'flow-type-tag--card' };
+    if (kind === 'group' || kind === 'tuangou') return { text: '团', cls: 'flow-type-tag--group' };
     if (kind === 'quick') return { text: '直', cls: 'flow-type-tag--quick' };
     return { text: '项', cls: '' };
+  }
+
+  /** 类型标 HTML：项/产/卡/团为色块字；直为闪电图（与结算 s6/s7 同规） */
+  function flowTypeTagHtml(kind) {
+    const tag = flowTypeTag(kind);
+    if (kind === 'quick') {
+      return `<span class="flow-type-tag flow-type-tag--quick" aria-label="直接收款"><img src="assets/ic_lightning_tag.svg" alt="" width="17" height="17" draggable="false"></span>`;
+    }
+    return `<span class="flow-type-tag ${tag.cls}">${tag.text}</span>`;
   }
 
   /** 信息列表「类型」字段用全文，不用色块标签 */
@@ -7173,7 +7247,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   }
 
   function flowIsActiveOrder(o) {
-    return o && o.status !== 'void' && o.status !== 'refund';
+    return o && o.status !== 'void' && o.status !== 'refund' && o.status !== 'partial_refund';
   }
 
   function flowOrdersByTab(tab) {
@@ -7182,7 +7256,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     else if (tab === 'product') list = list.filter(o => o.kind === 'product' && flowIsActiveOrder(o));
     else if (tab === 'card') list = list.filter(o => o.kind === 'card' && flowIsActiveOrder(o));
     else if (tab === 'void') list = list.filter(o => o.status === 'void');
-    else if (tab === 'refund') list = list.filter(o => o.status === 'refund');
+    else if (tab === 'refund') list = list.filter(o => o.status === 'refund' || o.status === 'partial_refund');
     else list = list.filter(flowIsActiveOrder);
     return flowApplySheetFilter(list);
   }
@@ -7252,6 +7326,17 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
 
   function flowPositivePayments(o) {
     return flowPaymentsOf(o).filter((p) => (Number(p.amount) || 0) > 0);
+  }
+
+  /** 原单金额最大的支付方式（并列取先出现的）；无明细时回退 payMethod */
+  function flowLargestPayMethod(o) {
+    const pays = flowPositivePayments(o);
+    if (!pays.length) return (o && o.payMethod) || '其他';
+    let best = pays[0];
+    pays.forEach((p) => {
+      if ((Number(p.amount) || 0) > (Number(best.amount) || 0)) best = p;
+    });
+    return best.method || (o && o.payMethod) || '其他';
   }
 
   function flowSplitRefundByOriginalChannels(o, refundTotal) {
@@ -7629,10 +7714,16 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     }
     body.innerHTML = list.map(o => {
       const item = o.items[0] || { name: '—', price: o.amount };
-      const tag = flowTypeTag(o.kind);
-      const statusCls = o.status === 'void' ? ' is-void' : (o.status === 'refund' ? ' is-refund' : '');
+      const statusCls = o.status === 'void'
+        ? ' is-void'
+        : (o.status === 'refund'
+          ? ' is-refund'
+          : (o.status === 'partial_refund' ? ' is-partial-refund' : ''));
       const showAmt = Number(o.amount);
       const priceLabel = Number(item.price != null ? item.price : (o.listPrice != null ? o.listPrice : showAmt));
+      const refundHint = o.status === 'partial_refund'
+        ? `<div class="flow-order-card__refund-hint">已退 ¥${flowOrderTotalRefunded(o).toFixed(2)}</div>`
+        : '';
       return `<button type="button" class="flow-order-card" data-flow-id="${escapeHtml(o.id)}">
         <div class="flow-order-card__head">
           <div class="flow-order-card__user">
@@ -7645,10 +7736,11 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
           </span>
         </div>
         <div class="flow-order-card__item">
-          <span class="flow-type-tag ${tag.cls}">${tag.text}</span>
+          ${flowTypeTagHtml(o.kind)}
           <div class="flow-order-card__item-main">
-            <div class="flow-order-card__item-name">${escapeHtml(item.name)}</div>
+            <div class="flow-order-card__item-name">${escapeHtml(item.name)}${(o.items && o.items.length > 1) ? ` 等${o.items.length}项` : ''}</div>
             <span class="flow-order-card__staff">服务人 | ${escapeHtml(o.staff)}</span>
+            ${refundHint}
           </div>
           <div class="flow-order-card__price"><span class="yen">¥</span>${priceLabel.toFixed(2)}</div>
         </div>
@@ -7684,11 +7776,11 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         <div class="flow-detail-pay-row"><span>${escapeHtml(p.method)}</span><span class="flow-detail-pay-amt"><span class="yen">¥</span>${Number(p.amount).toFixed(2)}</span></div>`
     ).join('');
     const itemsHtml = (o.items && o.items.length ? o.items : [item]).map(it => {
-      const t = flowTypeTag(it.type === 'product' ? 'product' : (it.type === 'card' ? 'card' : (it.type === 'quick' ? 'quick' : (o.kind || 'project'))));
+      const kind = it.type === 'product' ? 'product' : (it.type === 'card' ? 'card' : (it.type === 'quick' ? 'quick' : (it.type === 'group' || it.type === 'tuangou' ? 'group' : (o.kind || 'project'))));
       const price = Number(it.price != null ? it.price : 0);
       const staffPills = flowStaffPillsHtml(it);
       return `<div class="flow-detail-item-row" style="margin-bottom:12px">
-          <span class="flow-type-tag ${t.cls}">${t.text}</span>
+          ${flowTypeTagHtml(kind)}
           <div style="flex:1;min-width:0">
             <div class="flow-detail-item-name">${escapeHtml(it.name)}</div>
             <div class="flow-detail-item-price"><span class="yen">¥</span>${price.toFixed(2)}${it.qty > 1 ? ` · ×${it.qty}` : ''}</div>
@@ -7749,15 +7841,27 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const allBtn = state.flowFromSuccess
       ? '<button type="button" class="flow-detail-all" data-flow-all>查看全部流水</button>'
       : '';
-    const canAct = o.status === 'done';
+    const canEdit = flowCanEditOrder(o);
+    const canRefundOrVoid = flowCanRefundOrVoid(o);
+    const refundedTotal = flowOrderTotalRefunded(o);
+    const remainRefundable = round2(
+      (o.items || []).reduce((s, _, i) => s + flowItemRemainingRefundable(o, i), 0)
+    );
+    const partialBanner = (o.status === 'partial_refund' && refundedTotal >= 0.01)
+      ? `<div class="flow-detail-partial-banner">
+          部分退款 · 已退 ¥${refundedTotal.toFixed(2)} · 还可退 ¥${remainRefundable.toFixed(2)}
+        </div>`
+      : '';
     body.innerHTML = `
       ${allBtn}
+      ${partialBanner}
       ${gapHtml}
       <div class="flow-detail-card">
         <div class="flow-detail-user">
           <div class="flow-detail-user__left">
             ${flowAvatarHtml(o)}
             <strong>${escapeHtml(o.customerName)}</strong>
+            ${o.status !== 'done' ? `<span class="flow-detail-status-pill${o.status === 'refund' ? ' is-refund' : (o.status === 'partial_refund' ? ' is-partial-refund' : (o.status === 'void' ? ' is-void' : ''))}">${escapeHtml(flowStatusLabel(o.status))}</span>` : ''}
           </div>
           <button type="button" class="flow-detail-expand" data-flow-expand>${expandLabel}${expandIcon}</button>
         </div>
@@ -7777,7 +7881,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         <div class="flow-detail-card__title">业绩提成</div>
         ${staffBlockHtml}
       </div>
-      ${canAct ? `<div class="flow-detail-card">
+      ${canEdit ? `<div class="flow-detail-card">
         <div class="flow-detail-edit">
           <div class="flow-detail-edit__main">
             <div class="flow-detail-edit__title">修改订单</div>
@@ -7792,7 +7896,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       </div>` : ''}
       ${flowOrderRefunds(o).length ? `<div class="flow-detail-card">
         <button type="button" class="flow-detail-edit__link flow-detail-refund-log-entry" data-flow-refund-log>
-          退款记录 · ${flowOrderRefunds(o).length} 笔 · 已退 ¥${flowOrderTotalRefunded(o).toFixed(2)}
+          退款记录 · ${flowOrderRefunds(o).length} 笔 · 已退 ¥${refundedTotal.toFixed(2)}
           <span class="flow-detail-edit__link-ico" aria-hidden="true">${flowIconChevron()}</span>
         </button>
       </div>` : ''}
@@ -7802,7 +7906,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         <div class="flow-detail-pay-row flow-detail-pay-row--strong"><span>实付（锁定）</span><span class="flow-detail-pay-amt"><span class="yen">¥</span>${payAmt.toFixed(2)}</span></div>
       </div>`;
     if (foot) {
-      if (!canAct) {
+      if (!canRefundOrVoid) {
         foot.innerHTML = `
           <div class="flow-detail-foot__main">
             <div class="flow-detail-foot__total">
@@ -7816,7 +7920,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         foot.innerHTML = `
           <div class="flow-detail-foot__tip">
             ${flowIconInfo()}
-            <span class="flow-detail-foot__tip-text">客户退钱点退款；单子开错点作废；项目差额走补收/退差</span>
+            <span class="flow-detail-foot__tip-text">${o.status === 'partial_refund' ? '还可继续退剩余款项；单子开错可作废' : '客户退钱点退款；单子开错点作废；项目差额走补收/退差'}</span>
           </div>
           <div class="flow-detail-foot__main">
             <div class="flow-detail-foot__total">
@@ -7991,7 +8095,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
 
   function openFlowRefund() {
     const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
-    if (!o || o.status !== 'done') {
+    if (!flowCanRefundOrVoid(o)) {
       showToast('当前订单不可退款', true);
       return;
     }
@@ -8148,15 +8252,16 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       totalRefund,
       items,
       channels,
+      refundKind: 'partial',
     });
     const left = flowRefundableItemIndices(o);
-    if (!left.length) {
-      o.status = 'refund';
-      state.flowTab = 'refund';
-    }
+    const refundKind = left.length ? 'partial' : 'full';
+    o.refunds[o.refunds.length - 1].refundKind = refundKind;
+    o.status = left.length ? 'partial_refund' : 'refund';
+    state.flowTab = 'refund';
     closeFlowRefundMethodSheet();
     state.flowRefundPending = null;
-    showToast(left.length ? `已退 ¥${totalRefund.toFixed(2)}` : '退款已完成');
+    showToast(left.length ? `已退 ¥${totalRefund.toFixed(2)}（部分退）` : '退款已完成（全退）');
     openFlowDetail(o.id, { fromSuccess: false });
   }
 
@@ -8176,8 +8281,13 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     }
     body.innerHTML = list.map((r, i) => {
       const itemTxt = (r.items || []).map((it) => `${escapeHtml(it.name)}·×${it.qty || 1}`).join('、');
+      const kind = r.refundKind === 'full' ? 'full' : 'partial';
       return `<button type="button" class="flow-refund-log-card" data-flow-refund-log-idx="${i}">
-        <div class="flow-refund-log-card__top"><span class="flow-refund-log-card__no">${escapeHtml(r.refundNo)}</span><span class="flow-refund-log-card__amt">¥${Number(r.totalRefund).toFixed(2)}</span></div>
+        <div class="flow-refund-log-card__top">
+          <span class="flow-refund-log-card__no">${escapeHtml(r.refundNo)}</span>
+          <span class="flow-refund-kind-tag flow-refund-kind-tag--${kind}">${escapeHtml(flowRefundKindLabel(kind))}</span>
+          <span class="flow-refund-log-card__amt">¥${Number(r.totalRefund).toFixed(2)}</span>
+        </div>
         <div class="flow-refund-log-card__meta">${itemTxt || '—'} · ${escapeHtml(flowRefundModeLabel(r.mode))}</div>
         <div class="flow-refund-log-card__time">${escapeHtml(r.time)}</div>
       </button>`;
@@ -8199,6 +8309,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       body.innerHTML = flowEmptyHtml('记录不存在');
       return;
     }
+    const kind = r.refundKind === 'full' ? 'full' : 'partial';
     const itemRows = (r.items || []).map((it) => `
       <div class="flow-detail-meta__row"><span>${escapeHtml(it.name)}·×${it.qty || 1}</span><span class="flow-detail-meta__val">退 ¥${Number(it.refundAmount).toFixed(2)}</span></div>
       <div class="flow-detail-meta__row is-sub"><span>原价 / 实付分摊</span><span class="flow-detail-meta__val">¥${Number(it.listPrice).toFixed(2)} / ¥${Number(it.paidShare).toFixed(2)}</span></div>`).join('');
@@ -8206,6 +8317,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       <div class="flow-detail-card">
         <div class="flow-detail-meta">
           <div class="flow-detail-meta__row"><span>退款单号</span><span class="flow-detail-meta__val flow-detail-meta__val--num">${escapeHtml(r.refundNo)}</span></div>
+          <div class="flow-detail-meta__row"><span>退款类型</span><span class="flow-detail-meta__val"><span class="flow-refund-kind-tag flow-refund-kind-tag--${kind}">${escapeHtml(flowRefundKindLabel(kind))}</span></span></div>
           <div class="flow-detail-meta__row"><span>退款时间</span><span class="flow-detail-meta__val">${escapeHtml(r.time)}</span></div>
           <div class="flow-detail-meta__row"><span>操作员工</span><span class="flow-detail-meta__val">${escapeHtml(r.operator || '—')}</span></div>
           <div class="flow-detail-meta__row"><span>退回方式</span><span class="flow-detail-meta__val">${escapeHtml(flowRefundModeLabel(r.mode))} · ${escapeHtml(flowFormatRefundChannels(r))}</span></div>
@@ -8222,6 +8334,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (it.type === 'card') return 'card';
     if (it.type === 'product') return 'product';
     if (it.type === 'quick') return 'quick';
+    if (it.type === 'group' || it.type === 'tuangou') return 'group';
     return 'project';
   }
 
@@ -8252,7 +8365,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         <div class="flow-detail-card__title">订单项目</div>
         <p class="flow-edit-item__meta-line" style="padding:0 0 10px;margin:0">点进项目可设置服务员工、工位与提成</p>
         ${d.items.map(it => {
-          const tag = flowTypeTag(flowEditItemKind(it));
           const staffPills = flowStaffPillsHtml(it);
           const specBit = it.type === 'product' && it.spec ? `${escapeHtml(it.spec)} · ` : '';
           const cardBit = flowEditCardItemMeta(it);
@@ -8261,7 +8373,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
             : '未指定员工 · 点此设置';
           return `<div class="flow-edit-item-wrap">
             <button type="button" class="flow-edit-item" data-flow-edit-item="${escapeHtml(it.id)}">
-              <span class="flow-type-tag ${tag.cls}">${tag.text}</span>
+              ${flowTypeTagHtml(flowEditItemKind(it))}
               <div class="flow-edit-item__main">
                 <div class="flow-refund-item__name">${escapeHtml(it.name)}</div>
                 <div class="flow-edit-item__meta-line">${specBit}×${it.qty || 1}</div>
@@ -8276,7 +8388,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
             <button type="button" class="flow-edit-item__del" data-flow-edit-item-del="${escapeHtml(it.id)}" aria-label="删除项目">${flowIconTrash()}</button>
           </div>`;
         }).join('')}
-        <button type="button" class="btn-add-benefit btn-add-benefit--block" data-flow-edit-add>+ 添加项目</button>
+        <button type="button" class="btn-add-benefit btn-add-benefit--block" data-flow-edit-add>+ 添加项</button>
       </div>`;
     if (foot) {
       const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
@@ -8398,10 +8510,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
 
   function openFlowEditReplaceCatalog() {
     const it = getFlowEditItem();
-    if (!it || it.type === 'card') return;
+    if (!it) return;
     ensureFlowEditDraft();
     state.flowEditReplaceItemId = it.id;
-    state.flowEditAddTab = it.type === 'product' ? 'product' : 'project';
+    state.flowEditAddTab = it.type === 'product' ? 'product' : (it.type === 'card' ? 'card' : 'project');
     state.flowEditAddSelected = [];
     resetFlowEditCardPick();
     renderFlowEditAdd();
@@ -8507,11 +8619,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const body = document.getElementById('flowEditAddBody');
     const foot = document.getElementById('flowEditAddFoot');
     const titleEl = document.querySelector('#screen-flow-edit-add .title');
-    if (titleEl) {
-      titleEl.textContent = replacing
-        ? (tab === 'product' ? '更换产品' : '更换项目')
-        : '添加项目';
-    }
+    if (titleEl) titleEl.textContent = replacing ? '更换项' : '添加项';
     const selected = new Set(state.flowEditAddSelected || []);
     /* 会员卡 Tab 的「选中项数」：办卡=已选卡模板数，充卡=选好卡且金额有效才算 1 项 */
     const rechargeReady = !!state.flowEditAddCardId && Number(state.flowEditAddAmount) > 0;
@@ -8519,16 +8627,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       ? (seg === 'issue' ? (state.flowEditAddCardTpls || []).length : (rechargeReady ? 1 : 0))
       : selected.size;
     if (tabs) {
-      if (replacing) {
-        tabs.innerHTML = tab === 'product'
-          ? `<button type="button" class="flow-edit-add-tab is-on" data-flow-edit-add-tab="product" role="tab">产品</button>`
-          : `<button type="button" class="flow-edit-add-tab is-on" data-flow-edit-add-tab="project" role="tab">项目</button>`;
-      } else {
-        tabs.innerHTML = `
-          <button type="button" class="flow-edit-add-tab${tab === 'project' ? ' is-on' : ''}" data-flow-edit-add-tab="project" role="tab">项目</button>
-          <button type="button" class="flow-edit-add-tab${tab === 'product' ? ' is-on' : ''}" data-flow-edit-add-tab="product" role="tab">产品</button>
-          <button type="button" class="flow-edit-add-tab${tab === 'card' ? ' is-on' : ''}" data-flow-edit-add-tab="card" role="tab">会员卡</button>`;
-      }
+      tabs.innerHTML = `
+        <button type="button" class="flow-edit-add-tab${tab === 'project' ? ' is-on' : ''}" data-flow-edit-add-tab="project" role="tab">项目</button>
+        <button type="button" class="flow-edit-add-tab${tab === 'product' ? ' is-on' : ''}" data-flow-edit-add-tab="product" role="tab">产品</button>
+        <button type="button" class="flow-edit-add-tab${tab === 'card' ? ' is-on' : ''}" data-flow-edit-add-tab="card" role="tab">会员卡</button>`;
     }
     if (body) {
       if (tab === 'card') {
@@ -8573,22 +8675,43 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const selected = state.flowEditAddSelected || [];
     const replaceId = state.flowEditReplaceItemId;
 
-    if (tab === 'card' && !replaceId) {
-      addFlowEditCardItems(d, seg);
-      renderFlowEdit();
-      showOnlyScreen('screen-flow-edit');
-      return;
-    }
-
     if (replaceId) {
-      const pickId = selected[0];
-      const p = pool.find(x => x.id === pickId);
       const target = d.items.find(x => x.id === replaceId);
-      if (p && target) {
+      if (!target) {
+        showToast('原条目不存在', true);
+        return;
+      }
+      if (tab === 'card') {
+        const built = flowEditBuildOneCardItem(seg);
+        if (!built) return;
+        Object.keys(target).forEach((k) => {
+          if (k === 'id' || k === 'staffIds' || k === 'staffRoles' || k === 'staffAchievements' || k === 'staffCommissions') return;
+          delete target[k];
+        });
+        Object.assign(target, built, {
+          id: replaceId,
+          staffIds: Array.isArray(target.staffIds) ? target.staffIds : [],
+          staffRoles: target.staffRoles || {},
+          staffAchievements: target.staffAchievements || {},
+          staffCommissions: target.staffCommissions || {},
+        });
+        resetFlowEditCardPick();
+      } else {
+        const pickId = selected[0];
+        const p = pool.find(x => x.id === pickId);
+        if (!p) {
+          showToast('请选择要更换的内容', true);
+          return;
+        }
+        Object.keys(target).forEach((k) => {
+          if (k === 'id' || k === 'staffIds' || k === 'staffRoles' || k === 'staffAchievements' || k === 'staffCommissions' || k === 'qty') return;
+          delete target[k];
+        });
         target.name = p.name;
         target.price = Number(p.price) || 0;
         target.type = tab;
         target.spec = p.spec || '';
+        target.qty = Math.max(1, Number(target.qty) || 1);
       }
       state.flowEditReplaceItemId = null;
       state.flowEditAddSelected = [];
@@ -8596,6 +8719,13 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       if (typeof window.__staffPickResetEdit === 'function') window.__staffPickResetEdit();
       showOnlyScreen('screen-flow-edit-item');
       renderFlowEditItem();
+      return;
+    }
+
+    if (tab === 'card') {
+      addFlowEditCardItems(d, seg);
+      renderFlowEdit();
+      showOnlyScreen('screen-flow-edit');
       return;
     }
 
@@ -8631,6 +8761,51 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     state.flowEditAddSelected = [];
     renderFlowEdit();
     showOnlyScreen('screen-flow-edit');
+  }
+
+  /** 更换/添加时构造单条会员卡条目；失败时 toast 并返回 null */
+  function flowEditBuildOneCardItem(seg) {
+    const base = {
+      qty: 1,
+      type: 'card',
+      spec: '',
+    };
+    if (seg === 'recharge') {
+      const cust = flowEditCustomer();
+      const card = flowEditCustomerCards().find(c => c.id === state.flowEditAddCardId);
+      const amount = Number(state.flowEditAddAmount) || 0;
+      if (!cust || !card) {
+        showToast('请选择要充值的会员卡', true);
+        return null;
+      }
+      if (!(amount > 0)) {
+        showToast('请设置储值金额', true);
+        return null;
+      }
+      return {
+        ...base,
+        name: `充值 · ${card.name}`,
+        price: amount,
+        cardKind: 'recharge',
+        cardId: card.id,
+        cardName: card.name,
+      };
+    }
+    const tid = (state.flowEditAddCardTpls || [])[0];
+    const tpl = tid && CARD_TEMPLATES.find(t => t.id === tid);
+    if (!tpl) {
+      showToast('请选择要办理的会员卡', true);
+      return null;
+    }
+    return {
+      ...base,
+      name: `办卡 · ${tpl.name}`,
+      price: Number(tpl.price) || 0,
+      cardKind: 'issue',
+      cardTplId: tpl.id,
+      cardFace: Number(tpl.face || 0),
+      cardGift: Number(tpl.giftAmount || 0),
+    };
   }
 
   /** 会员卡 Tab 确认：办卡（卡模板 → 办卡条目）/ 充卡（顾客卡 + 储值金额 → 充值条目） */
@@ -8722,9 +8897,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (!it.staffRoles) it.staffRoles = {};
     if (!it.staffAchievements) it.staffAchievements = {};
     if (!it.staffCommissions) it.staffCommissions = {};
-    const replaceBtn = !isCard
-      ? `<button type="button" class="btn-add-benefit btn-add-benefit--block" data-flow-edit-item-replace>${isProduct ? '更换产品' : '更换项目'}</button>`
-      : '';
+    const replaceBtn = `<button type="button" class="btn-add-benefit btn-add-benefit--block" data-flow-edit-item-replace>更换项</button>`;
     const cardMetaRows = flowEditCardItemMetaRows(it);
     body.innerHTML = `
       <div class="flow-detail-card">
@@ -8790,45 +8963,37 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return out.join('');
   }
 
-  /** 已选员工的明细卡（工位 · 业绩 · 提成）——选择员工由开单2.0 槽位选择器负责 */
+  /** 已选员工的明细卡（工位标签 · 业绩 · 提成）——选人/改工位由上方槽位选择器负责 */
   function flowEditStaffCardsHtml(it) {
-    const roleOpts = (typeof STAFF_ROLE_PICK_ORDER !== 'undefined' ? STAFF_ROLE_PICK_ORDER : ['senior', 'mid', 'junior']);
     const selectedStaff = (it.staffIds || []).map(sid => ({ id: sid, name: flowStaffNameById(sid) }));
     if (!selectedStaff.length) {
       return `<div class="flow-edit-item__meta-line" style="padding:4px 0 0">暂未添加员工 · 点上方员工卡片即可加入本单</div>`;
     }
     return selectedStaff.map(st => {
       const curRole = it.staffRoles[st.id] || '';
+      const roleLabel = curRole && typeof staffRoleLabel === 'function' ? staffRoleLabel(curRole) : '';
       const ach = Number(it.staffAchievements[st.id] || 0);
       const comm = Number(it.staffCommissions[st.id] || 0);
       return `<div class="flow-edit-item-staff-card" data-flow-edit-item-staff-card="${escapeHtml(st.id)}">
         <div class="flow-edit-item-staff-card__head">
-          <span class="flow-edit-item-staff-card__name">${escapeHtml(st.name)}</span>
+          <div class="flow-edit-item-staff-card__head-main">
+            <span class="flow-edit-item-staff-card__name">${escapeHtml(st.name)}</span>
+            <span class="flow-pill flow-pill--station${roleLabel ? '' : ' is-empty'}">${roleLabel ? escapeHtml(roleLabel) : '未设工位'}</span>
+          </div>
           <button type="button" class="flow-edit-staff-row__del" data-flow-edit-item-staff-del="${escapeHtml(st.id)}" aria-label="移除员工">${flowIconTrash()}</button>
         </div>
-        <div class="flow-edit-item-staff-card__block">
-          <div class="flow-edit-item-staff-card__label">工位</div>
-          <div class="flow-edit-specify-seg flow-edit-specify-seg--station" role="group" aria-label="${escapeHtml(st.name)}工位">
-            ${roleOpts.map(rid => {
-              const label = typeof staffRoleLabel === 'function' ? staffRoleLabel(rid) : rid;
-              return `<button type="button" class="flow-edit-specify-seg__btn${curRole === rid ? ' is-on' : ''}" data-flow-edit-item-role="${escapeHtml(st.id)}" data-role="${escapeHtml(rid)}">${escapeHtml(label)}</button>`;
-            }).join('')}
+        <div class="flow-edit-item-staff-card__metrics">
+          <div class="flow-edit-item-staff-card__metric is-readonly">
+            <span class="flow-edit-item-staff-card__metric-lab">业绩</span>
+            <span class="flow-edit-item-staff-card__metric-val is-ach">${ach.toFixed(2)}</span>
           </div>
-        </div>
-        <div class="flow-edit-staff-row__metrics" style="margin-top:10px">
-          <label class="flow-detail-metric__item is-readonly">
-            <span class="flow-detail-metric__label">业绩</span>
-            <span class="flow-detail-metric__val-row">
-              <span class="flow-detail-metric__value">${ach.toFixed(2)}</span>
-            </span>
-          </label>
-          <label class="flow-detail-metric__item">
-            <span class="flow-detail-metric__label">提成</span>
-            <span class="flow-detail-metric__val-row">
-              <input type="text" class="input-amount flow-detail-metric__input" readonly inputmode="decimal"
+          <label class="flow-edit-item-staff-card__metric">
+            <span class="flow-edit-item-staff-card__metric-lab">提成</span>
+            <span class="flow-edit-item-staff-card__metric-row">
+              <input type="text" class="input-amount flow-edit-item-staff-card__metric-input" readonly inputmode="decimal"
                 data-flow-edit-item-staff-perf="commission" data-staff-id="${escapeHtml(st.id)}"
                 value="${comm.toFixed(2)}" aria-label="修改提成">
-              <span class="flow-detail-metric__edit-icon" aria-hidden="true">${flowIconPencil()}</span>
+              <span class="flow-edit-item-staff-card__metric-edit" aria-hidden="true">${flowIconEditSquare()}</span>
             </span>
           </label>
         </div>
@@ -9100,10 +9265,25 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const gap = round2(estimated - paid);
     if (Math.abs(gap) >= 0.01) {
       state.flowEditPendingDiff = { gap, estimated, paid };
+      const abs = Math.abs(gap);
+      const collect = gap > 0;
+      const method = flowLargestPayMethod(o);
+      const title = document.getElementById('flowEditDiffTitle');
       const body = document.getElementById('flowEditDiffBody');
+      const sameBtn = document.getElementById('flowEditDiffSamePay');
+      const otherBtn = document.getElementById('flowEditDiffGoSettle');
+      if (title) title.textContent = collect ? `需补收差价 ¥${abs.toFixed(2)}` : `需退还差价 ¥${abs.toFixed(2)}`;
       if (body) {
-        body.textContent = `改后实付 ¥${estimated.toFixed(2)}，原实付 ¥${paid.toFixed(2)}，${gap > 0 ? '少收' : '多收'} ¥${Math.abs(gap).toFixed(2)}。可仅保存项目与员工（实付锁定），或前往${gap > 0 ? '补收差价' : '退还差价'}。`;
+        body.textContent = collect
+          ? `改后实付 ¥${estimated.toFixed(2)}，原实付 ¥${paid.toFixed(2)}，少收 ¥${abs.toFixed(2)}。请选择补记方式（须当场闭合差额）。`
+          : `改后实付 ¥${estimated.toFixed(2)}，原实付 ¥${paid.toFixed(2)}，多收 ¥${abs.toFixed(2)}。请选择退还方式（须当场闭合差额）。`;
       }
+      if (sameBtn) {
+        sameBtn.textContent = collect
+          ? `用${method}补记 ¥${abs.toFixed(2)}`
+          : `用${method}退还 ¥${abs.toFixed(2)}`;
+      }
+      if (otherBtn) otherBtn.textContent = '选择其他支付方式';
       document.getElementById('flowEditDiffMask')?.classList.add('open');
       return;
     }
@@ -9116,19 +9296,26 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     state.flowEditPendingDiff = null;
   }
 
-  function confirmFlowEditSaveOnly() {
+  /** 先保存改单，再按原单金额最大支付方式一次性补记/退差 */
+  function confirmFlowEditSamePay() {
+    const pending = state.flowEditPendingDiff;
     const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
     const err = flowEditDraftValidationError(state.flowEditDraft);
     if (err) {
       showToast(err, true);
       return;
     }
+    const method = o ? flowLargestPayMethod(o) : '其他';
     closeFlowEditDiffDialog();
     if (!applyFlowEditDraft({ silentGap: true, skipValidate: true })) return;
-    showToast('已保存；实付未改，请注意差额');
     if (o) openFlowDetail(o.id, { fromSuccess: false });
+    const gap = pending ? pending.gap : flowOrderGap(o);
+    if (Math.abs(gap) < 0.01) return;
+    state.flowGapPayMode = gap > 0 ? 'collect' : 'refund';
+    applyFlowGapPayments([{ method, amount: Math.abs(gap) }]);
   }
 
+  /** 先保存改单，再打开与结账同款全量支付 sheet 自选渠道 */
   function confirmFlowEditGoSettle() {
     const pending = state.flowEditPendingDiff;
     const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
@@ -11644,7 +11831,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (e.target.id === 'flowVoidMask') closeFlowVoidDialog();
   });
   document.getElementById('flowEditDiffCancel')?.addEventListener('click', () => closeFlowEditDiffDialog());
-  document.getElementById('flowEditDiffSaveOnly')?.addEventListener('click', () => confirmFlowEditSaveOnly());
+  document.getElementById('flowEditDiffSamePay')?.addEventListener('click', () => confirmFlowEditSamePay());
   document.getElementById('flowEditDiffGoSettle')?.addEventListener('click', () => confirmFlowEditGoSettle());
   document.getElementById('flowEditDiffMask')?.addEventListener('click', (e) => {
     if (e.target.id === 'flowEditDiffMask') closeFlowEditDiffDialog();
@@ -11802,10 +11989,15 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const tplBtn = e.target.closest('[data-flow-edit-pick-card]');
     if (tplBtn) {
       const id = tplBtn.dataset.flowEditPickCard;
-      const set = new Set(state.flowEditAddCardTpls || []);
-      if (set.has(id)) set.delete(id);
-      else set.add(id);
-      state.flowEditAddCardTpls = Array.from(set);
+      if (state.flowEditReplaceItemId) {
+        const cur = (state.flowEditAddCardTpls || [])[0];
+        state.flowEditAddCardTpls = cur === id ? [] : [id];
+      } else {
+        const set = new Set(state.flowEditAddCardTpls || []);
+        if (set.has(id)) set.delete(id);
+        else set.add(id);
+        state.flowEditAddCardTpls = Array.from(set);
+      }
       renderFlowEditAdd();
       return;
     }

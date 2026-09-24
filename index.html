@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/v2.css">
 <link rel="stylesheet" href="assets/v2-home-pay.css">
-<link rel="stylesheet" href="flow/flow.css?v=noweikuan4">
+<link rel="stylesheet" href="flow/flow.css?v=refund36">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -823,13 +823,17 @@
     width:17px; height:17px; border-radius:2.2px; flex:none;
     display:flex; align-items:center; justify-content:center;
     font-size:var(--fs-tag); font-weight:var(--fw-tag); color:#fff;
+    font-family:var(--font-text, "Noto Sans SC", "PingFang SC", sans-serif);
+    line-height:17px; box-sizing:border-box;
   }
   #s6 .co-item .co-tag.proj, #s7 .co-item .co-tag.proj { background:#06f; }
   #s6 .co-item .co-tag.prod, #s7 .co-item .co-tag.prod { background:#f32f41; }
+  #s6 .co-item .co-tag.card, #s7 .co-item .co-tag.card { background:#2BA471; }
+  #s6 .co-item .co-tag.group, #s7 .co-item .co-tag.group { background:#C164FF; }
   #s6 .co-item .co-tag.quick, #s7 .co-item .co-tag.quick {
-    width:18px; height:18px; background:transparent; border-radius:0; padding:0;
+    width:17px; height:17px; background:transparent; border-radius:0; padding:0;
   }
-  #s6 .co-item .co-tag.quick img, #s7 .co-item .co-tag.quick img { width:18px; height:18px; display:block; }
+  #s6 .co-item .co-tag.quick img, #s7 .co-item .co-tag.quick img { width:17px; height:17px; display:block; }
   #s6 .co-item .co-name, #s7 .co-item .co-name {
     font-size:var(--fs-card-title); font-weight:var(--fw-card-title); color:var(--text);
     line-height:var(--lh-card-title); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -2235,7 +2239,7 @@
     <button type="button" class="nav-item" data-flow="flow-refund-log-detail"><span class="idx">5</span>退款详情</button>
     <button type="button" class="nav-item" data-flow="flow-edit"><span class="idx">6</span>修改订单</button>
     <button type="button" class="nav-item" data-flow="flow-edit-log"><span class="idx">7</span>修改记录</button>
-    <button type="button" class="nav-item" data-flow="flow-edit-add"><span class="idx">8</span>添加项目</button>
+    <button type="button" class="nav-item" data-flow="flow-edit-add"><span class="idx">8</span>添加项</button>
     <button type="button" class="nav-item" data-flow="flow-edit-item"><span class="idx">9</span>编辑项目</button>
     <button type="button" class="nav-item" data-flow="flow-diff-collect"><span class="idx">10</span>补收差价</button>
     <button type="button" class="nav-item" data-flow="flow-diff-refund"><span class="idx">11</span>退还差价</button>
@@ -3368,11 +3372,11 @@
             <div class="flow-screen-foot" id="flowEditFoot"></div>
           </div>
 
-          <!-- 流水订单 · 添加项目（项目 / 产品 / 会员卡） -->
+          <!-- 流水订单 · 添加项（项目 / 产品 / 会员卡） -->
           <div id="screen-flow-edit-add" class="screen hidden">
             <div class="nav-bar">
               <button type="button" class="btn-back" id="flowEditAddBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
-              <div class="title">添加项目</div>
+              <div class="title">添加项</div>
             </div>
             <div class="flow-edit-add-tabs" id="flowEditAddTabs" role="tablist"></div>
             <div class="page-body flow-edit-body" id="flowEditAddBody"></div>
@@ -3442,14 +3446,14 @@
             </div>
           </div>
 
-          <!-- 流水订单 · 改单差额 -->
+          <!-- 流水订单 · 改单差额（须当场补记/退差，不可仅保存） -->
           <div class="dialog-mask" id="flowEditDiffMask">
             <div class="dialog" role="dialog" aria-labelledby="flowEditDiffTitle">
-              <div class="dialog__title" id="flowEditDiffTitle">项目变动产生差额</div>
-              <div class="dialog__body" id="flowEditDiffBody">改后实付与原实付不一致。可仅保存项目与员工（实付锁定），或前往补收/退差。</div>
+              <div class="dialog__title" id="flowEditDiffTitle">需补收差价</div>
+              <div class="dialog__body" id="flowEditDiffBody">改后实付与原实付不一致，请选择补记方式。</div>
               <div class="dialog__actions dialog__actions--stack" style="flex-direction:column;gap:8px">
-                <button type="button" class="btn-main" id="flowEditDiffSaveOnly">仅保存项目与员工</button>
-                <button type="button" class="btn-main secondary" id="flowEditDiffGoSettle">去处理差额</button>
+                <button type="button" class="btn-main" id="flowEditDiffSamePay">用原支付方式补记</button>
+                <button type="button" class="btn-main secondary" id="flowEditDiffGoSettle">选择其他支付方式</button>
                 <button type="button" class="btn-soft" id="flowEditDiffCancel">取消</button>
               </div>
             </div>
@@ -7641,7 +7645,7 @@
         '<div class="co-top">' +
           '<div class="co-thumb"><span style="display:block;width:44px;height:44px;line-height:44px;text-align:center;font-size:16px;color:#c7c7cc;">项</span></div>' +
           '<div class="co-info">' +
-            '<div class="co-nm-line"><span class="co-tag proj">项</span><span class="co-name">' + escapeHtml(it.name) + '</span></div>' +
+            '<div class="co-nm-line"><span class="co-tag quick" aria-label="直接收款"><img src="assets/ic_lightning_tag.svg" alt="" width="17" height="17" draggable="false"></span><span class="co-name">' + escapeHtml(it.name) + '</span></div>' +
             '<div class="co-price">¥' + it.price.toFixed(2) + '</div>' +
           '</div>' +
           '<button class="co-del" onclick="qcoDelete()"><img src="assets/ic_trash_figma.svg" style="width:18px;height:18px;display:block;pointer-events:none;" alt=""></button>' +
