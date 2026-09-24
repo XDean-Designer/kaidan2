@@ -8728,6 +8728,68 @@ html.capture-figma #toast { display:none !important; }
             document.querySelectorAll('#coItems .co-item').length > 0;
         }, function () { setTimeout(function () { done(null); }, 600); });
       });
+    },
+
+    /* —— 点选即勾选（R28 补充导出）：22/23 导航态，均停在「已选 1 人（顾清扬）」 —— */
+    /* 22 点选即勾选·5人：添加 sheet 内扁平网格（无行标题），点第 1 张卡 → is-on */
+    'fl-staff-on5': function (done) {
+      window.demoStaffPick({ station: false, extra: false, expand12: false });
+      waitFor(function () {
+        var m = document.getElementById('addSheetMask');
+        return !!(m && m.classList.contains('show') &&
+          document.querySelectorAll('#asStaffGrid .sp-card').length >= 5 &&
+          document.querySelectorAll('#asStaffGrid .sp-cards--flat').length === 1);
+      }, function (err) {
+        if (err) { done(err); return; }
+        var c = document.querySelector('#asStaffGrid .sp-card');
+        if (c) { try { c.click(); } catch (e) {} }
+        waitFor(function () {
+          var on = document.querySelector('#asStaffGrid .sp-card.is-on');
+          var tick = on && on.querySelector('.sp-card__tick');
+          return !!(on && tick && tick.getBoundingClientRect().width >= 14);
+        }, function () { setTimeout(function () { done(null); }, 700); }, 140);
+      }, 140);
+    },
+    /* 23 点选即勾选·12人：单行「服务员工」槽位 → 进选择页选 1 人 → 重开选择页，停在选择页且勾选圈可见 */
+    'fl-staff-on12': function (done) {
+      window.demoStaffPick({ station: false, extra: false, expand12: true, openPlus: true });
+      waitFor(function () {
+        var picking = document.querySelector('#addSheetMask .addsheet.is-picking');
+        return !!(picking && document.querySelectorAll('#asStaffGrid .sp-pick').length >= 12);
+      }, function (err) {
+        if (err) { done(err); return; }
+        var pick = document.querySelector('#asStaffGrid .sp-pick:not(.is-on)');
+        if (pick) { try { pick.click(); } catch (e) {} }
+        setTimeout(function () {
+          var plus = document.querySelector('#asStaffGrid .sp-slot--add');
+          if (plus) { try { plus.click(); } catch (e2) {} }
+          waitFor(function () {
+            var picking = document.querySelector('#addSheetMask .addsheet.is-picking');
+            var on = document.querySelector('#asStaffGrid .sp-pick.is-on');
+            var tick = on && on.querySelector('.sp-pick__tick');
+            return !!(picking && on && tick && tick.getBoundingClientRect().width >= 14);
+          }, function () { setTimeout(function () { done(null); }, 700); }, 140);
+        }, 650);
+      }, 140);
+    },
+    /* 23 单行「服务员工」槽位态：选 1 人落位后停在槽位页（1 张员工卡 + ＋） */
+    'fl-staff-slot12': function (done) {
+      window.demoStaffPick({ station: false, extra: false, expand12: true, openPlus: true });
+      waitFor(function () {
+        var picking = document.querySelector('#addSheetMask .addsheet.is-picking');
+        return !!(picking && document.querySelectorAll('#asStaffGrid .sp-pick').length >= 12);
+      }, function (err) {
+        if (err) { done(err); return; }
+        var pick = document.querySelector('#asStaffGrid .sp-pick:not(.is-on)');
+        if (pick) { try { pick.click(); } catch (e) {} }
+        waitFor(function () {
+          var picking = document.querySelector('#addSheetMask .addsheet.is-picking');
+          var nm = document.querySelector('#asStaffGrid .sp-slot.is-land .sp-slot__nm');
+          var lbl = document.querySelector('#asStaffGrid .sp-row__lbl');
+          return !!(!picking && nm && nm.textContent.trim().length > 0 &&
+            lbl && lbl.textContent.indexOf('服务员工') >= 0);
+        }, function () { setTimeout(function () { done(null); }, 800); }, 140);
+      }, 140);
     }
   };
 

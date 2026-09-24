@@ -1,39 +1,48 @@
 {
   "fileKey": "Qb2Jcn0E9NllrGE7vdbH8q",
-  "nodeId": "861:186",
-  "port": 8770,
+  "nodeId": "1280:175",
+  "port": 8765,
   "basePath": "/index.html",
   "selector": "#frame",
   "frameWidth": 390,
+  "frameHeight": 844,
   "gap": 80,
+  "rowGap": 80,
+  "perRow": 14,
   "fontFamily": "Noto Sans SC",
   "bitmapPlaceholder": "#E8E8E8",
   "iconsMustBeSvg": true,
   "sliceBitmapsOnlyWhenUserAsks": true,
   "screens": [
-    {
-      "capture": "s4-expand",
-      "name": "S4-选择顾客",
-      "captureId": "1a419cfe-7456-46e6-9b05-badc339fcbda",
-      "delay": 3000
-    },
-    {
-      "capture": "s1-expand",
-      "name": "S1-散客开单（展开）",
-      "captureId": "b2398fd7-f424-4a2a-ad91-c78539111378",
-      "delay": 5000
-    },
-    {
-      "capture": "s5-expand",
-      "name": "S5-会员开单（展开）",
-      "captureId": "86408b5d-3aff-44ba-9c89-0838b0c7294d",
-      "delay": 6000
-    },
-    {
-      "capture": "s6-items",
-      "name": "S6-开单结算",
-      "captureId": "a0bc3b03-80b5-47e6-8f13-dac96245000c",
-      "delay": 10000
-    }
+    { "capture": "s0", "name": "S0-首页", "captureId": "d16b694a-2118-48cd-a102-d486a441c621", "delay": 1500 },
+    { "capture": "s4", "name": "S4-选择顾客", "captureId": "22ee8199-4723-4caa-ac5d-0357fd779ec4", "delay": 1500 },
+    { "capture": "s1", "name": "S1-散客开单", "captureId": "a3703bbb-3c38-4c04-b154-6708847c1e27", "delay": 1500 },
+    { "capture": "s1-male", "name": "S1-散客开单-男散客", "captureId": "45a29b4d-6da0-4831-ba82-bca02d742b34", "delay": 2000 },
+    { "capture": "s1-sheet", "name": "S1-添加项目Sheet", "captureId": "33e7d87d-9788-4673-8816-d81d3d0adb5e", "delay": 2000 },
+    { "capture": "s1-staff-slot", "name": "S1-员工槽位页-12人", "captureId": "482f47e8-bf1e-4dc9-8685-8ff87b6e4d27", "delay": 2500 },
+    { "capture": "s1-staff", "name": "S1-员工选择页-12人", "captureId": "36389305-7ed7-46f7-b039-9f4b96d24e2b", "delay": 2500 },
+    { "capture": "s5", "name": "S5-会员开单-女性会员", "captureId": "f85ef38c-5795-450d-8d19-fdfe167015e2", "delay": 1500 },
+    { "capture": "s5-cards", "name": "S5-会员卡展开权益", "captureId": "b74aae1d-2d66-44c7-b735-3fd87b9746ac", "delay": 2500 },
+    { "capture": "s5-sheet", "name": "S5-添加项目Sheet", "captureId": "273a7a35-13f7-4ded-9882-ed822a50ecbc", "delay": 2000 },
+    { "capture": "s2", "name": "S2-直接收款", "captureId": "1326ec0d-d92f-4eed-97c9-87c680f576f0", "delay": 1500 },
+    { "capture": "s2-remark", "name": "S2-开单内容Sheet", "captureId": "46d8a636-a21a-4d34-8e88-798fe1e8b623", "delay": 2000 },
+    { "capture": "s3", "name": "S3-收款", "captureId": "5dfd6749-e655-40f4-bb71-5c21257b0c4c", "delay": 1500 },
+    { "capture": "s7", "name": "S7-直接收款结算", "captureId": "7e4d2e14-cd07-4009-89db-29e5fcdac721", "delay": 2000 },
+    { "capture": "s6", "name": "S6-开单结算", "captureId": "47f8da4e-9b29-4eb5-843b-813b50fde500", "delay": 1500 },
+    { "capture": "s6-items", "name": "S6-结算含明细", "captureId": "8833d5c2-ac58-49b6-b503-20afa67510f3", "delay": 2500 },
+    { "capture": "s6-ben", "name": "S6-选择权益", "captureId": "ea73b7e0-3648-4cd1-b5e0-8d35d78dd5af", "delay": 2500 },
+    { "capture": "s6-coup", "name": "S6-选择优惠券", "captureId": "32aa6af1-ac91-48d5-989e-977f233d2a14", "delay": 2500 },
+    { "capture": "s6-staff", "name": "S6-修改服务员工", "captureId": "4ba812e5-b5f5-4257-ae48-d73b03a2fc4d", "delay": 2500 },
+    { "capture": "s6-price", "name": "S6-改价", "captureId": "e8c26b1b-89c4-4013-a103-fb05dd1c74ad", "delay": 2500 },
+    { "capture": "s6-more", "name": "S6-更多菜单", "captureId": "23665f15-cd3c-44a5-9e76-a6c180284655", "delay": 2500 },
+    { "capture": "s6-date", "name": "S6-选日期", "captureId": "3cdcc9fd-4dcf-454e-961e-9ba009f502a8", "delay": 2500 },
+    { "capture": "s8", "name": "S8-门店流水", "captureId": "aac88417-330e-4901-b4fd-e0feca2d3a95", "delay": 1500 },
+    { "capture": "s9", "name": "S9-选择退款项目", "captureId": "4002025d-48ce-44d9-b663-fbda2fc1f36b", "delay": 1500 },
+    { "capture": "s14", "name": "S14-挂单列表", "captureId": "86c01247-a64d-483f-b0c7-75e4d766d107", "delay": 2000 },
+    { "capture": "s15", "name": "S15-开单成功", "captureId": "a4b79034-47cb-4ebd-8fd9-49b0e8561ab9", "delay": 2000 },
+    { "capture": "s15-no", "name": "S15-修改单号", "captureId": "71beaaa4-4a8a-4478-bb4e-790952166ee4", "delay": 2000 },
+    { "capture": "fl-staff-on5", "name": "S1-员工·点选即勾选·5人", "captureId": "26bb42e9-89e6-4b9d-9dce-60ebcf063363", "delay": 2500, "post": "点选即勾选（不分工位+未开）·添加 sheet 扁平网格 5 人，已选 1 人=顾清扬" },
+    { "capture": "fl-staff-on12", "name": "S1-员工·点选即勾选·12人", "captureId": "5c391534-1582-4f42-b3d3-267198ab42e5", "delay": 2500, "post": "点选即勾选·12 人→选择服务员工页，已选 1 人=顾清扬（勾选圈可见）" },
+    { "capture": "fl-staff-slot12", "name": "S1-员工·点选即勾选·12人-槽位", "captureId": "b2d0bf35-5c86-4e30-a233-e47899591c7b", "delay": 2500, "post": "点选即勾选·12 人单行「服务员工」槽位态，1 人已落位=顾清扬" }
   ]
 }
