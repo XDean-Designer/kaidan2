@@ -2300,6 +2300,8 @@ input[type=number]::-webkit-inner-spin-button {
 }
 .flow-list-actions .action {
   margin-left: 0; margin-right: 0; padding: 0;
+  appearance: none; -webkit-appearance: none;
+  border: none; background: none; cursor: pointer; font: inherit;
   font-size: 12px; line-height: 16px; color: #333;
   display: inline-flex; align-items: center; gap: 4px;
 }
@@ -2504,6 +2506,8 @@ input[type=number]::-webkit-inner-spin-button {
   margin-bottom: 12px; font-size: 13px; color: var(--text-sec);
 }
 .flow-refund-toolbar button {
+  appearance: none; -webkit-appearance: none;
+  border: none; background: none; cursor: pointer; font: inherit;
   border: none; background: none; color: var(--brand); font-size: 13px;
   font-weight: 500; cursor: pointer; font-family: inherit; padding: 0;
 }
@@ -2822,3 +2826,79 @@ input[type=number]::-webkit-inner-spin-button {
 #screen-flow-refund:not(.hidden), #screen-flow-edit:not(.hidden),
 #screen-flow-edit-add:not(.hidden), #screen-flow-edit-item:not(.hidden),
 #screen-flow-self-detail:not(.hidden) { display: flex; flex-direction: column; }
+
+/* 流水模块 · 按钮 reset + 更多 sheet（catalog-action-*） */
+.flow-module-root .picker-sheet--menu button,
+.flow-module-root .flow-filter-foot button,
+.flow-module-root .picker-foot button,
+.flow-module-root .dialog__actions button {
+  appearance: none; -webkit-appearance: none; font: inherit;
+}
+.flow-module-root .catalog-action-list { display: flex; flex-direction: column; padding: 0; }
+.flow-module-root .catalog-action-item {
+  display: block; width: 100%; border: none; background: transparent;
+  padding: 16px 20px; min-height: 56px; box-sizing: border-box;
+  font-size: 17px; font-family: inherit; font-weight: 400; color: var(--text);
+  text-align: center; cursor: pointer;
+}
+.flow-module-root .catalog-action-item:active { background: rgba(0, 0, 0, 0.04); }
+.flow-module-root .catalog-action-item--danger { color: var(--brand); }
+.flow-module-root .catalog-action-item--cancel {
+  text-align: center; color: var(--text); font-weight: 600;
+}
+.flow-module-root .picker-sheet--menu .catalog-action-card { background: transparent; border-radius: 0; }
+.flow-module-root .picker-sheet--menu .catalog-action-foot {
+  margin: 0; border: none; border-top: 8px solid var(--bg-page); background: #fff;
+}
+.flow-module-root .picker-sheet--menu .catalog-action-foot .catalog-action-item--cancel {
+  min-height: 54px; color: #929292; font-weight: 500; font-size: 16px; background: #fff;
+}
+.flow-module-root .picker-sheet--menu .catalog-action-safe { height: 34px; background: var(--bg-page); }
+
+/* 退款方式 sheet + 退款记录 */
+.flow-refund-seg {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 0 16px 12px;
+  padding: 3px; border-radius: 10px; background: #F2F2F2;
+}
+.flow-refund-seg__btn {
+  appearance: none; border: none; background: transparent; cursor: pointer; font: inherit;
+  font-size: 14px; font-weight: 500; color: var(--text-sec); padding: 8px 0; border-radius: 8px;
+}
+.flow-refund-seg__btn.is-on { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.flow-refund-method-item { padding: 12px 0; border-bottom: 0.5px solid #EDEDED; }
+.flow-refund-method-item__name { font-size: 15px; font-weight: 500; }
+.flow-refund-method-item__meta { margin-top: 4px; font-size: 12px; color: var(--text-sec); }
+.flow-refund-method-amt { margin-top: 8px; font-size: 14px; }
+.flow-refund-method-amt input {
+  width: 100px; margin-left: 8px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px;
+  font-family: var(--font-data); font-size: 14px;
+}
+.flow-refund-method-channels__title { font-size: 13px; font-weight: 600; margin: 16px 0 8px; }
+.flow-refund-method-channel-row {
+  display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px;
+}
+.flow-refund-radio-row { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.flow-refund-radio { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; cursor: pointer; }
+.flow-refund-remark { display: block; margin-top: 12px; font-size: 13px; color: var(--text-sec); }
+.flow-refund-remark textarea {
+  display: block; width: 100%; margin-top: 6px; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: 10px; font: inherit; font-size: 14px; resize: vertical; box-sizing: border-box;
+}
+.flow-refund-method-total { margin-top: 16px; font-size: 15px; text-align: right; }
+.flow-refund-zero-tag { font-size: 11px; color: var(--text-sec); margin-left: 6px; }
+.flow-detail-refund-log-entry { width: 100%; justify-content: space-between; }
+.flow-refund-log-card {
+  display: block; width: 100%; text-align: left; appearance: none; border: none; background: #fff;
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; font: inherit;
+  box-shadow: 0 0 0 0.5px #EDEDED;
+}
+.flow-refund-log-card__top { display: flex; justify-content: space-between; align-items: center; }
+.flow-refund-log-card__no { font-family: var(--font-data); font-size: 13px; color: var(--text-sec); }
+.flow-refund-log-card__amt { font-family: var(--font-data); font-size: 16px; font-weight: 600; }
+.flow-refund-log-card__meta { margin-top: 6px; font-size: 13px; color: var(--text); }
+.flow-refund-log-card__time { margin-top: 4px; font-size: 12px; color: var(--text-sec); }
+#screen-flow-refund-log, #screen-flow-refund-log-detail { background: var(--bg-page); }
+.flow-refund-log-body, .flow-refund-log-detail-body {
+  padding: 16px 16px 120px; background: var(--bg-page); box-sizing: border-box;
+}
+.flow-detail-meta__row.is-sub { font-size: 12px; color: var(--text-sec); }

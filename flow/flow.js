@@ -23,7 +23,7 @@ if (typeof window.showToast !== 'function') {
 }
 if (typeof window.openWorkbench !== 'function') {
   window.openWorkbench = function () {
-    if (window.BillingDemo && window.BillingDemo.openFlowHub) window.BillingDemo.openFlowHub();
+    if (window.BillingDemo && window.BillingDemo.openFlowList) window.BillingDemo.openFlowList();
   };
 }
 if (typeof window.closeAllFlowOverlays !== 'function') {
@@ -6762,6 +6762,17 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       benefitLabel: '无卡权益',
       time: '2026.07.19 11:30',
       cashier: '何苏叶',
+      refunds: [{
+        docType: 'refund',
+        refundNo: '202607191001',
+        time: '2026.07.19 12:05',
+        operator: '何苏叶',
+        mode: 'original',
+        remark: '',
+        totalRefund: 168,
+        items: [{ itemIndex: 0, name: '头皮护理', qty: 1, listPrice: 168, paidShare: 168, refundAmount: 168 }],
+        channels: [{ method: '微信', amount: 168 }],
+      }],
     },
     {
       id: 'fo-seed-9',
@@ -6782,6 +6793,17 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       benefitLabel: '无卡权益',
       time: '2026.07.18 15:42',
       cashier: 'Lisa',
+      refunds: [{
+        docType: 'refund',
+        refundNo: '202607181002',
+        time: '2026.07.18 16:10',
+        operator: 'Lisa',
+        mode: 'designated',
+        remark: '客户要求退至支付宝',
+        totalRefund: 128,
+        items: [{ itemIndex: 0, name: '剑琅修护洗发水（500ml）', qty: 1, listPrice: 128, paidShare: 128, refundAmount: 128 }],
+        channels: [{ method: '支付宝', amount: 128 }],
+      }],
     },
   ];
 
@@ -6797,184 +6819,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     });
   })();
 
-
-  const FLOW_SELF_ORDERS = [
-    /* 种子「今日」原锚点 2026.07.29 · 启动时由 alignDemoFlowClocks 平移到真实今天 */
-    {
-      id: 'fs-seed-1',
-      customerId: 'm1',
-      customerName: '张雨晴',
-      avatar: 'assets/billing/avatar-female.png',
-      status: 'success',
-      kind: 'project',
-      items: [{ name: '洗剪吹', price: 68, type: 'project', qty: 1 }],
-      payMethod: '微信',
-      amount: 68,
-      time: '2026.07.29 09:12',
-      channel: '顾客自助',
-    },
-    {
-      id: 'fs-seed-2',
-      customerId: 'm2',
-      customerName: '李诗涵',
-      avatar: 'assets/billing/avatar-female.png',
-      status: 'success',
-      kind: 'product',
-      items: [{ name: '剑琅修护洗发水（500ml）', price: 128, type: 'product', qty: 1 }],
-      payMethod: '支付宝',
-      amount: 128,
-      time: '2026.07.29 10:05',
-      channel: '顾客自助',
-    },
-    {
-      id: 'fs-seed-3',
-      customerId: 'm4',
-      customerName: '陈浩然',
-      avatar: 'assets/billing/avatar-male.png',
-      status: 'success',
-      kind: 'project',
-      items: [
-        { name: '精致剪发', price: 98, type: 'project', qty: 1 },
-        { name: '剑琅造型发蜡（80g）', price: 88, type: 'product', qty: 1 },
-      ],
-      payMethod: '微信',
-      amount: 186,
-      time: '2026.07.29 11:28',
-      channel: '顾客自助',
-    },
-    {
-      id: 'fs-seed-4',
-      customerId: 'm7',
-      customerName: '周婉清',
-      avatar: 'assets/billing/avatar-female.png',
-      status: 'success',
-      kind: 'product',
-      items: [
-        { name: '剑琅滋养护发素（500ml）', price: 98, type: 'product', qty: 1 },
-        { name: '剑琅哑光发泥（100g）', price: 78, type: 'product', qty: 1 },
-      ],
-      payMethod: '微信',
-      amount: 176,
-      time: '2026.07.29 13:40',
-      channel: '顾客自助',
-    },
-    {
-      id: 'fs-seed-5',
-      customerId: null,
-      customerName: '散客',
-      avatar: FLOW_AVATAR_GUEST,
-      status: 'refunding',
-      kind: 'project',
-      items: [{ name: '时尚洗吹', price: 58, type: 'project', qty: 1 }],
-      payMethod: '微信',
-      amount: 58,
-      time: '2026.07.29 14:16',
-      channel: '顾客自助',
-    },
-    {
-      id: 'fs-seed-6',
-      customerId: 'm5',
-      customerName: '赵欣怡',
-      avatar: 'assets/billing/avatar-female.png',
-      status: 'success',
-      kind: 'project',
-      items: [{ name: '头皮护理', price: 168, type: 'project', qty: 1 }],
-      payMethod: '支付宝',
-      amount: 168,
-      time: '2026.07.29 15:52',
-      channel: '顾客自助',
-    },
-    /* 近7天 */
-    {
-      id: 'fs-seed-7',
-      customerId: 'm6',
-      customerName: '刘子轩',
-      avatar: 'assets/billing/avatar-male.png',
-      status: 'success',
-      kind: 'project',
-      items: [{ name: '男士精剪', price: 128, type: 'project', qty: 1 }],
-      payMethod: '微信',
-      amount: 128,
-      time: '2026.07.28 16:20',
-      channel: '顾客自助',
-    },
-    {
-      id: 'fs-seed-8',
-      customerId: 'm3',
-      customerName: '王思琪',
-      avatar: 'assets/billing/avatar-female.png',
-      status: 'success',
-      kind: 'product',
-      items: [{ name: '剑琅柔顺发膜（200ml）', price: 148, type: 'product', qty: 1 }],
-      payMethod: '支付宝',
-      amount: 148,
-      time: '2026.07.27 12:08',
-      channel: '顾客自助',
-    },
-    {
-      id: 'fs-seed-9',
-      customerId: 'm1',
-      customerName: '张雨晴',
-      avatar: 'assets/billing/avatar-female.png',
-      status: 'refunded',
-      kind: 'project',
-      items: [{ name: '精致剪发', price: 98, type: 'project', qty: 1 }],
-      payMethod: '微信',
-      amount: 98,
-      time: '2026.07.26 15:20',
-      channel: '顾客自助',
-    },
-    {
-      id: 'fs-seed-10',
-      customerId: 'm2',
-      customerName: '李诗涵',
-      avatar: 'assets/billing/avatar-female.png',
-      status: 'refund_failed',
-      kind: 'product',
-      items: [{ name: '剑琅造型发蜡（80g）', price: 88, type: 'product', qty: 1 }],
-      payMethod: '支付宝',
-      amount: 88,
-      time: '2026.07.25 09:40',
-      channel: '顾客自助',
-    },
-    {
-      id: 'fs-seed-11',
-      customerId: 'm8',
-      customerName: '吴佳宁',
-      avatar: 'assets/billing/avatar-female.png',
-      status: 'success',
-      kind: 'project',
-      items: [{ name: '烫染护理套餐', price: 398, type: 'project', qty: 1 }],
-      payMethod: '微信',
-      amount: 398,
-      time: '2026.07.24 11:05',
-      channel: '顾客自助',
-    },
-    /* 全部时间 · 超出近7天 */
-    {
-      id: 'fs-seed-12',
-      customerId: null,
-      customerName: '散客',
-      avatar: FLOW_AVATAR_GUEST,
-      status: 'refunded',
-      kind: 'product',
-      items: [{ name: '剑琅修护洗发水（500ml）', price: 128, type: 'product', qty: 1 }],
-      payMethod: '微信',
-      amount: 128,
-      time: '2026.07.18 18:33',
-      channel: '顾客自助',
-    },
-  ];
-
-  function flowSelfStatusLabel(status) {
-    if (status === 'success' || status === 'paid') return '收款成功';
-    if (status === 'refunding') return '退款中';
-    if (status === 'refunded') return '退款成功';
-    if (status === 'refund_failed') return '退款失败';
-    if (status === 'pending') return '待支付';
-    if (status === 'closed') return '已关闭';
-    return '收款成功';
-  }
 
   function flowStatusLabel(status) {
     if (status === 'void') return '已作废';
@@ -7026,16 +6870,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return `<img class="flow-order-card__avatar" src="${escapeHtml(src)}" alt="" width="36" height="36">`;
   }
 
-  function flowIconStore() {
-    /* 对齐支出类型 icon：assets/flow · 圆角渐变底 + 白色面性 */
-    return '<img class="flow-hub-card__icon-img" src="assets/flow/store.svg" alt="" width="40" height="40" draggable="false" />';
-  }
-  function flowIconSelf() {
-    return '<img class="flow-hub-card__icon-img" src="assets/flow/self.svg" alt="" width="40" height="40" draggable="false" />';
-  }
-  function flowIconMall() {
-    return '<img class="flow-hub-card__icon-img" src="assets/flow/mall.svg" alt="" width="40" height="40" draggable="false" />';
-  }
   function flowIconChevron() {
     /* Lucide chevron-right · 辅助 16 */
     return `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
@@ -7105,7 +6939,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       const pad = n => String(n).padStart(2, '0');
       return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}${m[4] || ''}`;
     };
-    [FLOW_ORDERS, FLOW_SELF_ORDERS].forEach((list) => {
+    [FLOW_ORDERS].forEach((list) => {
       (list || []).forEach((row) => {
         if (row.time) row.time = shiftDotTime(row.time);
         if (row.lastEditedAt) row.lastEditedAt = shiftDotTime(row.lastEditedAt);
@@ -7351,6 +7185,105 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     else if (tab === 'refund') list = list.filter(o => o.status === 'refund');
     else list = list.filter(flowIsActiveOrder);
     return flowApplySheetFilter(list);
+  }
+
+
+  function flowOrderRefunds(o) {
+    return (o && Array.isArray(o.refunds)) ? o.refunds : [];
+  }
+
+  function flowItemRefundedAmount(o, itemIndex) {
+    let sum = 0;
+    flowOrderRefunds(o).forEach((r) => {
+      (r.items || []).forEach((it) => {
+        if (it.itemIndex === itemIndex) sum += Number(it.refundAmount) || 0;
+      });
+    });
+    return round2(sum);
+  }
+
+  function flowItemRemainingRefundable(o, itemIndex) {
+    const it = o.items[itemIndex];
+    if (!it) return 0;
+    const price = round2(Number(it.price || 0) * (Number(it.qty) || 1));
+    return round2(Math.max(0, price - flowItemRefundedAmount(o, itemIndex)));
+  }
+
+  function flowRefundableItemIndices(o) {
+    if (!o || !Array.isArray(o.items)) return [];
+    return o.items.map((_, i) => i).filter((i) => flowItemRemainingRefundable(o, i) >= 0.01);
+  }
+
+  function flowOrderTotalRefunded(o) {
+    return round2(flowOrderRefunds(o).reduce((s, r) => s + (Number(r.totalRefund) || 0), 0));
+  }
+
+  function flowOrderLinesTotal(o) {
+    return flowItemsListTotal(o && o.items);
+  }
+
+  function flowItemPaidShare(o, itemIndex) {
+    const total = flowOrderLinesTotal(o);
+    const it = o.items[itemIndex];
+    if (!it || total <= 0) return 0;
+    const line = round2(Number(it.price || 0) * (Number(it.qty) || 1));
+    const paid = flowOrderPaidAmount(o);
+    return round2(paid * (line / total));
+  }
+
+  function nextRefundNo() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const prefix = `${y}${m}${day}`;
+    let maxSeq = 0;
+    FLOW_ORDERS.forEach((o) => {
+      flowOrderRefunds(o).forEach((r) => {
+        const no = String(r.refundNo || '');
+        if (no.startsWith(prefix) && no.length >= 12) {
+          const seq = parseInt(no.slice(8), 10);
+          if (seq > maxSeq) maxSeq = seq;
+        }
+      });
+    });
+    return prefix + String(maxSeq + 1).padStart(4, '0');
+  }
+
+  function flowPositivePayments(o) {
+    return flowPaymentsOf(o).filter((p) => (Number(p.amount) || 0) > 0);
+  }
+
+  function flowSplitRefundByOriginalChannels(o, refundTotal) {
+    const pays = flowPositivePayments(o);
+    const sumPaid = round2(pays.reduce((s, p) => s + (Number(p.amount) || 0), 0));
+    const target = round2(refundTotal);
+    if (sumPaid <= 0 || target <= 0) return [{ method: o.payMethod || '其他', amount: target }];
+    const rows = [];
+    let allocated = 0;
+    pays.forEach((p, idx) => {
+      let amt;
+      if (idx === pays.length - 1) amt = round2(target - allocated);
+      else {
+        amt = round2(target * ((Number(p.amount) || 0) / sumPaid));
+        allocated = round2(allocated + amt);
+      }
+      if (amt > 0) rows.push({ method: p.method, amount: amt });
+    });
+    return rows;
+  }
+
+  function flowRefundModeLabel(mode) {
+    return mode === 'designated' ? '指定退回' : '原路退回';
+  }
+
+  function flowFormatRefundChannels(refund) {
+    if (!refund || !Array.isArray(refund.channels)) return '—';
+    if (refund.mode === 'original') {
+      return refund.channels.map((c) => `${c.method} ¥${Number(c.amount).toFixed(2)}`).join(' · ');
+    }
+    const c = refund.channels[0];
+    return c ? c.method : '—';
   }
 
   function nextFlowNo() {
@@ -7660,71 +7593,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return order;
   }
 
-  function flowHubFormatYen(n) {
-    const v = Math.round(Number(n) || 0);
-    const abs = Math.abs(v).toLocaleString('zh-CN');
-    return `${v < 0 ? '-' : ''}${abs}`;
-  }
-
-  function getFlowHubDemoStats() {
-    /* 演示数据 · 结余 = 营业额 - 会员卡消费 + 开卡/充卡 - 支出 + 还款 - 欠款
-       开卡/充卡 = 开卡+充值+续次+延期实付合计（演示常数）；支出与 ExpenseStore 对齐 */
-    const revenue = 12860;
-    const memberSpend = 8420;
-    const recharge = 3560;
-    const expense = (typeof window.ExpenseStore !== 'undefined' && Array.isArray(window.ExpenseStore.records))
-      ? window.ExpenseStore.records.reduce((s, r) => s + (Number(r.amount) || 0), 0)
-      : 2000;
-    const repay = 0;
-    const debt = 1280;
-    const balance = revenue - memberSpend + recharge - expense + repay - debt;
-    const incomeSide = revenue + recharge + repay;
-    const expenseSide = memberSpend + expense + debt;
-    return { revenue, memberSpend, recharge, expense, repay, debt, balance, incomeSide, expenseSide };
-  }
-
-  function renderFlowHub() {
-    const storeCount = FLOW_ORDERS.filter(flowIsActiveOrder).length;
-    const selfCount = FLOW_SELF_ORDERS.length;
-    const stats = getFlowHubDemoStats();
-    const selfAmt = FLOW_SELF_ORDERS.reduce((s, o) => s + (Number(o.amount) || 0), 0);
-    const body = document.getElementById('flowHubBody');
-    if (!body) return;
-    body.innerHTML = `
-      <div class="flow-hub-dash">
-        <div class="flow-hub-entries flow-hub-entries--stack">
-          <button type="button" class="flow-hub-card flow-hub-card--lg" data-flow-hub="store" aria-label="进入门店流水">
-            <span class="flow-hub-card__icon" aria-hidden="true">${flowIconStore()}</span>
-            <span class="flow-hub-card__body">
-              <span class="flow-hub-card__title-row">
-                <span class="flow-hub-card__title">门店流水</span>
-                <span class="flow-hub-card__chev" aria-hidden="true">${flowIconChevron()}</span>
-              </span>
-              <span class="flow-hub-card__metric">
-                <span class="flow-hub-card__val">${storeCount}</span>
-                <span class="flow-hub-card__unit">笔</span>
-              </span>
-              <span class="flow-hub-card__sub">营业额 <span class="flow-hub-card__sub-amt">${flowHubFormatYen(stats.revenue)}</span></span>
-            </span>
-          </button>
-          <button type="button" class="flow-hub-card flow-hub-card--lg" data-flow-hub="self" aria-label="进入自助收银">
-            <span class="flow-hub-card__icon flow-hub-card__icon--soft" aria-hidden="true">${flowIconSelf()}</span>
-            <span class="flow-hub-card__body">
-              <span class="flow-hub-card__title-row">
-                <span class="flow-hub-card__title">自助收银</span>
-                <span class="flow-hub-card__chev" aria-hidden="true">${flowIconChevron()}</span>
-              </span>
-              <span class="flow-hub-card__metric">
-                <span class="flow-hub-card__val">${selfCount}</span>
-                <span class="flow-hub-card__unit">笔</span>
-              </span>
-              <span class="flow-hub-card__sub">收款 <span class="flow-hub-card__sub-amt">${flowHubFormatYen(selfAmt)}</span></span>
-            </span>
-          </button>
-        </div>
-      </div>`;
-  }
-
   function renderFlowList() {
     const tabs = [
       { id: 'all', label: '全部' },
@@ -7922,6 +7790,12 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
           <button type="button" class="flow-detail-edit__btn" data-flow-edit>修改</button>
         </div>
       </div>` : ''}
+      ${flowOrderRefunds(o).length ? `<div class="flow-detail-card">
+        <button type="button" class="flow-detail-edit__link flow-detail-refund-log-entry" data-flow-refund-log>
+          退款记录 · ${flowOrderRefunds(o).length} 笔 · 已退 ¥${flowOrderTotalRefunded(o).toFixed(2)}
+          <span class="flow-detail-edit__link-ico" aria-hidden="true">${flowIconChevron()}</span>
+        </button>
+      </div>` : ''}
       <div class="flow-detail-card">
         <div class="flow-detail-card__title">支付信息</div>
         ${payRowsHtml}
@@ -7958,11 +7832,8 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   }
 
   function openFlowHub() {
-    state.flowFromSuccess = false;
-    renderFlowHub();
-    showOnlyScreen('screen-flow-hub');
+    openFlowList();
   }
-
 
   function openFlowList() {
     state.flowFromSuccess = false;
@@ -7971,176 +7842,15 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     showOnlyScreen('screen-flow-list');
   }
 
-  function openFlowSelf() {
-    state.flowSelfDd = null;
-    renderFlowSelf();
-    showOnlyScreen('screen-flow-self');
-  }
-
-  const FLOW_SELF_DATE_OPTS = [
-    { id: 'all', label: '全部时间' },
-    { id: 'today', label: '今日' },
-    { id: 'yesterday', label: '昨天' },
-    { id: '7d', label: '近7天' },
-    { id: '30d', label: '近30天' },
-    { id: 'custom', label: '自定义时间' },
-  ];
-  const FLOW_SELF_STATUS_OPTS = [
-    { id: 'all', label: '全部状态' },
-    { id: 'success', label: '收款成功' },
-    { id: 'refunding', label: '退款中' },
-    { id: 'refunded', label: '退款成功' },
-    { id: 'refund_failed', label: '退款失败' },
-  ];
-
-  function flowSelfDateLabel(id) {
-    if (id === 'custom') {
-      if (state.flowSelfCustomStart && state.flowSelfCustomEnd) {
-        return flowFmtShortRange(state.flowSelfCustomStart, state.flowSelfCustomEnd);
-      }
-      return '自定义时间';
-    }
-    return (FLOW_SELF_DATE_OPTS.find(o => o.id === id) || {}).label || '今日';
-  }
-  function flowSelfStatusFilterLabel(id) {
-    return (FLOW_SELF_STATUS_OPTS.find(o => o.id === id) || {}).label || '全部状态';
-  }
-  function flowSelfStatusMatch(o, statusId) {
-    if (!statusId || statusId === 'all') return true;
-    if (statusId === 'success') return o.status === 'success' || o.status === 'paid';
-    return o.status === statusId;
-  }
-  function flowSelfStatusClass(status) {
-    if (status === 'refunding' || status === 'pending') return ' is-pending';
-    if (status === 'refunded') return ' is-refund';
-    if (status === 'refund_failed') return ' is-void';
-    return '';
-  }
-
-  function closeFlowSelfDd() {
-    state.flowSelfDd = null;
-    const mask = document.getElementById('flowSelfDdMask');
-    const dd = document.getElementById('flowSelfDd');
-    if (mask) mask.classList.add('hidden');
-    if (dd) {
-      dd.classList.add('hidden');
-      dd.innerHTML = '';
-    }
-    syncFlowSelfFilterChrome();
-  }
-
-  function syncFlowSelfFilterChrome() {
-    const openKind = state.flowSelfDd;
-    const dateBtn = document.getElementById('flowSelfDate');
-    const statusBtn = document.getElementById('flowSelfStatus');
-    const dateSpan = dateBtn && dateBtn.querySelector('span');
-    const statusSpan = statusBtn && statusBtn.querySelector('span');
-    if (dateSpan) dateSpan.textContent = flowSelfDateLabel(state.flowSelfDate || 'today');
-    if (statusSpan) statusSpan.textContent = flowSelfStatusFilterLabel(state.flowSelfStatus || 'all');
-    const setBtn = (btn, kind) => {
-      if (!btn) return;
-      const on = openKind === kind;
-      btn.classList.toggle('is-open', on);
-      btn.setAttribute('aria-expanded', on ? 'true' : 'false');
-      const svg = btn.querySelector('svg');
-      if (svg) svg.outerHTML = on ? flowIconChevronUp() : flowIconChevronDown();
-    };
-    setBtn(dateBtn, 'date');
-    setBtn(statusBtn, 'status');
-  }
-
-  function openFlowSelfDd(kind) {
-    if (state.flowSelfDd === kind) {
-      closeFlowSelfDd();
-      return;
-    }
-    state.flowSelfDd = kind;
-    const mask = document.getElementById('flowSelfDdMask');
-    const dd = document.getElementById('flowSelfDd');
-    if (!dd) return;
-    const isDate = kind === 'date';
-    const opts = isDate ? FLOW_SELF_DATE_OPTS : FLOW_SELF_STATUS_OPTS;
-    const cur = isDate ? (state.flowSelfDate || 'today') : (state.flowSelfStatus || 'all');
-    const hint = isDate ? '选择时间' : '请选择交易状态';
-    dd.innerHTML = `<div class="flow-self-dd__hint">${hint}</div>` + opts.map(o =>
-      `<button type="button" class="flow-self-dd__opt${cur === o.id ? ' is-on' : ''}" role="option" aria-selected="${cur === o.id ? 'true' : 'false'}" data-flow-self-opt="${escapeHtml(o.id)}">${escapeHtml(o.label)}</button>`
-    ).join('');
-    dd.classList.remove('hidden');
-    if (mask) mask.classList.remove('hidden');
-    syncFlowSelfFilterChrome();
-  }
-
-  function applyFlowSelfDdOpt(optId) {
-    const kind = state.flowSelfDd;
-    if (!kind || !optId) return;
-    if (kind === 'date') {
-      if (optId === 'custom') {
-        closeFlowSelfDd();
-        openFlowRangeSheet('self');
-        return;
-      }
-      state.flowSelfDate = optId;
-    } else {
-      state.flowSelfStatus = optId;
-    }
-    closeFlowSelfDd();
-    renderFlowSelf();
-  }
-
-  function renderFlowSelf() {
-    const body = document.getElementById('flowSelfBody');
-    if (!body) return;
-    let list = FLOW_SELF_ORDERS.slice();
-    const dateMode = state.flowSelfDate || 'today';
-    list = list.filter(o => flowMatchDateFilter(o, dateMode, state.flowSelfCustomStart, state.flowSelfCustomEnd));
-    list = list.filter(o => flowSelfStatusMatch(o, state.flowSelfStatus || 'all'));
-    syncFlowSelfFilterChrome();
-    if (!list.length) {
-      body.innerHTML = flowEmptyHtml('暂无数据', '调整筛选条件或等待顾客下单');
-      return;
-    }
-    body.innerHTML = list.map(o => {
-      const item = o.items[0] || { name: '—', price: o.amount };
-      const tag = flowTypeTag(o.kind);
-      const statusCls = flowSelfStatusClass(o.status);
-      const amt = Number(o.amount);
-      return `<button type="button" class="flow-order-card" data-flow-self-id="${escapeHtml(o.id)}">
-        <div class="flow-order-card__head">
-          <div class="flow-order-card__user">
-            ${flowAvatarHtml(o)}
-            <span class="flow-order-card__name">${escapeHtml(o.customerName)}</span>
-          </div>
-          <span class="flow-order-card__head-trail">
-            <span class="flow-order-card__status${statusCls}">${escapeHtml(flowSelfStatusLabel(o.status))}</span>
-            <span class="ui-nav-chev" aria-hidden="true">${flowIconChevron()}</span>
-          </span>
-        </div>
-        <div class="flow-order-card__item">
-          <span class="flow-type-tag ${tag.cls}">${tag.text}</span>
-          <div class="flow-order-card__item-main">
-            <div class="flow-order-card__item-name">${escapeHtml(item.name)}</div>
-            <span class="flow-order-card__staff">${escapeHtml(o.channel || '顾客自助')}</span>
-          </div>
-          <div class="flow-order-card__price"><span class="yen">¥</span>${Number(item.price).toFixed(2)}</div>
-        </div>
-        <div class="flow-order-card__pay">
-          <span>${escapeHtml(o.payMethod)}</span>
-          <span class="flow-order-card__pay-amt">-¥${amt.toFixed(2)}</span>
-        </div>
-        <div class="flow-order-card__total">实付总额<span class="num"><span class="yen">¥</span>${amt.toFixed(2)}</span></div>
-        <div class="flow-order-card__foot">
-          <span>下单时间</span>
-          <span>${escapeHtml(o.time)}</span>
-        </div>
-      </button>`;
-    }).join('');
-  }
-
   function openFlowDetail(id, opts) {
-    const order = FLOW_ORDERS.find(x => x.id === id) || FLOW_ORDERS[0];
+    let order = id ? FLOW_ORDERS.find(x => x.id === id) : null;
+    if (!order && opts && opts.fromSuccess && state.lastFlowOrderId) {
+      order = FLOW_ORDERS.find(x => x.id === state.lastFlowOrderId) || null;
+    }
+    if (!order) order = FLOW_ORDERS[0];
     if (!order) {
       showToast('暂无流水');
-      openFlowHub();
+      openFlowList();
       return;
     }
     state.flowDetailId = order.id;
@@ -8237,24 +7947,35 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const body = document.getElementById('flowRefundBody');
     const foot = document.getElementById('flowRefundFoot');
     if (!o || !body) return;
-    if (!Array.isArray(state.flowRefundSelected)) state.flowRefundSelected = o.items.map((_, i) => i);
+    const refundable = flowRefundableItemIndices(o);
+    if (!refundable.length) {
+      body.innerHTML = flowEmptyHtml('无可退项目', '该订单已全部退款');
+      if (foot) foot.innerHTML = '';
+      return;
+    }
+    if (!Array.isArray(state.flowRefundSelected)) state.flowRefundSelected = refundable.slice();
+    state.flowRefundSelected = state.flowRefundSelected.filter((i) => refundable.includes(i));
     const selected = new Set(state.flowRefundSelected);
-    const allOn = o.items.length > 0 && o.items.every((_, i) => selected.has(i));
+    const allOn = refundable.length > 0 && refundable.every((i) => selected.has(i));
     body.innerHTML = `
       <div class="flow-refund-toolbar">
-        <span>已选 ${selected.size}/${o.items.length} 项</span>
+        <span>已选 ${selected.size}/${refundable.length} 项</span>
         <button type="button" data-flow-refund-all>${allOn ? '取消全选' : '全选'}</button>
       </div>
-      ${o.items.map((it, i) => `
-        <button type="button" class="flow-refund-item${selected.has(i) ? ' is-on' : ''}" data-flow-refund-idx="${i}">
+      ${o.items.map((it, i) => {
+        const remain = flowItemRemainingRefundable(o, i);
+        if (remain < 0.01) return '';
+        const refunded = flowItemRefundedAmount(o, i);
+        return `<button type="button" class="flow-refund-item${selected.has(i) ? ' is-on' : ''}" data-flow-refund-idx="${i}">
           <span class="flow-refund-item__check" aria-hidden="true">${selected.has(i) ? '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>' : ''}</span>
           <div class="flow-refund-item__main">
             <div class="flow-refund-item__name">${escapeHtml(it.name)}</div>
-            <div class="flow-refund-item__meta">×${it.qty || 1}</div>
+            <div class="flow-refund-item__meta">×${it.qty || 1}${refunded > 0 ? ` · 已退 ¥${refunded.toFixed(2)}` : ''}</div>
           </div>
-          <div class="flow-refund-item__price"><span class="yen">¥</span>${Number(it.price || 0).toFixed(2)}</div>
-        </button>`).join('')}`;
-    const sum = o.items.reduce((s, it, i) => selected.has(i) ? s + Number(it.price || 0) : s, 0);
+          <div class="flow-refund-item__price"><span class="yen">¥</span>${remain.toFixed(2)}</div>
+        </button>`;
+      }).join('')}`;
+    const sum = o.items.reduce((s, it, i) => selected.has(i) ? s + flowItemRemainingRefundable(o, i) : s, 0);
     if (foot) {
       foot.innerHTML = `
         <div class="flow-screen-foot__main">
@@ -8274,8 +7995,14 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       showToast('当前订单不可退款', true);
       return;
     }
+    if (!flowRefundableItemIndices(o).length) {
+      showToast('无可退项目', true);
+      return;
+    }
     closeMask('flowMoreMask');
-    state.flowRefundSelected = o.items.map((_, i) => i);
+    state.flowRefundSelected = flowRefundableItemIndices(o);
+    state.flowRefundMode = 'original';
+    state.flowRefundDesignatedChannel = '支付宝';
     renderFlowRefund();
     showOnlyScreen('screen-flow-refund');
   }
@@ -8286,10 +8013,207 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       showToast('请选择退款项', true);
       return;
     }
-    o.status = 'refund';
-    state.flowTab = 'refund';
-    showToast('退款已提交');
+    const indices = state.flowRefundSelected.slice();
+    const amounts = {};
+    indices.forEach((idx) => {
+      amounts[idx] = flowItemRemainingRefundable(o, idx);
+    });
+    state.flowRefundPending = { indices, amounts, remark: '' };
+    const allRemain = flowRefundableItemIndices(o);
+    const isFull = allRemain.length === indices.length && allRemain.every((i) => indices.includes(i));
+    state.flowRefundMode = isFull ? 'original' : 'designated';
+    openFlowRefundMethodSheet();
+  }
+
+  function renderFlowRefundMethodSheet() {
+    const pending = state.flowRefundPending;
+    const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
+    const body = document.getElementById('flowRefundMethodBody');
+    if (!pending || !o || !body) return;
+    const mode = state.flowRefundMode || 'original';
+    const seg = document.getElementById('flowRefundSeg');
+    if (seg) {
+      seg.querySelectorAll('[data-flow-refund-mode]').forEach((btn) => {
+        btn.classList.toggle('is-on', btn.dataset.flowRefundMode === mode);
+      });
+    }
+    const sel = pending.indices || [];
+    if (!pending.amounts) pending.amounts = {};
+    const lines = sel.map((idx) => {
+      const it = o.items[idx];
+      const listPrice = round2(Number(it.price || 0) * (Number(it.qty) || 1));
+      const paidShare = flowItemPaidShare(o, idx);
+      const remain = flowItemRemainingRefundable(o, idx);
+      const defAmt = mode === 'original' ? Math.min(paidShare, remain) : remain;
+      const amt = pending.amounts[idx] != null ? pending.amounts[idx] : defAmt;
+      pending.amounts[idx] = amt;
+      const zeroBlock = paidShare < 0.01 || listPrice < 0.01;
+      const editable = mode === 'designated' && !zeroBlock;
+      return { idx, it, listPrice, paidShare, amt, editable, zeroBlock };
+    });
+    const total = round2(lines.reduce((s, ln) => s + (Number(ln.amt) || 0), 0));
+    pending.total = total;
+    const channels = mode === 'original' ? flowSplitRefundByOriginalChannels(o, total) : [];
+    let html = '<div class="flow-refund-method-items">';
+    lines.forEach((ln) => {
+      html += `<div class="flow-refund-method-item">
+        <div class="flow-refund-method-item__name">${escapeHtml(ln.it.name)} · ×${ln.it.qty || 1}</div>
+        <div class="flow-refund-method-item__meta">原价 ¥${ln.listPrice.toFixed(2)} · 实付分摊 ¥${ln.paidShare.toFixed(2)}</div>
+        ${ln.editable
+          ? `<label class="flow-refund-method-amt">退款 <input type="text" inputmode="decimal" data-flow-refund-amt="${ln.idx}" value="${Number(ln.amt).toFixed(2)}" /></label>`
+          : `<div class="flow-refund-method-amt is-readonly">退款 ¥${Number(ln.amt).toFixed(2)}${ln.zeroBlock && mode === 'designated' ? ' <span class="flow-refund-zero-tag">不可指定</span>' : ''}</div>`}
+      </div>`;
+    });
+    html += '</div>';
+    if (mode === 'original') {
+      html += '<div class="flow-refund-method-channels"><div class="flow-refund-method-channels__title">退回渠道（按原支付比例）</div>';
+      channels.forEach((c) => {
+        const isCard = /会员/.test(c.method) || c.method === '会员卡';
+        const label = isCard ? `${c.method}（退回卡账户）` : (/现金|微信|支付宝|银行|信用/.test(c.method) ? `${c.method}（记账退回）` : c.method);
+        html += `<div class="flow-refund-method-channel-row"><span>${escapeHtml(label)}</span><span class="num">¥${Number(c.amount).toFixed(2)}</span></div>`;
+      });
+      html += '</div>';
+    } else {
+      const designatedOpts = ['支付宝', '微信', '现金', '银行卡', '信用卡'];
+      const cur = state.flowRefundDesignatedChannel || designatedOpts[0];
+      html += '<div class="flow-refund-designated-ch"><div class="flow-refund-method-channels__title">退款方式（记账）</div><div class="flow-refund-radio-row">';
+      designatedOpts.forEach((ch) => {
+        html += `<label class="flow-refund-radio"><input type="radio" name="flowRefundDesignatedCh" value="${escapeHtml(ch)}"${cur === ch ? ' checked' : ''} /><span>${escapeHtml(ch)}</span></label>`;
+      });
+      html += '</div></div>';
+    }
+    html += `<label class="flow-refund-remark">备注<textarea id="flowRefundRemarkInput" rows="3" maxlength="200" placeholder="选填">${escapeHtml(pending.remark || '')}</textarea></label>`;
+    html += `<div class="flow-refund-method-total">合计退款 <strong>¥${total.toFixed(2)}</strong></div>`;
+    body.innerHTML = html;
+  }
+
+  function openFlowRefundMethodSheet() {
+    renderFlowRefundMethodSheet();
+    openMask('flowRefundMethodMask');
+  }
+
+  function closeFlowRefundMethodSheet() {
+    closeMask('flowRefundMethodMask');
+  }
+
+  function confirmFlowRefundSubmit() {
+    const pending = state.flowRefundPending;
+    const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
+    if (!pending || !o) return;
+    const mode = state.flowRefundMode || 'original';
+    const remarkEl = document.getElementById('flowRefundRemarkInput');
+    const remark = remarkEl ? String(remarkEl.value || '').slice(0, 200) : (pending.remark || '');
+    const indices = pending.indices || [];
+    const items = [];
+    for (let i = 0; i < indices.length; i++) {
+      const idx = indices[i];
+      const it = o.items[idx];
+      const listPrice = round2(Number(it.price || 0) * (Number(it.qty) || 1));
+      const paidShare = flowItemPaidShare(o, idx);
+      const remain = flowItemRemainingRefundable(o, idx);
+      let refundAmount = pending.amounts && pending.amounts[idx] != null
+        ? round2(pending.amounts[idx])
+        : (mode === 'original' ? Math.min(paidShare, remain) : remain);
+      if (mode === 'designated') {
+        if (paidShare < 0.01 || listPrice < 0.01) {
+          showToast('0 元项目不可指定退款', true);
+          return;
+        }
+        if (refundAmount <= 0 || refundAmount > remain + 0.01) {
+          showToast('退款金额无效', true);
+          return;
+        }
+      }
+      items.push({ itemIndex: idx, name: it.name, qty: it.qty || 1, listPrice, paidShare, refundAmount });
+    }
+    const totalRefund = round2(items.reduce((s, it) => s + it.refundAmount, 0));
+    if (totalRefund < 0.01) {
+      showToast('退款金额需大于 0', true);
+      return;
+    }
+    let channels;
+    if (mode === 'original') {
+      channels = flowSplitRefundByOriginalChannels(o, totalRefund);
+    } else {
+      channels = [{ method: state.flowRefundDesignatedChannel || '支付宝', amount: totalRefund }];
+    }
+    if (!Array.isArray(o.refunds)) o.refunds = [];
+    o.refunds.push({
+      docType: 'refund',
+      refundNo: nextRefundNo(),
+      time: formatFlowTimeOnBizDate(),
+      operator: o.cashier || o.staff || '—',
+      mode,
+      remark,
+      totalRefund,
+      items,
+      channels,
+    });
+    const left = flowRefundableItemIndices(o);
+    if (!left.length) {
+      o.status = 'refund';
+      state.flowTab = 'refund';
+    }
+    closeFlowRefundMethodSheet();
+    state.flowRefundPending = null;
+    showToast(left.length ? `已退 ¥${totalRefund.toFixed(2)}` : '退款已完成');
     openFlowDetail(o.id, { fromSuccess: false });
+  }
+
+  function openFlowRefundLog() {
+    renderFlowRefundLog();
+    showOnlyScreen('screen-flow-refund-log');
+  }
+
+  function renderFlowRefundLog() {
+    const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
+    const body = document.getElementById('flowRefundLogBody');
+    if (!o || !body) return;
+    const list = flowOrderRefunds(o);
+    if (!list.length) {
+      body.innerHTML = flowEmptyHtml('暂无退款记录', '退款成功后会出现在这里');
+      return;
+    }
+    body.innerHTML = list.map((r, i) => {
+      const itemTxt = (r.items || []).map((it) => `${escapeHtml(it.name)}·×${it.qty || 1}`).join('、');
+      return `<button type="button" class="flow-refund-log-card" data-flow-refund-log-idx="${i}">
+        <div class="flow-refund-log-card__top"><span class="flow-refund-log-card__no">${escapeHtml(r.refundNo)}</span><span class="flow-refund-log-card__amt">¥${Number(r.totalRefund).toFixed(2)}</span></div>
+        <div class="flow-refund-log-card__meta">${itemTxt || '—'} · ${escapeHtml(flowRefundModeLabel(r.mode))}</div>
+        <div class="flow-refund-log-card__time">${escapeHtml(r.time)}</div>
+      </button>`;
+    }).join('');
+  }
+
+  function openFlowRefundLogDetail(idx) {
+    state.flowRefundLogIdx = Number(idx) || 0;
+    renderFlowRefundLogDetail();
+    showOnlyScreen('screen-flow-refund-log-detail');
+  }
+
+  function renderFlowRefundLogDetail() {
+    const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
+    const body = document.getElementById('flowRefundLogDetailBody');
+    if (!o || !body) return;
+    const r = flowOrderRefunds(o)[state.flowRefundLogIdx];
+    if (!r) {
+      body.innerHTML = flowEmptyHtml('记录不存在');
+      return;
+    }
+    const itemRows = (r.items || []).map((it) => `
+      <div class="flow-detail-meta__row"><span>${escapeHtml(it.name)}·×${it.qty || 1}</span><span class="flow-detail-meta__val">退 ¥${Number(it.refundAmount).toFixed(2)}</span></div>
+      <div class="flow-detail-meta__row is-sub"><span>原价 / 实付分摊</span><span class="flow-detail-meta__val">¥${Number(it.listPrice).toFixed(2)} / ¥${Number(it.paidShare).toFixed(2)}</span></div>`).join('');
+    body.innerHTML = `
+      <div class="flow-detail-card">
+        <div class="flow-detail-meta">
+          <div class="flow-detail-meta__row"><span>退款单号</span><span class="flow-detail-meta__val flow-detail-meta__val--num">${escapeHtml(r.refundNo)}</span></div>
+          <div class="flow-detail-meta__row"><span>退款时间</span><span class="flow-detail-meta__val">${escapeHtml(r.time)}</span></div>
+          <div class="flow-detail-meta__row"><span>操作员工</span><span class="flow-detail-meta__val">${escapeHtml(r.operator || '—')}</span></div>
+          <div class="flow-detail-meta__row"><span>退回方式</span><span class="flow-detail-meta__val">${escapeHtml(flowRefundModeLabel(r.mode))} · ${escapeHtml(flowFormatRefundChannels(r))}</span></div>
+          <div class="flow-detail-meta__row"><span>退款金额</span><span class="flow-detail-meta__val flow-detail-meta__val--num">¥${Number(r.totalRefund).toFixed(2)}</span></div>
+          ${r.remark ? `<div class="flow-detail-meta__row"><span>备注</span><span class="flow-detail-meta__val">${escapeHtml(r.remark)}</span></div>` : ''}
+        </div>
+      </div>
+      <div class="flow-detail-card"><div class="flow-detail-card__title">退款项</div>${itemRows}</div>`;
   }
 
   /** 草稿条目类型归一（project / product / card / quick），标签与文案共用 */
@@ -9218,10 +9142,11 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (o) openFlowDetail(o.id, { fromSuccess: false });
     const gap = pending ? pending.gap : flowOrderGap(o);
     if (Math.abs(gap) < 0.01) return;
-    openFlowDiffPay(gap > 0 ? 'collect' : 'refund');
+    openFlowGapPaySheet(gap > 0 ? 'collect' : 'refund');
   }
 
-  function openFlowDiffPay(mode) {
+
+  function openFlowGapPaySheet(mode) {
     const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
     if (!o || o.status !== 'done') {
       showToast('当前订单不可调整差额', true);
@@ -9241,52 +9166,55 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       showToast('当前为少收，请使用补收差价', true);
       return;
     }
-    state.flowDiffPay = { mode, amount: abs, channel: '现金' };
-    const title = document.getElementById('flowDiffPayTitle');
-    const body = document.getElementById('flowDiffPayBody');
-    if (title) title.textContent = mode === 'collect' ? '补收差价' : '退还差价';
-    if (body) {
-      const channels = ['现金', '微信', '支付宝'];
-      body.innerHTML = `
-        <div>差额金额 <strong style="font-family:var(--font-data)">¥${abs.toFixed(2)}</strong></div>
-        <div style="margin-top:8px;font-size:13px;color:var(--text-sec)">${mode === 'collect' ? '补收后计入实付' : '退差后冲减实付'}；优惠仍沿用原单。</div>
-        <div class="flow-diff-channels" role="group" aria-label="支付方式">
-          ${channels.map(ch => `<button type="button" class="flow-diff-channel${ch === '现金' ? ' is-on' : ''}" data-flow-diff-ch="${escapeHtml(ch)}">${escapeHtml(ch)}</button>`).join('')}
-        </div>`;
-    }
+    state.flowGapPayMode = mode;
     closeMask('flowMoreMask');
-    document.getElementById('flowDiffPayMask')?.classList.add('open');
+    const isMember = !!(o.customerId && CUSTOMERS.find(c => c.id === o.customerId && c.isMember));
+    if (typeof window.openPayConfirmSheet === 'function') {
+      window.openPayConfirmSheet('flowGap', { amount: abs, mode, isMember });
+      return;
+    }
+    showToast('支付面板未就绪', true);
   }
 
-  function closeFlowDiffPay() {
-    document.getElementById('flowDiffPayMask')?.classList.remove('open');
-    state.flowDiffPay = null;
-  }
-
-  function confirmFlowDiffPay() {
+  function applyFlowGapPayments(payments) {
     const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
-    const diff = state.flowDiffPay;
-    if (!o || !diff) return;
-    const amt = round2(Number(diff.amount) || 0);
-    if (amt <= 0) return;
+    const mode = state.flowGapPayMode;
+    if (!o || !mode) return;
+    const list = Array.isArray(payments) ? payments : [];
+    const sum = round2(list.reduce((s, p) => s + (Number(p.amount) || 0), 0));
+    const gap = Math.abs(flowOrderGap(o));
+    if (sum < gap - 0.01) {
+      showToast('支付金额不足', true);
+      return;
+    }
     if (!Array.isArray(o.payments)) o.payments = [];
-    if (diff.mode === 'collect') {
-      o.payments.push({ method: diff.channel || '现金', amount: amt });
-      o.paidAmount = round2(flowOrderPaidAmount(o) + amt);
+    if (mode === 'collect') {
+      list.forEach((p) => {
+        if ((Number(p.amount) || 0) <= 0) return;
+        o.payments.push({ method: p.method || '其他', amount: round2(p.amount) });
+      });
+      o.paidAmount = round2(flowOrderPaidAmount(o) + sum);
       o.amount = o.paidAmount;
-      o.payMethod = diff.channel || o.payMethod;
-      appendFlowEditLog(o, `补收差价 ¥${amt.toFixed(2)}（${diff.channel || '现金'}）`);
+      if (list[0] && list[0].method) o.payMethod = list[0].method;
+      appendFlowEditLog(o, `补收差价 ¥${gap.toFixed(2)}`);
       showToast('补收成功');
     } else {
-      o.payments.push({ method: `${diff.channel || '现金'}·退差`, amount: -amt });
-      o.paidAmount = round2(Math.max(0, flowOrderPaidAmount(o) - amt));
+      list.forEach((p) => {
+        if ((Number(p.amount) || 0) <= 0) return;
+        o.payments.push({ method: `${p.method || '其他'}·退差`, amount: -round2(p.amount) });
+      });
+      o.paidAmount = round2(Math.max(0, flowOrderPaidAmount(o) - sum));
       o.amount = o.paidAmount;
-      appendFlowEditLog(o, `退还差价 ¥${amt.toFixed(2)}（${diff.channel || '现金'}）`);
+      appendFlowEditLog(o, `退还差价 ¥${gap.toFixed(2)}`);
       showToast('退差成功');
     }
-    closeFlowDiffPay();
+    state.flowGapPayMode = null;
     openFlowDetail(o.id, { fromSuccess: false });
   }
+
+  window.__onFlowGapPayConfirm = function (payments) {
+    applyFlowGapPayments(payments);
+  };
 
   function openFlowRemarkEditor() {
     const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
@@ -9317,62 +9245,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     renderFlowDetail();
   }
 
-
-  function renderFlowSelfDetail() {
-    const o = FLOW_SELF_ORDERS.find(x => x.id === state.flowSelfDetailId) || FLOW_SELF_ORDERS[0];
-    const body = document.getElementById('flowSelfDetailBody');
-    if (!o || !body) return;
-    const item = o.items[0] || { name: '—', price: o.amount };
-    const tag = flowTypeTag(o.kind);
-    const amt = Number(o.amount);
-    body.innerHTML = `
-      <div class="flow-detail-card">
-        <div class="flow-detail-user">
-          <div class="flow-detail-user__left">
-            ${flowAvatarHtml(o)}
-            <strong>${escapeHtml(o.customerName)}</strong>
-          </div>
-          <span class="flow-order-card__status${flowSelfStatusClass(o.status)}">${escapeHtml(flowSelfStatusLabel(o.status))}</span>
-        </div>
-        <div class="flow-detail-meta" style="margin-top:12px;padding-top:12px;border-top:0.5px solid #EDEDED">
-          <div class="flow-detail-meta__row"><span>下单时间</span><span class="flow-detail-meta__val">${escapeHtml(o.time)}</span></div>
-          <div class="flow-detail-meta__row"><span>渠道</span><span class="flow-detail-meta__val">${escapeHtml(o.channel || '顾客自助')}</span></div>
-        </div>
-      </div>
-      <div class="flow-detail-card">
-        <div class="flow-detail-card__title">消费内容</div>
-        <div class="flow-detail-item-row">
-          <span class="flow-type-tag ${tag.cls}">${tag.text}</span>
-          <div>
-            <div class="flow-detail-item-name">${escapeHtml(item.name)}</div>
-            <div class="flow-detail-item-price"><span class="yen">¥</span>${Number(item.price).toFixed(2)}</div>
-          </div>
-        </div>
-      </div>
-      <div class="flow-detail-card">
-        <div class="flow-detail-card__title">支付信息</div>
-        <div class="flow-detail-pay-row"><span>支付方式</span><span>${escapeHtml(o.payMethod)}</span></div>
-        <div class="flow-detail-pay-row flow-detail-pay-row--strong"><span>实付</span><span><span class="yen">¥</span>${amt.toFixed(2)}</span></div>
-      </div>`;
-  }
-
-  function openFlowSelfDetail(id, opts) {
-    const o = FLOW_SELF_ORDERS.find(x => x.id === id) || FLOW_SELF_ORDERS[0];
-    if (!o) {
-      showToast('暂无订单');
-      return;
-    }
-    state.flowSelfDetailId = o.id;
-    state.flowSelfDd = null;
-    state.flowSelfDetailReturn = (opts && opts.returnTo) || null;
-    renderFlowSelfDetail();
-    showOnlyScreen('screen-flow-self-detail');
-  }
-
-  function backFromFlowSelfDetail() {
-    state.flowSelfDetailReturn = null;
-    openFlowSelf();
-  }
 
   function returnToCardListFromIssueCheckout() {
     state.lastIssueFromCardMgmt = false;
@@ -11626,7 +11498,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   document.getElementById('btnSign')?.addEventListener('click', () => showToast('客户签字后续开放'));
   document.getElementById('btnCustDetail')?.addEventListener('click', () => showToast('客户详情后续开放'));
 
-  document.getElementById('flowHubBack')?.addEventListener('click', () => {
+  document.getElementById('flowListBack')?.addEventListener('click', () => {
     if (window.__wbEntry === 'expense' && window.ExpenseDemo && typeof window.ExpenseDemo.openList === 'function') {
       window.__wbEntry = null;
       window.ExpenseDemo.openList();
@@ -11634,32 +11506,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     }
     if (typeof openWorkbench === 'function') openWorkbench();
     else resetOrder();
-  });
-  document.getElementById('flowListBack')?.addEventListener('click', () => {
-    openFlowHub();
-  });
-  document.getElementById('flowSelfBack')?.addEventListener('click', () => {
-    closeFlowSelfDd();
-    if (window.__wbEntry === 'self' && typeof openWorkbench === 'function') {
-      window.__wbEntry = null;
-      openWorkbench();
-      return;
-    }
-    openFlowHub();
-  });
-  document.getElementById('flowSelfDate')?.addEventListener('click', () => openFlowSelfDd('date'));
-  document.getElementById('flowSelfStatus')?.addEventListener('click', () => openFlowSelfDd('status'));
-  document.getElementById('flowSelfDdMask')?.addEventListener('click', () => closeFlowSelfDd());
-  document.getElementById('flowSelfDd')?.addEventListener('click', (e) => {
-    const opt = e.target.closest('[data-flow-self-opt]');
-    if (!opt) return;
-    applyFlowSelfDdOpt(opt.dataset.flowSelfOpt);
-  });
-  document.getElementById('flowSelfBody')?.addEventListener('click', (e) => {
-    const card = e.target.closest('[data-flow-self-id]');
-    if (!card) return;
-    closeFlowSelfDd();
-    openFlowSelfDetail(card.dataset.flowSelfId);
   });
   document.getElementById('flowDetailBack')?.addEventListener('click', () => openFlowList());
   document.getElementById('flowListFilter')?.addEventListener('click', () => openFlowFilter());
@@ -11673,12 +11519,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const card = e.target.closest('[data-flow-id]');
     if (!card) return;
     openFlowDetail(card.dataset.flowId, { fromSuccess: false });
-  });
-  document.getElementById('flowHubBody')?.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-flow-hub]');
-    if (!btn) return;
-    if (btn.dataset.flowHub === 'store') openFlowList();
-    else if (btn.dataset.flowHub === 'self') openFlowSelf();
   });
   document.getElementById('flowRangeCancel')?.addEventListener('click', () => cancelFlowRangeSheet());
   document.getElementById('flowRangeOk')?.addEventListener('click', () => applyFlowRangeSheet());
@@ -11724,7 +11564,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     }
     if (e.target.closest('[data-flow-diff]')) {
       const btn = e.target.closest('[data-flow-diff]');
-      openFlowDiffPay(btn.dataset.flowDiff === 'refund' ? 'refund' : 'collect');
+      openFlowGapPaySheet(btn.dataset.flowDiff === 'refund' ? 'refund' : 'collect');
       return;
     }
     if (e.target.closest('[data-flow-more]')) {
@@ -11737,6 +11577,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     }
     if (e.target.closest('[data-flow-edit-log]')) {
       openFlowEditLog();
+      return;
+    }
+    if (e.target.closest('[data-flow-refund-log]')) {
+      openFlowRefundLog();
       return;
     }
     const perf = e.target.closest('[data-flow-perf]')
@@ -11805,19 +11649,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   document.getElementById('flowEditDiffMask')?.addEventListener('click', (e) => {
     if (e.target.id === 'flowEditDiffMask') closeFlowEditDiffDialog();
   });
-  document.getElementById('flowDiffPayCancel')?.addEventListener('click', () => closeFlowDiffPay());
-  document.getElementById('flowDiffPayConfirm')?.addEventListener('click', () => confirmFlowDiffPay());
-  document.getElementById('flowDiffPayMask')?.addEventListener('click', (e) => {
-    if (e.target.id === 'flowDiffPayMask') closeFlowDiffPay();
-  });
-  document.getElementById('flowDiffPayBody')?.addEventListener('click', (e) => {
-    const ch = e.target.closest('[data-flow-diff-ch]');
-    if (!ch || !state.flowDiffPay) return;
-    state.flowDiffPay.channel = ch.dataset.flowDiffCh;
-    document.querySelectorAll('#flowDiffPayBody [data-flow-diff-ch]').forEach(btn => {
-      btn.classList.toggle('is-on', btn === ch);
-    });
-  });
   document.getElementById('flowRemarkCancel')?.addEventListener('click', () => closeFlowRemarkEditor());
   document.getElementById('flowRemarkConfirm')?.addEventListener('click', () => confirmFlowRemark());
   document.getElementById('flowRemarkMask')?.addEventListener('click', (e) => {
@@ -11833,14 +11664,67 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (e.target.id === 'flowEditLogMask') closeFlowEditLog();
   });
   document.getElementById('flowMoreRefund')?.addEventListener('click', () => openFlowRefund());
-  document.getElementById('flowMoreCollect')?.addEventListener('click', () => openFlowDiffPay('collect'));
-  document.getElementById('flowMoreRefundDiff')?.addEventListener('click', () => openFlowDiffPay('refund'));
+  document.getElementById('flowMoreCollect')?.addEventListener('click', () => openFlowGapPaySheet('collect'));
+  document.getElementById('flowMoreRefundDiff')?.addEventListener('click', () => openFlowGapPaySheet('refund'));
+  document.getElementById('flowRefundMethodCancel')?.addEventListener('click', () => closeFlowRefundMethodSheet());
+  document.getElementById('flowRefundMethodConfirm')?.addEventListener('click', () => confirmFlowRefundSubmit());
+  document.getElementById('flowRefundMethodMask')?.addEventListener('click', (e) => {
+    if (e.target.id === 'flowRefundMethodMask') closeFlowRefundMethodSheet();
+  });
+  document.getElementById('flowRefundSeg')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-flow-refund-mode]');
+    if (!btn) return;
+    const remarkEl = document.getElementById('flowRefundRemarkInput');
+    if (state.flowRefundPending && remarkEl) state.flowRefundPending.remark = String(remarkEl.value || '').slice(0, 200);
+    state.flowRefundMode = btn.dataset.flowRefundMode;
+    if (state.flowRefundPending) {
+      const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
+      if (o) {
+        state.flowRefundPending.amounts = {};
+        (state.flowRefundPending.indices || []).forEach((idx) => {
+          const remain = flowItemRemainingRefundable(o, idx);
+          const paidShare = flowItemPaidShare(o, idx);
+          state.flowRefundPending.amounts[idx] = state.flowRefundMode === 'original'
+            ? Math.min(paidShare, remain)
+            : remain;
+        });
+      }
+    }
+    renderFlowRefundMethodSheet();
+  });
+  document.getElementById('flowRefundMethodBody')?.addEventListener('input', (e) => {
+    const remark = e.target.closest('#flowRefundRemarkInput');
+    if (remark && state.flowRefundPending) {
+      state.flowRefundPending.remark = String(remark.value || '').slice(0, 200);
+      return;
+    }
+    const inp = e.target.closest('[data-flow-refund-amt]');
+    if (!inp || !state.flowRefundPending) return;
+    const remarkEl = document.getElementById('flowRefundRemarkInput');
+    if (remarkEl) state.flowRefundPending.remark = String(remarkEl.value || '').slice(0, 200);
+    const idx = Number(inp.dataset.flowRefundAmt);
+    const v = round2(Number(inp.value) || 0);
+    if (!state.flowRefundPending.amounts) state.flowRefundPending.amounts = {};
+    state.flowRefundPending.amounts[idx] = v;
+    renderFlowRefundMethodSheet();
+  });
+  document.getElementById('flowRefundMethodBody')?.addEventListener('change', (e) => {
+    const rad = e.target.closest('input[name="flowRefundDesignatedCh"]');
+    if (rad) state.flowRefundDesignatedChannel = rad.value;
+  });
+  document.getElementById('flowRefundLogBack')?.addEventListener('click', () => openFlowDetail(state.flowDetailId, { fromSuccess: false }));
+  document.getElementById('flowRefundLogDetailBack')?.addEventListener('click', () => openFlowRefundLog());
+  document.getElementById('flowRefundLogBody')?.addEventListener('click', (e) => {
+    const card = e.target.closest('[data-flow-refund-log-idx]');
+    if (!card) return;
+    openFlowRefundLogDetail(Number(card.dataset.flowRefundLogIdx));
+  });
   document.getElementById('flowRefundBack')?.addEventListener('click', () => openFlowDetail(state.flowDetailId, { fromSuccess: false }));
   document.getElementById('flowRefundBody')?.addEventListener('click', (e) => {
     if (e.target.closest('[data-flow-refund-all]')) {
       const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
       if (!o) return;
-      const all = o.items.map((_, i) => i);
+      const all = flowRefundableItemIndices(o);
       const cur = state.flowRefundSelected || [];
       state.flowRefundSelected = cur.length === all.length ? [] : all;
       renderFlowRefund();
@@ -12065,7 +11949,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       showOnlyScreen('screen-flow-edit');
     }
   });
-  document.getElementById('flowSelfDetailBack')?.addEventListener('click', () => backFromFlowSelfDetail());
+
 
   if (!window.__BILLING_EMBEDDED__) renderFlowMap();
   if (!window.__FLOW_STANDALONE__) {
@@ -12091,8 +11975,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     openBillPayPriceChangedDemo,
     openFlowList,
     openFlowDetail,
-    openFlowSelf,
     openFlowRefund,
+    openFlowRefundLog,
+    openFlowRefundLogDetail,
     openFlowEdit,
     openFlowEditLog,
     openFlowEditAdd,
@@ -12114,8 +11999,8 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       const prefer = d.items.find(x => x.type === 'product') || d.items[0];
       openFlowEditItem(prefer.id);
     },
-    openFlowDiffPay,
-    openFlowSelfDetail,
+    openFlowGapPaySheet,
+    applyFlowGapPayments,
     getCustomer() { return typeof getCustomer === 'function' ? getCustomer() : null; },
     ensureMember() { if (typeof enterBill === 'function' && typeof CUSTOMERS !== 'undefined') enterBill(CUSTOMERS[0]); },
     startCardIssueCheckout(ctx) { startCardIssueCheckout(ctx || {}); },
@@ -12180,18 +12065,17 @@ function __flowEnsureDoneOrder() {
   window.BillingDemo.openFlowDetail(null, { fromSuccess: false });
 }
 window.FLOW_FLOW_NAV = {
-  'flow-hub': function () { window.BillingDemo.openFlowHub(); },
   'flow-list': function () { window.BillingDemo.openFlowList(); },
   'flow-detail': function () { window.BillingDemo.openFlowDetail(null, { fromSuccess: false }); },
   'flow-refund': function () { __flowEnsureDoneOrder(); window.BillingDemo.openFlowRefund(); },
+  'flow-refund-log': function () { window.BillingDemo.openFlowRefundLog(); },
+  'flow-refund-log-detail': function () { window.BillingDemo.openFlowRefundLogDetail(0); },
   'flow-edit': function () { __flowEnsureDoneOrder(); window.BillingDemo.openFlowEdit(); },
   'flow-edit-log': function () { window.BillingDemo.openFlowEditLog(); },
   'flow-edit-add': function () { __flowEnsureDoneOrder(); window.BillingDemo.openFlowEdit(); window.BillingDemo.openFlowEditAdd(); },
   'flow-edit-item': function () { window.BillingDemo.openFlowEditItemDemo(); },
-  'flow-diff-collect': function () { __flowEnsureDoneOrder(); window.BillingDemo.openFlowDiffPay('collect'); },
-  'flow-diff-refund': function () { __flowEnsureDoneOrder(); window.BillingDemo.openFlowDiffPay('refund'); },
-  'flow-self': function () { window.BillingDemo.openFlowSelf(); },
-  'flow-self-detail': function () { window.BillingDemo.openFlowSelfDetail(); }
+  'flow-diff-collect': function () { __flowEnsureDoneOrder(); window.BillingDemo.openFlowGapPaySheet('collect'); },
+  'flow-diff-refund': function () { __flowEnsureDoneOrder(); window.BillingDemo.openFlowGapPaySheet('refund'); }
 };
 window.runFlowNav = function (id) {
   var root = document.getElementById('flowModuleRoot');

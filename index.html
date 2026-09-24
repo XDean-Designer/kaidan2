@@ -2228,18 +2228,17 @@
   </div>
   <div class="nav-group">
     <div class="g-t">订单流水</div>
-    <button type="button" class="nav-item" data-flow="flow-hub"><span class="idx">1</span>流水入口</button>
-    <button type="button" class="nav-item" data-flow="flow-list"><span class="idx">2</span>门店流水</button>
-    <button type="button" class="nav-item" data-flow="flow-detail"><span class="idx">3</span>订单详情</button>
-    <button type="button" class="nav-item" data-flow="flow-refund"><span class="idx">4</span>选择退款</button>
-    <button type="button" class="nav-item" data-flow="flow-edit"><span class="idx">5</span>修改订单</button>
-    <button type="button" class="nav-item" data-flow="flow-edit-log"><span class="idx">6</span>修改记录</button>
-    <button type="button" class="nav-item" data-flow="flow-edit-add"><span class="idx">7</span>添加项目</button>
-    <button type="button" class="nav-item" data-flow="flow-edit-item"><span class="idx">8</span>编辑项目</button>
-    <button type="button" class="nav-item" data-flow="flow-diff-collect"><span class="idx">9</span>补收差价</button>
-    <button type="button" class="nav-item" data-flow="flow-diff-refund"><span class="idx">10</span>退还差价</button>
-    <button type="button" class="nav-item" data-flow="flow-self"><span class="idx">11</span>自助收银</button>
-    <button type="button" class="nav-item" data-flow="flow-self-detail"><span class="idx">12</span>自助详情</button>
+    <button type="button" class="nav-item" data-flow="flow-list"><span class="idx">1</span>门店流水</button>
+    <button type="button" class="nav-item" data-flow="flow-detail"><span class="idx">2</span>订单详情</button>
+    <button type="button" class="nav-item" data-flow="flow-refund"><span class="idx">3</span>选择退款</button>
+    <button type="button" class="nav-item" data-flow="flow-refund-log"><span class="idx">4</span>退款记录</button>
+    <button type="button" class="nav-item" data-flow="flow-refund-log-detail"><span class="idx">5</span>退款详情</button>
+    <button type="button" class="nav-item" data-flow="flow-edit"><span class="idx">6</span>修改订单</button>
+    <button type="button" class="nav-item" data-flow="flow-edit-log"><span class="idx">7</span>修改记录</button>
+    <button type="button" class="nav-item" data-flow="flow-edit-add"><span class="idx">8</span>添加项目</button>
+    <button type="button" class="nav-item" data-flow="flow-edit-item"><span class="idx">9</span>编辑项目</button>
+    <button type="button" class="nav-item" data-flow="flow-diff-collect"><span class="idx">10</span>补收差价</button>
+    <button type="button" class="nav-item" data-flow="flow-diff-refund"><span class="idx">11</span>退还差价</button>
   </div>
   <div class="nav-group">
     <div class="g-t">逻辑补充</div>
@@ -3286,14 +3285,6 @@
     <div class="phone" data-flow-injected="1">
 <!-- ==== ORDER FLOW ==== -->
 
-          <div id="screen-flow-hub" class="screen hidden">
-            <div class="nav-bar">
-              <button type="button" class="btn-back" id="flowHubBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
-              <div class="title">订单流水</div>
-            </div>
-            <div class="page-body flow-hub-body" id="flowHubBody"></div>
-          </div>
-
 <!-- 流水订单 · 门店流水列表 -->
           <div id="screen-flow-list" class="screen hidden">
             <div class="nav-bar">
@@ -3308,29 +3299,6 @@
             </div>
             <div class="flow-list-tabs" id="flowListTabs" role="tablist"></div>
             <div class="page-body" id="flowListBody"></div>
-          </div>
-
-          <!-- 流水订单 · 自助收银 -->
-          <div id="screen-flow-self" class="screen hidden">
-            <div class="nav-bar">
-              <button type="button" class="btn-back" id="flowSelfBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
-              <div class="title">自助收银订单</div>
-            </div>
-            <div class="flow-self-filters-wrap">
-              <div class="flow-self-filters">
-                <button type="button" class="flow-self-filter" id="flowSelfDate" aria-label="日期筛选" aria-expanded="false">
-                  <span>今日</span>
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-                <button type="button" class="flow-self-filter" id="flowSelfStatus" aria-label="状态筛选" aria-expanded="false">
-                  <span>全部状态</span>
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-              </div>
-              <div class="flow-self-dd-mask hidden" id="flowSelfDdMask" aria-hidden="true"></div>
-              <div class="flow-self-dd hidden" id="flowSelfDd" role="listbox" aria-label="筛选选项"></div>
-            </div>
-            <div class="page-body" id="flowSelfBody"></div>
           </div>
 
           <!-- 流水订单 · 自定义时间范围 -->
@@ -3366,10 +3334,28 @@
             </div>
             <div class="flow-note-bar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
-              <span>全选可原路退回或指定退款方式；部分退款仅支持指定退款方式。</span>
+              <span>全选可原路退回或指定退回；部分退款仅支持指定退回。0 元项目不可走指定退回。</span>
             </div>
             <div class="page-body flow-refund-body" id="flowRefundBody"></div>
             <div class="flow-screen-foot" id="flowRefundFoot"></div>
+          </div>
+
+          <!-- 流水订单 · 退款记录列表 -->
+          <div id="screen-flow-refund-log" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowRefundLogBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">退款记录</div>
+            </div>
+            <div class="page-body flow-refund-log-body" id="flowRefundLogBody"></div>
+          </div>
+
+          <!-- 流水订单 · 退款记录详情 -->
+          <div id="screen-flow-refund-log-detail" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowRefundLogDetailBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">退款详情</div>
+            </div>
+            <div class="page-body flow-refund-log-detail-body" id="flowRefundLogDetailBody"></div>
           </div>
 
           <!-- 流水订单 · 修改订单 -->
@@ -3403,14 +3389,6 @@
             <div class="flow-screen-foot" id="flowEditItemFoot"></div>
           </div>
 
-
-          <div id="screen-flow-self-detail" class="screen hidden">
-            <div class="nav-bar">
-              <button type="button" class="btn-back" id="flowSelfDetailBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
-              <div class="title">自助收银详情</div>
-            </div>
-            <div class="page-body flow-self-detail-body" id="flowSelfDetailBody"></div>
-          </div>
 
           <!-- 流水订单 · 筛选 Sheet -->
           <div class="picker-mask picker-mask--bottom" id="flowFilterMask" data-mask-close="flowFilterMask">
@@ -3477,15 +3455,20 @@
             </div>
           </div>
 
-          <!-- 流水订单 · 补收/退差 -->
-          <div class="dialog-mask" id="flowDiffPayMask">
-            <div class="dialog" role="dialog" aria-labelledby="flowDiffPayTitle">
-              <div class="dialog__title" id="flowDiffPayTitle">补收差价</div>
-              <div class="dialog__body" id="flowDiffPayBody"></div>
-              <div class="dialog__actions">
-                <button type="button" class="btn-main secondary" id="flowDiffPayCancel">取消</button>
-                <button type="button" class="btn-main" id="flowDiffPayConfirm">确认</button>
+          <!-- 流水订单 · 退款方式确认 -->
+          <div class="picker-mask picker-mask--bottom" id="flowRefundMethodMask" data-mask-close="flowRefundMethodMask">
+            <div class="picker-sheet tall flow-refund-method-sheet" role="dialog" aria-label="确认退款">
+              <div class="picker-head"><div class="picker-head__title">确认退款</div></div>
+              <div class="flow-refund-seg" id="flowRefundSeg" role="tablist">
+                <button type="button" class="flow-refund-seg__btn is-on" data-flow-refund-mode="original">原路退回</button>
+                <button type="button" class="flow-refund-seg__btn" data-flow-refund-mode="designated">指定退回</button>
               </div>
+              <div class="picker-body" id="flowRefundMethodBody"></div>
+              <div class="picker-foot picker-foot--row">
+                <button type="button" class="btn-main secondary" id="flowRefundMethodCancel">取消</button>
+                <button type="button" class="btn-main" id="flowRefundMethodConfirm">确认退款</button>
+              </div>
+              <div class="catalog-action-safe" aria-hidden="true"></div>
             </div>
           </div>
 
@@ -6954,6 +6937,10 @@
   /* 结账支付信息：金额 + 支付明细行 */
   function payInfoOf(kind) {
     var items = [], amount = 0, cust = 'guest';
+    if (kind === 'flowGap') {
+      var gapOpts = window.__flowGapPayOpts || {};
+      return { amount: Math.max(0, Number(gapOpts.amount) || 0), pays: [] };
+    }
     if (kind === 'qco') {
       /* 与 s7 底栏一致：权益后应付 − 订单级优惠券 */
       var base = qcoItem ? Math.round(qcoItem.actual * 100) / 100 : 0;
@@ -7130,14 +7117,17 @@
     if (mask) mask.classList.add('is-alloc');
   }
 
-  function openPayConfirmSheet(kind) {
+  function openPayConfirmSheet(kind, opts) {
     paySheetKind = kind || 'co';
+    if (kind === 'flowGap') window.__flowGapPayOpts = opts || {};
     var info = payInfoOf(paySheetKind);
     paySheetPayable = info.amount;
     var amtEl = document.getElementById('paySheetAmt');
     if (amtEl) amtEl.textContent = paySheetAmtText(paySheetPayable);
 
-    var isMember = (paySheetKind === 'qco' ? qcoCust : coCust) === 'member';
+    var isMember = paySheetKind === 'flowGap'
+      ? !!(opts && opts.isMember)
+      : ((paySheetKind === 'qco' ? qcoCust : coCust) === 'member');
     var rowMem = document.getElementById('payRowMember');
     if (rowMem) {
       if (isMember) {
@@ -7309,7 +7299,39 @@
     setPayBoxVal(box, n);
   }
 
+  function collectPaySheetPayments() {
+    var list = document.getElementById('paySheetList');
+    if (!list) return [];
+    var nameMap = {
+      member: '会员卡', alipay: '支付宝', wechat: '微信', meituan: '美团',
+      dianping: '大众点评', douyin: '抖音', koubei: '口碑'
+    };
+    var pays = [];
+    list.querySelectorAll('[data-pay-box]').forEach(function (box) {
+      var v = getPayBoxVal(box);
+      if (v <= 0) return;
+      var key = box.getAttribute('data-pay-box');
+      pays.push({ method: nameMap[key] || key, amount: v });
+    });
+    return pays;
+  }
+
   function confirmPaySheet() {
+    if (paySheetKind === 'flowGap') {
+      var payments = collectPaySheetPayments();
+      var sum = payments.reduce(function (s, p) { return s + (Number(p.amount) || 0); }, 0);
+      sum = Math.round(sum * 100) / 100;
+      if (sum + 0.001 < paySheetPayable) {
+        toast('支付金额不足');
+        return;
+      }
+      closePayConfirmSheet();
+      if (typeof window.__onFlowGapPayConfirm === 'function') window.__onFlowGapPayConfirm(payments);
+      else if (window.BillingDemo && typeof window.BillingDemo.applyFlowGapPayments === 'function') {
+        window.BillingDemo.applyFlowGapPayments(payments);
+      }
+      return;
+    }
     closePayConfirmSheet();
     checkoutToSuccess(paySheetKind);
   }
@@ -7474,8 +7496,16 @@
     toast('单号已更新');
   }
   function sucViewFlow() {
-    toast('查看该笔流水');
-    go('s8');
+    if (window.BillingDemo && typeof window.BillingDemo.openFlowDetail === 'function') {
+      var root = document.getElementById('flowModuleRoot');
+      var frame = document.getElementById('frame');
+      if (root) root.classList.add('is-active');
+      if (frame) frame.classList.add('is-flow-mode');
+      document.querySelectorAll('#frame > .screen').forEach(function (s) { s.classList.remove('active'); });
+      window.BillingDemo.openFlowDetail(null, { fromSuccess: true });
+      return;
+    }
+    toast('流水模块未就绪');
   }
   /* 打印小票（R13 建立 · R17 入口改为金额卡底部整行）。
      非主要功能，本原型只以 toast 表示目标页面，不实现打印流程本身 */

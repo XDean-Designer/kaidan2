@@ -91,8 +91,9 @@
 
 <div class="main">
 
-<h1>PRD：开单结账2.0 <span class="tag">v2.0-draft · R25 · 三补：覆盖式移入</span></h1>
+<h1>PRD：开单结账2.0 <span class="tag">v2.0-draft · R33 · 订单流水</span></h1>
 <p>（散客开单 · 会员开单 · 直接收款 · 商户端）</p>
+<p class="note"><b>R33 订单流水（2026-09-24）</b>：删除流水 Hub / 自助收银，门店流水为首屏；差额走开单同款支付 sheet；退款方式 sheet（原路/指定）+ 退款记录（单号 <code>yyyyMMdd</code>+4 位，<code>docType: refund</code>）。细节以 Markdown 为准。本修订未跑 CDP。</p>
 <p><b>v2.0 主链路（C1/D1/E1/F1）：</b>首页（两大按钮 + 「取挂单（N）」）→ 选择顾客（取挂单右对齐；选中 <code>#EFF0FF</code>；行展开单/直接收款）→ 开单页对齐 demo（分类「全部」默认平铺；「+」→ 底部「设置内容」sheet；**原行下展与滚动视差已删除**；顾客卡片默认收起，标题栏右侧顾客入口点击展开 iOS 动效）→ 结算文档流（优惠券行 + 备注卡）→ 结账成功 → 开单成功 s15。全页粉白淡色顾客卡；会员权益默认收起+chevron；无「更换顾客」；头像/姓名进 s4。详见 Markdown。</p>
 
 <p class="note"><b>R3 本轮变更摘要（2026-09-18）</b></p>
@@ -483,8 +484,8 @@
 </ol>
 <table>
   <tr><th>字段</th><th>内容</th></tr>
-  <tr><td>文档版本</td><td>v2.0-draft（R29 · 2026-09-21；槽位/卡列一行 5 格）</td></tr>
-  <tr><td>日期</td><td>2026-09-21</td></tr>
+  <tr><td>文档版本</td><td>v2.0-draft（R33 · 2026-09-24；订单流水：门店列表首屏 / 差额支付 sheet / 退款方式与记录）</td></tr>
+  <tr><td>日期</td><td>2026-09-24</td></tr>
   <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code></td></tr>
   <tr><td>画布</td><td>390 × 844</td></tr>
   <tr><td>目的</td><td>供前端 / 后端 / 测试及 AI 工具落地「开单结账2.0」；<b>只需本文 + 交互原型</b></td></tr>
@@ -2606,7 +2607,7 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
 <p>开发与测试只需 <b>PRD + 原型</b>。冲突时以原型界面为准修正 PRD。</p>
 <p><b>仓库卫生（R20 后清理）</b>：开发期的脚手架文件 —— 截图（<code>_r*_*.png</code>）、探针页（<code>_probe_*.html</code>）、校验页（<code>_verify_*.html</code>）、一次性脚本（<code>_run_*.js</code> / <code>_shot*.js</code>）—— <b>不属于交付物</b>，已统一从仓库移除，并在 <code>.gitignore</code> 中加了 <b><code>_*</code></b> 规则，避免再次进仓。清理前共 <b>124 个文件 / 5.6 MB</b>（60 PNG + 53 HTML + 6 JS + 5 OUT）。</p>
 
-<div class="foot">PRD：开单结账2.0 · v2.0-draft (R25 · 2026-09-21 · 三补：覆盖式移入) · 交互原型 index.html（390 × 844）</div>
+<div class="foot">PRD：开单结账2.0 · v2.0-draft (R33 · 2026-09-24 · 订单流水) · 交互原型 index.html（390 × 844）</div>
 
 </div>
 

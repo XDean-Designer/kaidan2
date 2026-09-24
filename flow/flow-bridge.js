@@ -6,7 +6,7 @@
     if (!root) return done && done();
     var slot = root.querySelector('.phone');
     if (!slot) return done && done();
-    if (slot.dataset.flowInjected === '1' || slot.querySelector('#screen-flow-hub')) {
+    if (slot.dataset.flowInjected === '1' || slot.querySelector('#screen-flow-list')) {
       slot.dataset.flowInjected = '1';
       return done && done();
     }

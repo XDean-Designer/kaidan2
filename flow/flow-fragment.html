@@ -1,13 +1,5 @@
 ﻿<!-- ==== ORDER FLOW ==== -->
 
-          <div id="screen-flow-hub" class="screen hidden">
-            <div class="nav-bar">
-              <button type="button" class="btn-back" id="flowHubBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
-              <div class="title">订单流水</div>
-            </div>
-            <div class="page-body flow-hub-body" id="flowHubBody"></div>
-          </div>
-
 <!-- 流水订单 · 门店流水列表 -->
           <div id="screen-flow-list" class="screen hidden">
             <div class="nav-bar">
@@ -22,29 +14,6 @@
             </div>
             <div class="flow-list-tabs" id="flowListTabs" role="tablist"></div>
             <div class="page-body" id="flowListBody"></div>
-          </div>
-
-          <!-- 流水订单 · 自助收银 -->
-          <div id="screen-flow-self" class="screen hidden">
-            <div class="nav-bar">
-              <button type="button" class="btn-back" id="flowSelfBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
-              <div class="title">自助收银订单</div>
-            </div>
-            <div class="flow-self-filters-wrap">
-              <div class="flow-self-filters">
-                <button type="button" class="flow-self-filter" id="flowSelfDate" aria-label="日期筛选" aria-expanded="false">
-                  <span>今日</span>
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-                <button type="button" class="flow-self-filter" id="flowSelfStatus" aria-label="状态筛选" aria-expanded="false">
-                  <span>全部状态</span>
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-              </div>
-              <div class="flow-self-dd-mask hidden" id="flowSelfDdMask" aria-hidden="true"></div>
-              <div class="flow-self-dd hidden" id="flowSelfDd" role="listbox" aria-label="筛选选项"></div>
-            </div>
-            <div class="page-body" id="flowSelfBody"></div>
           </div>
 
           <!-- 流水订单 · 自定义时间范围 -->
@@ -80,10 +49,28 @@
             </div>
             <div class="flow-note-bar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
-              <span>全选可原路退回或指定退款方式；部分退款仅支持指定退款方式。</span>
+              <span>全选可原路退回或指定退回；部分退款仅支持指定退回。0 元项目不可走指定退回。</span>
             </div>
             <div class="page-body flow-refund-body" id="flowRefundBody"></div>
             <div class="flow-screen-foot" id="flowRefundFoot"></div>
+          </div>
+
+          <!-- 流水订单 · 退款记录列表 -->
+          <div id="screen-flow-refund-log" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowRefundLogBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">退款记录</div>
+            </div>
+            <div class="page-body flow-refund-log-body" id="flowRefundLogBody"></div>
+          </div>
+
+          <!-- 流水订单 · 退款记录详情 -->
+          <div id="screen-flow-refund-log-detail" class="screen hidden">
+            <div class="nav-bar">
+              <button type="button" class="btn-back" id="flowRefundLogDetailBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+              <div class="title">退款详情</div>
+            </div>
+            <div class="page-body flow-refund-log-detail-body" id="flowRefundLogDetailBody"></div>
           </div>
 
           <!-- 流水订单 · 修改订单 -->
@@ -117,14 +104,6 @@
             <div class="flow-screen-foot" id="flowEditItemFoot"></div>
           </div>
 
-
-          <div id="screen-flow-self-detail" class="screen hidden">
-            <div class="nav-bar">
-              <button type="button" class="btn-back" id="flowSelfDetailBack" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
-              <div class="title">自助收银详情</div>
-            </div>
-            <div class="page-body flow-self-detail-body" id="flowSelfDetailBody"></div>
-          </div>
 
           <!-- 流水订单 · 筛选 Sheet -->
           <div class="picker-mask picker-mask--bottom" id="flowFilterMask" data-mask-close="flowFilterMask">
@@ -191,15 +170,20 @@
             </div>
           </div>
 
-          <!-- 流水订单 · 补收/退差 -->
-          <div class="dialog-mask" id="flowDiffPayMask">
-            <div class="dialog" role="dialog" aria-labelledby="flowDiffPayTitle">
-              <div class="dialog__title" id="flowDiffPayTitle">补收差价</div>
-              <div class="dialog__body" id="flowDiffPayBody"></div>
-              <div class="dialog__actions">
-                <button type="button" class="btn-main secondary" id="flowDiffPayCancel">取消</button>
-                <button type="button" class="btn-main" id="flowDiffPayConfirm">确认</button>
+          <!-- 流水订单 · 退款方式确认 -->
+          <div class="picker-mask picker-mask--bottom" id="flowRefundMethodMask" data-mask-close="flowRefundMethodMask">
+            <div class="picker-sheet tall flow-refund-method-sheet" role="dialog" aria-label="确认退款">
+              <div class="picker-head"><div class="picker-head__title">确认退款</div></div>
+              <div class="flow-refund-seg" id="flowRefundSeg" role="tablist">
+                <button type="button" class="flow-refund-seg__btn is-on" data-flow-refund-mode="original">原路退回</button>
+                <button type="button" class="flow-refund-seg__btn" data-flow-refund-mode="designated">指定退回</button>
               </div>
+              <div class="picker-body" id="flowRefundMethodBody"></div>
+              <div class="picker-foot picker-foot--row">
+                <button type="button" class="btn-main secondary" id="flowRefundMethodCancel">取消</button>
+                <button type="button" class="btn-main" id="flowRefundMethodConfirm">确认退款</button>
+              </div>
+              <div class="catalog-action-safe" aria-hidden="true"></div>
             </div>
           </div>
 
