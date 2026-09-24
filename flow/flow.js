@@ -7050,6 +7050,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     /* 圆角实心铅笔 · 与 iconSvg('edit') 同款面性 */
     return filledEditPencilSvg();
   }
+  /** 修改订单条目右下角「编辑」入口图：Lucide square-pen（方框 + 笔），与上方面性铅笔区分 */
+  function flowIconEditSquare() {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>`;
+  }
   function flowIconFilter() {
     /* Lucide sliders-horizontal · 标题栏筛选统一图标 */
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>`;
@@ -8322,7 +8326,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     body.innerHTML = `
       <div class="flow-detail-card">
         <div class="flow-detail-card__title">订单项目</div>
-        <p class="flow-edit-item__meta-line" style="padding:0 0 10px;margin:0">点进项目可设置服务员工、工位与业绩提成</p>
+        <p class="flow-edit-item__meta-line" style="padding:0 0 10px;margin:0">点进项目可设置服务员工、工位与提成</p>
         ${d.items.map(it => {
           const tag = flowTypeTag(flowEditItemKind(it));
           const staffPills = flowStaffPillsHtml(it);
@@ -8342,8 +8346,8 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
               </div>
               <div class="flow-edit-item__side">
                 <div class="flow-refund-item__price"><span class="yen">¥</span>${Number(it.price || 0).toFixed(2)}</div>
-                <span class="flow-edit-item__edit" aria-hidden="true">${flowIconPencil()}<span>编辑</span></span>
               </div>
+              <span class="flow-edit-item__edit" aria-hidden="true">${flowIconEditSquare()}<span>编辑</span></span>
             </button>
             <button type="button" class="flow-edit-item__del" data-flow-edit-item-del="${escapeHtml(it.id)}" aria-label="删除项目">${flowIconTrash()}</button>
           </div>`;
@@ -8888,13 +8892,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
           </div>
         </div>
         <div class="flow-edit-staff-row__metrics" style="margin-top:10px">
-          <label class="flow-detail-metric__item">
+          <label class="flow-detail-metric__item is-readonly">
             <span class="flow-detail-metric__label">业绩</span>
             <span class="flow-detail-metric__val-row">
-              <input type="text" class="input-amount flow-detail-metric__input" readonly inputmode="decimal"
-                data-flow-edit-item-staff-perf="achievement" data-staff-id="${escapeHtml(st.id)}"
-                value="${ach.toFixed(2)}" aria-label="修改业绩">
-              <span class="flow-detail-metric__edit-icon" aria-hidden="true">${flowIconPencil()}</span>
+              <span class="flow-detail-metric__value">${ach.toFixed(2)}</span>
             </span>
           </label>
           <label class="flow-detail-metric__item">
@@ -8916,7 +8917,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
      数据落在 window.__flowEditStaffRow（开单2.0 的 staffRow 形状），双向同步到本项目条目。
      —— 选择器内点选/落位/取消 → 开单2.0 调 window.__flowOnStaffChange() → 这里只重绘「员工明细卡」，
         选择器自身 DOM 与动效完全不受影响；
-     —— 明细卡上改工位、业绩、提成 → 写回条目后整页重绘（选择器跟着重新读一遍）。 */
+     —— 明细卡上改工位、提成 → 写回条目后整页重绘（选择器跟着重新读一遍）。 */
   const FLOW_EDIT_STAFF_ROW_ID = '__flow_edit_item__';
 
   function flowHostNeedStation() {
@@ -8964,7 +8965,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return row;
   }
 
-  /** 选择器行 → 条目（只同步选择器真正负责的字段：工位行存在时同步工位；业绩/提成由本页录入） */
+  /** 选择器行 → 条目（只同步选择器真正负责的字段：工位行存在时同步工位；提成由本页录入，业绩只读） */
   function flowEditApplyStaffRow(it, row) {
     if (!it || !row) return;
     const ids = Array.isArray(row.staffIds) ? row.staffIds.slice() : [];
@@ -12000,6 +12001,8 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     }
     const perf = e.target.closest('[data-flow-edit-item-staff-perf]');
     if (perf) {
+      /* 业绩已改为只读（无本属性）；此处仅提成可唤起金额键盘 */
+      if (perf.dataset.flowEditItemStaffPerf !== 'commission') return;
       e.preventDefault();
       if (typeof openAmountKeypad === 'function') openAmountKeypad(perf);
       else if (typeof window.openAmountKeypad === 'function') window.openAmountKeypad(perf);
@@ -12026,13 +12029,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (perf) {
       const sid = perf.dataset.staffId;
       const val = typeof round2 === 'function' ? round2(Number(perf.value) || 0) : Math.round((Number(perf.value) || 0) * 100) / 100;
-      if (perf.dataset.flowEditItemStaffPerf === 'achievement') {
-        if (!it.staffAchievements) it.staffAchievements = {};
-        it.staffAchievements[sid] = val;
-      } else {
-        if (!it.staffCommissions) it.staffCommissions = {};
-        it.staffCommissions[sid] = val;
-      }
+      /* 业绩只读：仅提成可写回 */
+      if (perf.dataset.flowEditItemStaffPerf !== 'commission') return;
+      if (!it.staffCommissions) it.staffCommissions = {};
+      it.staffCommissions[sid] = val;
       perf.value = val.toFixed(2);
     }
   });

@@ -854,6 +854,16 @@ input[type=number]::-webkit-inner-spin-button {
   display: flex; align-items: center; justify-content: center;
 }
 .dialog__actions .btn-main.secondary { margin-top: 0; }
+/* 弹窗内「取消」等弱化键：与上方 btn-main 同宽同高同圆角，浅灰底无边框（原先无任何样式 → 退化成原生按钮） */
+.dialog__actions .btn-soft {
+  flex: 1; width: auto; max-width: none; min-width: 0; margin: 0;
+  height: 48px; min-height: 48px; line-height: 1.2; padding: 0 12px;
+  box-sizing: border-box; border: none; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: #F5F5F5; color: #666; font-size: 16px; font-weight: 500;
+  cursor: pointer; font-family: inherit; gap: 4px;
+}
+.dialog__actions .btn-soft:active { background: #EDEDED; }
 .dialog--stats-help {
   max-height: min(520px, 75vh); display: flex; flex-direction: column;
 }
@@ -1940,6 +1950,14 @@ input[type=number]::-webkit-inner-spin-button {
 }
 .flow-detail-metric__edit-icon svg { width: 16px; height: 16px; display: block; }
 .flow-detail-metric__input:active { opacity: .88; }
+/* 只读指标（业绩）：保留灰底数值块与红色数字同规格，仅去掉铅笔与点击态 */
+.flow-detail-metric__item.is-readonly { cursor: default; }
+.flow-detail-metric__item.is-readonly:active { opacity: 1; }
+.flow-detail-metric__value {
+  flex: 1; min-width: 0; padding: 0; box-sizing: border-box;
+  font-family: var(--font-data); font-size: 18px; font-weight: 700; color: var(--brand);
+  line-height: 24px; text-align: left;
+}
 .flow-detail-edit {
   display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
 }
@@ -2322,6 +2340,7 @@ input[type=number]::-webkit-inner-spin-button {
 
 
 .flow-edit-item {
+  position: relative;
   display: flex; align-items: flex-start; gap: 10px; width: 100%;
   padding: 12px 14px; background: #fff; border-radius: 12px; margin-bottom: 0;
   border: none; box-sizing: border-box; text-align: left; font-family: inherit;
@@ -2330,7 +2349,7 @@ input[type=number]::-webkit-inner-spin-button {
 }
 .flow-edit-item:active { opacity: .96; }
 .flow-edit-item__main { flex: 1; min-width: 0; }
-/* 右侧信息轨：单价在上、「编辑」在下；删除钮贴卡片右上角（绝对定位在 wrap 上） */
+/* 右侧信息轨：只放单价（右上一个）；「编辑」绝对定位到卡片右下角，与右上角删除钮对角 */
 .flow-edit-item__side {
   flex-shrink: 0; display: flex; flex-direction: column;
   align-items: flex-end; gap: 6px; padding-right: 26px;
@@ -2365,7 +2384,8 @@ input[type=number]::-webkit-inner-spin-button {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .flow-edit-item__edit {
-  flex-shrink: 0; display: inline-flex; align-items: center; gap: 2px;
+  position: absolute; right: 14px; bottom: 12px;
+  display: inline-flex; align-items: center; gap: 2px;
   font-size: 12px; line-height: 16px; color: #FF7B00; font-weight: 500;
 }
 .flow-edit-item__edit svg {
