@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD：订单流水</title>
+<style>
+  :root {
+    --brand: #F32F41; --brand-soft: #FFF2F2;
+    --text: #1a1a1a; --text-sec: #5c5c5c; --text-3: #929292;
+    --border: #e8e8e8; --bg: #fafafa; --card: #fff;
+    --sidebar-w: 248px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; font-family: -apple-system, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.7;
+  }
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w);
+    background: #1c1c1e; color: #e8e8e8; overflow-y: auto; padding: 20px 0 40px; z-index: 20;
+  }
+  .sidebar .brand { padding: 0 18px 14px; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 10px; }
+  .sidebar .brand .t { font-size: 15px; font-weight: 700; color: #fff; }
+  .sidebar .brand .s { font-size: 11px; color: #9a9a9a; margin-top: 4px; }
+  .sidebar nav a {
+    display: block; padding: 7px 18px; color: #c8c8c8; text-decoration: none;
+    font-size: 13px; border-left: 3px solid transparent;
+  }
+  .sidebar nav a:hover { color: #fff; background: rgba(255,255,255,.05); }
+  .main { margin-left: var(--sidebar-w); padding: 40px 48px 80px; max-width: 980px; }
+  .main h1 {
+    font-size: 24px; font-weight: 800; margin: 0 0 12px;
+    border-bottom: 3px solid var(--brand); padding-bottom: 14px;
+  }
+  .main h2 {
+    font-size: 20px; font-weight: 800; margin: 40px 0 14px;
+    padding: 10px 14px; background: linear-gradient(90deg, var(--brand-soft), transparent);
+    border-left: 4px solid var(--brand); border-radius: 0 6px 6px 0;
+  }
+  .main h3 { font-size: 16px; font-weight: 700; margin: 26px 0 10px; }
+  .main h4 { font-size: 14px; font-weight: 700; margin: 18px 0 8px; }
+  .main p { margin: 8px 0; }
+  .main .note {
+    background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--brand);
+    border-radius: 6px; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: var(--text-sec);
+  }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 16px; background: var(--card); font-size: 13px; }
+  th, td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #f5f5f7; font-weight: 700; }
+  code { background: #f2f2f4; border-radius: 4px; padding: 1px 5px; font-family: Consolas, Monaco, monospace; font-size: 12px; color: #d6336c; }
+  pre { background: #f6f6f8; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: 12.5px; white-space: pre-wrap; }
+  ul, ol { margin: 6px 0 12px; padding-left: 24px; }
+  .foot { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--text-3); font-size: 12px; }
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 24px 18px 60px; }
+  }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand">
+    <div class="t">PRD · 订单流水</div>
+    <div class="s">v1.0-draft · 汇总 R33–R40</div>
+  </div>
+  <nav>
+    <a href="#sec-PRD-订单流水-门店流水-改单-退款-作废-商户端">文首</a>
+    <a href="#sec-怎么读这份-PRD">怎么读</a>
+    <a href="#sec-模块-1-背景-目标-范围-能力映射">1 背景范围</a>
+    <a href="#sec-模块-2-用户场景与成功标准">2 场景</a>
+    <a href="#sec-模块-3-信息架构与页面清单">3 IA</a>
+    <a href="#sec-模块-4-状态机">4 状态机</a>
+    <a href="#sec-模块-5-交互细则-异常流">5 交互</a>
+    <a href="#sec-模块-6-功能规格">6 规格</a>
+    <a href="#sec-模块-7-数据模型与接口约定">7 数据</a>
+    <a href="#sec-模块-8-业务规则">8 规则</a>
+    <a href="#sec-模块-9-文案清单与权限">9 文案</a>
+    <a href="#sec-模块-10-验收-P0-造数场景">10 验收</a>
+    <a href="#sec-模块-11-非功能-极简">11 非功能</a>
+    <a href="#sec-模块-12-交付物">12 交付</a>
+    <a href="PRD-开单结账.html">← 开单结账 PRD</a>
+  </nav>
+</aside>
+<main class="main">
+<h1 id="sec-PRD-订单流水-门店流水-改单-退款-作废-商户端">PRD：订单流水（门店流水 · 改单 · 退款 · 作废 · 商户端）</h1>
+<table>
+<tr><th>字段</th><th>内容</th></tr>
+<tr><td>文档版本</td><td>v1.1-draft（R41 宿主结账→流水 · 2026-09-29）</td></tr>
+<tr><td>日期</td><td>2026-09-29</td></tr>
+<tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code> 内流水模块（<code>flow/</code>：<code>flow.js</code> / <code>flow-fragment.html</code> / <code>flow.css</code>）；入口 <code>?flow=flow-list</code> 或侧栏「订单流水」</td></tr>
+<tr><td>画布</td><td>390 × 844（演示区默认 1.25×）</td></tr>
+<tr><td>目的</td><td>供前端 / 后端 / 测试及 AI 工具落地「订单流水」；<b>只需本文 + 交互原型</b></td></tr>
+<tr><td>关联</td><td>《PRD-开单结账》——确认支付 sheet、员工选择器四态、价目/持卡造数与宿主桥接；冲突时<b>流水细则以本文为准</b>，开单结账侧仅保留短链</td></tr>
+</table>
+<p class="note"><b>权威口径</b>：业务与交互以<b>当前流水原型行为</b>为准；与线上冲突处标 <b>「以线上为准」</b>（权限、审计、真实支付回写、会员卡账本恢复等）。本文未另述之能力，沿用线上。</p>
+<h2 id="sec-修订摘要-自开单结账迁入并定稿">修订摘要（自开单结账迁入并定稿）</h2>
+<p class="note"><b>R42（2026-09-29）· 详情/编辑可点线索</b>：成功页进详情「查看全部流水」加右箭头并加强字重/按下态；「修改记录」左侧加 history 线描；编辑项「单价」行补齐 button reset，金额红字 + 方框笔对齐详情 meta。</p>
+<p class="note"><b>R41（2026-09-29）· 宿主结账写入流水</b>：s6 / s7 确认支付成功后，经 <code>BillingDemo.recordFromHostCheckout</code> 完整映射写入 <code>FLOW_ORDERS</code>（<code>unshift</code> 置顶，保留种子）；s15「看流水」进本笔详情；改单号 / 改日期经 <code>syncHostCheckoutOrder</code> 回写。侧栏直达 s15 演示数据不生成流水。</p>
+<p class="note"><b>R40（2026-09-28）· 确认支付渠道</b>：流水差额「选择其他支付方式」与结账共用 <code>#paySheetList</code>，渠道含口碑后五条（现金 / 银行卡 / 信用卡 / 经理签单 / 其他平台团购）。详见《开单结账》R40。</p>
+<p class="note"><b>R39（2026-09-28）· 可改金额线索</b>：充卡储值/赠送/本次实付与指定退款金额补齐方框笔；其余可改项见 §5.1。</p>
+<p class="note"><b>R38（2026-09-28）· 充卡三型 + 编辑图标</b>：改单添加会员卡 → 充卡分 <b>充值 / 续次 / 续费</b>；价格/开单时间/流水单号统一 <code>flowIconEditSquare</code>。</p>
+<p class="note"><b>R37（2026-09-28）· 改单体验</b>：编辑项价格笔、添加项分组 Tab、删项确认、详情可改开单时间与流水单号。</p>
+<p class="note"><b>R36（2026-09-24）· 退款</b>：选退款项 → 退款方式 sheet（原路 / 指定）；全退 <code>refund</code> / 部分退 <code>partial_refund</code>；退款记录列表与详情。</p>
+<p class="note"><b>R35（2026-09-24）· 改单差额</b>：须当场闭合 —— 用原支付方式补记/退还，或选其他支付方式；去掉「仅保存」。</p>
+<p class="note"><b>R33（2026-09-24）· 入口</b>：进订单流水默认门店流水列表；无独立 Hub / 自助收银。</p>
+<p class="note"><b>校对补全（2026-09-28）</b>：对照 <code>flow.js</code> / <code>flow-fragment.html</code> 全量清单，补齐详情支付信息区、备注 500 字、更多菜单三项、退款进入默认原路/指定规则、差额/作废精确文案、深链键与演示边界说明。</p>
+<h2 id="sec-怎么读这份-PRD">怎么读这份 PRD</h2>
+<table>
+<tr><th>#</th><th>模块</th><th>前端</th><th>后端</th><th>测试</th><th>说明</th></tr>
+<tr><td>1</td><td>背景 / 目标 / 范围 / 能力映射</td><td>✓</td><td>✓</td><td>✓</td><td>防范围蔓延</td></tr>
+<tr><td>2</td><td>用户场景与成功标准</td><td>✓</td><td>了解</td><td>✓</td><td>业务对不对</td></tr>
+<tr><td>3</td><td>信息架构与页面清单</td><td>✓</td><td>了解</td><td>✓</td><td>屏 / sheet</td></tr>
+<tr><td>4</td><td>状态机</td><td>✓</td><td><b>必看</b></td><td><b>必看</b></td><td>订单状态与门控</td></tr>
+<tr><td>5</td><td>交互细则 / 异常流</td><td>✓</td><td>了解</td><td>✓</td><td>输入、toast、弹层</td></tr>
+<tr><td>6</td><td>功能规格</td><td>✓</td><td>了解</td><td>✓</td><td>逐屏字段与跳转</td></tr>
+<tr><td>7</td><td>数据模型与接口约定</td><td>✓</td><td><b>必看</b></td><td>✓</td><td>字段；路径【待联调确认】</td></tr>
+<tr><td>8</td><td>业务规则</td><td>✓</td><td><b>必看</b></td><td>✓</td><td>改单 / 退款 / 差额</td></tr>
+<tr><td>9</td><td>文案清单与权限</td><td>✓</td><td>部分</td><td>✓</td><td></td></tr>
+<tr><td>10</td><td>验收 P0 + 造数</td><td>了解</td><td>了解</td><td><b>必看</b></td><td>Given→When→Then</td></tr>
+<tr><td>11</td><td>非功能（极简）</td><td>✓</td><td>✓</td><td>✓</td><td></td></tr>
+<tr><td>12</td><td>交付物</td><td>✓</td><td>—</td><td>✓</td><td>本文 + 原型</td></tr>
+</table>
+<p><b>先读这几条</b></p>
+<ol>
+<li>本模块承接<b>已完成开单</b>的查询与售后：列表筛选、详情、修改订单、退款、作废、补收/退还差价、退款记录。</li>
+<li><b>可改单</b>仅 <code>status === 'done'</code>；<b>可退款/可作废</b>为 <code>done</code> 或 <code>partial_refund</code>；全退 / 作废后不可再改单。</li>
+<li>改单产生应付与原实付差额时，<b>必须当场闭合</b>（原渠道或确认支付 sheet），不可「只存项目员工不管钱」。</li>
+<li>确认支付 sheet、员工选择器与开单结账<b>同源组件</b>；渠道枚举与灰框规则见《开单结账》§5.6 / R40。</li>
+<li>权限、审计留痕、真实支付与卡账本：<b>以线上为准</b>；原型 toast / 本地 <code>FLOW_ORDERS</code> 造数仅演示。</li>
+</ol>
+<h1 id="sec-模块-1-背景-目标-范围-能力映射">模块 1　背景 / 目标 / 范围 / 能力映射</h1>
+<h2 id="sec-1-1-背景">1.1 背景</h2>
+<p>旧原型将「门店流水 / 退款」简化为导航占位页（开单结账 PRD 中曾称 s8 / s9）。现将 BillingDemo 订单流水整组迁入 <code>flow/</code>，替换占位，作为开单成功后的主售后链路。</p>
+<h2 id="sec-1-2-目标">1.2 目标</h2>
+<table>
+<tr><th>目标</th><th>说明</th></tr>
+<tr><td>可查</td><td>按 Tab / 筛选查门店流水</td></tr>
+<tr><td>可改</td><td>已完成单可改项目、员工提成、开单时间、流水单号、备注；差额当场闭合</td></tr>
+<tr><td>可退</td><td>全退 / 部分退；原路或指定；可查退款记录</td></tr>
+<tr><td>可废</td><td>开错单作废；演示恢复卡额度 toast</td></tr>
+<tr><td>可对齐</td><td>与开单 2.0 支付 sheet、员工四态、价目/持卡数据同源</td></tr>
+</table>
+<h2 id="sec-1-3-本期做-In">1.3 本期做（In）</h2>
+<ul>
+<li>门店流水列表（Tab：全部 / 项目 / 产品 / 会员卡 / 作废 / 退款）+ 筛选 sheet</li>
+<li>订单详情（消费内容、优惠、业绩提成只读展示、修改订单入口、退款/作废、差额条）</li>
+<li>修改订单（增删改项目/产品/办卡/充卡三型、员工与提成、保存与差额两选）</li>
+<li>退款选件 → 退款方式 sheet → 退款记录列表/详情</li>
+<li>改开单时间、流水单号、补录备注；修改记录</li>
+<li>与宿主确认支付 sheet 闭合差价（<code>flowGap</code>）</li>
+</ul>
+<h2 id="sec-1-4-本期不做-Out">1.4 本期不做（Out）</h2>
+<ul>
+<li>自助收银 / 流水 Hub 独立首页（已删除）</li>
+<li>尾款单业务（列表若有入口仅为示意，<b>以线上为准</b>）</li>
+<li>真实支付通道、打印、签字、权限矩阵新产品规则</li>
+<li>经营分析 / 报表侧「直接收款是否入 TOP」等（属其他产品线）</li>
+</ul>
+<h2 id="sec-1-5-旧-新能力映射">1.5 旧 → 新能力映射</h2>
+<table>
+<tr><th>旧（开单结账 s8/s9 占位）</th><th>新（本模块）</th></tr>
+<tr><td>左侧导航「门店流水」示意卡</td><td><code>screen-flow-list</code> 真列表 + Tab/筛选</td></tr>
+<tr><td>「选择退款项目」示意</td><td><code>screen-flow-refund</code> + 退款方式 sheet + 记录</td></tr>
+<tr><td>开单成功「看流水」</td><td>进本笔订单详情（<code>sucInfo.flowId</code> / <code>fromSuccess</code>）</td></tr>
+<tr><td>无改单</td><td>完整改单 + 差额闭合</td></tr>
+</table>
+<h1 id="sec-模块-2-用户场景与成功标准">模块 2　用户场景与成功标准</h1>
+<h2 id="sec-2-1-角色">2.1 角色</h2>
+<p>店员 / 店长 / 店主（操作权限<b>以线上为准</b>）。原型不按角色裁剪按钮。</p>
+<h2 id="sec-2-2-核心场景">2.2 核心场景</h2>
+<table>
+<tr><th>#</th><th>场景</th><th>成功标准</th></tr>
+<tr><td>S1</td><td>查今日项目流水</td><td>Tab「项目」+ 筛选「今日」见对应卡</td></tr>
+<tr><td>S2</td><td>看订单详情并改备注</td><td>已完成单可补录/修改备注</td></tr>
+<tr><td>S3</td><td>改项目价格与提成后保存无差额</td><td>toast「订单已修改」；修改记录有摘要</td></tr>
+<tr><td>S4</td><td>改单导致少收</td><td>差额对话框 → 原渠道补记或选其他支付 → 差额闭合</td></tr>
+<tr><td>S5</td><td>部分退一项</td><td>状态 <code>partial_refund</code>；详情可继续退剩余；可作废</td></tr>
+<tr><td>S6</td><td>全退</td><td>状态 <code>refund</code>；进「退款」Tab；不可改单</td></tr>
+<tr><td>S7</td><td>作废</td><td>状态 <code>void</code>；进「作废」Tab</td></tr>
+<tr><td>S8</td><td>改流水单号撞号</td><td>toast「该单号已被使用」</td></tr>
+<tr><td>S9</td><td>充卡续费</td><td>时长控件 + 本次实付；永久卡不可续</td></tr>
+</table>
+<h1 id="sec-模块-3-信息架构与页面清单">模块 3　信息架构与页面清单</h1>
+<h2 id="sec-3-0-页面流-示意">3.0 页面流（示意）</h2>
+<pre><code>
+门店流水列表 ──▶ 订单详情 ──┬──▶ 修改订单 ──▶ 编辑项 / 添加项(更换项)
+
+                          ├──▶ 选择退款 ──▶ 退款方式 sheet ──▶ 详情
+
+                          ├──▶ 退款记录 ──▶ 退款详情
+
+                          ├──▶ 作废确认
+
+                          └──▶ 更多（补收/退差） / 确认支付 sheet(差额)
+
+</code></pre>
+<h2 id="sec-3-1-页面清单">3.1 页面清单</h2>
+<table>
+<tr><th>屏 / 层</th><th>id / 入口</th><th>说明</th></tr>
+<tr><td>门店流水</td><td><code>screen-flow-list</code></td><td>列表 + Tab + 筛选</td></tr>
+<tr><td>订单详情</td><td><code>screen-flow-detail</code></td><td>主详情</td></tr>
+<tr><td>选择退款</td><td><code>screen-flow-refund</code></td><td>勾选退款项</td></tr>
+<tr><td>退款记录</td><td><code>screen-flow-refund-log</code></td><td>笔列表</td></tr>
+<tr><td>退款详情</td><td><code>screen-flow-refund-log-detail</code></td><td>单笔</td></tr>
+<tr><td>修改订单</td><td><code>screen-flow-edit</code></td><td>项目列表</td></tr>
+<tr><td>添加项/更换项</td><td><code>screen-flow-edit-add</code></td><td>项目/产品/会员卡</td></tr>
+<tr><td>编辑项</td><td><code>screen-flow-edit-item</code></td><td>价/量/员工提成</td></tr>
+<tr><td>筛选 sheet</td><td><code>flowFilterMask</code></td><td>日期/支付/顾客</td></tr>
+<tr><td>自定义日期</td><td><code>flowRangeMask</code></td><td>日历范围</td></tr>
+<tr><td>退款方式</td><td><code>flowRefundMethodMask</code></td><td>原路/指定</td></tr>
+<tr><td>差额对话框</td><td><code>flowEditDiffMask</code></td><td>两选</td></tr>
+<tr><td>删项确认</td><td><code>flowEditDelItemMask</code></td><td></td></tr>
+<tr><td>作废确认</td><td><code>flowVoidMask</code></td><td></td></tr>
+<tr><td>更多菜单</td><td><code>flowMoreMask</code></td><td>申请退款、补收差价、退还差价</td></tr>
+<tr><td>改开单时间</td><td><code>flowEditTimeMask</code></td><td></td></tr>
+<tr><td>改流水单号</td><td><code>flowEditFlowNoMask</code></td><td></td></tr>
+<tr><td>修改记录</td><td><code>flowEditLogMask</code></td><td></td></tr>
+<tr><td>订单备注</td><td><code>flowRemarkMask</code></td><td>最多 500 字</td></tr>
+<tr><td>确认支付</td><td><code>#paySheetMask</code>（宿主）</td><td><code>kind=flowGap</code></td></tr>
+</table>
+<h1 id="sec-模块-4-状态机">模块 4　状态机</h1>
+<h2 id="sec-4-1-订单状态-status">4.1 订单状态 <code>status</code></h2>
+<table>
+<tr><th>值</th><th>文案</th><th>列表 Tab</th><th>可改单</th><th>可退款</th><th>可作废</th></tr>
+<tr><td><code>done</code></td><td>已完成（详情常不打 pill）</td><td>全部/项目/产品/会员卡</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>partial_refund</code></td><td>部分退款</td><td>退款（及全部不展示为活跃）</td><td>✗</td><td>✓（剩余）</td><td>✓</td></tr>
+<tr><td><code>refund</code></td><td>已退款</td><td>退款</td><td>✗</td><td>✗</td><td>✗</td></tr>
+<tr><td><code>void</code></td><td>已作废</td><td>作废</td><td>✗</td><td>✗</td><td>✗</td></tr>
+</table>
+<p>活跃单过滤：<code>flowIsActiveOrder</code> = 非 void / refund / partial_refund。  </p>
+<p>「全部 / 项目 / 产品 / 会员卡」Tab 只展示活跃单；「作废」「退款」Tab 按状态。</p>
+<h2 id="sec-4-2-门控函数-原型">4.2 门控函数（原型）</h2>
+<ul>
+<li><code>flowCanEditOrder(o)</code> → <code>status === 'done'</code></li>
+<li><code>flowCanRefundOrVoid(o)</code> → <code>done</code> \| <code>partial_refund</code></li>
+</ul>
+<h2 id="sec-4-3-退款笔-refundKind">4.3 退款笔 <code>refundKind</code></h2>
+<ul>
+<li>该笔退后<b>原单无剩余可退</b> → 全退口径（订单变 <code>refund</code>）</li>
+<li>仍有剩余 → 部分退（订单 <code>partial_refund</code>）；记录笔可标「全退/部分退」语义（以原型展示为准）</li>
+</ul>
+<h2 id="sec-4-4-改单草稿">4.4 改单草稿</h2>
+<p>进入修改订单时拷贝 <code>flowEditDraft</code>；保存时校验 → 无差额直接落库；有差额先弹 <code>flowEditDiffMask</code>，确认后再 <code>applyFlowEditDraft</code> 并闭合支付。</p>
+<h1 id="sec-模块-5-交互细则-异常流">模块 5　交互细则 / 异常流</h1>
+<h2 id="sec-5-1-可改数值与线索">5.1 可改数值与线索</h2>
+<table>
+<tr><th>位置</th><th>字段</th><th>线索</th><th>交互</th></tr>
+<tr><td>详情 meta</td><td>开单时间</td><td>方框笔</td><td>sheet：日期 + 时分</td></tr>
+<tr><td>详情 meta</td><td>流水单号</td><td>方框笔</td><td>sheet：1–20 位数字，唯一</td></tr>
+<tr><td>编辑项</td><td>单价/本次实付</td><td>方框笔</td><td>金额键盘</td></tr>
+<tr><td>编辑项员工卡</td><td>提成</td><td>方框笔</td><td>金额键盘；<b>业绩只读</b></td></tr>
+<tr><td>编辑项 / 续次</td><td>数量、续次</td><td>±</td><td></td></tr>
+<tr><td>续费</td><td>延长时长</td><td>描边数字框 + 日/月/年/永久</td><td>永久隐藏数字框</td></tr>
+<tr><td>充卡表单</td><td>储值/赠送/本次实付</td><td>方框笔</td><td>金额键盘</td></tr>
+<tr><td>指定退款</td><td>退款金额</td><td>输入框 + 方框笔</td><td>手输；原路退回只读</td></tr>
+</table>
+<h2 id="sec-5-2-金额与单号规则">5.2 金额与单号规则</h2>
+<ul>
+<li>金额：非负、小数 ≤2 位；键盘上限与开单一致（超限 toast 金额上限文案）</li>
+<li>流水单号：<code>/^\d{1,20}$/</code>；冲突 toast「<b>该单号已被使用</b>」</li>
+<li>退款单号：<code>yyyyMMdd</code> + 4 位序号（与流水单号同形），<code>docType</code>/记录侧区分退款</li>
+</ul>
+<h2 id="sec-5-3-Toast-流水主路径">5.3 Toast（流水主路径）</h2>
+<table>
+<tr><th>文案</th><th>场景</th></tr>
+<tr><td>暂无流水</td><td>无单可开详情</td></tr>
+<tr><td>订单已修改</td><td>改单保存成功（无差额或已闭合）</td></tr>
+<tr><td>订单数据异常，请返回重试</td><td>草稿/订单丢失</td></tr>
+<tr><td>当前订单不可修改 / 不可修改开单时间 / 不可修改流水单号</td><td>门控失败</td></tr>
+<tr><td>单号须为 1–20 位数字</td><td>单号格式</td></tr>
+<tr><td>该单号已被使用</td><td>单号冲突</td></tr>
+<tr><td>开单时间已更新 / 流水单号已更新</td><td>meta 保存成功</td></tr>
+<tr><td>请填写有效的日期与时间</td><td>时间非法</td></tr>
+<tr><td>请至少保留一个服务项目</td><td>删光项目</td></tr>
+<tr><td>已删除</td><td>确认删项后</td></tr>
+<tr><td>请填写本次实付 / 请设置储值金额 / 请设置要增加的次数/数量 / 请设置延长时长 / 该卡已是永久有效 / 请选择要操作的会员卡 / 请选择要办理的会员卡</td><td>充卡/办卡校验</td></tr>
+<tr><td>请选择要更换的内容 / 原条目不存在 / 「{name}」库存不足</td><td>更换项</td></tr>
+<tr><td>请选择退款项 / 当前订单不可退款 / 无可退项目</td><td>退款门控</td></tr>
+<tr><td>0 元项目不可指定退款 / 退款金额无效 / 退款金额需大于 0</td><td>指定退款</td></tr>
+<tr><td>已退 ¥x.xx（部分退） / 退款已完成（全退）</td><td>退款成功</td></tr>
+<tr><td>订单已作废 / 订单已作废，会员卡额度已恢复</td><td>作废</td></tr>
+<tr><td>当前订单不可调整差额 / 当前无差额 / 当前为多收，请使用退还差价 / 当前为少收，请使用补收差价</td><td>差额入口</td></tr>
+<tr><td>支付面板未就绪 / 支付金额不足 / 补收成功 / 退差成功</td><td>差额支付</td></tr>
+<tr><td>备注已保存</td><td>备注</td></tr>
+<tr><td>请选择自定义起止日期</td><td>筛选自定义未选齐</td></tr>
+<tr><td>暂无订单</td><td>修改记录无单</td></tr>
+</table>
+<p>动态校验（改单）：<code>「{name}」请设置有效单价</code> / <code>数量至少为 1</code> / <code>请为已选员工设置工位（…）</code>。</p>
+<h2 id="sec-5-4-弹层">5.4 弹层</h2>
+<ul>
+<li>点蒙层 / 关闭：按各 mask 既有行为；差额对话框<b>无「仅保存」</b>，须两选之一或关闭放弃本次保存路径（关闭不落库差额方案）。</li>
+<li>删项、作废：确认后执行。</li>
+</ul>
+<h2 id="sec-5-5-确认支付-差额">5.5 确认支付（差额）</h2>
+<ul>
+<li><code>openPayConfirmSheet('flowGap', { amount, mode, isMember })</code></li>
+<li>渠道与灰框规则同开单结账 §5.6 + R40</li>
+<li>确认后 <code>applyFlowGapPayments</code>；不足 toast「支付金额不足」</li>
+</ul>
+<h1 id="sec-模块-6-功能规格">模块 6　功能规格</h1>
+<h2 id="sec-6-1-门店流水列表">6.1 门店流水列表</h2>
+<ul>
+<li><b>标题</b>：门店流水；返回退出流水模块（宿主 <code>exitFlowModule</code>）</li>
+<li><b>筛选</b>：标题栏筛选图标 → <code>flowFilterMask</code></li>
+</ul>
+<p>  - 日期：全部日期 / 今日 / 昨天 / 近7日 / 近30日 / 自定义（起止日历）</p>
+<p>  - 支付方式：全部 / 现金 / 微信 / 支付宝 / 会员卡（原型子集；全量枚举见支付 sheet）</p>
+<p>  - 顾客：全部顾客 / 散客 / 会员</p>
+<p>  - 重置 / 确定</p>
+<ul>
+<li><b>Tab</b>：全部 | 项目 | 产品 | 会员卡 | 作废 | 退款（横滑；当前 Tab 滚入可视）</li>
+<li><b>流水卡</b>：头像 + 姓名 | 状态 | › ；类型标签 + 首项名（多项「等 N 项」）+ 服务人 | 标价；实付总额；开单时间。部分退额外「已退 ¥」</li>
+<li><b>空态</b>：暂无流水 / 暂无作废订单 / 暂无退款订单（副文案见原型）</li>
+<li><b>点卡</b>：进订单详情</li>
+</ul>
+<h2 id="sec-6-2-订单详情">6.2 订单详情</h2>
+<ul>
+<li><b>来自成功页</b>：顶栏「查看全部流水」（<code>fromSuccess</code>）</li>
+<li><b>部分退 banner</b>：<code>部分退款 · 已退 ¥… · 还可退 ¥…</code></li>
+<li><b>展开 meta</b>：开单人、开单时间（可改笔）、流水单号（可改笔）、手工单号/开单日期（有则显）、备注 + 补录/修改备注（<code>flowRemarkMask</code>，≤500 字）</li>
+<li><b>消费内容</b>：分项类型标签、名称、价×量、员工 pills；优惠明细；预估应付</li>
+<li><b>业绩提成</b>：按员工展示工位、业绩、提成（<b>详情页只读</b>；改提成在编辑项）</li>
+<li><b>支付信息</b>：各渠道行 +「实付（锁定）」</li>
+<li><b>修改订单</b>卡（仅可改单）：说明 + 修改记录入口 +「修改」按钮</li>
+<li><b>退款记录</b>入口（有 <code>refunds[]</code> 时）</li>
+<li><b>差额条</b>（已完成且 |gap|≥0.01）：预估应付 / 原实付 / 少收或多收 +「补收差价」或「退还差价」+「更多」</li>
+<li><b>更多菜单</b>：申请退款、补收差价、退还差价</li>
+<li><b>底栏</b>：</li>
+</ul>
+<p>  - 可退废：提示 —— 部分退「还可继续退剩余款项；单子开错可作废」；否则「客户退钱点退款；单子开错点作废；项目差额走补收/退差」；按钮「申请退款」「订单作废」</p>
+<p>  - 终态：禁用按钮，文案为当前状态标签</p>
+<h2 id="sec-6-3-修改订单">6.3 修改订单</h2>
+<ul>
+<li>项目行：标签 + 名 + 摘要；「编辑」方框笔文案；删除垃圾桶（确认）</li>
+<li>「+ 添加项」；底栏展示<b>改后实付 / 原实付</b>；取消 / 保存修改</li>
+<li>点进编辑项：名称/类型只读；单价（或充卡「本次实付」）+ 笔；数量 ±；更换项；服务员工选择器（开单同源，<code>data-ctx="flowedit"</code>）+ 员工卡（业绩只读、提成可改）</li>
+<li>删除：至少保留 1 项；确认文案「确定删除「{名}」？删除后可重新添加。」</li>
+</ul>
+<h2 id="sec-6-4-添加项-更换项">6.4 添加项 / 更换项</h2>
+<ul>
+<li>Tab：项目 | 产品 | 会员卡；分组条（开单同款；会员卡：全部/储值/计次/套餐/折扣/周期）</li>
+<li><b>办卡</b>：多选模板（更换为单选）；金额为办卡实付语义</li>
+<li><b>充卡</b>：充值（储值+赠送+实付）/ 续次（已有权益 ± + 实付）/ 续费（时长 + 实付；永久不可续）</li>
+<li>确认添加/更换；散客限制办卡充卡提示见原型</li>
+</ul>
+<h2 id="sec-6-5-差额闭合">6.5 差额闭合</h2>
+<ol>
+<li>保存时 <code>estimatedDue - paid</code>，|gap|≥0.01 → 对话框  </li>
+<li>文案：需补收/退还差价 ¥abs；说明改后实付与原实付  </li>
+<li>按钮：<code>用{最大渠道}补记/退还 ¥abs</code> | <code>选择其他支付方式</code>  </li>
+<li>先 <code>applyFlowEditDraft</code>，再记差额支付或打开支付 sheet  </li>
+<li>详情「更多」仍可对历史未闭合单补收/退差</li>
+</ol>
+<h2 id="sec-6-6-退款">6.6 退款</h2>
+<ol>
+<li>顶栏说明：<b>全选可原路退回或指定退回；部分退款仅支持指定退回。0 元项目不可走指定退回。</b></li>
+<li>勾选仍有剩余可退金额的项；全选/取消全选；空态「无可退项目 / 该订单已全部退款」</li>
+<li>确认 → 退款方式 sheet  </li>
+</ol>
+<p>   - 进入时：若选中<b>全部</b>可退项 → 默认 <b>原路退回</b>；否则默认 <b>指定退回</b></p>
+<p>   - <b>原路退回</b>：金额按规则只读分摊；展示退回渠道比例（会员卡「退回卡账户」；现金/微信等「记账退回」）</p>
+<p>   - <b>指定退回</b>：可改金额（笔线索）；选记账渠道（支付宝/微信/现金/银行卡/信用卡）；0 元实付分摊不可指定  </p>
+<ol>
+<li>备注选填（max 200）；合计退款；确认后写 <code>refunds[]</code>（<code>refundKind</code>: <code>full</code>|<code>partial</code>）、更新状态，列表切「退款」Tab  </li>
+<li><b>退款记录</b>：列表卡（单号、全退/部分退、金额、摘要、原路/指定、时间）→ 详情（退款单号、类型、时间、操作员工、渠道、金额、备注、退款项）</li>
+</ol>
+<h2 id="sec-6-7-作废">6.7 作废</h2>
+<ul>
+<li>对话框：<b>确定作废该订单？</b> / <b>作废后不计入经营统计；若含会员卡消费，将恢复相应次数与面值额度。</b></li>
+<li>确定 → <code>status=void</code>，写 <code>voidedAt</code>；有 <code>cardMutations</code> 时演示恢复 → 对应 toast；切到作废 Tab 列表（不停留详情）</li>
+</ul>
+<h2 id="sec-6-8-修改开单时间-流水单号-备注-修改记录">6.8 修改开单时间 / 流水单号 / 备注 / 修改记录</h2>
+<ul>
+<li>时间：日期 + 时分；无效 toast「请填写有效的日期与时间」  </li>
+<li>单号：见 §5.2；新单号生成 <code>nextFlowNo</code> = <code>yyyyMMdd</code> + 4 位序  </li>
+<li>备注：已完成可补录/修改（≤500 字）；记 editLog  </li>
+<li>修改记录：<code>editLogs[]</code> 摘要列表（操作人/时间/summary）；空态「暂无修改记录 / 保存修改后会出现在这里」</li>
+</ul>
+<h2 id="sec-6-9-宿主集成与深链">6.9 宿主集成与深链</h2>
+<table>
+<tr><th>能力</th><th>行为</th></tr>
+<tr><td>壳层</td><td><code>#flowModuleRoot</code> + <code>is-flow-mode</code>；退出 <code>exitFlowModule</code></td></tr>
+<tr><td>深链</td><td><code>?flow=</code> → <code>flow-list</code> / <code>flow-detail</code> / <code>flow-refund</code> / <code>flow-refund-log</code> / <code>flow-refund-log-detail</code> / <code>flow-edit</code> / <code>flow-edit-log</code> / <code>flow-edit-add</code> / <code>flow-edit-item</code> / <code>flow-diff-collect</code> / <code>flow-diff-refund</code></td></tr>
+<tr><td>差额支付</td><td><code>openPayConfirmSheet('flowGap', …)</code> → <code>__onFlowGapPayConfirm</code> / <code>BillingDemo.applyFlowGapPayments</code></td></tr>
+<tr><td>宿主结账写入</td><td><code>checkoutToSuccess</code> 清车前调 <code>BillingDemo.recordFromHostCheckout(payload)</code>：顾客 / 明细（名·价·量·员工）/ 支付（优先确认支付 sheet，空则由成功页支付行推导）/ 实付 / 单号→<code>manualOrderNo</code> / 开单日期→<code>billBizDate</code> / 类型；种子保留，新单 <code>unshift</code></td></tr>
+<tr><td>s15 回写</td><td>改单号 / 改日期 → <code>BillingDemo.syncHostCheckoutOrder(flowId, patch)</code></td></tr>
+<tr><td>看流水</td><td><code>openFlowDetail(sucInfo.flowId, { fromSuccess: true })</code></td></tr>
+<tr><td>API</td><td><code>BillingDemo.openFlowList/Detail/Refund/Edit/…</code> · <code>recordFromHostCheckout</code> · <code>syncHostCheckoutOrder</code></td></tr>
+</table>
+<h1 id="sec-模块-7-数据模型与接口约定">模块 7　数据模型与接口约定</h1>
+<h2 id="sec-7-1-订单-原型-FLOW_ORDERS-要点">7.1 订单（原型 <code>FLOW_ORDERS</code> 要点）</h2>
+<table>
+<tr><th>字段</th><th>说明</th></tr>
+<tr><td><code>id</code> / <code>flowNo</code></td><td>主键 / 流水单号</td></tr>
+<tr><td><code>customerId</code> / <code>customerName</code> / <code>avatar</code></td><td>顾客；无 id=散客</td></tr>
+<tr><td><code>status</code></td><td>见 §4.1</td></tr>
+<tr><td><code>kind</code></td><td>project / product / card / quick 等，驱动 Tab</td></tr>
+<tr><td><code>items[]</code></td><td>见下</td></tr>
+<tr><td><code>payments[]</code> / <code>payMethod</code></td><td>支付明细；主展示方式</td></tr>
+<tr><td><code>amount</code></td><td>实付总额</td></tr>
+<tr><td><code>staff</code> / <code>staffs[]</code></td><td>摘要名 / 聚合业绩提成</td></tr>
+<tr><td><code>discount</code> / <code>offerSnapshot</code> / <code>benefitLabel</code></td><td>优惠</td></tr>
+<tr><td><code>time</code> / <code>cashier</code> / <code>manualOrderNo</code> / <code>billBizDate</code></td><td>meta</td></tr>
+<tr><td><code>orderRemark</code> / <code>editLogs[]</code> / <code>refunds[]</code> / <code>lastEditedAt</code></td><td>备注与售后</td></tr>
+<tr><td><code>cardMutations</code></td><td>作废恢复演示</td></tr>
+</table>
+<h2 id="sec-7-2-订单行-items">7.2 订单行 <code>items[]</code></h2>
+<p><code>id, name, price, qty, type</code>；可选 <code>staffIds, staffRoles, staffAchievements, staffCommissions</code>；卡类含 <code>cardKind</code>（issue/recharge/renew_times/renew_validity）及充值/续次/续费摘要字段。</p>
+<h2 id="sec-7-3-退款记录-refunds">7.3 退款记录 <code>refunds[]</code></h2>
+<p><code>refundNo, totalRefund, refundKind, time, remark, items[{ itemIndex, name, refundAmount }], channels[{ method, amount }]</code> 等（以原型写入为准）。</p>
+<h2 id="sec-7-4-接口与演示边界">7.4 接口与演示边界</h2>
+<p>路径与落库 <b>【待联调确认】</b>；字段对齐线上流水单据。</p>
+<p><b>原型演示边界（非线上产品约束）</b></p>
+<ul>
+<li><code>FLOW_ORDERS</code> 内存造数，刷新丢失；种子日期可相对锚点平移保证「今日」有数据</li>
+<li>作废恢复卡额度、部分优惠文案带「（演示）」</li>
+<li>无宿主支付 sheet 时 toast「支付面板未就绪」</li>
+<li>操作人优先会话员工，否则收银员/店员占位</li>
+<li>README：源以大原型为准时，本目录为副本</li>
+</ul>
+<h2 id="sec-7-5-接口路径">7.5 接口路径</h2>
+<p>正式 URL <b>【待联调确认】</b>；不臆造现网地址。</p>
+<h1 id="sec-模块-8-业务规则">模块 8　业务规则</h1>
+<ol>
+<li>仅已完成可改单；部分退/全退/作废不可改单。  </li>
+<li>改单至少 1 个项目；有员工且全店按工位时须设工位。  </li>
+<li>改单差额必须当场闭合。  </li>
+<li>部分退后可继续退剩余并可作废。  </li>
+<li>指定退：0 元实付分摊项不可指定金额。  </li>
+<li>充卡三种均须本次实付 &gt; 0；续费不可用于已永久卡。  </li>
+<li>流水单号全列表唯一（原型范围；线上为全门店唯一）。  </li>
+<li>详情业绩/提成只读；提成在编辑项改。  </li>
+<li>支付渠道展示与补差支付枚举对齐开单结账；筛选支付为演示子集。  </li>
+<li>权限 / 审计 / 真实退款到账 <b>以线上为准</b>。</li>
+</ol>
+<h1 id="sec-模块-9-文案清单与权限">模块 9　文案清单与权限</h1>
+<h2 id="sec-9-1-主要可见文案">9.1 主要可见文案</h2>
+<p>门店流水、订单详情、选择退款、退款记录、退款详情、修改订单、添加项、更换项、编辑项目、筛选、全部/项目/产品/会员卡/作废/退款、申请退款、作废、修改、修改记录、补录备注/修改备注、补收差价、退还差价、更多、用…补记/退还、选择其他支付方式、原路退回、指定退回、确认退款、充值/续次/续费、办卡/充卡、本次实付、储值金额、赠送金额、延长、日/月/年/永久、保存修改、取消、删除、完成、确认添加、确认更换 …</p>
+<p>（完整字符串以原型为准；关键 toast 见 §5.3。）</p>
+<h2 id="sec-9-2-权限">9.2 权限</h2>
+<p>店员/店长/店主对改单、退款、作废、改单号等：<b>以目前线上权限体系为准</b>；原型不隐藏入口。</p>
+<h1 id="sec-模块-10-验收-P0-造数场景">模块 10　验收 P0 + 造数场景</h1>
+<h2 id="sec-10-1-造数">10.1 造数</h2>
+<p>原型内置 <code>FLOW_ORDERS</code>：含散客/会员、项目/产品/办卡/直接收款、组合支付、部分退种子等。宿主 s6/s7 开单成功 <code>unshift</code> 新单（侧栏直达 s15 演示不写流水）。</p>
+<h2 id="sec-10-2-Given-When-Then-P0">10.2 Given → When → Then（P0）</h2>
+<ol>
+<li><b>Given</b> 宿主购物车有项并确认支付，<b>When</b> 进入 s15，<b>Then</b> 流水列表置顶可见本笔，且「看流水」进该笔详情。  </li>
+<li><b>Given</b> 进入订单流水，<b>When</b> 打开模块，<b>Then</b> 默认门店流水列表（非 Hub）。  </li>
+<li><b>Given</b> 列表，<b>When</b> 切 Tab「退款」，<b>Then</b> 仅 <code>refund</code>/<code>partial_refund</code>。  </li>
+<li><b>Given</b> 已完成单，<b>When</b> 点卡，<b>Then</b> 进详情且可「修改」。  </li>
+<li><b>Given</b> 已退款单，<b>When</b> 看详情，<b>Then</b> 无修改订单入口。  </li>
+<li><b>Given</b> 可改单，<b>When</b> 点开单时间笔并保存合法值，<b>Then</b> toast「开单时间已更新」且 meta 更新。  </li>
+<li><b>Given</b> 可改单，<b>When</b> 改单号为已占用号，<b>Then</b> toast「该单号已被使用」。  </li>
+<li><b>Given</b> 修改订单仅 1 项，<b>When</b> 删该项，<b>Then</b> toast「请至少保留一个服务项目」。  </li>
+<li><b>Given</b> 编辑项，<b>When</b> 点价格或笔，<b>Then</b> 打开金额键盘。  </li>
+<li><b>Given</b> 编辑项员工，<b>When</b> 看业绩，<b>Then</b> 只读；提成有笔可改。  </li>
+<li><b>Given</b> 添加项→会员卡→充卡→充值，<b>When</b> 看表单，<b>Then</b> 储值/赠送/实付均有方框笔。  </li>
+<li><b>Given</b> 续费且卡已永久，<b>When</b> 选该卡，<b>Then</b> 提示无需续费/不可续。  </li>
+<li><b>Given</b> 改价导致少收，<b>When</b> 保存，<b>Then</b> 差额对话框两按钮，无「仅保存」。  </li>
+<li><b>Given</b> 差额对话框，<b>When</b> 选其他支付方式，<b>Then</b> 打开确认支付 sheet 且可滚到现金等渠道。  </li>
+<li><b>Given</b> 可退单，<b>When</b> 不选题点确认，<b>Then</b> toast「请选择退款项」。  </li>
+<li><b>Given</b> 指定退回，<b>When</b> 看可改金额，<b>Then</b> 输入框旁有方框笔。  </li>
+<li><b>Given</b> 退部分项，<b>When</b> 确认成功，<b>Then</b> 状态部分退款且可继续退。  </li>
+<li><b>Given</b> 退完全部剩余，<b>When</b> 成功，<b>Then</b> 状态已退款，不可改单。  </li>
+<li><b>Given</b> 可作废，<b>When</b> 确认作废，<b>Then</b> 进作废 Tab 可见该单。  </li>
+<li><b>Given</b> 筛选今日+微信，<b>When</b> 确定，<b>Then</b> 列表仅匹配单。  </li>
+<li><b>Given</b> 空退款 Tab，<b>When</b> 查看，<b>Then</b> 空态「暂无退款订单」。  </li>
+<li><b>Given</b> 全选可退项确认，<b>When</b> 打开方式 sheet，<b>Then</b> 默认「原路退回」。  </li>
+<li><b>Given</b> 只选部分项，<b>When</b> 打开方式 sheet，<b>Then</b> 默认「指定退回」。  </li>
+<li><b>Given</b> 作废含卡消费单，<b>When</b> 确定作废，<b>Then</b> toast 含「会员卡额度已恢复」（有 mutations 时）。  </li>
+<li><b>Given</b> 详情有未闭合差额，<b>When</b> 点更多→补收/退差，<b>Then</b> 走差额支付或拦截 toast（无差额/方向错误）。  </li>
+<li><b>Given</b> <code>?flow=flow-edit</code>，<b>When</b> 深链打开，<b>Then</b> 进入修改订单（无单时回落列表）。  </li>
+</ol>
+<p>（扩展用例可按 §6 逐条补；冲突以原型为准。）</p>
+<h1 id="sec-模块-11-非功能-极简">模块 11　非功能（极简）</h1>
+<ul>
+<li>原型本地造数，无真实网络依赖。  </li>
+<li>列表与 sheet 需可滚动；支付 sheet 渠道变多后内容区可滚见底部渠道。  </li>
+<li>无障碍：关键按钮保留 <code>aria-label</code>。</li>
+</ul>
+<h1 id="sec-模块-12-交付物">模块 12　交付物</h1>
+<table>
+<tr><th>交付物</th><th>路径</th></tr>
+<tr><td>本 PRD（md）</td><td><code>开单结账2.0/PRD-订单流水.md</code></td></tr>
+<tr><td>本 PRD（html）</td><td><code>开单结账2.0/PRD-订单流水.html</code></td></tr>
+<tr><td>交互原型</td><td><code>开单结账2.0/index.html</code> + <code>flow/*</code></td></tr>
+<tr><td>关联 PRD</td><td><code>开单结账2.0/PRD-开单结账.md</code>（支付 sheet / 员工选择器）</td></tr>
+</table>
+<p>*文档结束。*</p>
+<div class="foot">关联：<a href="PRD-开单结账.html">PRD-开单结账</a> · 原型入口：<code>index.html?flow=flow-list</code></div>
+</main>
+</body>
+</html>

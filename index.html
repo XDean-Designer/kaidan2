@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/v2.css">
 <link rel="stylesheet" href="assets/v2-home-pay.css">
-<link rel="stylesheet" href="flow/flow.css?v=refund36">
+<link rel="stylesheet" href="flow/flow.css?v=recharge38">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -3379,6 +3379,12 @@
               <div class="title">添加项</div>
             </div>
             <div class="flow-edit-add-tabs" id="flowEditAddTabs" role="tablist"></div>
+            <div class="catalog-group-bar pick-group-bar flow-edit-group-bar" id="flowEditAddGroupBar">
+              <div class="catalog-group-segment">
+                <div class="catalog-group-scroll" id="flowEditAddGroupTabs" role="tablist" aria-label="分组"></div>
+                <div class="catalog-group-fade" aria-hidden="true"></div>
+              </div>
+            </div>
             <div class="page-body flow-edit-body" id="flowEditAddBody"></div>
             <div class="flow-screen-foot" id="flowEditAddFoot"></div>
           </div>
@@ -3456,6 +3462,63 @@
                 <button type="button" class="btn-main secondary" id="flowEditDiffGoSettle">选择其他支付方式</button>
                 <button type="button" class="btn-soft" id="flowEditDiffCancel">取消</button>
               </div>
+            </div>
+          </div>
+
+          <!-- 流水订单 · 删除项确认 -->
+          <div class="dialog-mask" id="flowEditDelItemMask">
+            <div class="dialog" role="dialog" aria-labelledby="flowEditDelItemTitle">
+              <div class="dialog__title" id="flowEditDelItemTitle">删除该项目？</div>
+              <div class="dialog__body" id="flowEditDelItemBody">删除后可重新添加。</div>
+              <div class="dialog__actions">
+                <button type="button" class="btn-main secondary" id="flowEditDelItemCancel">取消</button>
+                <button type="button" class="btn-main" id="flowEditDelItemOk">删除</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 流水订单 · 修改开单时间 -->
+          <div class="picker-mask picker-mask--bottom" id="flowEditTimeMask" data-mask-close="flowEditTimeMask">
+            <div class="picker-sheet" role="dialog" aria-label="修改开单时间">
+              <div class="picker-head">
+                <div class="picker-head__title">修改开单时间</div>
+                <button type="button" class="picker-head__close" data-close="flowEditTimeMask" aria-label="关闭">
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M14 6L6 14M14 14L6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+              <div class="picker-body">
+                <div class="flow-edit-time-fields">
+                  <label>日期<input type="date" id="flowEditTimeDate"></label>
+                  <label>时间<input type="time" id="flowEditTimeHm"></label>
+                </div>
+              </div>
+              <div class="picker-foot picker-foot--row">
+                <button type="button" class="btn-main secondary" data-close="flowEditTimeMask">取消</button>
+                <button type="button" class="btn-main" id="flowEditTimeOk">确定</button>
+              </div>
+              <div class="catalog-action-safe" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <!-- 流水订单 · 修改流水单号 -->
+          <div class="picker-mask picker-mask--bottom" id="flowEditFlowNoMask" data-mask-close="flowEditFlowNoMask">
+            <div class="picker-sheet" role="dialog" aria-label="修改流水单号">
+              <div class="picker-head">
+                <div class="picker-head__title">修改流水单号</div>
+                <button type="button" class="picker-head__close" data-close="flowEditFlowNoMask" aria-label="关闭">
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M14 6L6 14M14 14L6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+              <div class="picker-body">
+                <div class="flow-edit-time-fields">
+                  <label>流水单号<input type="text" id="flowEditFlowNoInput" inputmode="numeric" maxlength="20" placeholder="1–20 位数字" autocomplete="off"></label>
+                </div>
+              </div>
+              <div class="picker-foot picker-foot--row">
+                <button type="button" class="btn-main secondary" data-close="flowEditFlowNoMask">取消</button>
+                <button type="button" class="btn-main" id="flowEditFlowNoOk">确定</button>
+              </div>
+              <div class="catalog-action-safe" aria-hidden="true"></div>
             </div>
           </div>
 
@@ -3878,6 +3941,31 @@
           <div class="ico"><img src="assets/pay/koubei.png" alt=""></div>
           <div class="mid"><div class="nm">口碑</div></div>
           <div class="box" data-pay-box="koubei"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="口碑金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/cash.svg" alt=""></div>
+          <div class="mid"><div class="nm">现金</div></div>
+          <div class="box" data-pay-box="cash"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="现金金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/bank.svg" alt=""></div>
+          <div class="mid"><div class="nm">银行卡</div></div>
+          <div class="box" data-pay-box="bank"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="银行卡金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/credit.svg" alt=""></div>
+          <div class="mid"><div class="nm">信用卡</div></div>
+          <div class="box" data-pay-box="credit"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="信用卡金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/manager.svg" alt=""></div>
+          <div class="mid"><div class="nm">经理签单</div></div>
+          <div class="box" data-pay-box="manager"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="经理签单金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/other-group.svg" alt=""></div>
+          <div class="mid"><div class="nm">其他平台团购</div></div>
+          <div class="box" data-pay-box="other_group"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="其他平台团购金额"></div>
         </div>
       </div>
       <div class="pay-sheet__foot">
@@ -4596,6 +4684,7 @@
     for (var i = 0; i < STAFF_ALL.length; i++) if (STAFF_ALL[i].id === sid) return STAFF_ALL[i];
     return null;
   }
+  window.staffById = staffById;
 
   var staffRow = { id: '__add__', staffIds: [], staffRoles: {}, staffExtra: {}, staffChosen: {} };
   var addStaffRow = staffRow;
@@ -6760,9 +6849,9 @@
   }
 
   /* ===== 页面15 开单成功 ===== */
-  /* 成功页数据：amount 大字金额 / date 开单日期 / no 单号 / pays 支付明细行
+  /* 成功页数据：amount 大字金额 / date 开单日期 / no 单号 / pays 支付明细行 / flowId 本笔流水
      pays = [{ name 支付方式或卡名, val 金额或次数, sub: {l,r} 灰色小字剩余权益 }] */
-  var sucInfo = { amount: 0, date: '', no: '', pays: [] };
+  var sucInfo = { amount: 0, date: '', no: '', pays: [], flowId: null };
   function setText(id, txt) {
     var el = document.getElementById(id);
     if (el) el.textContent = txt;
@@ -7015,22 +7104,138 @@
       amount: amount,
       pays: buildPays(demo, amount, 'member'),
       date: d.getFullYear() + '.' + p(d.getMonth() + 1) + '.' + p(d.getDate()),
-      no: '' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '001'
+      no: '' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '001',
+      flowId: null
     };
     paintSuccessPage();
   }
-  /* 结账成功 → 成功页 */
+  /* 从成功页支付明细行推导流水 payments（sheet 未填时兜底） */
+  function paymentsFromSucPays(pays, amount) {
+    var known = {
+      '微信': 1, '支付宝': 1, '现金': 1, '会员卡': 1, '美团': 1, '抖音': 1,
+      '口碑': 1, '大众点评': 1, '银行卡': 1, '信用卡': 1, '经理签单': 1, '其他平台团购': 1
+    };
+    var out = [];
+    (pays || []).forEach(function (p) {
+      var val = String(p.val || '');
+      if (/次/.test(val)) return;
+      var n = parseFloat(val.replace(/[^\d.]/g, ''));
+      if (!isFinite(n) || n <= 0) return;
+      var method = p.name || '微信';
+      if (!known[method]) method = '会员卡';
+      out.push({ method: method, amount: Math.round(n * 100) / 100 });
+    });
+    if (!out.length && amount > 0) out.push({ method: '微信', amount: Math.round(amount * 100) / 100 });
+    return out;
+  }
+  function hostCheckoutCustomerSnapshot(custKind) {
+    var isMember = custKind === 'member';
+    if (isMember) {
+      var m = window.__v2Member;
+      return {
+        isMember: true,
+        customerName: (m && m.name) ? m.name : '陈女士',
+        customerId: 'host-member',
+        avatar: (m && m.avatar) ? m.avatar : 'assets/avatar_female3.png'
+      };
+    }
+    var el = document.querySelector('.v2-ccard[data-g], .guest-card[data-g]');
+    var g = (el && el.getAttribute('data-g')) || 'default';
+    var name = g === 'male' ? '男散客' : (g === 'female' ? '女散客' : '散客');
+    var avatar = g === 'male' ? 'assets/avatar_male2.png'
+      : (g === 'female' ? 'assets/avatar_card_female.png' : 'assets/avatar_default.svg');
+    return { isMember: false, customerName: name, customerId: null, avatar: avatar };
+  }
+  function hostCheckoutItemsSnapshot(kind) {
+    if (kind === 'qco') {
+      if (!qcoItem) return [];
+      var st = qcoItem.staff || {};
+      return [{
+        name: qcoItem.name || '直接收款',
+        price: qcoItem.price,
+        payable: qcoItem.actual != null ? qcoItem.actual : qcoItem.receivable,
+        actual: qcoItem.actual,
+        qty: 1,
+        type: 'quick',
+        staffIds: (st.staffIds || []).slice(),
+        staffRoles: Object.assign({}, st.staffRoles || {})
+      }];
+    }
+    return cartItems.map(function (it) {
+      var st = it.staff || {};
+      return {
+        name: it.name,
+        price: it.salePrice != null ? it.salePrice : it.price,
+        payable: it.payable,
+        actual: it.actual,
+        qty: it.qty || 1,
+        isProd: !!it.isProd,
+        kind: it.kind,
+        type: it.isProd ? 'product' : (it.kind === 'member' ? 'card' : 'project'),
+        spec: it.spec || '',
+        staffIds: (st.staffIds || []).slice(),
+        staffRoles: Object.assign({}, st.staffRoles || {})
+      };
+    });
+  }
+  function hostListTotalOf(kind) {
+    if (kind === 'qco') {
+      return qcoItem ? Math.round((qcoItem.price || 0) * 100) / 100 : 0;
+    }
+    var sum = 0;
+    cartItems.forEach(function (it) {
+      var unit = it.salePrice != null ? it.salePrice : it.price;
+      sum += (Number(unit) || 0) * Math.max(1, Number(it.qty) || 1);
+    });
+    return Math.round(sum * 100) / 100;
+  }
+  /* 结账成功 → 成功页（清车前写入 FLOW_ORDERS） */
   function checkoutToSuccess(kind) {
     var info = payInfoOf(kind);
     var billDate = (typeof window.__v2BillDate === 'function') ? window.__v2BillDate() : '';
-    /* R14：结算页「更多 → 手工单号」填了就用它，代替开单后自动产生的单号；留空则系统生成。
-       日期同理由 selDate 提供：结算页「更多 → 选日期」、开单页标题栏日期控件、成功页「改日期」
-       三处写的是同一个值，这里只做兜底（未取到时退回今天）。 */
+    var orderNo = coManualNo || genCoManual();
+    var sheetPays = collectPaySheetPayments();
+    var payments = sheetPays.length
+      ? sheetPays
+      : paymentsFromSucPays(info.pays, info.amount);
+    var custKind = kind === 'qco' ? qcoCust : coCust;
+    var cust = hostCheckoutCustomerSnapshot(custKind);
+    var itemsSnap = hostCheckoutItemsSnapshot(kind);
+    var remarkEl = document.getElementById('remarkInput');
+    var remark = '';
+    if (kind === 'qco' && qcoItem && qcoItem.note) remark = qcoItem.note;
+    else if (remarkEl) remark = String(remarkEl.value || '').slice(0, 50);
+
+    var flowId = null;
+    if (window.BillingDemo && typeof window.BillingDemo.recordFromHostCheckout === 'function') {
+      try {
+        var order = window.BillingDemo.recordFromHostCheckout({
+          kind: kind,
+          amount: info.amount,
+          listTotal: hostListTotalOf(kind),
+          payments: payments,
+          manualOrderNo: orderNo,
+          billBizDate: billDate || String(todayDot()).replace(/\./g, '-'),
+          isMember: cust.isMember,
+          customerName: cust.customerName,
+          customerId: cust.customerId,
+          avatar: cust.avatar,
+          remark: remark,
+          items: itemsSnap
+        });
+        if (order && order.id) flowId = order.id;
+      } catch (err) {
+        console.warn('[checkout] recordFromHostCheckout failed', err);
+      }
+    }
+
+    /* R14：结算页「更多 → 手工单号」填了就用它；日期同源 selDate。 */
     sucInfo = {
       amount: info.amount,
       pays: info.pays,
       date: (billDate ? billDate.replace(/-/g, '.') : todayDot()),
-      no: coManualNo || genCoManual()
+      no: orderNo,
+      flowId: flowId
     };
     /* 本单已结：把来源挂单移除（挂单删除的第三种情形：去结单后开单成功） */
     if (activeHoldId) {
@@ -7308,7 +7513,9 @@
     if (!list) return [];
     var nameMap = {
       member: '会员卡', alipay: '支付宝', wechat: '微信', meituan: '美团',
-      dianping: '大众点评', douyin: '抖音', koubei: '口碑'
+      dianping: '大众点评', douyin: '抖音', koubei: '口碑',
+      cash: '现金', bank: '银行卡', credit: '信用卡',
+      manager: '经理签单', other_group: '其他平台团购'
     };
     var pays = [];
     list.querySelectorAll('[data-pay-box]').forEach(function (box) {
@@ -7412,6 +7619,11 @@
     if (ctx === 'co') { toast('开单日期：' + dot); return; }
     sucInfo.date = dot;
     renderSucRows();
+    if (sucInfo.flowId && window.BillingDemo && typeof window.BillingDemo.syncHostCheckoutOrder === 'function') {
+      window.BillingDemo.syncHostCheckoutOrder(sucInfo.flowId, {
+        billBizDate: String(key || '').replace(/\./g, '-')
+      });
+    }
   };
   /* ===== 结算页标题栏「更多」下拉菜单（R14）=====
      入口只在 s6 / s7；菜单为单实例，靠 JS 显隐（几何两页一致）。
@@ -7497,6 +7709,9 @@
     if (!v) v = genCoManual();
     sucInfo.no = v;
     renderSucRows();
+    if (sucInfo.flowId && window.BillingDemo && typeof window.BillingDemo.syncHostCheckoutOrder === 'function') {
+      window.BillingDemo.syncHostCheckoutOrder(sucInfo.flowId, { manualOrderNo: v });
+    }
     toast('单号已更新');
   }
   function sucViewFlow() {
@@ -7506,7 +7721,7 @@
       if (root) root.classList.add('is-active');
       if (frame) frame.classList.add('is-flow-mode');
       document.querySelectorAll('#frame > .screen').forEach(function (s) { s.classList.remove('active'); });
-      window.BillingDemo.openFlowDetail(null, { fromSuccess: true });
+      window.BillingDemo.openFlowDetail(sucInfo.flowId || null, { fromSuccess: true });
       return;
     }
     toast('流水模块未就绪');

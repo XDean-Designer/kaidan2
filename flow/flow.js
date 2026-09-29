@@ -152,14 +152,14 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     },
     {
       id: 'demo_perm_color_discount', name: '烫染会员价卡', price: 599, giftAmount: 0, face: 0,
-      cardColor: 'purple', validity: '1年',
+      cardColor: 'purple', validity: '1年', flowCardGroup: 'discount',
       benefits: { balance: false, timesOrValidity: false, projectDiscount: true },
       projects: [], discounts: ['烫发 会员价', '染发 ¥299', '漂发 ¥238', '摩根烫 会员价', '电棒烫 ¥368', '挑染 会员价', '暖色漂褪 会员价'],
       memberPrices: typeof DEMO_TANG_GROUP_MEMBER_PRICES !== 'undefined' ? { ...DEMO_TANG_GROUP_MEMBER_PRICES } : {},
     },
     {
       id: 'demo_retail_perm_color', name: '减值烫染卡', price: 599, giftAmount: 0, face: 0,
-      cardColor: 'purple', validity: '1年',
+      cardColor: 'purple', validity: '1年', flowCardGroup: 'discount',
       benefits: { balance: false, timesOrValidity: false, projectDiscount: true },
       projects: [], discounts: ['烫发 会员价', '染发 ¥299', '漂发 ¥238', '摩根烫 会员价', '电棒烫 ¥368', '挑染 会员价', '暖色漂褪 会员价'],
       memberPrices: typeof DEMO_TANG_GROUP_MEMBER_PRICES !== 'undefined' ? { ...DEMO_TANG_GROUP_MEMBER_PRICES } : {},
@@ -176,7 +176,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     },
     {
       id: 'demo_care_pack', name: '护理体验包', price: 598, giftAmount: 0, face: 0,
-      cardColor: 'teal', validity: '1年',
+      cardColor: 'teal', validity: '1年', flowCardGroup: 'pack',
       benefits: { balance: false, timesOrValidity: true, projectDiscount: false },
       projects: ['深层滋养×3', '头皮护理×2', '蛋白矫正×1'], discounts: [],
       projectItems: [
@@ -187,7 +187,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     },
     {
       id: 'demo_unlimited_wash', name: '洗吹不限次卡', price: 1288, giftAmount: 0, face: 0,
-      cardColor: 'blue', validity: '1年',
+      cardColor: 'blue', validity: '1年', flowCardGroup: 'period',
       benefits: { balance: false, timesOrValidity: true, projectDiscount: false },
       projects: ['时尚洗吹不限次', '洗剪吹不限次', '洗头不限次'], discounts: [],
       projectItems: [
@@ -195,6 +195,20 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         { name: '洗剪吹', unlimited: true },
         { name: '洗头', unlimited: true },
       ],
+    },
+    {
+      id: 'demo_month_wash', name: '洗吹月卡', price: 398, giftAmount: 0, face: 0,
+      cardColor: 'teal', validity: '30天', flowCardGroup: 'period',
+      benefits: { balance: false, timesOrValidity: true, projectDiscount: false },
+      projects: ['时尚洗吹不限次（月）'], discounts: [],
+      projectItems: [{ name: '时尚洗吹', unlimited: true }],
+    },
+    {
+      id: 'demo_season_cut', name: '剪发季卡', price: 698, giftAmount: 0, face: 0,
+      cardColor: 'gold', validity: '90天', flowCardGroup: 'period',
+      benefits: { balance: false, timesOrValidity: true, projectDiscount: false },
+      projects: ['精致剪发不限次（季）'], discounts: [],
+      projectItems: [{ name: '精致剪发', unlimited: true }],
     },
     {
       id: 'demo_shared_cut_pool', name: '剪发造型共计10次卡', price: 698, giftAmount: 0, face: 0,
@@ -209,7 +223,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     },
     {
       id: 'demo_home_care_pack', name: '居家洗护包', price: 399, giftAmount: 0, face: 0,
-      cardColor: 'gold', validity: '1年',
+      cardColor: 'gold', validity: '1年', flowCardGroup: 'pack',
       benefits: { balance: false, timesOrValidity: false, products: true, projectDiscount: false },
       projects: [], discounts: [],
       productItems: [
@@ -218,6 +232,13 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         { name: '剑琅头皮护理精华', qty: 1 },
         { name: '剑琅柔顺发膜', qty: 1 },
       ],
+    },
+    {
+      id: 'demo_new_discount', name: '全场9折卡', price: 99, giftAmount: 0, face: 0,
+      cardColor: 'purple', validity: '1年', flowCardGroup: 'discount',
+      benefits: { balance: false, timesOrValidity: false, projectDiscount: true },
+      projects: [], discounts: ['全场项目 9折'],
+      memberPrices: {},
     },
     {
       id: 'demo_kids_times', name: '儿童10次剪发', price: 498, giftAmount: 0, face: 0,
@@ -1391,8 +1412,16 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     flowEditAddCardSeg: 'issue',
     flowEditAddCardId: null,
     flowEditAddCardTpls: [],
-    flowEditAddAmount: 1000,
+    flowEditAddAmount: 0,
+    flowEditAddGiftAmount: 0,
+    flowEditAddPayAmount: 0,
+    flowEditRechargeKind: 'topup',
+    flowEditRenewTimes: {},
+    flowEditValidityUnit: 'month',
+    flowEditValidityAmount: 1,
     flowEditReplaceItemId: null,
+    flowEditAddGroupId: { project: 'all', product: 'all', card: 'all' },
+    flowEditDelPending: null,
     flowSelfDetailId: null,
     flowSelfDetailReturn: null,
     flowSelfDate: 'today',
@@ -6948,6 +6977,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     /* Lucide chevron-right · 辅助 16 */
     return `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
   }
+  /** Lucide history · 修改记录入口左侧 */
+  function flowIconHistory() {
+    return `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>`;
+  }
   function flowIconChevronDown() {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>`;
   }
@@ -7678,6 +7711,155 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return order;
   }
 
+  /** 宿主 index 开单/直接收款结账 → 写入 FLOW_ORDERS（保留种子，unshift 置顶） */
+  function recordFromHostCheckout(payload) {
+    payload = payload || {};
+    const paymentsRaw = Array.isArray(payload.payments)
+      ? payload.payments.filter(p => Number(p.amount) > 0)
+      : [];
+    const paid = paymentsRaw.length
+      ? round2(paymentsRaw.reduce((a, p) => a + (Number(p.amount) || 0), 0))
+      : round2(Number(payload.amount) || 0);
+    const payments = paymentsRaw.length
+      ? paymentsRaw.map(p => ({ method: p.method || '现金', amount: round2(p.amount) }))
+      : [{ method: '现金', amount: paid }];
+    const payMethod = payments[0] ? payments[0].method : '现金';
+
+    const items = (payload.items || []).map((line, i) => {
+      const isQuick = payload.kind === 'qco' || line.type === 'quick' || line.name === '直接收款';
+      const isProduct = !!(line.isProd || line.type === 'product' || line.kind === 'product');
+      const isCard = !!(line.type === 'card' || line.kind === 'member' || line.kind === 'card');
+      const staffIds = Array.isArray(line.staffIds)
+        ? line.staffIds.slice()
+        : (line.staff && Array.isArray(line.staff.staffIds) ? line.staff.staffIds.slice() : []);
+      const staffRoles = Object.assign({},
+        line.staffRoles || (line.staff && line.staff.staffRoles) || {});
+      const qty = Math.max(1, Number(line.qty) || 1);
+      let unit = 0;
+      if (line.unitPrice != null) unit = Number(line.unitPrice) || 0;
+      else if (line.payable != null) unit = (Number(line.payable) || 0) / qty;
+      else if (line.actual != null) unit = (Number(line.actual) || 0) / qty;
+      else unit = Number(line.price) || 0;
+      return {
+        id: `fi-host-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`,
+        name: line.name || (isQuick ? '直接收款' : (isProduct ? '产品' : '项目')),
+        price: round2(unit),
+        type: isQuick ? 'quick' : (isCard ? 'card' : (isProduct ? 'product' : 'project')),
+        qty,
+        spec: line.spec || '',
+        staffIds,
+        staffRoles,
+      };
+    });
+    const safeItems = items.length
+      ? items
+      : [{
+          id: `fi-host-${Date.now()}-0`,
+          name: payload.kind === 'qco' ? '直接收款' : '开单消费',
+          price: paid,
+          type: payload.kind === 'qco' ? 'quick' : 'project',
+          qty: 1,
+          staffIds: [],
+          staffRoles: {},
+        }];
+    const kind = flowKindFromItems(safeItems);
+
+    const lineStaffIds = [];
+    safeItems.forEach(it => (it.staffIds || []).forEach(id => {
+      if (!lineStaffIds.includes(id)) lineStaffIds.push(id);
+    }));
+    const defaultStaff = (STAFFS[0] && STAFFS[0].name) || '林屿森';
+    const cashierStaff = getCashierStaff();
+    const cashierName = (cashierStaff && cashierStaff.name) || defaultStaff;
+    const staffs = lineStaffIds.length
+      ? lineStaffIds.map(sid => ({
+          id: sid,
+          name: flowStaffNameById(sid) || sid,
+          achievement: 0,
+          commission: 0,
+        }))
+      : [{
+          id: (STAFFS[0] && STAFFS[0].id) || 'legacy-staff',
+          name: defaultStaff,
+          achievement: paid,
+          commission: 0,
+        }];
+    if (staffs.length === 1) staffs[0].achievement = paid;
+
+    const isMember = !!payload.isMember;
+    const bizKey = String(payload.billBizDate || '').replace(/\./g, '-') || ensureBillBizDate();
+    const now = new Date();
+    const parsedBiz = parseBillDateKey(bizKey);
+    const timeDate = parsedBiz
+      ? new Date(parsedBiz.y, parsedBiz.m, parsedBiz.d, now.getHours(), now.getMinutes())
+      : now;
+    const listTotal = round2(Number(payload.listTotal) || flowItemsListTotal(safeItems));
+    const discount = round2(Math.max(0, listTotal - paid));
+
+    const order = {
+      id: `fo-host-${Date.now()}`,
+      flowNo: nextFlowNo(),
+      customerId: isMember ? (payload.customerId || 'host-member') : null,
+      customerName: payload.customerName || (isMember ? '会员' : '散客'),
+      avatar: payload.avatar || FLOW_AVATAR_GUEST,
+      status: 'done',
+      kind,
+      items: safeItems,
+      staff: staffs[0] ? staffs[0].name : defaultStaff,
+      staffs,
+      payMethod,
+      payments,
+      amount: paid,
+      paidAmount: paid,
+      listTotal,
+      achievement: staffs.reduce((a, x) => a + (Number(x.achievement) || 0), 0),
+      commission: staffs.reduce((a, x) => a + (Number(x.commission) || 0), 0),
+      discount,
+      benefitLabel: discount > 0 ? '优惠' : '无卡权益',
+      offerSnapshot: {
+        discountTotal: discount,
+        projectDeduct: 0,
+        discountDeduct: discount,
+        couponDeduct: 0,
+        balanceDeduct: 0,
+        lines: discount > 0 ? [{ label: '优惠', amount: discount }] : [],
+      },
+      orderRemark: payload.remark || '',
+      time: formatFlowTime(timeDate),
+      cashier: cashierName,
+      cashierId: (cashierStaff && cashierStaff.id) || null,
+      manualOrderNo: payload.manualOrderNo || '',
+      billBizDate: bizKey,
+      source: 'host-checkout',
+    };
+    FLOW_ORDERS.unshift(order);
+    state.lastFlowOrderId = order.id;
+    return order;
+  }
+
+  /** s15 改单号 / 改日期 → 回写对应 FLOW_ORDERS */
+  function syncHostCheckoutOrder(id, patch) {
+    if (!id || !patch) return null;
+    const o = FLOW_ORDERS.find(x => x.id === id);
+    if (!o) return null;
+    if (patch.manualOrderNo != null) o.manualOrderNo = String(patch.manualOrderNo);
+    if (patch.billBizDate != null) {
+      const key = String(patch.billBizDate).replace(/\./g, '-');
+      o.billBizDate = key;
+      const p = parseBillDateKey(key);
+      if (p) {
+        const hmMatch = String(o.time || '').match(/(\d{1,2}:\d{2})\s*$/);
+        const now = new Date();
+        const hhmm = hmMatch
+          ? hmMatch[1]
+          : `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const pad = n => String(n).padStart(2, '0');
+        o.time = `${p.y}.${pad(p.m + 1)}.${pad(p.d)} ${hhmm}`;
+      }
+    }
+    return o;
+  }
+
   function renderFlowList() {
     const tabs = [
       { id: 'all', label: '全部' },
@@ -7803,6 +7985,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         </div>`;
     }).join('') || `<div class="flow-edit-item__meta-line" style="padding:4px 0">暂无服务员工</div>`;
     const staffLineHtml = '';
+    const canEdit = flowCanEditOrder(o);
     const remarkRow = `<div class="flow-detail-meta__row"><span>备注</span><span class="flow-detail-meta__val">${o.orderRemark ? escapeHtml(o.orderRemark) : '无'}</span></div>`;
     const remarkEditBtn = o.status === 'done'
       ? `<button type="button" class="flow-detail-edit__link" data-flow-remark style="margin-top:8px">${o.orderRemark ? '修改备注' : '补录备注'}<span class="flow-detail-edit__link-ico" aria-hidden="true">${flowIconChevron()}</span></button>`
@@ -7810,8 +7993,8 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const meta = state.flowDetailExpanded ? `
       <div class="flow-detail-meta">
         <div class="flow-detail-meta__row"><span>开单人</span><span class="flow-detail-meta__val">${escapeHtml(o.cashier || o.staff || '—')}</span></div>
-        <div class="flow-detail-meta__row"><span>开单时间</span><span class="flow-detail-meta__val">${escapeHtml(o.time)}</span></div>
-        <div class="flow-detail-meta__row"><span>流水单号</span><span class="flow-detail-meta__val flow-detail-meta__val--num">${escapeHtml(o.flowNo)}</span></div>
+        <div class="flow-detail-meta__row"><span>开单时间</span><span class="flow-detail-meta__val-wrap"><span class="flow-detail-meta__val">${escapeHtml(o.time)}</span>${canEdit ? `<button type="button" class="flow-detail-meta__edit" data-flow-edit-time aria-label="修改开单时间">${flowIconEditSquare()}</button>` : ''}</span></div>
+        <div class="flow-detail-meta__row"><span>流水单号</span><span class="flow-detail-meta__val-wrap"><span class="flow-detail-meta__val flow-detail-meta__val--num">${escapeHtml(o.flowNo)}</span>${canEdit ? `<button type="button" class="flow-detail-meta__edit" data-flow-edit-flowno aria-label="修改流水单号">${flowIconEditSquare()}</button>` : ''}</span></div>
         ${o.manualOrderNo ? `<div class="flow-detail-meta__row"><span>手工单号</span><span class="flow-detail-meta__val flow-detail-meta__val--num">${escapeHtml(o.manualOrderNo)}</span></div>` : ''}
         ${o.billBizDate ? `<div class="flow-detail-meta__row"><span>开单日期</span><span class="flow-detail-meta__val">${escapeHtml(formatBillDateLabel(o.billBizDate))}</span></div>` : ''}
         ${remarkRow}
@@ -7839,9 +8022,8 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         </div>`
       : '';
     const allBtn = state.flowFromSuccess
-      ? '<button type="button" class="flow-detail-all" data-flow-all>查看全部流水</button>'
+      ? `<button type="button" class="flow-detail-all" data-flow-all>查看全部流水<span class="flow-detail-all__ico" aria-hidden="true">${flowIconChevron()}</span></button>`
       : '';
-    const canEdit = flowCanEditOrder(o);
     const canRefundOrVoid = flowCanRefundOrVoid(o);
     const refundedTotal = flowOrderTotalRefunded(o);
     const remainRefundable = round2(
@@ -7887,6 +8069,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
             <div class="flow-detail-edit__title">修改订单</div>
             <div class="flow-detail-edit__hint">先调整项目，再为项目设置服务人与业绩${o.lastEditedAt ? ` · 上次 ${escapeHtml(o.lastEditedAt)}` : ''}</div>
             <button type="button" class="flow-detail-edit__link" data-flow-edit-log>
+              <span class="flow-detail-edit__link-lead" aria-hidden="true">${flowIconHistory()}</span>
               修改记录${(o.editLogs && o.editLogs.length) ? ` · ${o.editLogs.length}` : ''}
               <span class="flow-detail-edit__link-ico" aria-hidden="true">${flowIconChevron()}</span>
             </button>
@@ -8164,7 +8347,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         <div class="flow-refund-method-item__name">${escapeHtml(ln.it.name)} · ×${ln.it.qty || 1}</div>
         <div class="flow-refund-method-item__meta">原价 ¥${ln.listPrice.toFixed(2)} · 实付分摊 ¥${ln.paidShare.toFixed(2)}</div>
         ${ln.editable
-          ? `<label class="flow-refund-method-amt">退款 <input type="text" inputmode="decimal" data-flow-refund-amt="${ln.idx}" value="${Number(ln.amt).toFixed(2)}" /></label>`
+          ? `<label class="flow-refund-method-amt">退款 <span class="flow-refund-method-amt__wrap"><input type="text" inputmode="decimal" data-flow-refund-amt="${ln.idx}" value="${Number(ln.amt).toFixed(2)}" aria-label="修改退款金额" /><span class="flow-refund-method-amt__edit" aria-hidden="true">${flowIconEditSquare()}</span></span></label>`
           : `<div class="flow-refund-method-amt is-readonly">退款 ¥${Number(ln.amt).toFixed(2)}${ln.zeroBlock && mode === 'designated' ? ' <span class="flow-refund-zero-tag">不可指定</span>' : ''}</div>`}
       </div>`;
     });
@@ -8338,11 +8521,22 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return 'project';
   }
 
-  /** 会员卡条目的副行文案：办卡「面值 ¥2500 · 赠送 ¥500」，充卡「储值卡 · 卡名」 */
+  /** 会员卡条目副行：办卡面值赠送 / 充值·续次·续费摘要 */
   function flowEditCardItemMeta(it) {
     if (!it || it.type !== 'card') return '';
     if (it.cardKind === 'recharge') {
-      return it.cardName ? `储值卡 · ${escapeHtml(it.cardName)}` : '储值卡充值';
+      const top = Number(it.cardTopup != null ? it.cardTopup : it.price) || 0;
+      const gift = Number(it.cardGift || 0);
+      const bits = [`充值 ¥${top.toFixed(2)}`];
+      if (gift > 0) bits.push(`赠送 ¥${gift.toFixed(2)}`);
+      if (it.cardName) bits.unshift(escapeHtml(it.cardName));
+      return bits.join(' · ');
+    }
+    if (it.cardKind === 'renew_times') {
+      return `${escapeHtml(it.cardName || '会员卡')} · ${escapeHtml(it.renewBrief || '续次')}`;
+    }
+    if (it.cardKind === 'renew_validity') {
+      return `${escapeHtml(it.cardName || '会员卡')} · ${escapeHtml(it.validityLabel || '续费')}`;
     }
     const bits = [];
     const face = Number(it.cardFace || 0);
@@ -8525,7 +8719,13 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     state.flowEditAddCardSeg = 'issue';
     state.flowEditAddCardId = null;
     state.flowEditAddCardTpls = [];
-    state.flowEditAddAmount = 1000;
+    state.flowEditAddAmount = 0;
+    state.flowEditAddGiftAmount = 0;
+    state.flowEditAddPayAmount = 0;
+    state.flowEditRechargeKind = 'topup';
+    state.flowEditRenewTimes = {};
+    state.flowEditValidityUnit = 'month';
+    state.flowEditValidityAmount = 1;
   }
 
   /** 本单顾客（散客返回 null）与名下会员卡 —— 会员卡 Tab 的办卡 / 充卡数据源 */
@@ -8545,9 +8745,236 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return hasLedger ? live : (CUSTOMER_SEED_CARDS[c.id] || []);
   }
 
-  const FLOW_EDIT_RECHARGE_AMOUNTS = [500, 1000, 2000, 5000];
+  const FLOW_RECHARGE_KINDS = [
+    { id: 'topup', name: '充值' },
+    { id: 'times', name: '续次' },
+    { id: 'validity', name: '续费' },
+  ];
 
-  /** 会员卡 Tab 内容：办卡（选卡模板 + 面值/赠送） / 充卡（顾客卡 + 储值金额） */
+  function flowHeldCardIsPermanent(card) {
+    if (!card) return false;
+    if (card.permanent || card.validityKey === 'permanent') return true;
+    const v = String(card.validity || card.expireLabel || '');
+    return /永久/.test(v);
+  }
+
+  function flowHeldCardExpireText(card) {
+    if (flowHeldCardIsPermanent(card)) return '永久有效';
+    if (card.expireDate) return String(card.expireDate).replace(/-/g, '.');
+    /* 演示缺省：未写到期日时按模板有效期示意 */
+    const tpl = card.templateId ? (CARD_TPL_BY_ID[card.templateId] || null) : null;
+    if (tpl && /永久/.test(String(tpl.validity || ''))) return '永久有效';
+    return card.expireHint || '2027.09.28';
+  }
+
+  function flowHeldCardCanTopup(card) {
+    const g = flowHeldCardGroupId(card);
+    if (g === 'balance') return true;
+    const n = card && (typeof normalizeHeldCard === 'function' ? normalizeHeldCard(card) : card);
+    return !!(n && n.benefits && n.benefits.balance);
+  }
+
+  function flowHeldCardTimesLines(card) {
+    const lines = [];
+    (card.projects || []).forEach((p, i) => {
+      const key = p.key || p.label || p.name || ('p' + i);
+      lines.push({
+        key: String(key),
+        label: p.label || p.name || p.key || '项目',
+        remain: p.remain != null ? Number(p.remain) : null,
+        kind: 'project',
+      });
+    });
+    (card.products || card.productItems || []).forEach((p, i) => {
+      const key = p.key || p.name || ('pd' + i);
+      lines.push({
+        key: 'prod:' + String(key),
+        label: p.label || p.name || p.key || '产品',
+        remain: p.remain != null ? Number(p.remain) : (p.qty != null ? Number(p.qty) : null),
+        kind: 'product',
+      });
+    });
+    return lines;
+  }
+
+  function flowHeldCardCanRenewTimes(card) {
+    return flowHeldCardTimesLines(card).length > 0;
+  }
+
+  function flowEditRechargeReady() {
+    const kind = state.flowEditRechargeKind || 'topup';
+    if (!state.flowEditAddCardId) return false;
+    const pay = Number(state.flowEditAddPayAmount) || 0;
+    if (!(pay > 0)) return false;
+    if (kind === 'topup') return (Number(state.flowEditAddAmount) || 0) > 0;
+    if (kind === 'times') {
+      const map = state.flowEditRenewTimes || {};
+      return Object.keys(map).some(k => (Number(map[k]) || 0) > 0);
+    }
+    if (kind === 'validity') {
+      if (state.flowEditValidityUnit === 'permanent') return true;
+      return (Number(state.flowEditValidityAmount) || 0) > 0;
+    }
+    return false;
+  }
+
+  function flowEditValiditySummary() {
+    const unit = state.flowEditValidityUnit || 'month';
+    if (unit === 'permanent') return '改为永久有效';
+    const n = Number(state.flowEditValidityAmount) || 0;
+    const lab = { day: '日', month: '月', year: '年' }[unit] || '';
+    return n > 0 ? `延长 ${n}${lab}` : '请设置延长时长';
+  }
+
+  function flowEditDurationInputHtml() {
+    const unit = state.flowEditValidityUnit || 'month';
+    const amount = state.flowEditValidityAmount;
+    const units = ['day', 'month', 'year', 'permanent'];
+    const labels = { day: '日', month: '月', year: '年', permanent: '永久' };
+    const idx = Math.max(0, units.indexOf(unit));
+    const fieldHidden = unit === 'permanent' ? ' is-hidden' : '';
+    const amountVal = unit === 'permanent' ? '' : (amount != null && amount !== '' ? String(amount) : '');
+    const unitsHtml = units.map(u =>
+      `<button type="button" class="duration-input__unit${u === unit ? ' is-active' : ''}" data-flow-edit-validity-unit="${u}">${labels[u]}</button>`
+    ).join('');
+    return `<div class="duration-input flow-edit-duration" data-flow-edit-duration>
+      <div class="duration-input__field${fieldHidden}" data-duration-field>
+        <input type="text" class="duration-input__num${amountVal ? ' is-confirmed' : ''}" data-flow-edit-validity-amount
+          inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="请输入" value="${escapeHtml(amountVal)}" aria-label="延长数量">
+      </div>
+      <div class="duration-input__units" data-duration-units style="grid-template-columns:repeat(4,1fr);flex:0 0 136px;width:136px">
+        <span class="duration-seg-indicator" style="width:calc((100% - 6px) / 4);transform:translateX(${idx * 100}%)" aria-hidden="true"></span>
+        ${unitsHtml}
+      </div>
+    </div>`;
+  }
+
+  /** 会员卡分组：全部 / 储值卡 / 计次卡 / 套餐卡 / 折扣卡 / 周期卡 */
+  const FLOW_CARD_GROUP_TABS = [
+    { id: 'all', name: '全部' },
+    { id: 'balance', name: '储值卡' },
+    { id: 'times', name: '计次卡' },
+    { id: 'pack', name: '套餐卡' },
+    { id: 'discount', name: '折扣卡' },
+    { id: 'period', name: '周期卡' },
+  ];
+
+  function flowCardTplGroupId(tpl) {
+    if (!tpl) return 'balance';
+    if (tpl.flowCardGroup) return tpl.flowCardGroup;
+    const b = tpl.benefits || {};
+    if (b.products || (tpl.productItems && tpl.productItems.length)) return 'pack';
+    if (b.projectDiscount && !b.balance && !b.timesOrValidity) return 'discount';
+    if (b.timesOrValidity) {
+      if ((tpl.projectItems || []).some(p => p.unlimited)) return 'period';
+      return 'times';
+    }
+    if (b.balance) return 'balance';
+    if (b.projectDiscount) return 'discount';
+    return 'balance';
+  }
+
+  function flowHeldCardGroupId(card) {
+    const tid = typeof heldTemplateId === 'function' ? heldTemplateId(card) : (card && card.templateId);
+    const tpl = tid ? (CARD_TPL_BY_ID[tid] || CARD_TEMPLATES.find(t => t.id === tid)) : null;
+    if (tpl) return flowCardTplGroupId(tpl);
+    const name = (card && card.name) || '';
+    if (/折|会员价/.test(name)) return 'discount';
+    if (/月卡|季卡|年卡|不限次|周期/.test(name)) return 'period';
+    if (/套餐|体验包|洗护包/.test(name)) return 'pack';
+    if (/次/.test(name)) return 'times';
+    return 'balance';
+  }
+
+  function flowEditAddGroupBucket() {
+    const tab = state.flowEditAddTab === 'product' ? 'product' : (state.flowEditAddTab === 'card' ? 'card' : 'project');
+    return tab;
+  }
+
+  function getFlowEditAddGroupId() {
+    if (!state.flowEditAddGroupId) state.flowEditAddGroupId = { project: 'all', product: 'all', card: 'all' };
+    const bucket = flowEditAddGroupBucket();
+    return state.flowEditAddGroupId[bucket] || 'all';
+  }
+
+  function setFlowEditAddGroupId(id) {
+    if (!state.flowEditAddGroupId) state.flowEditAddGroupId = { project: 'all', product: 'all', card: 'all' };
+    state.flowEditAddGroupId[flowEditAddGroupBucket()] = id || 'all';
+  }
+
+  /** 项目/产品分组：优先价目自定义分组，否则按 category 造数 */
+  function flowEditCatalogGroupTabs(tab) {
+    const list = tab === 'product' ? PRODUCTS : PROJECTS;
+    if (typeof getCustomCatalogGroups === 'function') {
+      const groups = getCustomCatalogGroups(tab) || [];
+      if (groups.length) {
+        return [
+          { id: 'all', name: '全部' },
+          ...groups.map(g => ({ id: g.id, name: g.name, itemIds: g.itemIds || [] })),
+        ];
+      }
+    }
+    const seen = new Set();
+    const cats = [];
+    list.forEach((p) => {
+      const c = p.category || '其他';
+      if (seen.has(c)) return;
+      seen.add(c);
+      cats.push({ id: 'cat:' + c, name: c, category: c });
+    });
+    return [{ id: 'all', name: '全部' }, ...cats];
+  }
+
+  function flowEditFilterCatalogList(list, tab) {
+    const gid = getFlowEditAddGroupId();
+    if (!gid || gid === 'all') return list;
+    if (gid.indexOf('cat:') === 0) {
+      const cat = gid.slice(4);
+      return list.filter(p => (p.category || '其他') === cat);
+    }
+    if (typeof findCatalogGroupById === 'function') {
+      const g = findCatalogGroupById(gid, tab);
+      if (g && Array.isArray(g.itemIds)) {
+        const ids = new Set(g.itemIds);
+        return list.filter(p => ids.has(p.id));
+      }
+    }
+    return list;
+  }
+
+  function flowEditFilterCardTemplates(list) {
+    const gid = getFlowEditAddGroupId();
+    if (!gid || gid === 'all') return list;
+    return list.filter(tpl => flowCardTplGroupId(tpl) === gid);
+  }
+
+  function flowEditFilterHeldCards(list) {
+    const gid = getFlowEditAddGroupId();
+    if (!gid || gid === 'all') return list;
+    return list.filter(c => flowHeldCardGroupId(c) === gid);
+  }
+
+  function renderFlowEditAddGroupTabs() {
+    const el = document.getElementById('flowEditAddGroupTabs');
+    const bar = document.getElementById('flowEditAddGroupBar');
+    if (!el) return;
+    const tab = flowEditAddGroupBucket();
+    const tabs = tab === 'card' ? FLOW_CARD_GROUP_TABS : flowEditCatalogGroupTabs(tab);
+    if (!tabs.some(t => t.id === getFlowEditAddGroupId())) setFlowEditAddGroupId('all');
+    const cur = getFlowEditAddGroupId();
+    el.innerHTML = tabs.map(t => (
+      `<button type="button" class="catalog-group-tab${t.id === cur ? ' on' : ''}" data-flow-edit-add-group="${escapeHtml(t.id)}" role="tab" aria-selected="${t.id === cur ? 'true' : 'false'}">
+        <span class="catalog-group-tab__face"><span class="catalog-group-tab__label">${escapeHtml(t.name)}</span></span>
+      </button>`
+    )).join('');
+    if (bar) bar.hidden = false;
+    requestAnimationFrame(() => {
+      const on = el.querySelector('.catalog-group-tab.on');
+      if (on && on.scrollIntoView) on.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+    });
+  }
+
+  /** 会员卡 Tab：办卡 / 充卡（充值·续次·续费） */
   function flowEditAddCardHtml(seg) {
     const tplPicked = new Set(state.flowEditAddCardTpls || []);
     const segHtml = `
@@ -8556,13 +8983,16 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         <button type="button" class="flow-edit-subseg__btn${seg === 'recharge' ? ' is-on' : ''}" data-flow-edit-add-cardseg="recharge">充卡</button>
       </div>`;
     const cust = flowEditCustomer();
-    /* 散客订单：与开单2.0 同口径「需先选择会员顾客再办卡」 */
     if (!cust) {
       return segHtml + `<div class="flow-edit-add-note">该订单为散客，需先为顾客办卡并选择会员顾客后，才能办卡或充卡。</div>`;
     }
     if (seg === 'issue') {
+      const tpls = flowEditFilterCardTemplates(CARD_TEMPLATES);
+      if (!tpls.length) {
+        return segHtml + `<div class="flow-edit-add-note">本组暂无卡模板，请切换其他分组。</div>`;
+      }
       return segHtml + `<div class="flow-edit-add-sub">选择卡模板（可多选，金额为办卡实付）</div>` +
-        CARD_TEMPLATES.map(tpl => {
+        tpls.map(tpl => {
           const on = tplPicked.has(tpl.id);
           const bits = [];
           const face = Number(tpl.face || 0);
@@ -8580,35 +9010,110 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
           </button>`;
         }).join('');
     }
-    const cards = flowEditCustomerCards();
-    const amount = Number(state.flowEditAddAmount) || 0;
-    const isPreset = FLOW_EDIT_RECHARGE_AMOUNTS.indexOf(amount) >= 0;
-    const chipHtml = FLOW_EDIT_RECHARGE_AMOUNTS.map(v =>
-      `<button type="button" class="flow-edit-amount-chip${amount === v ? ' is-on' : ''}" data-flow-edit-add-amount="${v}">¥${v}</button>`
-    ).join('');
-    const cardRows = cards.length
-      ? cards.map(c => {
+
+    const kind = state.flowEditRechargeKind || 'topup';
+    const kindSeg = `<div class="flow-edit-subseg flow-edit-subseg--3" role="group" aria-label="充卡类型">
+      ${FLOW_RECHARGE_KINDS.map(k =>
+        `<button type="button" class="flow-edit-subseg__btn${kind === k.id ? ' is-on' : ''}" data-flow-edit-recharge-kind="${k.id}">${k.name}</button>`
+      ).join('')}
+    </div>`;
+
+    let pool = flowEditFilterHeldCards(flowEditCustomerCards());
+    if (kind === 'topup') pool = pool.filter(flowHeldCardCanTopup);
+    else if (kind === 'times') pool = pool.filter(flowHeldCardCanRenewTimes);
+
+    const allHeld = flowEditCustomerCards();
+    const cardRows = pool.length
+      ? pool.map(c => {
           const on = state.flowEditAddCardId === c.id;
+          const meta = kind === 'times'
+            ? `可续 ${flowHeldCardTimesLines(c).length} 项`
+            : (kind === 'validity'
+              ? `有效期 ${flowHeldCardExpireText(c)}`
+              : `余额 ¥${Number(c.balance || 0).toFixed(2)}`);
           return `<button type="button" class="flow-edit-pick-item${on ? ' is-on' : ''}" data-flow-edit-add-card="${escapeHtml(c.id)}">
             <span class="flow-edit-pick-item__check" aria-hidden="true">${on ? flowEditCheckSvg : ''}</span>
             <div class="flow-refund-item__main">
               <div class="flow-refund-item__name">${escapeHtml(c.name)}</div>
-              <div class="flow-refund-item__meta">余额 ¥${Number(c.balance || 0).toFixed(2)}</div>
+              <div class="flow-refund-item__meta">${escapeHtml(meta)}</div>
             </div>
           </button>`;
         }).join('')
-      : `<div class="flow-edit-add-note">「${escapeHtml(cust.name)}」名下暂无会员卡，可先到「办卡」办理后再充值。</div>`;
-    return segHtml +
-      `<div class="flow-edit-panel">
-        <div class="flow-edit-panel__title">储值金额</div>
-        <div class="flow-edit-amount-chips">${chipHtml}</div>
-        <div class="flow-edit-amount-custom${isPreset ? '' : ' is-on'}">
-          <span>自定义金额</span>
-          <input type="text" class="input-amount" readonly inputmode="decimal"
-            data-flow-edit-add-amount-input value="${amount.toFixed(2)}" aria-label="自定义储值金额">
-        </div>
-      </div>
-      <div class="flow-edit-add-sub">选择充值卡</div>${cardRows}`;
+      : (allHeld.length
+        ? `<div class="flow-edit-add-note">${kind === 'topup' ? '本组暂无可充值的储值卡。' : (kind === 'times' ? '本组暂无可续次的会员卡。' : '本组暂无会员卡，请切换其他分组。')}</div>`
+        : `<div class="flow-edit-add-note">「${escapeHtml(cust.name)}」名下暂无会员卡，可先到「办卡」办理后再操作。</div>`);
+
+    const selectedCard = pool.find(c => c.id === state.flowEditAddCardId)
+      || flowEditCustomerCards().find(c => c.id === state.flowEditAddCardId);
+    let formHtml = '';
+    if (selectedCard) {
+      const pay = Number(state.flowEditAddPayAmount) || 0;
+      const amtField = (label, dataAttr, val, aria) => `<div class="flow-edit-form-row flow-edit-form-row--inpanel">
+          <span class="flow-edit-form-row__label">${label}</span>
+          <button type="button" class="flow-edit-price-wrap" data-flow-edit-amt-hit="${dataAttr}" aria-label="${aria}">
+            <input type="text" class="input-amount flow-edit-price-input" readonly inputmode="decimal"
+              ${dataAttr} value="${val.toFixed(2)}" tabindex="-1" aria-hidden="true">
+            <span class="flow-edit-price-edit" aria-hidden="true">${flowIconEditSquare()}</span>
+          </button>
+        </div>`;
+      const payRow = amtField('本次实付', 'data-flow-edit-pay-amount', pay, '修改本次实付');
+      if (kind === 'topup') {
+        const amt = Number(state.flowEditAddAmount) || 0;
+        const gift = Number(state.flowEditAddGiftAmount) || 0;
+        formHtml = `<div class="flow-edit-panel">
+          <div class="flow-edit-panel__title">充值设置 · ${escapeHtml(selectedCard.name)}</div>
+          ${amtField('储值金额', 'data-flow-edit-add-amount-input', amt, '修改储值金额')}
+          ${amtField('赠送金额', 'data-flow-edit-gift-amount', gift, '修改赠送金额')}
+          ${payRow}
+        </div>`;
+      } else if (kind === 'times') {
+        const lines = flowHeldCardTimesLines(selectedCard);
+        const map = state.flowEditRenewTimes || {};
+        const lineRows = lines.map(line => {
+          const q = Number(map[line.key]) || 0;
+          const remainBit = line.remain != null ? `剩余 ${line.remain}` : (line.kind === 'product' ? '产品' : '项目');
+          return `<div class="flow-edit-renew-line" data-flow-edit-renew-line="${escapeHtml(line.key)}">
+            <div class="flow-edit-renew-line__main">
+              <div class="flow-edit-renew-line__name">${escapeHtml(line.label)}</div>
+              <div class="flow-edit-renew-line__meta">${escapeHtml(remainBit)}</div>
+            </div>
+            <div class="flow-edit-qty">
+              <button type="button" class="flow-edit-qty__btn" data-flow-edit-renew-delta="-1" data-key="${escapeHtml(line.key)}" aria-label="减少">−</button>
+              <span class="flow-edit-qty__val">${q}</span>
+              <button type="button" class="flow-edit-qty__btn" data-flow-edit-renew-delta="1" data-key="${escapeHtml(line.key)}" aria-label="增加">+</button>
+            </div>
+          </div>`;
+        }).join('');
+        formHtml = `<div class="flow-edit-panel">
+          <div class="flow-edit-panel__title">续次设置 · ${escapeHtml(selectedCard.name)}</div>
+          <p class="flow-edit-panel__hint">仅可增加该卡已有权益次数/数量</p>
+          ${lineRows || '<div class="flow-edit-add-note">该卡无可续次权益</div>'}
+          ${payRow}
+        </div>`;
+      } else {
+        const isPerm = flowHeldCardIsPermanent(selectedCard);
+        formHtml = `<div class="flow-edit-panel">
+          <div class="flow-edit-panel__title">续费设置 · ${escapeHtml(selectedCard.name)}</div>
+          <div class="flow-edit-form-row flow-edit-form-row--inpanel">
+            <span class="flow-edit-form-row__label">当前有效期</span>
+            <span class="flow-edit-form-row__val flow-edit-form-row__val--muted">${escapeHtml(flowHeldCardExpireText(selectedCard))}</span>
+          </div>
+          ${isPerm
+            ? '<div class="flow-edit-add-note">该卡已是永久有效，无需续费。</div>'
+            : `<div class="flow-edit-form-row flow-edit-form-row--inpanel flow-edit-form-row--duration">
+                <span class="flow-edit-form-row__label">延长</span>
+                ${flowEditDurationInputHtml()}
+              </div>
+              <p class="flow-edit-panel__hint">${escapeHtml(flowEditValiditySummary())}（从当前到期日顺延；已过期则从今天起算）</p>
+              ${payRow}`}
+        </div>`;
+      }
+    } else {
+      formHtml = `<div class="flow-edit-add-note">请先选择要操作的会员卡</div>`;
+    }
+
+    return segHtml + kindSeg +
+      `<div class="flow-edit-add-sub">选择会员卡</div>${cardRows}${formHtml}`;
   }
 
   function renderFlowEditAdd() {
@@ -8621,10 +9126,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const titleEl = document.querySelector('#screen-flow-edit-add .title');
     if (titleEl) titleEl.textContent = replacing ? '更换项' : '添加项';
     const selected = new Set(state.flowEditAddSelected || []);
-    /* 会员卡 Tab 的「选中项数」：办卡=已选卡模板数，充卡=选好卡且金额有效才算 1 项 */
-    const rechargeReady = !!state.flowEditAddCardId && Number(state.flowEditAddAmount) > 0;
+    /* 会员卡 Tab：办卡=已选模板数；充卡=充值/续次/续费表单校验通过算 1 项 */
     const pickedCount = tab === 'card'
-      ? (seg === 'issue' ? (state.flowEditAddCardTpls || []).length : (rechargeReady ? 1 : 0))
+      ? (seg === 'issue' ? (state.flowEditAddCardTpls || []).length : (flowEditRechargeReady() ? 1 : 0))
       : selected.size;
     if (tabs) {
       tabs.innerHTML = `
@@ -8632,26 +9136,29 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         <button type="button" class="flow-edit-add-tab${tab === 'product' ? ' is-on' : ''}" data-flow-edit-add-tab="product" role="tab">产品</button>
         <button type="button" class="flow-edit-add-tab${tab === 'card' ? ' is-on' : ''}" data-flow-edit-add-tab="card" role="tab">会员卡</button>`;
     }
+    renderFlowEditAddGroupTabs();
     if (body) {
       if (tab === 'card') {
         body.innerHTML = flowEditAddCardHtml(seg);
       } else {
-        const list = tab === 'product' ? PRODUCTS : PROJECTS;
-        body.innerHTML = list.map(p => {
-          const on = selected.has(p.id);
-          return `<button type="button" class="flow-edit-pick-item${on ? ' is-on' : ''}" data-flow-edit-pick="${escapeHtml(p.id)}">
-            <span class="flow-edit-pick-item__check" aria-hidden="true">${on ? flowEditCheckSvg : ''}</span>
-            <div class="flow-refund-item__main">
-              <div class="flow-refund-item__name">${escapeHtml(p.name)}</div>
-              <div class="flow-refund-item__meta">${escapeHtml(p.category || p.spec || '')}</div>
-            </div>
-            <div class="flow-refund-item__price"><span class="yen">¥</span>${Number(p.price || 0).toFixed(2)}</div>
-          </button>`;
-        }).join('');
+        const list = flowEditFilterCatalogList(tab === 'product' ? PRODUCTS : PROJECTS, tab);
+        body.innerHTML = list.length
+          ? list.map(p => {
+              const on = selected.has(p.id);
+              return `<button type="button" class="flow-edit-pick-item${on ? ' is-on' : ''}" data-flow-edit-pick="${escapeHtml(p.id)}">
+                <span class="flow-edit-pick-item__check" aria-hidden="true">${on ? flowEditCheckSvg : ''}</span>
+                <div class="flow-refund-item__main">
+                  <div class="flow-refund-item__name">${escapeHtml(p.name)}</div>
+                  <div class="flow-refund-item__meta">${escapeHtml(p.category || p.spec || '')}</div>
+                </div>
+                <div class="flow-refund-item__price"><span class="yen">¥</span>${Number(p.price || 0).toFixed(2)}</div>
+              </button>`;
+            }).join('')
+          : `<div class="flow-edit-add-note">本组暂无${tab === 'product' ? '产品' : '项目'}，请切换其他分组。</div>`;
       }
     }
-    /* 会员卡 Tab 的自定义金额输入走金额键盘（.input-amount 自动接线；重绘后需重新接） */
-    if (body && tab === 'card' && seg === 'recharge' && typeof window.wireAmountKeypadInputs === 'function') {
+    /* 会员卡金额字段走金额键盘（重绘后需重新接） */
+    if (body && tab === 'card' && typeof window.wireAmountKeypadInputs === 'function') {
       window.wireAmountKeypadInputs(body);
     }
     if (foot) {
@@ -8763,21 +9270,24 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     showOnlyScreen('screen-flow-edit');
   }
 
-  /** 更换/添加时构造单条会员卡条目；失败时 toast 并返回 null */
-  function flowEditBuildOneCardItem(seg) {
-    const base = {
-      qty: 1,
-      type: 'card',
-      spec: '',
-    };
-    if (seg === 'recharge') {
-      const cust = flowEditCustomer();
-      const card = flowEditCustomerCards().find(c => c.id === state.flowEditAddCardId);
+  /** 构造单条充卡条目（充值/续次/续费）；失败 toast 并返回 null */
+  function flowEditBuildRechargeItem() {
+    const cust = flowEditCustomer();
+    const card = flowEditCustomerCards().find(c => c.id === state.flowEditAddCardId);
+    const kind = state.flowEditRechargeKind || 'topup';
+    const pay = Number(state.flowEditAddPayAmount) || 0;
+    if (!cust || !card) {
+      showToast('请选择要操作的会员卡', true);
+      return null;
+    }
+    if (!(pay > 0)) {
+      showToast('请填写本次实付', true);
+      return null;
+    }
+    const base = { qty: 1, type: 'card', spec: '', cardId: card.id, cardName: card.name, price: pay };
+    if (kind === 'topup') {
       const amount = Number(state.flowEditAddAmount) || 0;
-      if (!cust || !card) {
-        showToast('请选择要充值的会员卡', true);
-        return null;
-      }
+      const gift = Number(state.flowEditAddGiftAmount) || 0;
       if (!(amount > 0)) {
         showToast('请设置储值金额', true);
         return null;
@@ -8785,12 +9295,58 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       return {
         ...base,
         name: `充值 · ${card.name}`,
-        price: amount,
         cardKind: 'recharge',
-        cardId: card.id,
-        cardName: card.name,
+        cardTopup: amount,
+        cardGift: gift,
       };
     }
+    if (kind === 'times') {
+      const map = state.flowEditRenewTimes || {};
+      const lines = flowHeldCardTimesLines(card)
+        .map(l => ({ key: l.key, label: l.label, kind: l.kind, add: Number(map[l.key]) || 0 }))
+        .filter(l => l.add > 0);
+      if (!lines.length) {
+        showToast('请设置要增加的次数/数量', true);
+        return null;
+      }
+      const brief = lines.map(l => `${l.label}+${l.add}`).join('、');
+      return {
+        ...base,
+        name: `续次 · ${card.name}`,
+        cardKind: 'renew_times',
+        renewLines: lines,
+        renewBrief: brief,
+      };
+    }
+    if (flowHeldCardIsPermanent(card)) {
+      showToast('该卡已是永久有效', true);
+      return null;
+    }
+    const unit = state.flowEditValidityUnit || 'month';
+    const n = Number(state.flowEditValidityAmount) || 0;
+    if (unit !== 'permanent' && !(n > 0)) {
+      showToast('请设置延长时长', true);
+      return null;
+    }
+    return {
+      ...base,
+      name: `续费 · ${card.name}`,
+      cardKind: 'renew_validity',
+      validityUnit: unit,
+      validityAmount: unit === 'permanent' ? null : n,
+      validityLabel: flowEditValiditySummary(),
+      expireFrom: flowHeldCardExpireText(card),
+    };
+  }
+
+  /** 更换/添加时构造单条会员卡条目；失败时 toast 并返回 null */
+  function flowEditBuildOneCardItem(seg) {
+    const base = {
+      qty: 1,
+      type: 'card',
+      spec: '',
+    };
+    if (seg === 'recharge') return flowEditBuildRechargeItem();
     const tid = (state.flowEditAddCardTpls || [])[0];
     const tpl = tid && CARD_TEMPLATES.find(t => t.id === tid);
     if (!tpl) {
@@ -8808,7 +9364,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     };
   }
 
-  /** 会员卡 Tab 确认：办卡（卡模板 → 办卡条目）/ 充卡（顾客卡 + 储值金额 → 充值条目） */
+  /** 会员卡 Tab 确认：办卡 / 充卡（充值·续次·续费） */
   function addFlowEditCardItems(d, seg) {
     const base = {
       qty: 1,
@@ -8820,25 +9376,12 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       staffCommissions: {},
     };
     if (seg === 'recharge') {
-      const cust = flowEditCustomer();
-      const card = flowEditCustomerCards().find(c => c.id === state.flowEditAddCardId);
-      const amount = Number(state.flowEditAddAmount) || 0;
-      if (!cust || !card) {
-        showToast('请选择要充值的会员卡', true);
-        return;
-      }
-      if (!(amount > 0)) {
-        showToast('请设置储值金额', true);
-        return;
-      }
+      const built = flowEditBuildRechargeItem();
+      if (!built) return;
       d.items.push({
         ...base,
-        id: `fi-${Date.now()}-recharge-${card.id}`,
-        name: `充值 · ${card.name}`,
-        price: amount,
-        cardKind: 'recharge',
-        cardId: card.id,
-        cardName: card.name,
+        ...built,
+        id: `fi-${Date.now()}-${built.cardKind}-${built.cardId}`,
       });
       resetFlowEditCardPick();
       return;
@@ -8916,9 +9459,12 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         </div>` : ''}
         ${cardMetaRows}
         <div class="flow-edit-form-row">
-          <span class="flow-edit-form-row__label">${it.cardKind === 'recharge' ? '储值金额' : '单价'}</span>
-          <input type="text" class="input-amount flow-edit-price-input" readonly inputmode="decimal"
-            data-flow-edit-item-price value="${Number(it.price || 0).toFixed(2)}" aria-label="修改单价">
+          <span class="flow-edit-form-row__label">${(it.cardKind === 'recharge' || it.cardKind === 'renew_times' || it.cardKind === 'renew_validity') ? '本次实付' : '单价'}</span>
+          <button type="button" class="flow-edit-price-wrap" data-flow-edit-item-price-hit aria-label="修改价格">
+            <input type="text" class="input-amount flow-edit-price-input" readonly inputmode="decimal"
+              data-flow-edit-item-price value="${Number(it.price || 0).toFixed(2)}" tabindex="-1" aria-hidden="true">
+            <span class="flow-edit-price-edit" aria-hidden="true">${flowIconEditSquare()}</span>
+          </button>
         </div>
         <div class="flow-edit-form-row">
           <span class="flow-edit-form-row__label">数量</span>
@@ -8945,7 +9491,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     flowEditStaffPickerRender();
   }
 
-  /** 会员卡条目的补充信息行（面值 / 赠送 / 充值卡） */
+  /** 会员卡条目的补充信息行 */
   function flowEditCardItemMetaRows(it) {
     if (!it || it.type !== 'card') return '';
     const row = (label, val, muted) => `<div class="flow-edit-form-row">
@@ -8953,7 +9499,26 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
           <span class="flow-edit-form-row__val${muted ? ' flow-edit-form-row__val--muted' : ''}">${val}</span>
         </div>`;
     if (it.cardKind === 'recharge') {
-      return it.cardName ? row('充值卡', escapeHtml(it.cardName)) : '';
+      const out = [];
+      if (it.cardName) out.push(row('充值卡', escapeHtml(it.cardName)));
+      const top = Number(it.cardTopup != null ? it.cardTopup : 0);
+      if (top > 0) out.push(row('储值金额', `¥${top.toFixed(2)}`, true));
+      const gift = Number(it.cardGift || 0);
+      if (gift > 0) out.push(row('赠送金额', `¥${gift.toFixed(2)}`, true));
+      return out.join('');
+    }
+    if (it.cardKind === 'renew_times') {
+      const out = [];
+      if (it.cardName) out.push(row('续次卡', escapeHtml(it.cardName)));
+      if (it.renewBrief) out.push(row('增加', escapeHtml(it.renewBrief), true));
+      return out.join('');
+    }
+    if (it.cardKind === 'renew_validity') {
+      const out = [];
+      if (it.cardName) out.push(row('续费卡', escapeHtml(it.cardName)));
+      if (it.expireFrom) out.push(row('原有效期', escapeHtml(it.expireFrom), true));
+      if (it.validityLabel) out.push(row('延长', escapeHtml(it.validityLabel), true));
+      return out.join('');
     }
     const out = [];
     const face = Number(it.cardFace || 0);
@@ -8967,7 +9532,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   function flowEditStaffCardsHtml(it) {
     const selectedStaff = (it.staffIds || []).map(sid => ({ id: sid, name: flowStaffNameById(sid) }));
     if (!selectedStaff.length) {
-      return `<div class="flow-edit-item__meta-line" style="padding:4px 0 0">暂未添加员工 · 点上方员工卡片即可加入本单</div>`;
+      return '';
     }
     return selectedStaff.map(st => {
       const curRole = it.staffRoles[st.id] || '';
@@ -9332,6 +9897,141 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     openFlowGapPaySheet(gap > 0 ? 'collect' : 'refund');
   }
 
+  function openFlowEditDelItemConfirm(itemId, from) {
+    const d = state.flowEditDraft;
+    if (!d || !itemId) return;
+    if (d.items.length <= 1) {
+      showToast('请至少保留一个服务项目', true);
+      return;
+    }
+    const it = d.items.find(x => x.id === itemId);
+    if (!it) return;
+    state.flowEditDelPending = { id: itemId, from: from || 'list' };
+    const body = document.getElementById('flowEditDelItemBody');
+    if (body) body.textContent = `确定删除「${it.name || '该项目'}」？删除后可重新添加。`;
+    document.getElementById('flowEditDelItemMask')?.classList.add('open');
+  }
+
+  function closeFlowEditDelItemConfirm() {
+    document.getElementById('flowEditDelItemMask')?.classList.remove('open');
+    state.flowEditDelPending = null;
+  }
+
+  function confirmFlowEditDelItem() {
+    const pending = state.flowEditDelPending;
+    const d = state.flowEditDraft;
+    if (!pending || !d) {
+      closeFlowEditDelItemConfirm();
+      return;
+    }
+    if (d.items.length <= 1) {
+      showToast('请至少保留一个服务项目', true);
+      closeFlowEditDelItemConfirm();
+      return;
+    }
+    d.items = d.items.filter(x => x.id !== pending.id);
+    const fromItem = pending.from === 'item';
+    closeFlowEditDelItemConfirm();
+    if (fromItem) {
+      state.flowEditItemId = null;
+      renderFlowEdit();
+      showOnlyScreen('screen-flow-edit');
+    } else {
+      renderFlowEdit();
+    }
+    showToast('已删除');
+  }
+
+  function parseFlowOrderTime(str) {
+    const m = String(str || '').match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})(?:\s+(\d{1,2}):(\d{1,2}))?/);
+    if (!m) return { date: '', hm: '12:00' };
+    const pad = (n) => String(n).padStart(2, '0');
+    return {
+      date: `${m[1]}-${pad(m[2])}-${pad(m[3])}`,
+      hm: `${pad(m[4] || '0')}:${pad(m[5] || '0')}`,
+    };
+  }
+
+  function formatFlowOrderTime(dateVal, hmVal) {
+    const d = String(dateVal || '').trim();
+    const hm = String(hmVal || '00:00').trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return '';
+    const parts = d.split('-');
+    return `${parts[0]}.${parts[1]}.${parts[2]} ${hm.length === 5 ? hm : '00:00'}`;
+  }
+
+  function openFlowEditTimeSheet() {
+    const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
+    if (!o || !flowCanEditOrder(o)) {
+      showToast('当前订单不可修改开单时间', true);
+      return;
+    }
+    const parsed = parseFlowOrderTime(o.time);
+    const dateEl = document.getElementById('flowEditTimeDate');
+    const hmEl = document.getElementById('flowEditTimeHm');
+    if (dateEl) dateEl.value = parsed.date;
+    if (hmEl) hmEl.value = parsed.hm;
+    if (typeof openMask === 'function') openMask('flowEditTimeMask');
+    else document.getElementById('flowEditTimeMask')?.classList.add('open');
+  }
+
+  function confirmFlowEditTime() {
+    const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
+    if (!o) return;
+    const dateEl = document.getElementById('flowEditTimeDate');
+    const hmEl = document.getElementById('flowEditTimeHm');
+    const next = formatFlowOrderTime(dateEl && dateEl.value, hmEl && hmEl.value);
+    if (!next) {
+      showToast('请填写有效的日期与时间', true);
+      return;
+    }
+    o.time = next;
+    if (typeof closeMask === 'function') closeMask('flowEditTimeMask');
+    else document.getElementById('flowEditTimeMask')?.classList.remove('open');
+    appendFlowEditLog(o, `修改开单时间为 ${next}`);
+    showToast('开单时间已更新');
+    openFlowDetail(o.id, { fromSuccess: state.flowFromSuccess });
+  }
+
+  function openFlowEditFlowNoSheet() {
+    const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
+    if (!o || !flowCanEditOrder(o)) {
+      showToast('当前订单不可修改流水单号', true);
+      return;
+    }
+    const inp = document.getElementById('flowEditFlowNoInput');
+    if (inp) inp.value = String(o.flowNo || '');
+    if (typeof openMask === 'function') openMask('flowEditFlowNoMask');
+    else document.getElementById('flowEditFlowNoMask')?.classList.add('open');
+    setTimeout(() => {
+      if (!inp) return;
+      try { inp.focus({ preventScroll: true }); } catch (err) { inp.focus(); }
+      if (inp.select) inp.select();
+    }, 260);
+  }
+
+  function confirmFlowEditFlowNo() {
+    const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
+    if (!o) return;
+    const inp = document.getElementById('flowEditFlowNoInput');
+    const raw = String((inp && inp.value) || '').trim();
+    if (!/^\d{1,20}$/.test(raw)) {
+      showToast('单号须为 1–20 位数字', true);
+      return;
+    }
+    const clash = FLOW_ORDERS.some(x => x.id !== o.id && String(x.flowNo || '') === raw);
+    if (clash) {
+      showToast('该单号已被使用', true);
+      return;
+    }
+    const prev = o.flowNo;
+    o.flowNo = raw;
+    if (typeof closeMask === 'function') closeMask('flowEditFlowNoMask');
+    else document.getElementById('flowEditFlowNoMask')?.classList.remove('open');
+    if (prev !== raw) appendFlowEditLog(o, `修改流水单号 ${prev || '—'} → ${raw}`);
+    showToast('流水单号已更新');
+    openFlowDetail(o.id, { fromSuccess: state.flowFromSuccess });
+  }
 
   function openFlowGapPaySheet(mode) {
     const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
@@ -11758,6 +12458,14 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       openFlowMore();
       return;
     }
+    if (e.target.closest('[data-flow-edit-time]')) {
+      openFlowEditTimeSheet();
+      return;
+    }
+    if (e.target.closest('[data-flow-edit-flowno]')) {
+      openFlowEditFlowNoSheet();
+      return;
+    }
     if (e.target.closest('[data-flow-edit]')) {
       openFlowEdit();
       return;
@@ -11836,6 +12544,13 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   document.getElementById('flowEditDiffMask')?.addEventListener('click', (e) => {
     if (e.target.id === 'flowEditDiffMask') closeFlowEditDiffDialog();
   });
+  document.getElementById('flowEditDelItemCancel')?.addEventListener('click', () => closeFlowEditDelItemConfirm());
+  document.getElementById('flowEditDelItemOk')?.addEventListener('click', () => confirmFlowEditDelItem());
+  document.getElementById('flowEditDelItemMask')?.addEventListener('click', (e) => {
+    if (e.target.id === 'flowEditDelItemMask') closeFlowEditDelItemConfirm();
+  });
+  document.getElementById('flowEditTimeOk')?.addEventListener('click', () => confirmFlowEditTime());
+  document.getElementById('flowEditFlowNoOk')?.addEventListener('click', () => confirmFlowEditFlowNo());
   document.getElementById('flowRemarkCancel')?.addEventListener('click', () => closeFlowRemarkEditor());
   document.getElementById('flowRemarkConfirm')?.addEventListener('click', () => confirmFlowRemark());
   document.getElementById('flowRemarkMask')?.addEventListener('click', (e) => {
@@ -11957,13 +12672,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (delItem && state.flowEditDraft) {
       e.preventDefault();
       e.stopPropagation();
-      const id = delItem.dataset.flowEditItemDel;
-      if (state.flowEditDraft.items.length <= 1) {
-        showToast('请至少保留一个服务项目', true);
-        return;
-      }
-      state.flowEditDraft.items = state.flowEditDraft.items.filter(x => x.id !== id);
-      renderFlowEdit();
+      openFlowEditDelItemConfirm(delItem.dataset.flowEditItemDel, 'list');
       return;
     }
     const itemBtn = e.target.closest('[data-flow-edit-item]');
@@ -11982,6 +12691,12 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     state.flowEditAddTab = tab.dataset.flowEditAddTab;
     state.flowEditAddSelected = [];
     resetFlowEditCardPick();
+    renderFlowEditAdd();
+  });
+  document.getElementById('flowEditAddGroupTabs')?.addEventListener('click', (e) => {
+    const g = e.target.closest('[data-flow-edit-add-group]');
+    if (!g) return;
+    setFlowEditAddGroupId(g.getAttribute('data-flow-edit-add-group'));
     renderFlowEditAdd();
   });
   document.getElementById('flowEditAddBody')?.addEventListener('click', (e) => {
@@ -12005,18 +12720,53 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (cardBtn) {
       const id = cardBtn.dataset.flowEditAddCard;
       state.flowEditAddCardId = state.flowEditAddCardId === id ? null : id;
+      state.flowEditRenewTimes = {};
       renderFlowEditAdd();
       return;
     }
-    const amountBtn = e.target.closest('[data-flow-edit-add-amount]');
-    if (amountBtn) {
-      state.flowEditAddAmount = Number(amountBtn.dataset.flowEditAddAmount) || 0;
+    const kindBtn = e.target.closest('[data-flow-edit-recharge-kind]');
+    if (kindBtn) {
+      state.flowEditRechargeKind = kindBtn.getAttribute('data-flow-edit-recharge-kind') || 'topup';
+      state.flowEditAddCardId = null;
+      state.flowEditRenewTimes = {};
       renderFlowEditAdd();
       return;
     }
     const segBtn = e.target.closest('[data-flow-edit-add-cardseg]');
     if (segBtn) {
       state.flowEditAddCardSeg = segBtn.dataset.flowEditAddCardseg === 'recharge' ? 'recharge' : 'issue';
+      renderFlowEditAdd();
+      return;
+    }
+    const renewDelta = e.target.closest('[data-flow-edit-renew-delta]');
+    if (renewDelta) {
+      const key = renewDelta.getAttribute('data-key');
+      const dlt = Number(renewDelta.getAttribute('data-flow-edit-renew-delta')) || 0;
+      if (!key) return;
+      if (!state.flowEditRenewTimes) state.flowEditRenewTimes = {};
+      const next = Math.max(0, Math.min(999, (Number(state.flowEditRenewTimes[key]) || 0) + dlt));
+      if (next <= 0) delete state.flowEditRenewTimes[key];
+      else state.flowEditRenewTimes[key] = next;
+      renderFlowEditAdd();
+      return;
+    }
+    /* 充卡金额：点数字或方框笔 → 金额键盘（与编辑项价格同款热区） */
+    const amtHit = e.target.closest('[data-flow-edit-amt-hit]');
+    if (amtHit) {
+      const sel = amtHit.getAttribute('data-flow-edit-amt-hit');
+      const inp = (sel && amtHit.querySelector(`[${sel}]`)) || amtHit.querySelector('.input-amount');
+      if (inp) {
+        if (typeof openAmountKeypad === 'function') openAmountKeypad(inp);
+        else if (typeof window.openAmountKeypad === 'function') window.openAmountKeypad(inp);
+      }
+      return;
+    }
+    const unitBtn = e.target.closest('[data-flow-edit-validity-unit]');
+    if (unitBtn) {
+      const u = unitBtn.getAttribute('data-flow-edit-validity-unit') || 'month';
+      state.flowEditValidityUnit = u;
+      if (u === 'permanent') state.flowEditValidityAmount = null;
+      else if (!(Number(state.flowEditValidityAmount) > 0)) state.flowEditValidityAmount = 1;
       renderFlowEditAdd();
       return;
     }
@@ -12034,11 +12784,39 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     renderFlowEditAdd();
   });
   document.getElementById('flowEditAddBody')?.addEventListener('change', (e) => {
-    const input = e.target.closest('[data-flow-edit-add-amount-input]');
-    if (!input) return;
-    const val = typeof round2 === 'function' ? round2(Number(input.value) || 0) : Math.round((Number(input.value) || 0) * 100) / 100;
-    state.flowEditAddAmount = Math.max(0, val);
-    renderFlowEditAdd();
+    const topup = e.target.closest('[data-flow-edit-add-amount-input]');
+    if (topup) {
+      const val = typeof round2 === 'function' ? round2(Number(topup.value) || 0) : Math.round((Number(topup.value) || 0) * 100) / 100;
+      state.flowEditAddAmount = Math.max(0, val);
+      renderFlowEditAdd();
+      return;
+    }
+    const gift = e.target.closest('[data-flow-edit-gift-amount]');
+    if (gift) {
+      const val = typeof round2 === 'function' ? round2(Number(gift.value) || 0) : Math.round((Number(gift.value) || 0) * 100) / 100;
+      state.flowEditAddGiftAmount = Math.max(0, val);
+      renderFlowEditAdd();
+      return;
+    }
+    const pay = e.target.closest('[data-flow-edit-pay-amount]');
+    if (pay) {
+      const val = typeof round2 === 'function' ? round2(Number(pay.value) || 0) : Math.round((Number(pay.value) || 0) * 100) / 100;
+      state.flowEditAddPayAmount = Math.max(0, val);
+      renderFlowEditAdd();
+      return;
+    }
+    const durAmt = e.target.closest('[data-flow-edit-validity-amount]');
+    if (durAmt) {
+      const n = parseInt(String(durAmt.value || '').replace(/\D/g, ''), 10);
+      state.flowEditValidityAmount = Number.isFinite(n) && n > 0 ? n : null;
+      renderFlowEditAdd();
+    }
+  });
+  document.getElementById('flowEditAddBody')?.addEventListener('input', (e) => {
+    const durAmt = e.target.closest('[data-flow-edit-validity-amount]');
+    if (!durAmt) return;
+    const n = parseInt(String(durAmt.value || '').replace(/\D/g, ''), 10);
+    state.flowEditValidityAmount = Number.isFinite(n) && n > 0 ? n : null;
   });
   document.getElementById('flowEditAddFoot')?.addEventListener('click', (e) => {
     if (e.target.closest('[data-flow-edit-add-confirm]')) confirmFlowEditAdd();
@@ -12084,6 +12862,14 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       else if (typeof window.openAmountKeypad === 'function') window.openAmountKeypad(perf);
       return;
     }
+    const priceHit = e.target.closest('[data-flow-edit-item-price-hit]');
+    if (priceHit) {
+      e.preventDefault();
+      const price = priceHit.querySelector('[data-flow-edit-item-price]') || priceHit;
+      if (typeof openAmountKeypad === 'function') openAmountKeypad(price);
+      else if (typeof window.openAmountKeypad === 'function') window.openAmountKeypad(price);
+      return;
+    }
     const price = e.target.closest('[data-flow-edit-item-price]');
     if (price) {
       e.preventDefault();
@@ -12114,17 +12900,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   });
   document.getElementById('flowEditItemFoot')?.addEventListener('click', (e) => {
     if (e.target.closest('[data-flow-edit-item-del-cur]')) {
-      const d = state.flowEditDraft;
-      const id = state.flowEditItemId;
-      if (!d || !id) return;
-      if (d.items.length <= 1) {
-        showToast('请至少保留一个服务项目', true);
-        return;
-      }
-      d.items = d.items.filter(x => x.id !== id);
-      state.flowEditItemId = null;
-      renderFlowEdit();
-      showOnlyScreen('screen-flow-edit');
+      openFlowEditDelItemConfirm(state.flowEditItemId, 'item');
       return;
     }
     if (e.target.closest('[data-flow-edit-item-done]')) {
@@ -12193,6 +12969,8 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     },
     openFlowGapPaySheet,
     applyFlowGapPayments,
+    recordFromHostCheckout,
+    syncHostCheckoutOrder,
     getCustomer() { return typeof getCustomer === 'function' ? getCustomer() : null; },
     ensureMember() { if (typeof enterBill === 'function' && typeof CUSTOMERS !== 'undefined') enterBill(CUSTOMERS[0]); },
     startCardIssueCheckout(ctx) { startCardIssueCheckout(ctx || {}); },
