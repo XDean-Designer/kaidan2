@@ -6531,6 +6531,101 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   const FLOW_AVATAR_GUEST = 'assets/billing/avatar-female.png';
   const FLOW_ORDERS = [
     {
+      /* 团购券 · 落「项目 + 产品」 */
+      id: 'fo-seed-g1',
+      flowNo: '202607291020',
+      customerId: null,
+      customerName: '散客',
+      avatar: FLOW_AVATAR_GUEST,
+      status: 'done',
+      kind: 'group',
+      couponName: '洗剪吹 + 洗护套装团购券',
+      items: [
+        {
+          id: 'fi-seed-g1a', name: '洗剪吹', price: 68, type: 'project', qty: 1,
+          staffIds: ['st1'], staffRoles: { st1: 'mid' },
+        },
+        {
+          id: 'fi-seed-g1b', name: '剑琅修护洗发水', price: 90, type: 'product', qty: 1,
+          spec: '500ml', staffIds: ['st1'], staffRoles: { st1: 'mid' },
+        },
+      ],
+      staff: '林屿森',
+      staffs: [{ id: 'st1', name: '林屿森', achievement: 158, commission: 0, role: 'mid' }],
+      payMethod: '美团',
+      payments: [{ method: '美团', amount: 158 }],
+      amount: 158,
+      paidAmount: 158,
+      listTotal: 158,
+      achievement: 158,
+      commission: 0,
+      discount: 0,
+      benefitLabel: '团购核销',
+      time: '2026.07.29 11:05',
+      cashier: '顾清扬',
+      cashierId: 'st0',
+    },
+    {
+      /* 团购券 · 落单个项目 */
+      id: 'fo-seed-g2',
+      flowNo: '202607281018',
+      customerId: 'm1',
+      customerName: '张雨晴',
+      avatar: 'assets/billing/avatar-female.png',
+      status: 'done',
+      kind: 'group',
+      couponName: '头疗体验团购券',
+      items: [{
+        id: 'fi-seed-g2',
+        name: '头疗',
+        price: 99,
+        type: 'project',
+        qty: 1,
+        staffIds: ['st2'],
+        staffRoles: { st2: 'senior' },
+      }],
+      staff: '何苏叶',
+      staffs: [{ id: 'st2', name: '何苏叶', achievement: 99, commission: 0, role: 'senior' }],
+      payMethod: '抖音',
+      payments: [{ method: '抖音', amount: 99 }],
+      amount: 99,
+      paidAmount: 99,
+      listTotal: 99,
+      achievement: 99,
+      commission: 0,
+      discount: 0,
+      benefitLabel: '团购核销',
+      time: '2026.07.28 16:42',
+      cashier: '赵敏',
+      cashierId: 'st9',
+    },
+    {
+      /* 团购券 · 未落项 → 按直接收款计 */
+      id: 'fo-seed-g3',
+      flowNo: '202607271006',
+      customerId: null,
+      customerName: '散客',
+      avatar: FLOW_AVATAR_GUEST,
+      status: 'done',
+      kind: 'group',
+      couponName: '美睫体验团购券',
+      groupUnmapped: true,
+      items: [{ id: 'fi-seed-g3', name: '直接收款', price: 128, type: 'quick', qty: 1 }],
+      staff: 'Lisa',
+      payMethod: '美团',
+      payments: [{ method: '美团', amount: 128 }],
+      amount: 128,
+      paidAmount: 128,
+      listTotal: 128,
+      achievement: 128,
+      commission: 0,
+      discount: 0,
+      benefitLabel: '团购核销',
+      time: '2026.07.27 15:20',
+      cashier: '赵敏',
+      cashierId: 'st9',
+    },
+    {
       id: 'fo-seed-q1',
       flowNo: '202607290008',
       customerId: null,
@@ -6940,6 +7035,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   function flowTypeLabel(kind) {
     if (kind === 'product') return '产品';
     if (kind === 'card') return '会员卡';
+    if (kind === 'group' || kind === 'tuangou') return '团购券';
     if (kind === 'quick') return '直接收款';
     return '项目';
   }
@@ -7003,6 +7099,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     /* 内联 info，避免相对路径丢图；描边用 warn-text */
     return `<svg class="flow-detail-foot__tip-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="#E37318" stroke-width="2"/><path d="M12 16v-4" stroke="#E37318" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="8" r="1.25" fill="#E37318"/></svg>`;
   }
+  /** 部分退款提示条图标：info 圆线描，随 currentColor（同文案色） */
+  function flowIconInfoCurrent() {
+    return `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="1.25" fill="currentColor" stroke="none"/></svg>`;
+  }
 
   function flowPaymentsOf(o) {
     if (o && Array.isArray(o.payments) && o.payments.length) {
@@ -7012,6 +7112,31 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       }));
     }
     return [{ method: (o && o.payMethod) || '现金', amount: Number(o && o.amount) || 0 }];
+  }
+
+  /* 支付方式图标（列表卡支付行 / 详情支付行左侧 14×14；未知渠道走灰「其」占位）
+     品牌渠道用 billing/pay 彩图；现金/银行卡/信用卡/经理签单/其他平台团购用 assets/pay 同风格色块 */
+  const FLOW_PAY_ICONS = {
+    '微信': 'assets/billing/pay/wechat.svg',
+    '支付宝': 'assets/billing/pay/alipay.png',
+    '美团': 'assets/billing/pay/meituan.png',
+    '抖音': 'assets/billing/pay/douyin.png',
+    '口碑': 'assets/billing/pay/koubei.png',
+    '大众点评': 'assets/billing/pay/dianping.png',
+    '会员卡': 'assets/billing/pay/membercard.svg',
+    '现金': 'assets/pay/cash.svg',
+    '银行卡': 'assets/pay/bank.svg',
+    '信用卡': 'assets/pay/credit.svg',
+    '经理签单': 'assets/pay/manager.svg',
+    '其他平台团购': 'assets/pay/other-group.svg',
+  };
+  function flowPayMethodHtml(method) {
+    const name = String(method || '其他');
+    const src = FLOW_PAY_ICONS[name];
+    const ico = src
+      ? `<span class="flow-pay-ico" aria-hidden="true"><img src="${escapeHtml(src)}" alt="" width="14" height="14" draggable="false"></span>`
+      : `<span class="flow-pay-ico flow-pay-ico--fallback" aria-hidden="true">其</span>`;
+    return `<span class="flow-pay-method">${ico}<span class="flow-pay-method__name">${escapeHtml(name)}</span></span>`;
   }
 
   function flowParseDay(timeStr) {
@@ -7283,11 +7408,18 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return o && o.status !== 'void' && o.status !== 'refund' && o.status !== 'partial_refund';
   }
 
+  function flowIsGroupOrder(o) {
+    return !!(o && (o.kind === 'group' || o.kind === 'tuangou'));
+  }
+
   function flowOrdersByTab(tab) {
     let list = FLOW_ORDERS.slice();
-    if (tab === 'project') list = list.filter(o => (o.kind === 'project' || o.kind === 'quick') && flowIsActiveOrder(o));
-    else if (tab === 'product') list = list.filter(o => o.kind === 'product' && flowIsActiveOrder(o));
+    if (tab === 'project') {
+      list = list.filter(o =>
+        (o.kind === 'project' || o.kind === 'quick') && !flowIsGroupOrder(o) && flowIsActiveOrder(o));
+    } else if (tab === 'product') list = list.filter(o => o.kind === 'product' && flowIsActiveOrder(o));
     else if (tab === 'card') list = list.filter(o => o.kind === 'card' && flowIsActiveOrder(o));
+    else if (tab === 'group') list = list.filter(o => flowIsGroupOrder(o) && flowIsActiveOrder(o));
     else if (tab === 'void') list = list.filter(o => o.status === 'void');
     else if (tab === 'refund') list = list.filter(o => o.status === 'refund' || o.status === 'partial_refund');
     else list = list.filter(flowIsActiveOrder);
@@ -7422,8 +7554,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const list = items || [];
     if (!list.length) return 'project';
     if (list.every(i => i.type === 'quick')) return 'quick';
+    if (list.every(i => i.type === 'group' || i.type === 'tuangou')) return 'group';
     if (list.every(i => i.type === 'product')) return 'product';
     if (list.some(i => i.type === 'card')) return 'card';
+    if (list.some(i => i.type === 'group' || i.type === 'tuangou')) return 'group';
     return 'project';
   }
 
@@ -7450,12 +7584,15 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   }
 
   function flowOrderEstimatedDue(o, itemsOverride) {
+    /* 团购券单：券面核销价即订单金额，不存在「预估应付 ≠ 实付」的差额 */
+    if (flowIsGroupOrder(o)) return flowOrderPaidAmount(o);
     const list = flowItemsListTotal(itemsOverride || (o && o.items) || []);
     const disc = flowOrderDiscountTotal(o);
     return round2(Math.max(0, list - disc));
   }
 
   function flowOrderGap(o, itemsOverride) {
+    if (flowIsGroupOrder(o)) return 0;
     const estimated = flowOrderEstimatedDue(o, itemsOverride);
     const paid = flowOrderPaidAmount(o);
     return round2(estimated - paid);
@@ -7866,6 +8003,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       { id: 'project', label: '项目' },
       { id: 'product', label: '产品' },
       { id: 'card', label: '会员卡' },
+      { id: 'group', label: '团购券' },
       { id: 'void', label: '作废' },
       { id: 'refund', label: '退款' },
     ];
@@ -7874,12 +8012,6 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       tabEl.innerHTML = tabs.map(t => (
         `<button type="button" class="flow-list-tab${state.flowTab === t.id ? ' is-active' : ''}" data-flow-tab="${t.id}" role="tab" aria-selected="${state.flowTab === t.id ? 'true' : 'false'}">${escapeHtml(t.label)}</button>`
       )).join('');
-      const activeTab = tabEl.querySelector('.flow-list-tab.is-active');
-      if (activeTab) {
-        requestAnimationFrame(() => {
-          activeTab.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
-        });
-      }
     }
     const list = flowOrdersByTab(state.flowTab);
     const body = document.getElementById('flowListBody');
@@ -7889,6 +8021,8 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         body.innerHTML = flowEmptyHtml('暂无退款订单', '退款成功的订单会出现在这里');
       } else if (state.flowTab === 'void') {
         body.innerHTML = flowEmptyHtml('暂无作废订单', '作废的订单会出现在这里');
+      } else if (state.flowTab === 'group') {
+        body.innerHTML = flowEmptyHtml('暂无团购券订单', '团购核销产生的订单会出现在这里');
       } else {
         body.innerHTML = flowEmptyHtml('暂无流水', '切换 Tab 或完成开单后可在此查看');
       }
@@ -7902,7 +8036,12 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
           ? ' is-refund'
           : (o.status === 'partial_refund' ? ' is-partial-refund' : ''));
       const showAmt = Number(o.amount);
-      const priceLabel = Number(item.price != null ? item.price : (o.listPrice != null ? o.listPrice : showAmt));
+      const isGroupCard = flowIsGroupOrder(o);
+      /* 团购券单：卡片名称位显示券名，金额位显示核销实付（明细价在详情内展开） */
+      const priceLabel = isGroupCard
+        ? showAmt
+        : Number(item.price != null ? item.price : (o.listPrice != null ? o.listPrice : showAmt));
+      const cardName = (isGroupCard && o.couponName) ? o.couponName : item.name;
       const refundHint = o.status === 'partial_refund'
         ? `<div class="flow-order-card__refund-hint">已退 ¥${flowOrderTotalRefunded(o).toFixed(2)}</div>`
         : '';
@@ -7920,14 +8059,14 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         <div class="flow-order-card__item">
           ${flowTypeTagHtml(o.kind)}
           <div class="flow-order-card__item-main">
-            <div class="flow-order-card__item-name">${escapeHtml(item.name)}${(o.items && o.items.length > 1) ? ` 等${o.items.length}项` : ''}</div>
+            <div class="flow-order-card__item-name">${escapeHtml(cardName)}${(!isGroupCard && o.items && o.items.length > 1) ? ` 等${o.items.length}项` : ''}</div>
             <span class="flow-order-card__staff">服务人 | ${escapeHtml(o.staff)}</span>
             ${refundHint}
           </div>
           <div class="flow-order-card__price"><span class="yen">¥</span>${priceLabel.toFixed(2)}</div>
         </div>
         <div class="flow-order-card__pay">
-          <span>${escapeHtml(o.payMethod)}</span>
+          ${flowPayMethodHtml(o.payMethod)}
           <span class="flow-order-card__pay-amt">-¥${showAmt.toFixed(2)}</span>
         </div>
         <div class="flow-order-card__total">实付总额<span class="num"><span class="yen">¥</span>${showAmt.toFixed(2)}</span></div>
@@ -7955,7 +8094,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const comm = Number(o.commission || 0);
     const payLines = flowPaymentsOf(o);
     const payRowsHtml = payLines.map(p => `
-        <div class="flow-detail-pay-row"><span>${escapeHtml(p.method)}</span><span class="flow-detail-pay-amt"><span class="yen">¥</span>${Number(p.amount).toFixed(2)}</span></div>`
+        <div class="flow-detail-pay-row">${flowPayMethodHtml(p.method)}<span class="flow-detail-pay-amt"><span class="yen">¥</span>${Number(p.amount).toFixed(2)}</span></div>`
     ).join('');
     const itemsHtml = (o.items && o.items.length ? o.items : [item]).map(it => {
       const kind = it.type === 'product' ? 'product' : (it.type === 'card' ? 'card' : (it.type === 'quick' ? 'quick' : (it.type === 'group' || it.type === 'tuangou' ? 'group' : (o.kind || 'project'))));
@@ -8010,7 +8149,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
             <span>${line.amount > 0 ? `-¥${Number(line.amount).toFixed(2)}` : (line.meta ? '' : '—')}</span>
           </div>`).join('')
       : `<div class="flow-detail-offer-row"><span>无优惠</span><span>—</span></div>`;
-    const gapHtml = (o.status === 'done' && Math.abs(gap) >= 0.01)
+    /* 团购券单：券面核销价即订单金额 —— 不出差额卡、不出优惠明细 */
+    const isGroupOrder = flowIsGroupOrder(o);
+    const gapHtml = (!isGroupOrder && o.status === 'done' && Math.abs(gap) >= 0.01)
       ? `<div class="flow-detail-gap">
           预估应付 ¥${estimatedDue.toFixed(2)}，原实付 ¥${payAmt.toFixed(2)}，差额 ¥${Math.abs(gap).toFixed(2)}（${gap > 0 ? '少收' : '多收'}）。请走补收/退差。
           <div class="flow-detail-gap__actions">
@@ -8025,13 +8166,31 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       ? `<button type="button" class="flow-detail-all" data-flow-all>查看全部流水<span class="flow-detail-all__ico" aria-hidden="true">${flowIconChevron()}</span></button>`
       : '';
     const canRefundOrVoid = flowCanRefundOrVoid(o);
+    /* 团购券单：券名信息行 + 未落项（按直接收款计）说明 */
+    const groupCouponRow = (isGroupOrder && o.couponName)
+      ? `<div class="flow-detail-coupon-row"><span class="flow-detail-coupon-row__label">团购券</span><span class="flow-detail-coupon-row__val">${escapeHtml(o.couponName)}</span></div>`
+      : '';
+    const groupUnmappedHint = (isGroupOrder && o.groupUnmapped)
+      ? '<div class="flow-detail-group-hint">团购券未指定消费项目，按直接收款计</div>'
+      : '';
+    /* 金额区：普通单 = 优惠明细 + 预估应付；团购券单 = 核销实付一行 */
+    const amountBlockHtml = isGroupOrder
+      ? `<div class="flow-detail-benefit">
+          <div class="flow-detail-due"><span>核销实付</span><span class="amt"><span class="yen">¥</span>${payAmt.toFixed(2)}</span></div>
+        </div>`
+      : `<div class="flow-detail-benefit">
+          <div class="flow-detail-benefit__label">优惠明细</div>
+          ${offerHtml}
+          <div class="flow-detail-due"><span>预估应付</span><span class="amt"><span class="yen">¥</span>${estimatedDue.toFixed(2)}</span></div>
+        </div>`;
     const refundedTotal = flowOrderTotalRefunded(o);
     const remainRefundable = round2(
       (o.items || []).reduce((s, _, i) => s + flowItemRemainingRefundable(o, i), 0)
     );
     const partialBanner = (o.status === 'partial_refund' && refundedTotal >= 0.01)
       ? `<div class="flow-detail-partial-banner">
-          部分退款 · 已退 ¥${refundedTotal.toFixed(2)} · 还可退 ¥${remainRefundable.toFixed(2)}
+          <span class="flow-detail-partial-banner__ico" aria-hidden="true">${flowIconInfoCurrent()}</span>
+          <span class="flow-detail-partial-banner__text">部分退款 · 已退 ¥${refundedTotal.toFixed(2)} · 还可退 ¥${remainRefundable.toFixed(2)}</span>
         </div>`
       : '';
     body.innerHTML = `
@@ -8051,12 +8210,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
       </div>
       <div class="flow-detail-card">
         <div class="flow-detail-card__title">消费内容</div>
+        ${groupCouponRow}
         ${itemsHtml}
-        <div class="flow-detail-benefit">
-          <div class="flow-detail-benefit__label">优惠明细</div>
-          ${offerHtml}
-          <div class="flow-detail-due"><span>预估应付</span><span class="amt"><span class="yen">¥</span>${estimatedDue.toFixed(2)}</span></div>
-        </div>
+        ${groupUnmappedHint}
+        ${amountBlockHtml}
         ${staffLineHtml}
       </div>
       <div class="flow-detail-card">
@@ -8103,7 +8260,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         foot.innerHTML = `
           <div class="flow-detail-foot__tip">
             ${flowIconInfo()}
-            <span class="flow-detail-foot__tip-text">${o.status === 'partial_refund' ? '还可继续退剩余款项；单子开错可作废' : '客户退钱点退款；单子开错点作废；项目差额走补收/退差'}</span>
+            <span class="flow-detail-foot__tip-text">${isGroupOrder
+              ? '团购核销金额即订单金额；客户退钱点退款，单子开错点作废'
+              : (o.status === 'partial_refund' ? '还可继续退剩余款项；单子开错可作废' : '客户退钱点退款；单子开错点作废；项目差额走补收/退差')}</span>
           </div>
           <div class="flow-detail-foot__main">
             <div class="flow-detail-foot__total">
@@ -8226,6 +8385,13 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   }
 
   function openFlowMore() {
+    /* 团购券单：核销金额即订单金额、不存在差额 —— 隐藏「补收/退还差价」两项 */
+    const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
+    const isGroup = flowIsGroupOrder(o);
+    ['flowMoreCollect', 'flowMoreRefundDiff'].forEach((id) => {
+      const btn = document.getElementById(id);
+      if (btn) btn.hidden = isGroup;
+    });
     openMask('flowMoreMask');
   }
 
@@ -10037,6 +10203,11 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const o = FLOW_ORDERS.find(x => x.id === state.flowDetailId);
     if (!o || o.status !== 'done') {
       showToast('当前订单不可调整差额', true);
+      return;
+    }
+    /* 团购券单：核销金额即订单金额，不走补收/退差 */
+    if (flowIsGroupOrder(o)) {
+      showToast('团购券订单无差额', true);
       return;
     }
     const gap = flowOrderGap(o);

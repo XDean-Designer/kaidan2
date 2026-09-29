@@ -87,7 +87,7 @@
 <h1 id="sec-PRD-订单流水-门店流水-改单-退款-作废-商户端">PRD：订单流水（门店流水 · 改单 · 退款 · 作废 · 商户端）</h1>
 <table>
 <tr><th>字段</th><th>内容</th></tr>
-<tr><td>文档版本</td><td>v1.1-draft（R41 宿主结账→流水 · 2026-09-29）</td></tr>
+<tr><td>文档版本</td><td>v1.6-draft（R46 部分退款提示条 · 2026-09-29）</td></tr>
 <tr><td>日期</td><td>2026-09-29</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code> 内流水模块（<code>flow/</code>：<code>flow.js</code> / <code>flow-fragment.html</code> / <code>flow.css</code>）；入口 <code>?flow=flow-list</code> 或侧栏「订单流水」</td></tr>
 <tr><td>画布</td><td>390 × 844（演示区默认 1.25×）</td></tr>
@@ -96,6 +96,9 @@
 </table>
 <p class="note"><b>权威口径</b>：业务与交互以<b>当前流水原型行为</b>为准；与线上冲突处标 <b>「以线上为准」</b>（权限、审计、真实支付回写、会员卡账本恢复等）。本文未另述之能力，沿用线上。</p>
 <h2 id="sec-修订摘要-自开单结账迁入并定稿">修订摘要（自开单结账迁入并定稿）</h2>
+<p class="note"><b>R45（2026-09-29）· 团购券金额口径</b>：团购券单<b>核销价即订单金额</b> —— 详情不出差额卡、不出「优惠明细」，金额区改为「核销实付」一行；「更多」隐藏补收/退还差价，底部提示改为团购专用文案。种子去掉券面与原价的虚差。</p>
+<p class="note"><b>R44（2026-09-29）· 团购券落项 + 支付渠道图标</b>：团购券单新增 <code>couponName</code>（券名）——列表卡名称位显示券名、金额位显示核销实付，进详情「消费内容」展开具体项目/产品，并加「团购券」信息行；未落项单（<code>groupUnmapped</code>）按直接收款计并加灰字说明。列表卡支付行与详情支付行左侧加 14×14 渠道图标，未知渠道灰「其」占位。</p>
+<p class="note"><b>R43（2026-09-29）· 团购券 Tab</b>：门店流水新增「团购券」（<code>kind: group</code> 核销单）；顺序为全部 / 项目 / 产品 / 会员卡 / 团购券 / 作废 / 退款；Tab 一行均分、不换行、不横滑。宿主开单本期不产生团购单。</p>
 <p class="note"><b>R42（2026-09-29）· 详情/编辑可点线索</b>：成功页进详情「查看全部流水」加右箭头并加强字重/按下态；「修改记录」左侧加 history 线描；编辑项「单价」行补齐 button reset，金额红字 + 方框笔对齐详情 meta。</p>
 <p class="note"><b>R41（2026-09-29）· 宿主结账写入流水</b>：s6 / s7 确认支付成功后，经 <code>BillingDemo.recordFromHostCheckout</code> 完整映射写入 <code>FLOW_ORDERS</code>（<code>unshift</code> 置顶，保留种子）；s15「看流水」进本笔详情；改单号 / 改日期经 <code>syncHostCheckoutOrder</code> 回写。侧栏直达 s15 演示数据不生成流水。</p>
 <p class="note"><b>R40（2026-09-28）· 确认支付渠道</b>：流水差额「选择其他支付方式」与结账共用 <code>#paySheetList</code>，渠道含口碑后五条（现金 / 银行卡 / 信用卡 / 经理签单 / 其他平台团购）。详见《开单结账》R40。</p>
@@ -144,7 +147,7 @@
 </table>
 <h2 id="sec-1-3-本期做-In">1.3 本期做（In）</h2>
 <ul>
-<li>门店流水列表（Tab：全部 / 项目 / 产品 / 会员卡 / 作废 / 退款）+ 筛选 sheet</li>
+<li>门店流水列表（Tab：全部 / 项目 / 产品 / 会员卡 / 团购券 / 作废 / 退款）+ 筛选 sheet</li>
 <li>订单详情（消费内容、优惠、业绩提成只读展示、修改订单入口、退款/作废、差额条）</li>
 <li>修改订单（增删改项目/产品/办卡/充卡三型、员工与提成、保存与差额两选）</li>
 <li>退款选件 → 退款方式 sheet → 退款记录列表/详情</li>
@@ -224,13 +227,13 @@
 <h2 id="sec-4-1-订单状态-status">4.1 订单状态 <code>status</code></h2>
 <table>
 <tr><th>值</th><th>文案</th><th>列表 Tab</th><th>可改单</th><th>可退款</th><th>可作废</th></tr>
-<tr><td><code>done</code></td><td>已完成（详情常不打 pill）</td><td>全部/项目/产品/会员卡</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>done</code></td><td>已完成（详情常不打 pill）</td><td>全部/项目/产品/会员卡/团购券</td><td>✓</td><td>✓</td><td>✓</td></tr>
 <tr><td><code>partial_refund</code></td><td>部分退款</td><td>退款（及全部不展示为活跃）</td><td>✗</td><td>✓（剩余）</td><td>✓</td></tr>
 <tr><td><code>refund</code></td><td>已退款</td><td>退款</td><td>✗</td><td>✗</td><td>✗</td></tr>
 <tr><td><code>void</code></td><td>已作废</td><td>作废</td><td>✗</td><td>✗</td><td>✗</td></tr>
 </table>
 <p>活跃单过滤：<code>flowIsActiveOrder</code> = 非 void / refund / partial_refund。  </p>
-<p>「全部 / 项目 / 产品 / 会员卡」Tab 只展示活跃单；「作废」「退款」Tab 按状态。</p>
+<p>「全部 / 项目 / 产品 / 会员卡 / 团购券」Tab 只展示活跃单（团购券 = <code>kind: group|tuangou</code>）；「作废」「退款」Tab 按状态。</p>
 <h2 id="sec-4-2-门控函数-原型">4.2 门控函数（原型）</h2>
 <ul>
 <li><code>flowCanEditOrder(o)</code> → <code>status === 'done'</code></li>
@@ -310,8 +313,9 @@
 <p>  - 顾客：全部顾客 / 散客 / 会员</p>
 <p>  - 重置 / 确定</p>
 <ul>
-<li><b>Tab</b>：全部 | 项目 | 产品 | 会员卡 | 作废 | 退款（横滑；当前 Tab 滚入可视）</li>
-<li><b>流水卡</b>：头像 + 姓名 | 状态 | › ；类型标签 + 首项名（多项「等 N 项」）+ 服务人 | 标价；实付总额；开单时间。部分退额外「已退 ¥」</li>
+<li><b>Tab</b>：全部 | 项目 | 产品 | 会员卡 | 团购券 | 作废 | 退款（一行均分，不换行、不横滑）</li>
+<li><b>流水卡</b>：头像 + 姓名 | 状态 | › ；类型标签 + 首项名（多项「等 N 项」）+ 服务人 | 标价；支付行（渠道图标 + 方式 | -¥）;实付总额；开单时间。部分退额外「已退 ¥」</li>
+<li><b>团购券单</b>：名称位显示券名，金额位显示核销实付（不进「等 N 项」）</li>
 <li><b>空态</b>：暂无流水 / 暂无作废订单 / 暂无退款订单（副文案见原型）</li>
 <li><b>点卡</b>：进订单详情</li>
 </ul>
@@ -396,7 +400,8 @@
 <tr><td><code>id</code> / <code>flowNo</code></td><td>主键 / 流水单号</td></tr>
 <tr><td><code>customerId</code> / <code>customerName</code> / <code>avatar</code></td><td>顾客；无 id=散客</td></tr>
 <tr><td><code>status</code></td><td>见 §4.1</td></tr>
-<tr><td><code>kind</code></td><td>project / product / card / quick 等，驱动 Tab</td></tr>
+<tr><td><code>kind</code></td><td>project / product / card / quick / group 等，驱动 Tab</td></tr>
+<tr><td><code>couponName</code> / <code>groupUnmapped</code></td><td>团购券：券名 / 未落项（按直接收款计）</td></tr>
 <tr><td><code>items[]</code></td><td>见下</td></tr>
 <tr><td><code>payments[]</code> / <code>payMethod</code></td><td>支付明细；主展示方式</td></tr>
 <tr><td><code>amount</code></td><td>实付总额</td></tr>
@@ -437,7 +442,7 @@
 </ol>
 <h1 id="sec-模块-9-文案清单与权限">模块 9　文案清单与权限</h1>
 <h2 id="sec-9-1-主要可见文案">9.1 主要可见文案</h2>
-<p>门店流水、订单详情、选择退款、退款记录、退款详情、修改订单、添加项、更换项、编辑项目、筛选、全部/项目/产品/会员卡/作废/退款、申请退款、作废、修改、修改记录、补录备注/修改备注、补收差价、退还差价、更多、用…补记/退还、选择其他支付方式、原路退回、指定退回、确认退款、充值/续次/续费、办卡/充卡、本次实付、储值金额、赠送金额、延长、日/月/年/永久、保存修改、取消、删除、完成、确认添加、确认更换 …</p>
+<p>门店流水、订单详情、选择退款、退款记录、退款详情、修改订单、添加项、更换项、编辑项目、筛选、全部/项目/产品/会员卡/团购券/作废/退款、申请退款、作废、修改、修改记录、补录备注/修改备注、补收差价、退还差价、更多、用…补记/退还、选择其他支付方式、原路退回、指定退回、确认退款、充值/续次/续费、办卡/充卡、本次实付、储值金额、赠送金额、延长、日/月/年/永久、保存修改、取消、删除、完成、确认添加、确认更换 …</p>
 <p>（完整字符串以原型为准；关键 toast 见 §5.3。）</p>
 <h2 id="sec-9-2-权限">9.2 权限</h2>
 <p>店员/店长/店主对改单、退款、作废、改单号等：<b>以目前线上权限体系为准</b>；原型不隐藏入口。</p>
@@ -449,6 +454,13 @@
 <li><b>Given</b> 宿主购物车有项并确认支付，<b>When</b> 进入 s15，<b>Then</b> 流水列表置顶可见本笔，且「看流水」进该笔详情。  </li>
 <li><b>Given</b> 进入订单流水，<b>When</b> 打开模块，<b>Then</b> 默认门店流水列表（非 Hub）。  </li>
 <li><b>Given</b> 列表，<b>When</b> 切 Tab「退款」，<b>Then</b> 仅 <code>refund</code>/<code>partial_refund</code>。  </li>
+</ol>
+<p>2a. <b>Given</b> 有团购核销种子，<b>When</b> 切 Tab「团购券」，<b>Then</b> 仅 <code>kind: group</code> 活跃单，且 Tab 行不横滑、不换行。  </p>
+<p>2b. <b>Given</b> 团购券列表卡，<b>When</b> 查看，<b>Then</b> 名称位为券名、金额位为核销实付；<b>When</b> 进详情，<b>Then</b> 消费内容为具体项目/产品且有「团购券」信息行。  </p>
+<p>2c. <b>Given</b> 未落项团购单，<b>When</b> 看详情，<b>Then</b> 明细为「直接收款（直）」并有灰字「团购券未指定消费项目，按直接收款计」。  </p>
+<p>2c-1. <b>Given</b> 团购券单详情，<b>When</b> 查看，<b>Then</b> 顶部无差额卡、金额区为「核销实付」且等于订单金额；「更多」无补收/退还差价。  </p>
+<p>2d. <b>Given</b> 任意订单卡或详情支付区，<b>When</b> 查看，<b>Then</b> 支付方式左侧有 14×14 渠道图标。  </p>
+<ol>
 <li><b>Given</b> 已完成单，<b>When</b> 点卡，<b>Then</b> 进详情且可「修改」。  </li>
 <li><b>Given</b> 已退款单，<b>When</b> 看详情，<b>Then</b> 无修改订单入口。  </li>
 <li><b>Given</b> 可改单，<b>When</b> 点开单时间笔并保存合法值，<b>Then</b> toast「开单时间已更新」且 meta 更新。  </li>

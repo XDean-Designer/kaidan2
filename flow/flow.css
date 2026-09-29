@@ -1726,23 +1726,22 @@ input[type=number]::-webkit-inner-spin-button {
 }
 .flow-list-tabs {
   display: flex; align-items: stretch; height: 44px; width: 100%; max-width: 390px; margin: 0 auto;
-  padding: 0 8px; box-sizing: border-box;
+  padding: 0 4px; box-sizing: border-box;
   background: #fff; border-bottom: 1px solid var(--bg-page);
-  overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-shrink: 0;
-  gap: 2px;
+  overflow: hidden; flex-shrink: 0;
+  gap: 0;
 }
-.flow-list-tabs::-webkit-scrollbar { display: none; }
 .flow-list-tab {
-  position: relative; flex: 0 0 auto; height: 44px; border: none; background: none;
-  cursor: pointer; font-family: inherit; padding: 0 14px;
+  position: relative; flex: 1 1 0; min-width: 0; height: 44px; border: none; background: none;
+  cursor: pointer; font-family: inherit; padding: 0 2px;
   display: inline-flex; align-items: center; justify-content: center;
-  font-size: 14px; line-height: 20px; color: var(--text-sec); text-align: center;
-  white-space: nowrap; letter-spacing: 0;
+  font-size: 12px; line-height: 16px; color: var(--text-sec); text-align: center;
+  white-space: nowrap; letter-spacing: -0.02em;
 }
 .flow-list-tab.is-active { color: var(--text); font-weight: 500; }
 .flow-list-tab.is-active::after {
   content: ''; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-  width: 20px; height: 3px; background: var(--brand); border-radius: 2px;
+  width: 16px; height: 3px; background: var(--brand); border-radius: 2px;
 }
 .flow-list-body,
 #flowListBody,
@@ -1790,9 +1789,18 @@ input[type=number]::-webkit-inner-spin-button {
   margin-top: 2px; font-size: 12px; line-height: 16px; color: #B54708;
 }
 .flow-detail-partial-banner {
-  margin: 0 16px 12px; padding: 10px 12px; border-radius: 8px;
+  /* 上/左/右三面贴边：负外边距抵消 .flow-detail-body 的 16px 内边距；四角直角 */
+  margin: -16px -16px 12px; padding: 10px 16px; border-radius: 0;
   background: #FFF4E5; color: #B54708; font-size: 13px; line-height: 18px;
+  display: flex; align-items: flex-start; gap: 6px;
+  box-sizing: border-box;
 }
+.flow-detail-partial-banner__ico {
+  flex-shrink: 0; width: 14px; height: 14px; margin-top: 2px; color: #B54708;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.flow-detail-partial-banner__ico svg { width: 14px; height: 14px; display: block; }
+.flow-detail-partial-banner__text { flex: 1; min-width: 0; }
 .flow-detail-status-pill {
   flex-shrink: 0; margin-left: 6px; font-size: 11px; font-weight: 500; line-height: 16px;
   color: var(--brand); background: var(--brand-soft); border-radius: 4px; padding: 2px 6px;
@@ -1864,6 +1872,23 @@ input[type=number]::-webkit-inner-spin-button {
 .flow-order-card__pay {
   display: flex; justify-content: space-between; align-items: center; gap: 12px;
   font-size: 13px; color: var(--text-sec); margin-top: 14px; line-height: 20px;
+}
+.flow-order-card__pay .flow-pay-method { min-width: 0; }
+/* 支付方式图标（列表卡支付行 / 详情支付行共用） */
+.flow-pay-method {
+  display: inline-flex; align-items: center; gap: 6px; min-width: 0;
+}
+.flow-pay-method__name {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.flow-pay-ico {
+  width: 14px; height: 14px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.flow-pay-ico img { width: 14px; height: 14px; display: block; object-fit: contain; }
+.flow-pay-ico--fallback {
+  border-radius: 3px; background: #F0F0F0; color: #929292;
+  font-size: 9px; line-height: 1; font-weight: 600;
 }
 .flow-order-card__pay-amt {
   color: var(--text); font-family: var(--font-data); font-weight: 400; flex-shrink: 0;
@@ -2382,7 +2407,7 @@ input[type=number]::-webkit-inner-spin-button {
   padding: 8px 0; font-size: 14px; color: var(--text-sec); line-height: 20px;
 }
 .flow-detail-pay-row:first-of-type { padding-top: 0; }
-.flow-detail-pay-row span:last-child {
+.flow-detail-pay-row > span:last-child {
   color: var(--text);
   font-family: var(--font-text);
 }
@@ -2393,9 +2418,24 @@ input[type=number]::-webkit-inner-spin-button {
   margin-top: 4px; padding-top: 12px; border-top: 0.5px solid #EDEDED;
   font-weight: 500; color: var(--text); line-height: 20px;
 }
-.flow-detail-pay-row--strong span:last-child,
+.flow-detail-pay-row--strong > span:last-child,
 .flow-detail-pay-row--strong .flow-detail-pay-amt {
   font-family: var(--font-data); font-size: 16px; font-weight: 700; color: var(--brand);
+}
+/* 团购券 · 券名信息行 + 未落项说明 */
+.flow-detail-coupon-row {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  padding: 0 0 12px; margin-bottom: 12px; border-bottom: 0.5px solid #EDEDED;
+  font-size: 13px; color: var(--text-sec); line-height: 20px;
+}
+.flow-detail-coupon-row__val {
+  color: var(--text); text-align: right; word-break: break-all;
+  font-family: var(--font-text); font-weight: 400;
+}
+.flow-detail-group-hint {
+  margin-top: 12px; padding: 8px 10px; border-radius: 6px;
+  background: var(--bg-page); color: var(--text-sec);
+  font-size: 12px; line-height: 18px;
 }
 .flow-detail-all {
   display: flex; align-items: center; justify-content: center; gap: 2px;
