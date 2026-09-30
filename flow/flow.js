@@ -7262,10 +7262,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return m !== '经理签单' && m !== '会员卡';
   }
 
-  /** 订单实付（统一口径）：团购券整单 0；作废 / 已退款 0；部分退款扣已退；卡付与经理签单行不计。日历日额、列表卡「实付总额」、价格区间筛选共用 */
-  function flowOrderRealizedPaid(o) {
+  /** 支付净额（基础口径）：逐支付行累加可用支付（经理签单 / 会员卡卡付不计）；
+      作废 / 已退款 = 0；部分退款扣已退。**团购券单在此照常计入**。 */
+  function flowOrderPaidNet(o) {
     if (!o || o.status === 'void' || o.status === 'refund') return 0;
-    if (flowIsGroupOrder(o)) return 0;
     let sum = 0;
     flowPaymentsOf(o).forEach((p) => {
       if (flowPayLineCountsAsPaid(p.method)) sum += Number(p.amount) || 0;
@@ -7274,13 +7274,21 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     return round2(Math.max(0, sum));
   }
 
-  /** 日 → 实付总额（只登记出现过的日期） */
+  /** 实付口径（R47）：基础口径上把**团购券单整单记 0** —— 列表卡「实付总额」与价格区间筛选共用。
+      ⚠️ 与日历日额口径不同：日历走 flowDailyPaidTotals（R49 起含团购），别再拿这个函数去算日额。 */
+  function flowOrderRealizedPaid(o) {
+    return flowIsGroupOrder(o) ? 0 : flowOrderPaidNet(o);
+  }
+
+  /** 日 → 日历日额（R49）。只登记出现过的日期；口径 = flowOrderPaidNet（基础口径），
+      即**含团购支付与团购核销**（团购券单按其核销金额计入）；
+      经理签单 / 卡付仍不计，作废 / 已退款仍为 0，部分退款仍扣已退。 */
   function flowDailyPaidTotals() {
     const map = Object.create(null);
     FLOW_ORDERS.forEach((o) => {
       const day = flowParseDay(o.time);
       if (!day) return;
-      map[day] = round2((map[day] || 0) + flowOrderRealizedPaid(o));
+      map[day] = round2((map[day] || 0) + flowOrderPaidNet(o));
     });
     return map;
   }
@@ -8265,7 +8273,12 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         <div class="flow-detail-pay-row">${flowPayMethodHtml(p.method)}<span class="flow-detail-pay-amt"><span class="yen">¥</span>${Number(p.amount).toFixed(2)}</span></div>`
     ).join('');
     const itemsHtml = (o.items && o.items.length ? o.items : [item]).map(it => {
-      const kind = it.type === 'product' ? 'product' : (it.type === 'card' ? 'card' : (it.type === 'quick' ? 'quick' : (it.type === 'group' || it.type === 'tuangou' ? 'group' : (o.kind || 'project'))));
+      /* R49：条目类型标取**条目自身**类型（项 / 产 / 卡 / 直 / 团）——团购券单里装的是
+         它核销掉的项目 / 产品，不能把订单的「团」传染给它们；条目没带类型时才回落到订单类型。 */
+      const ownType = it.type || it.kind || '';
+      const kind = ownType
+        ? flowEditItemKind(it)
+        : ((o.kind === 'group' || o.kind === 'tuangou') ? 'project' : (o.kind || 'project'));
       const price = Number(it.price != null ? it.price : 0);
       const staffPills = flowStaffPillsHtml(it);
       return `<div class="flow-detail-item-row" style="margin-bottom:12px">
@@ -8494,15 +8507,15 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
 
   function flowFilterTimeHtml(draft) {
     const sel = flowFilterDayKey(draft);
+    /* 单个开关标签（R49）：文案固定「全部时间」——未筛日期时高亮；筛了日期后整条变灰，
+       再点它即清除日期、恢复高亮并回到全部时间。原「按日筛选」灰字标题与「所选日期」副标签已删除。 */
     return `
       <div class="flow-filter-section">
-        <div class="flow-filter-section__title">按日筛选</div>
         <div class="flow-chip-row">
-          <button type="button" class="flow-chip${sel ? '' : ' is-on'}" data-flow-filter-alltime="1">全部时间</button>
-          ${sel ? `<button type="button" class="flow-chip is-on" data-flow-filter-alltime="1">${escapeHtml(flowFmtDotFromKey(sel))}</button>` : ''}
+          <button type="button" class="flow-chip${sel ? '' : ' is-on'}" data-flow-filter-alltime="1" aria-pressed="${sel ? 'false' : 'true'}">全部时间</button>
         </div>
         <div class="flow-filter-cal" id="flowFilterCal"></div>
-        <div class="flow-filter-hint">日期下方为该日实付；经理签单、卡付、团购核销不计入实付</div>
+        <div class="flow-filter-hint">日期下方为该日实付；经理签单、卡付不计入</div>
       </div>`;
   }
 

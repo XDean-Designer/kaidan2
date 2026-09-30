@@ -2607,6 +2607,9 @@ input[type=number]::-webkit-inner-spin-button {
 .flow-chip-row {
   display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
 }
+/* R49：时间筛选删掉「按日筛选」灰字标题后，开关标签成为区块首个元素 ——
+   去掉多余顶距，并补上与下方日历的间距（原 8px 顶距被去掉后两者贴在一起了） */
+.flow-filter-section > .flow-chip-row:first-child { margin: 0 0 14px; }
 .flow-chip {
   border: 1px solid var(--border); background: #fff; border-radius: 8px;
   padding: 6px 12px; font-size: 13px; line-height: 18px; color: var(--text);
