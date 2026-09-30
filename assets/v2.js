@@ -1709,8 +1709,15 @@
   }
 
   function patchNav() {
-    if (window.navStack) window.navStack = ['s0'];
-    if (typeof window.activate === 'function') window.activate('s0');
+    /* ?flow=flow-xxx 深链：本次加载就该直接进订单流水层。
+       别再执行下面的「重置回首页」——activate() 现在会先退掉流水层
+       （见 index.html 的 activate 注释），否则深链刚打开就被这一步顶掉。 */
+    var flowDeepLink = false;
+    try { flowDeepLink = /^flow-/.test(new URLSearchParams(location.search).get('flow') || ''); } catch (e) {}
+    if (!flowDeepLink) {
+      if (window.navStack) window.navStack = ['s0'];
+      if (typeof window.activate === 'function') window.activate('s0');
+    }
     /* R26：散客 / 会员选择统一走 returnFromCustPick（保留本单 / 政策 A） */
     window.pickGuest = function (g) {
       if (window.setGuestGender) window.setGuestGender(g);

@@ -3400,21 +3400,21 @@
           </div>
 
 
-          <!-- 流水订单 · 筛选 Sheet -->
+          <!-- 流水订单 · 筛选 Sheet（时间筛选 / 条件筛选；无 ×，点外部收起） -->
           <div class="picker-mask picker-mask--bottom" id="flowFilterMask" data-mask-close="flowFilterMask">
             <div class="picker-sheet tall flow-filter-sheet" role="dialog" aria-label="筛选流水">
               <div class="picker-head">
                 <div class="picker-head__title">筛选</div>
-                <button type="button" class="picker-head__close" data-close="flowFilterMask" aria-label="关闭">
-                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M14 6L6 14M14 14L6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                </button>
+              </div>
+              <div class="flow-filter-seg" id="flowFilterSeg" role="tablist" aria-label="筛选方式">
+                <button type="button" class="flow-filter-seg__btn is-on" data-flow-filter-tab="time" role="tab" aria-selected="true">时间筛选</button>
+                <button type="button" class="flow-filter-seg__btn" data-flow-filter-tab="cond" role="tab" aria-selected="false">条件筛选</button>
               </div>
               <div class="picker-body" id="flowFilterBody"></div>
-              <div class="flow-filter-foot">
+              <div class="picker-foot picker-foot--row">
                 <button type="button" class="btn-main secondary" id="flowFilterReset">重置</button>
                 <button type="button" class="btn-main" id="flowFilterApply">确定</button>
               </div>
-              <div class="catalog-action-safe" aria-hidden="true"></div>
             </div>
           </div>
 
@@ -4043,6 +4043,11 @@
     var navStack = ['s0'];
 
     function activate(id) {
+      /* 【必须】先把订单流水层收掉：流水模块（#flowModuleRoot）是盖在 #frame 上的整层
+         （position:absolute; inset:0; z-index:5），并且会给 #frame 挂 .is-flow-mode
+         把所有宿主屏 visibility:hidden。只切 .active 不退出流水层，宿主屏依旧被挡在下面，
+         表现就是「左侧导航主链路 / 直接收款点了没反应」。 */
+      if (typeof window.exitFlowModule === 'function') window.exitFlowModule();
       document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
       document.getElementById(id).classList.add('active');
       document.querySelectorAll('.site-nav .nav-item').forEach(function(n){
@@ -4063,6 +4068,24 @@
       if (navStack.length > 1) navStack.pop();
       activate(navStack[navStack.length - 1]);
     }
+
+    /* 流水模块「返回」的宿主落点。
+       流水模块内部调用 openWorkbench() 表示「结束本段流水会话」（门店流水返回、
+       客户选择返回、挂单列表返回…）。宿主没有流水 Hub 屏，等价动作 =
+       退出流水层 + 回到进入流水前的宿主页：
+       · 从侧栏「订单流水」进 → navStack 顶仍是原宿主页（如 s0）
+       · 从 s15「看流水」进 → navStack 顶就是 s15
+       · 深链 index.html?flow=… 直接进 → navStack 仍是初始 ['s0']，即回首页
+       注意：必须在 flow/flow.js 之前挂上，flow.js 里的兜底实现才会让位（它只在
+       typeof window.openWorkbench !== 'function' 时覆盖）。 */
+    window.openWorkbench = function () {
+      if (typeof window.exitFlowModule === 'function') window.exitFlowModule();
+      var back = navStack[navStack.length - 1];
+      if (!back || !document.getElementById(back)) back = 's0';
+      if (back === 's6') renderCo();
+      if (back === 's7') renderQco();
+      activate(back);
+    };
 
   var toastTimer = null;
   /* ms 缺省 1400；长文案（两行说明）由调用方显式传更长的时长 */

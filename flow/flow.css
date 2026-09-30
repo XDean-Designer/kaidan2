@@ -1259,7 +1259,10 @@ input[type=number]::-webkit-inner-spin-button {
   border: none; background: none; color: var(--text-mid); font-size: 13px;
   cursor: pointer; font-family: inherit; padding: 0;
 }
-.hold-list { padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 10px; }
+/* ⚠️ 挂单卡一律限定在流水模块自己的 #screen-holds 内。
+   这些类名与「开单结账2.0/index.html」页面14 挂单列表（#s14 .hold-list / #s14 .hold-card）重名，
+   flow.css 是全局引入的，一旦不加限定就会把 #s14 的卡片变成 flex 行，标题/明细/金额/按钮横排错乱。 */
+#screen-holds .hold-list { padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 10px; }
 #screen-holds {
   display: flex; flex-direction: column;
 }
@@ -1269,26 +1272,26 @@ input[type=number]::-webkit-inner-spin-button {
   flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 #holdExpireTip { flex-shrink: 0; }
-.hold-card {
+#screen-holds .hold-card {
   width: 100%; text-align: left; border: 1px solid var(--border-light); border-radius: 12px;
   background: #fff; padding: 14px 12px 14px 16px; cursor: pointer; font-family: inherit; color: inherit;
   display: flex; align-items: center; gap: 8px; box-sizing: border-box;
 }
-.hold-card__main { flex: 1; min-width: 0; }
-.hold-card__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px; }
-.hold-card__name { font-size: 15px; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hold-card__amt { font-size: 16px; font-weight: 600; color: var(--brand); font-family: var(--font-data); flex-shrink: 0; }
-.hold-card__amt-btn {
+#screen-holds .hold-card__main { flex: 1; min-width: 0; }
+#screen-holds .hold-card__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px; }
+#screen-holds .hold-card__name { font-size: 15px; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#screen-holds .hold-card__amt { font-size: 16px; font-weight: 600; color: var(--brand); font-family: var(--font-data); flex-shrink: 0; }
+#screen-holds .hold-card__amt-btn {
   margin: 0; padding: 2px 8px 2px 6px; border: 1px dashed transparent; border-radius: 6px;
   background: transparent; color: var(--brand); font-size: 16px; font-weight: 600;
   font-family: var(--font-data); line-height: 1.2; cursor: pointer; flex-shrink: 0;
   display: inline-flex; align-items: center; gap: 4px;
 }
-.hold-card__amt-btn:active { background: var(--brand-soft); border-color: var(--brand-border); }
-.hold-card__amt-btn svg {
+#screen-holds .hold-card__amt-btn:active { background: var(--brand-soft); border-color: var(--brand-border); }
+#screen-holds .hold-card__amt-btn svg {
   width: 14px; height: 14px; color: var(--brand); flex-shrink: 0; opacity: .85;
 }
-.hold-card__amt-hint {
+#screen-holds .hold-card__amt-hint {
   display: inline-flex; align-items: center; flex-shrink: 0;
   margin-left: 2px; padding: 1px 6px; border-radius: 4px;
   font-size: 10px; font-weight: 500; line-height: 1.3;
@@ -1306,32 +1309,32 @@ input[type=number]::-webkit-inner-spin-button {
 .bill-pick-section-label {
   padding: 10px 16px 4px; font-size: 12px; font-weight: 600; color: var(--text-sec);
 }
-.hold-card__meta { font-size: 12px; color: var(--text-sec); line-height: 1.5; }
-.hold-card__foot {
+#screen-holds .hold-card__meta { font-size: 12px; color: var(--text-sec); line-height: 1.5; }
+#screen-holds .hold-card__foot {
   margin-top: 10px; padding-top: 10px;
   border-top: 1px solid var(--border-light, #EBEBEB);
 }
-.hold-card__del {
+#screen-holds .hold-card__del {
   margin: 0; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
   height: 32px; padding: 0 14px; box-sizing: border-box;
   border: 1px solid var(--border); border-radius: 8px; background: #fff;
   color: var(--text-mid); font-size: 13px; font-weight: 500; line-height: 1;
   cursor: pointer; font-family: inherit;
 }
-.hold-card__del svg {
+#screen-holds .hold-card__del svg {
   width: 15px; height: 15px; flex-shrink: 0; display: block;
   /* 与中文「删除挂单」视觉中线对齐 */
   transform: translateY(0.5px);
 }
-.hold-card__del span {
+#screen-holds .hold-card__del span {
   display: inline-block; line-height: 15px; font-size: 13px;
 }
-.hold-card__del:active { background: var(--bg-page); }
-.hold-card__chev {
+#screen-holds .hold-card__del:active { background: var(--bg-page); }
+#screen-holds .hold-card__chev {
   flex-shrink: 0; width: 16px; height: 16px; color: var(--text-sec);
   display: inline-flex; align-items: center; justify-content: center;
 }
-.hold-card__chev svg { width: 16px; height: 16px; display: block; }
+#screen-holds .hold-card__chev svg { width: 16px; height: 16px; display: block; }
 .pick-holds-entry {
   margin: 0 16px 8px; display: flex; justify-content: flex-end;
 }
@@ -2501,16 +2504,43 @@ input[type=number]::-webkit-inner-spin-button {
 #screen-flow-detail:not(.hidden) { display: flex; }
 #screen-flow-list .page-body,
 #screen-flow-self .page-body { background: var(--bg-page); }
-.flow-filter-custom {
+/* 筛选 Sheet：一整块白面（无 ×、无底部灰条），二段式 tab */
+.flow-filter-sheet .picker-head { justify-content: center; padding: 14px 16px 0; }
+.flow-filter-sheet .picker-head__title { font-size: 16px; }
+.flow-filter-seg {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 10px 16px 0;
+  padding: 3px; border-radius: 10px; background: #F2F2F2; flex-shrink: 0;
+}
+.flow-filter-seg__btn {
+  appearance: none; border: none; background: transparent; cursor: pointer; font: inherit;
+  font-size: 14px; font-weight: 500; color: var(--text-sec); padding: 8px 0; border-radius: 8px;
+}
+.flow-filter-seg__btn.is-on { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.flow-filter-hint { margin-top: 10px; font-size: 11px; line-height: 16px; color: var(--text-3); }
+.flow-filter-cal .flow-balance-cal__grid { min-height: 0; }
+.flow-filter-cal .flow-balance-cal__day {
+  height: 54px; flex-direction: column; gap: 2px; align-items: center; justify-content: center;
+}
+.flow-filter-cal .flow-balance-cal__day-num { width: 28px; height: 28px; font-size: 13px; }
+.flow-filter-cal__amt {
+  position: relative; z-index: 1; max-width: 100%; overflow: hidden;
+  font-size: 10px; line-height: 12px; color: var(--text-sec);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.flow-filter-cal__amt.is-empty { visibility: hidden; }
+.flow-filter-cal .flow-balance-cal__day.is-selected .flow-filter-cal__amt { color: var(--brand); font-weight: 600; }
+.flow-filter-cal .flow-balance-cal__day.is-disabled .flow-filter-cal__amt { color: #E0E0E0; }
+.flow-filter-price-custom {
   margin-top: 10px; display: flex; align-items: center; gap: 8px;
 }
-.flow-filter-custom__btn {
-  flex: 1; min-height: 40px; border: 1px solid #EBEBEB; border-radius: 10px;
-  background: #FAFAFA; font-family: inherit; font-size: 13px; color: var(--text);
-  cursor: pointer; padding: 8px 10px; text-align: left;
+.flow-filter-price-custom__input {
+  flex: 1; min-width: 0; height: 40px; padding: 0 12px; box-sizing: border-box;
+  border: 1px solid var(--border); border-radius: 10px; background: #fff;
+  font-family: inherit; font-size: 14px; color: var(--text); text-align: center;
+  font-variant-numeric: tabular-nums;
 }
-.flow-filter-custom__btn.is-on { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); }
-.flow-filter-custom__sep { color: var(--text-sec); font-size: 13px; flex-shrink: 0; }
+.flow-filter-price-custom__input:focus { outline: none; border-color: var(--brand); }
+.flow-filter-price-custom__sep { color: var(--text-sec); font-size: 13px; flex-shrink: 0; }
 .flow-self-filters-wrap {
   position: relative; flex-shrink: 0; z-index: 5; background: #fff;
 }
@@ -2587,19 +2617,15 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 /* demo L12262-12479 */
-.flow-filter-sheet .picker-body { padding: 8px 16px 16px; }
+.flow-filter-sheet .picker-body { padding: 12px 16px 16px; }
 .flow-filter-section { margin-bottom: 16px; }
+.flow-filter-section:last-child { margin-bottom: 4px; }
 .flow-filter-section__title {
   font-size: 13px; color: var(--text-sec); line-height: 18px; margin-bottom: 8px;
 }
-.flow-filter-foot {
-  display: flex; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--bg-page);
-  background: #fff;
-}
-.flow-filter-foot .btn-main { flex: 1; min-height: 48px; }
-.flow-filter-foot .btn-main.secondary {
-  background: transparent; color: var(--brand); border: 1px solid var(--brand);
-}
+/* 标题栏「筛选」生效态（有筛选条件时上色） */
+.flow-list-actions .action.is-on,
+.flow-list-actions .action.is-on svg { color: var(--brand); }
 .flow-tip {
   margin: 0 0 12px; padding: 10px 12px; border-radius: 8px;
   background: var(--warn-bg); color: var(--warn-text);

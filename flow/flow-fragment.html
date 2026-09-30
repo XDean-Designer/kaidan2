@@ -111,21 +111,21 @@
           </div>
 
 
-          <!-- 流水订单 · 筛选 Sheet -->
+          <!-- 流水订单 · 筛选 Sheet（时间筛选 / 条件筛选；无 ×，点外部收起） -->
           <div class="picker-mask picker-mask--bottom" id="flowFilterMask" data-mask-close="flowFilterMask">
             <div class="picker-sheet tall flow-filter-sheet" role="dialog" aria-label="筛选流水">
               <div class="picker-head">
                 <div class="picker-head__title">筛选</div>
-                <button type="button" class="picker-head__close" data-close="flowFilterMask" aria-label="关闭">
-                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M14 6L6 14M14 14L6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                </button>
+              </div>
+              <div class="flow-filter-seg" id="flowFilterSeg" role="tablist" aria-label="筛选方式">
+                <button type="button" class="flow-filter-seg__btn is-on" data-flow-filter-tab="time" role="tab" aria-selected="true">时间筛选</button>
+                <button type="button" class="flow-filter-seg__btn" data-flow-filter-tab="cond" role="tab" aria-selected="false">条件筛选</button>
               </div>
               <div class="picker-body" id="flowFilterBody"></div>
-              <div class="flow-filter-foot">
+              <div class="picker-foot picker-foot--row">
                 <button type="button" class="btn-main secondary" id="flowFilterReset">重置</button>
                 <button type="button" class="btn-main" id="flowFilterApply">确定</button>
               </div>
-              <div class="catalog-action-safe" aria-hidden="true"></div>
             </div>
           </div>
 

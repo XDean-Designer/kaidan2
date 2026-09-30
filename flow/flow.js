@@ -1394,8 +1394,16 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     flowDetailId: null,
     flowDetailExpanded: false,
     flowFromSuccess: false,
-    flowFilter: { date: 'all', pay: 'all', guest: 'all', customStart: '', customEnd: '' },
+    flowFilter: {
+      date: 'all', customStart: '', customEnd: '',
+      pay: 'all', guest: 'all',
+      pricePreset: 'all', priceMin: '', priceMax: '',
+      staffNames: [],
+    },
     flowFilterDraft: null,
+    flowFilterTab: 'time',
+    flowFilterCalYear: null,
+    flowFilterCalMonth: null,
     flowSelfCustomStart: '',
     flowSelfCustomEnd: '',
     flowRangeContext: null,
@@ -7203,14 +7211,171 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   }
 
   function flowApplySheetFilter(list) {
-    const f = state.flowFilter || { date: 'all', pay: 'all', guest: 'all' };
+    const f = flowFilterNormalize(state.flowFilter);
     return list.filter(o => {
       if (!flowMatchDateFilter(o, f.date, f.customStart, f.customEnd)) return false;
-      if (f.pay && f.pay !== 'all' && o.payMethod !== f.pay) return false;
-      if (f.guest === 'guest' && o.customerId) return false;
-      if (f.guest === 'member' && !o.customerId) return false;
+      if (!flowMatchPayFilter(o, f.pay)) return false;
+      if (!flowMatchGuestFilter(o, f.guest)) return false;
+      if (!flowMatchPriceFilter(o, f)) return false;
+      if (!flowMatchStaffFilter(o, f.staffNames)) return false;
       return true;
     });
+  }
+
+  /* ==== 筛选 sheet · 口径与匹配 ==== */
+  const FLOW_PRICE_PRESETS = [
+    { id: 'all', label: '全部', min: null, max: null },
+    { id: '0-100', label: '¥0–100', min: 0, max: 100 },
+    { id: '100-300', label: '¥100–300', min: 100, max: 300 },
+    { id: '300-500', label: '¥300–500', min: 300, max: 500 },
+    { id: '500+', label: '¥500以上', min: 500, max: null },
+  ];
+
+  function flowFilterDefaults() {
+    return {
+      date: 'all', customStart: '', customEnd: '',
+      pay: 'all', guest: 'all',
+      pricePreset: 'all', priceMin: '', priceMax: '',
+      staffNames: [],
+    };
+  }
+
+  function flowFilterNormalize(f) {
+    const src = f || {};
+    const out = Object.assign(flowFilterDefaults(), src);
+    out.staffNames = Array.isArray(src.staffNames) ? src.staffNames.filter(Boolean) : [];
+    return out;
+  }
+
+  function flowFilterIsActive(f) {
+    const d = flowFilterNormalize(f);
+    return d.date !== 'all'
+      || (d.pay && d.pay !== 'all')
+      || (d.guest && d.guest !== 'all')
+      || (d.pricePreset && d.pricePreset !== 'all')
+      || d.staffNames.length > 0;
+  }
+
+  /** 实付口径：经理签单 / 会员卡（卡付）的支付行不计入 */
+  function flowPayLineCountsAsPaid(method) {
+    const m = String(method || '');
+    return m !== '经理签单' && m !== '会员卡';
+  }
+
+  /** 订单实付（统一口径）：团购券整单 0；作废 / 已退款 0；部分退款扣已退；卡付与经理签单行不计。日历日额、列表卡「实付总额」、价格区间筛选共用 */
+  function flowOrderRealizedPaid(o) {
+    if (!o || o.status === 'void' || o.status === 'refund') return 0;
+    if (flowIsGroupOrder(o)) return 0;
+    let sum = 0;
+    flowPaymentsOf(o).forEach((p) => {
+      if (flowPayLineCountsAsPaid(p.method)) sum += Number(p.amount) || 0;
+    });
+    if (o.status === 'partial_refund') sum -= flowOrderTotalRefunded(o);
+    return round2(Math.max(0, sum));
+  }
+
+  /** 日 → 实付总额（只登记出现过的日期） */
+  function flowDailyPaidTotals() {
+    const map = Object.create(null);
+    FLOW_ORDERS.forEach((o) => {
+      const day = flowParseDay(o.time);
+      if (!day) return;
+      map[day] = round2((map[day] || 0) + flowOrderRealizedPaid(o));
+    });
+    return map;
+  }
+
+  function flowFmtDayAmount(v) {
+    const n = round2(Number(v) || 0);
+    const int = Math.trunc(n);
+    const dec = Math.round(Math.abs(n - int) * 100);
+    const intStr = String(Math.abs(int)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return `¥${n < 0 ? '-' : ''}${intStr}${dec ? '.' + String(dec).padStart(2, '0') : ''}`;
+  }
+
+  /** 订单服务人名（items.staffIds / staffs / staff 三处并集；id 统一翻成开单员工池姓名） */
+  function flowOrderStaffNames(o) {
+    const names = new Set();
+    ((o && o.items) || []).forEach((it) => (it.staffIds || []).forEach((id) => {
+      const n = id ? flowStaffNameById(id) : '';
+      if (n) names.add(n);
+    }));
+    ((o && o.staffs) || []).forEach((s) => {
+      if (!s) return;
+      const n = s.name || (s.id ? flowStaffNameById(s.id) : '');
+      if (n) names.add(n);
+    });
+    if (o && o.staff) names.add(o.staff);
+    return Array.from(names);
+  }
+
+  function flowMatchPayFilter(o, pay) {
+    if (!pay || pay === 'all') return true;
+    return flowPaymentsOf(o).some((p) => String(p.method || '') === pay);
+  }
+
+  function flowMatchGuestFilter(o, guest) {
+    if (!guest || guest === 'all') return true;
+    if (guest === 'guest') return !o.customerId;
+    if (guest === 'member') return !!o.customerId;
+    return true;
+  }
+
+  function flowPriceBound(v) {
+    if (v === '' || v == null) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function flowMatchPriceFilter(o, f) {
+    const preset = f.pricePreset || 'all';
+    if (preset === 'all') return true;
+    /* 价格区间比的是「实付」：团购券单 / 经理签单 / 卡付行 / 作废单 实付为 0 */
+    const amt = flowOrderRealizedPaid(o);
+    if (preset === 'custom') {
+      const min = flowPriceBound(f.priceMin);
+      const max = flowPriceBound(f.priceMax);
+      if (min != null && amt < min) return false;
+      if (max != null && amt > max) return false;
+      return true;
+    }
+    const p = FLOW_PRICE_PRESETS.find((x) => x.id === preset);
+    if (!p) return true;
+    if (p.min != null && amt < p.min) return false;
+    if (p.max != null && amt >= p.max) return false;
+    return true;
+  }
+
+  function flowMatchStaffFilter(o, names) {
+    const sel = Array.isArray(names) ? names.filter(Boolean) : [];
+    if (!sel.length) return true;
+    return flowOrderStaffNames(o).some((n) => sel.indexOf(n) >= 0);
+  }
+
+  /** 支付方式 chips：按流水里真实出现过的渠道生成，空渠道不会出现 */
+  function flowPayFilterOptions() {
+    const prefer = ['现金', '微信', '支付宝', '会员卡', '银行卡', '信用卡', '经理签单', '美团', '抖音', '口碑', '大众点评', '其他平台团购'];
+    const set = new Set();
+    FLOW_ORDERS.forEach((o) => flowPaymentsOf(o).forEach((p) => { if (p.method) set.add(p.method); }));
+    return Array.from(set).sort((a, b) => {
+      const ia = prefer.indexOf(a);
+      const ib = prefer.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+  }
+
+  /** 服务员工 chips：按流水里真实出现过的服务人生成 */
+  function flowStaffFilterOptions() {
+    const list = [];
+    FLOW_ORDERS.forEach((o) => flowOrderStaffNames(o).forEach((n) => {
+      if (list.indexOf(n) < 0) list.push(n);
+    }));
+    return list;
+  }
+
+  function flowFilterDayKey(f) {
+    const d = flowFilterNormalize(f);
+    return d.date === 'custom' && d.customStart && d.customStart === d.customEnd ? d.customStart : '';
   }
 
   function flowFmtDotFromKey(key) {
@@ -8013,6 +8178,9 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         `<button type="button" class="flow-list-tab${state.flowTab === t.id ? ' is-active' : ''}" data-flow-tab="${t.id}" role="tab" aria-selected="${state.flowTab === t.id ? 'true' : 'false'}">${escapeHtml(t.label)}</button>`
       )).join('');
     }
+    /* 筛选生效时给标题栏「筛选」上色，避免列表被筛掉却没有线索 */
+    const filterBtn = document.getElementById('flowListFilter');
+    if (filterBtn) filterBtn.classList.toggle('is-on', flowFilterIsActive(state.flowFilter));
     const list = flowOrdersByTab(state.flowTab);
     const body = document.getElementById('flowListBody');
     if (!body) return;
@@ -8069,7 +8237,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
           ${flowPayMethodHtml(o.payMethod)}
           <span class="flow-order-card__pay-amt">-¥${showAmt.toFixed(2)}</span>
         </div>
-        <div class="flow-order-card__total">实付总额<span class="num"><span class="yen">¥</span>${showAmt.toFixed(2)}</span></div>
+        <div class="flow-order-card__total">实付总额<span class="num"><span class="yen">¥</span>${flowOrderRealizedPaid(o).toFixed(2)}</span></div>
         <div class="flow-order-card__foot">
           <span>开单时间</span>
           <span>${escapeHtml(o.time)}</span>
@@ -8308,58 +8476,144 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
 
 
   function renderFlowFilterSheet() {
-    const draft = state.flowFilterDraft || Object.assign({}, state.flowFilter);
-    state.flowFilterDraft = draft;
+    const draft = state.flowFilterDraft = flowFilterNormalize(state.flowFilterDraft || state.flowFilter);
     const body = document.getElementById('flowFilterBody');
     if (!body) return;
-    const dateOpts = [
-      { id: 'all', label: '全部日期' },
-      { id: 'today', label: '今日' },
-      { id: 'yesterday', label: '昨天' },
-      { id: '7d', label: '近7日' },
-      { id: '30d', label: '近30日' },
-      { id: 'custom', label: '自定义' },
-    ];
-    const payOpts = [
-      { id: 'all', label: '全部' },
-      { id: '现金', label: '现金' },
-      { id: '微信', label: '微信' },
-      { id: '支付宝', label: '支付宝' },
-      { id: '会员卡', label: '会员卡' },
-    ];
-    const guestOpts = [
-      { id: 'all', label: '全部顾客' },
-      { id: 'guest', label: '散客' },
-      { id: 'member', label: '会员' },
-    ];
-    const chips = (key, opts) => opts.map(o =>
-      `<button type="button" class="flow-chip${draft[key] === o.id ? ' is-on' : ''}" data-flow-filter-key="${key}" data-flow-filter-val="${escapeHtml(o.id)}">${escapeHtml(o.label)}</button>`
-    ).join('');
-    const customOn = draft.date === 'custom';
-    const startLab = draft.customStart ? flowFmtDotFromKey(draft.customStart) : '开始日期';
-    const endLab = draft.customEnd ? flowFmtDotFromKey(draft.customEnd) : '结束日期';
-    body.innerHTML = `
+    const tab = state.flowFilterTab === 'cond' ? 'cond' : 'time';
+    state.flowFilterTab = tab;
+    document.querySelectorAll('#flowFilterSeg [data-flow-filter-tab]').forEach((btn) => {
+      const on = btn.dataset.flowFilterTab === tab;
+      btn.classList.toggle('is-on', on);
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    const scrollTop = body.scrollTop;
+    body.innerHTML = tab === 'time' ? flowFilterTimeHtml(draft) : flowFilterCondHtml(draft);
+    body.scrollTop = scrollTop;
+    if (tab === 'time') renderFlowFilterCalendar();
+  }
+
+  function flowFilterTimeHtml(draft) {
+    const sel = flowFilterDayKey(draft);
+    return `
       <div class="flow-filter-section">
-        <div class="flow-filter-section__title">日期</div>
-        <div class="flow-chip-row">${chips('date', dateOpts)}</div>
-        ${customOn ? `<div class="flow-filter-custom">
-          <button type="button" class="flow-filter-custom__btn${draft.customStart ? ' is-on' : ''}" data-flow-filter-range="1">${escapeHtml(startLab)}</button>
-          <span class="flow-filter-custom__sep">至</span>
-          <button type="button" class="flow-filter-custom__btn${draft.customEnd ? ' is-on' : ''}" data-flow-filter-range="1">${escapeHtml(endLab)}</button>
-        </div>` : ''}
-      </div>
-      <div class="flow-filter-section">
-        <div class="flow-filter-section__title">支付方式</div>
-        <div class="flow-chip-row">${chips('pay', payOpts)}</div>
-      </div>
-      <div class="flow-filter-section">
-        <div class="flow-filter-section__title">顾客类型</div>
-        <div class="flow-chip-row">${chips('guest', guestOpts)}</div>
+        <div class="flow-filter-section__title">按日筛选</div>
+        <div class="flow-chip-row">
+          <button type="button" class="flow-chip${sel ? '' : ' is-on'}" data-flow-filter-alltime="1">全部时间</button>
+          ${sel ? `<button type="button" class="flow-chip is-on" data-flow-filter-alltime="1">${escapeHtml(flowFmtDotFromKey(sel))}</button>` : ''}
+        </div>
+        <div class="flow-filter-cal" id="flowFilterCal"></div>
+        <div class="flow-filter-hint">日期下方为该日实付；经理签单、卡付、团购核销不计入实付</div>
       </div>`;
   }
 
+  function flowFilterCondHtml(draft) {
+    const chip = (key, val, label, on) =>
+      `<button type="button" class="flow-chip${on ? ' is-on' : ''}" data-flow-filter-key="${key}" data-flow-filter-val="${escapeHtml(val)}">${escapeHtml(label)}</button>`;
+    const priceChips = FLOW_PRICE_PRESETS
+      .map(p => chip('pricePreset', p.id, p.label, (draft.pricePreset || 'all') === p.id)).join('')
+      + chip('pricePreset', 'custom', '自定义', draft.pricePreset === 'custom');
+    const priceCustom = draft.pricePreset === 'custom' ? `
+      <div class="flow-filter-price-custom">
+        <input type="text" class="flow-filter-price-custom__input" data-flow-filter-price="min" inputmode="decimal" placeholder="最低价" value="${escapeHtml(String(draft.priceMin || ''))}" aria-label="最低价">
+        <span class="flow-filter-price-custom__sep">–</span>
+        <input type="text" class="flow-filter-price-custom__input" data-flow-filter-price="max" inputmode="decimal" placeholder="最高价" value="${escapeHtml(String(draft.priceMax || ''))}" aria-label="最高价">
+      </div>` : '';
+    const payChips = chip('pay', 'all', '全部', !draft.pay || draft.pay === 'all')
+      + flowPayFilterOptions().map(m => chip('pay', m, m, draft.pay === m)).join('');
+    const guestChips = chip('guest', 'all', '全部', !draft.guest || draft.guest === 'all')
+      + chip('guest', 'guest', '散客', draft.guest === 'guest')
+      + chip('guest', 'member', '会员', draft.guest === 'member');
+    const staffSel = draft.staffNames || [];
+    const staffChips = `<button type="button" class="flow-chip${staffSel.length ? '' : ' is-on'}" data-flow-filter-staff="__all__">全部</button>`
+      + flowStaffFilterOptions().map(name =>
+        `<button type="button" class="flow-chip${staffSel.indexOf(name) >= 0 ? ' is-on' : ''}" data-flow-filter-staff="${escapeHtml(name)}">${escapeHtml(name)}</button>`
+      ).join('');
+    return `
+      <div class="flow-filter-section">
+        <div class="flow-filter-section__title">价格区间（实付）</div>
+        <div class="flow-chip-row">${priceChips}</div>
+        ${priceCustom}
+      </div>
+      <div class="flow-filter-section">
+        <div class="flow-filter-section__title">支付方式</div>
+        <div class="flow-chip-row">${payChips}</div>
+      </div>
+      <div class="flow-filter-section">
+        <div class="flow-filter-section__title">散客 / 会员</div>
+        <div class="flow-chip-row">${guestChips}</div>
+      </div>
+      <div class="flow-filter-section">
+        <div class="flow-filter-section__title">服务员工</div>
+        <div class="flow-chip-row">${staffChips}</div>
+      </div>`;
+  }
+
+  function renderFlowFilterCalendar() {
+    const cal = document.getElementById('flowFilterCal');
+    if (!cal) return;
+    const draft = state.flowFilterDraft || state.flowFilter;
+    const selKey = flowFilterDayKey(draft);
+    const todayK = flowTodayKey();
+    let y = state.flowFilterCalYear;
+    let m = state.flowFilterCalMonth;
+    if (y == null || m == null) {
+      const anchor = (selKey || todayK).split('-');
+      y = Number(anchor[0]);
+      m = Number(anchor[1]) - 1;
+      state.flowFilterCalYear = y;
+      state.flowFilterCalMonth = m;
+    }
+    /* 往前不设下限（可翻到全部历史月份）；往后到当月为止 */
+    const tParts = todayK.split('-');
+    const canPrev = true;
+    const canNext = y * 12 + m < Number(tParts[0]) * 12 + (Number(tParts[1]) - 1);
+    const chevL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
+    const chevR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+    const firstDow = new Date(y, m, 1).getDay();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const totals = flowDailyPaidTotals();
+    const cells = [];
+    for (let i = 0; i < firstDow; i++) {
+      cells.push('<span class="flow-balance-cal__day is-muted" aria-hidden="true"></span>');
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const key = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const future = key > todayK;
+      const has = totals[key] != null;
+      const on = key === selKey;
+      const cls = [
+        'flow-balance-cal__day',
+        future ? 'is-disabled' : '',
+        on ? 'is-selected' : '',
+        key === todayK ? 'is-today' : '',
+      ].filter(Boolean).join(' ');
+      const inner = `<span class="flow-balance-cal__day-num">${d}</span>`
+        + `<span class="flow-filter-cal__amt${has ? '' : ' is-empty'}">${has ? escapeHtml(flowFmtDayAmount(totals[key])) : ''}</span>`;
+      cells.push(future
+        ? `<span class="${cls}" aria-hidden="true">${inner}</span>`
+        : `<button type="button" class="${cls}" data-flow-filter-day="${key}" aria-pressed="${on ? 'true' : 'false'}" aria-label="${key}${has ? ' 实付 ' + flowFmtDayAmount(totals[key]) : ''}">${inner}</button>`);
+    }
+    cal.innerHTML = `
+      <div class="flow-balance-cal__nav">
+        <button type="button" class="flow-balance-cal__nav-btn" data-flow-filter-cal-nav="-1" ${canPrev ? '' : 'disabled'} aria-label="上一月">${chevL}</button>
+        <div class="flow-balance-cal__title">${y}年${m + 1}月</div>
+        <button type="button" class="flow-balance-cal__nav-btn" data-flow-filter-cal-nav="1" ${canNext ? '' : 'disabled'} aria-label="下一月">${chevR}</button>
+      </div>
+      <div class="flow-balance-cal__weekdays">${weekdays.map(w => `<div class="flow-balance-cal__wd">${w}</div>`).join('')}</div>
+      <div class="flow-balance-cal__grid">${cells.join('')}</div>`;
+  }
+
   function openFlowFilter() {
-    state.flowFilterDraft = Object.assign({ customStart: '', customEnd: '' }, state.flowFilter || { date: 'all', pay: 'all', guest: 'all' });
+    state.flowFilterDraft = flowFilterNormalize(state.flowFilter);
+    state.flowFilterCalYear = null;
+    state.flowFilterCalMonth = null;
+    /* 旧版「自定义日期」会盖住本 sheet，这里清掉残留，保证点外部即收起 */
+    const mask = document.getElementById('flowFilterMask');
+    if (mask) {
+      mask.classList.remove('is-covered');
+      mask.style.pointerEvents = '';
+    }
     renderFlowFilterSheet();
     openMask('flowFilterMask');
   }
@@ -12672,35 +12926,95 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     if (e.target.closest('[data-flow-refund]')) openFlowRefund();
     if (e.target.closest('[data-flow-void]')) openFlowVoidDialog();
   });
+  document.getElementById('flowFilterSeg')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-flow-filter-tab]');
+    if (!btn) return;
+    state.flowFilterTab = btn.dataset.flowFilterTab === 'cond' ? 'cond' : 'time';
+    state.flowFilterCalYear = null;
+    state.flowFilterCalMonth = null;
+    renderFlowFilterSheet();
+  });
   document.getElementById('flowFilterBody')?.addEventListener('click', (e) => {
-    const rangeBtn = e.target.closest('[data-flow-filter-range]');
-    if (rangeBtn) {
-      openFlowRangeSheet('filter');
+    const draft = state.flowFilterDraft = flowFilterNormalize(state.flowFilterDraft || state.flowFilter);
+    const navBtn = e.target.closest('[data-flow-filter-cal-nav]');
+    if (navBtn) {
+      const dir = Number(navBtn.dataset.flowFilterCalNav) || 0;
+      let y = state.flowFilterCalYear;
+      let m = state.flowFilterCalMonth;
+      if (y == null || m == null) {
+        const a = flowTodayKey().split('-');
+        y = Number(a[0]);
+        m = Number(a[1]) - 1;
+      }
+      m += dir;
+      if (m < 0) { m = 11; y -= 1; }
+      if (m > 11) { m = 0; y += 1; }
+      state.flowFilterCalYear = y;
+      state.flowFilterCalMonth = m;
+      renderFlowFilterCalendar();
+      return;
+    }
+    const dayBtn = e.target.closest('[data-flow-filter-day]');
+    if (dayBtn) {
+      const key = dayBtn.dataset.flowFilterDay || '';
+      draft.date = key ? 'custom' : 'all';
+      draft.customStart = key;
+      draft.customEnd = key;
+      renderFlowFilterSheet();
+      return;
+    }
+    if (e.target.closest('[data-flow-filter-alltime]')) {
+      draft.date = 'all';
+      draft.customStart = '';
+      draft.customEnd = '';
+      renderFlowFilterSheet();
+      return;
+    }
+    const staffBtn = e.target.closest('[data-flow-filter-staff]');
+    if (staffBtn) {
+      const name = staffBtn.dataset.flowFilterStaff;
+      if (name === '__all__') {
+        draft.staffNames = [];
+      } else {
+        const set = new Set(draft.staffNames || []);
+        if (set.has(name)) set.delete(name); else set.add(name);
+        draft.staffNames = Array.from(set);
+      }
+      renderFlowFilterSheet();
       return;
     }
     const chip = e.target.closest('[data-flow-filter-key]');
     if (!chip) return;
-    if (!state.flowFilterDraft) state.flowFilterDraft = Object.assign({ customStart: '', customEnd: '' }, state.flowFilter);
-    state.flowFilterDraft[chip.dataset.flowFilterKey] = chip.dataset.flowFilterVal;
-    if (chip.dataset.flowFilterKey === 'date' && chip.dataset.flowFilterVal === 'custom') {
-      renderFlowFilterSheet();
-      openFlowRangeSheet('filter');
-      return;
-    }
+    draft[chip.dataset.flowFilterKey] = chip.dataset.flowFilterVal;
     renderFlowFilterSheet();
   });
+  /* 价格自定义区间：就地写入草稿，不重渲染（避免输入时丢焦点） */
+  document.getElementById('flowFilterBody')?.addEventListener('input', (e) => {
+    const inp = e.target.closest('[data-flow-filter-price]');
+    if (!inp) return;
+    let v = String(inp.value || '').replace(/[^\d.]/g, '');
+    const dot = v.indexOf('.');
+    if (dot >= 0) v = v.slice(0, dot + 1) + v.slice(dot + 1).replace(/\./g, '');
+    inp.value = v;
+    if (!state.flowFilterDraft) state.flowFilterDraft = flowFilterNormalize(state.flowFilter);
+    if (inp.dataset.flowFilterPrice === 'min') state.flowFilterDraft.priceMin = v;
+    else state.flowFilterDraft.priceMax = v;
+  });
   document.getElementById('flowFilterReset')?.addEventListener('click', () => {
-    state.flowFilterDraft = { date: 'all', pay: 'all', guest: 'all', customStart: '', customEnd: '' };
+    state.flowFilterDraft = flowFilterDefaults();
+    state.flowFilterCalYear = null;
+    state.flowFilterCalMonth = null;
     renderFlowFilterSheet();
   });
   document.getElementById('flowFilterApply')?.addEventListener('click', () => {
-    const draft = state.flowFilterDraft || state.flowFilter;
-    if (draft && draft.date === 'custom' && !(draft.customStart && draft.customEnd)) {
-      showToast('请选择自定义起止日期');
-      openFlowRangeSheet('filter');
-      return;
+    const draft = flowFilterNormalize(state.flowFilterDraft || state.flowFilter);
+    if (draft.pricePreset === 'custom') {
+      const min = flowPriceBound(draft.priceMin);
+      const max = flowPriceBound(draft.priceMax);
+      if (min == null && max == null) { showToast('请填写价格区间'); return; }
+      if (min != null && max != null && min > max) { showToast('最低价不能高于最高价'); return; }
     }
-    state.flowFilter = Object.assign({ customStart: '', customEnd: '' }, draft || state.flowFilter);
+    state.flowFilter = draft;
     closeMask('flowFilterMask');
     renderFlowList();
   });

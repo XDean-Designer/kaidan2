@@ -17,6 +17,10 @@
 
 - 侧栏「订单流水」18 项，或 `index.html?flow=flow-list`
 - 宿主 `go('s0')` 等会 `exitFlowModule()` 退出流水层
+- **宿主必须补齐两个契约**（否则「点了没反应」）：
+  1. 宿主 `activate()` 开头调 `exitFlowModule()` —— 流水层是盖在 `#frame` 上的整层，只切 `.active` 不退出等于没切；
+  2. 宿主接管 `window.openWorkbench`（流水内「返回 / 客户选择返回 / 挂单列表返回」都调它）= 退出流水层 + 回到进入流水前的宿主页；本模块自己的兜底实现只到 `BillingDemo.openFlowHub()`，宿主没有流水 Hub 屏时是死键。
+- 宿主若在启动时重置导航（如 `assets/v2.js` 的 `patchNav()`），**必须跳过 `?flow=flow-*` 深链那次加载**，否则深链刚打开就被顶掉。
 
 ## 重建（慎用）
 

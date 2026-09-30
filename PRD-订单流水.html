@@ -87,8 +87,8 @@
 <h1 id="sec-PRD-订单流水-门店流水-改单-退款-作废-商户端">PRD：订单流水（门店流水 · 改单 · 退款 · 作废 · 商户端）</h1>
 <table>
 <tr><th>字段</th><th>内容</th></tr>
-<tr><td>文档版本</td><td>v1.6-draft（R46 部分退款提示条 · 2026-09-29）</td></tr>
-<tr><td>日期</td><td>2026-09-29</td></tr>
+<tr><td>文档版本</td><td>v1.8-draft（R48 宿主导航离开流水层修复 · 2026-09-30）</td></tr>
+<tr><td>日期</td><td>2026-09-30</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code> 内流水模块（<code>flow/</code>：<code>flow.js</code> / <code>flow-fragment.html</code> / <code>flow.css</code>）；入口 <code>?flow=flow-list</code> 或侧栏「订单流水」</td></tr>
 <tr><td>画布</td><td>390 × 844（演示区默认 1.25×）</td></tr>
 <tr><td>目的</td><td>供前端 / 后端 / 测试及 AI 工具落地「订单流水」；<b>只需本文 + 交互原型</b></td></tr>
@@ -96,6 +96,9 @@
 </table>
 <p class="note"><b>权威口径</b>：业务与交互以<b>当前流水原型行为</b>为准；与线上冲突处标 <b>「以线上为准」</b>（权限、审计、真实支付回写、会员卡账本恢复等）。本文未另述之能力，沿用线上。</p>
 <h2 id="sec-修订摘要-自开单结账迁入并定稿">修订摘要（自开单结账迁入并定稿）</h2>
+<p class="note"><b>R48（2026-09-30）· 宿主导航离开流水层（壳层契约补齐）</b>：流水层 <code>#flowModuleRoot</code> 是盖在宿主 <code>#frame</code> 上的整层（<code>z-index:5</code>）并给 <code>#frame</code> 挂 <code>is-flow-mode</code>（宿主屏 <code>visibility:hidden</code>）。<b>宿主侧此前只切 <code>.active</code>、从不退出流水层</b>，导致进过一次「订单流水」后，侧栏「主链路 / 直接收款」的入口点了没反应。现补齐：① 宿主 <code>activate(id)</code> 开头调 <code>window.exitFlowModule()</code> —— <code>go()</code> / <code>goBack()</code> / 静态 <code>onclick</code> 全部经过它，一处生效；② 流水内「返回」（门店流水 / 客户选择 / 挂单列表）走 <code>openWorkbench()</code>，宿主侧接管为「退出流水层 + 回到进入流水前的宿主页（<code>navStack</code> 顶，无则首页 s0）」—— 原先落到 <code>openFlowHub()</code> 而宿主没有流水 Hub 屏，是死键；③ <code>assets/v2.js</code> 的 <code>patchNav()</code> 启动重置（<code>navStack=['s0']</code> + <code>activate('s0')</code>）会顶掉 <code>?flow=</code> 深链，已加判断：带 <code>flow=flow-*</code> 深链时不重置。纯 JS 连线修复，未改流水模块内部逻辑与样式；未提交，待人工检查。</p>
+<p class="note"><b>R47（2026-09-29）· 筛选 sheet 双 tab（时间 / 条件）</b>：<code>flowFilterMask</code> 去 <code>×</code>、去底部灰条，<b>点 sheet 外空白即收起</b>；底部「重置 / 确定」改为流水模块统一页脚（<code>picker-foot picker-foot--row</code>），修掉原 <code>.flow-filter-foot</code> 里 <code>secondary</code> 按钮被全局 <code>margin-top: 8px</code> 顶下去的对齐问题。sheet 内二段式分段：<b>时间筛选</b>（月历，每格显示该日<b>实付总额</b>，可一直往前翻月、不可翻到未来月；点某日仅选中，需再点「确定」；「全部时间」清日期）+ <b>条件筛选</b>（价格区间（实付） / 支付方式 / 散客·会员 / 服务员工 四组 chips，价格区间与日历日额同一实付口径）。<b>实付口径</b>：团购券单整单 0、支付行渠道为「经理签单 / 会员卡(卡付)」的不计、作废 0、已退款 0、部分退款扣已退，混合支付逐行累加；<b>列表卡右下「实付总额」与价格区间筛选统一改用该口径</b>（团购券单 / 作废 / 已退款卡片该行显示 ¥0）。标题栏「筛选」在有筛选条件时上色。</p>
+<p class="note"><b>R46（2026-09-29）· 部分退款提示条贴边</b>：详情顶部「部分退款 · 已退/还可退」提示条改为<b>上/左/右三面贴边</b>（负外边距抵消 body 内边距、四角直角），左侧加 info 线描图标（14×14，随文案色 <code>#B54708</code>，与文案间距 6px）。</p>
 <p class="note"><b>R45（2026-09-29）· 团购券金额口径</b>：团购券单<b>核销价即订单金额</b> —— 详情不出差额卡、不出「优惠明细」，金额区改为「核销实付」一行；「更多」隐藏补收/退还差价，底部提示改为团购专用文案。种子去掉券面与原价的虚差。</p>
 <p class="note"><b>R44（2026-09-29）· 团购券落项 + 支付渠道图标</b>：团购券单新增 <code>couponName</code>（券名）——列表卡名称位显示券名、金额位显示核销实付，进详情「消费内容」展开具体项目/产品，并加「团购券」信息行；未落项单（<code>groupUnmapped</code>）按直接收款计并加灰字说明。列表卡支付行与详情支付行左侧加 14×14 渠道图标，未知渠道灰「其」占位。</p>
 <p class="note"><b>R43（2026-09-29）· 团购券 Tab</b>：门店流水新增「团购券」（<code>kind: group</code> 核销单）；顺序为全部 / 项目 / 产品 / 会员卡 / 团购券 / 作废 / 退款；Tab 一行均分、不换行、不横滑。宿主开单本期不产生团购单。</p>
@@ -175,7 +178,7 @@
 <h2 id="sec-2-2-核心场景">2.2 核心场景</h2>
 <table>
 <tr><th>#</th><th>场景</th><th>成功标准</th></tr>
-<tr><td>S1</td><td>查今日项目流水</td><td>Tab「项目」+ 筛选「今日」见对应卡</td></tr>
+<tr><td>S1</td><td>查某日项目流水</td><td>Tab「项目」+ 筛选 → 时间筛选点该日 → 确定，见该日卡片且金额合计＝日历日额</td></tr>
 <tr><td>S2</td><td>看订单详情并改备注</td><td>已完成单可补录/修改备注</td></tr>
 <tr><td>S3</td><td>改项目价格与提成后保存无差额</td><td>toast「订单已修改」；修改记录有摘要</td></tr>
 <tr><td>S4</td><td>改单导致少收</td><td>差额对话框 → 原渠道补记或选其他支付 → 差额闭合</td></tr>
@@ -210,8 +213,8 @@
 <tr><td>修改订单</td><td><code>screen-flow-edit</code></td><td>项目列表</td></tr>
 <tr><td>添加项/更换项</td><td><code>screen-flow-edit-add</code></td><td>项目/产品/会员卡</td></tr>
 <tr><td>编辑项</td><td><code>screen-flow-edit-item</code></td><td>价/量/员工提成</td></tr>
-<tr><td>筛选 sheet</td><td><code>flowFilterMask</code></td><td>日期/支付/顾客</td></tr>
-<tr><td>自定义日期</td><td><code>flowRangeMask</code></td><td>日历范围</td></tr>
+<tr><td>筛选 sheet</td><td><code>flowFilterMask</code></td><td>时间筛选（日历 · 日实付）/ 条件筛选（价格 / 支付 / 散客会员 / 服务员工）</td></tr>
+<tr><td>自定义日期</td><td><code>flowRangeMask</code></td><td>日历范围（「自助流水」用；门店流水已改内置日历）</td></tr>
 <tr><td>退款方式</td><td><code>flowRefundMethodMask</code></td><td>原路/指定</td></tr>
 <tr><td>差额对话框</td><td><code>flowEditDiffMask</code></td><td>两选</td></tr>
 <tr><td>删项确认</td><td><code>flowEditDelItemMask</code></td><td></td></tr>
@@ -287,7 +290,7 @@
 <tr><td>当前订单不可调整差额 / 当前无差额 / 当前为多收，请使用退还差价 / 当前为少收，请使用补收差价</td><td>差额入口</td></tr>
 <tr><td>支付面板未就绪 / 支付金额不足 / 补收成功 / 退差成功</td><td>差额支付</td></tr>
 <tr><td>备注已保存</td><td>备注</td></tr>
-<tr><td>请选择自定义起止日期</td><td>筛选自定义未选齐</td></tr>
+<tr><td>请填写价格区间 / 最低价不能高于最高价</td><td>筛选 · 自定义价格区间</td></tr>
 <tr><td>暂无订单</td><td>修改记录无单</td></tr>
 </table>
 <p>动态校验（改单）：<code>「{name}」请设置有效单价</code> / <code>数量至少为 1</code> / <code>请为已选员工设置工位（…）</code>。</p>
@@ -306,16 +309,21 @@
 <h2 id="sec-6-1-门店流水列表">6.1 门店流水列表</h2>
 <ul>
 <li><b>标题</b>：门店流水；返回退出流水模块（宿主 <code>exitFlowModule</code>）</li>
-<li><b>筛选</b>：标题栏筛选图标 → <code>flowFilterMask</code></li>
+<li><b>筛选</b>：标题栏筛选图标 → <code>flowFilterMask</code>（sheet 无 <code>×</code>，点 sheet 外空白即收起；有筛选条件时图标转品牌色）</li>
 </ul>
-<p>  - 日期：全部日期 / 今日 / 昨天 / 近7日 / 近30日 / 自定义（起止日历）</p>
-<p>  - 支付方式：全部 / 现金 / 微信 / 支付宝 / 会员卡（原型子集；全量枚举见支付 sheet）</p>
-<p>  - 顾客：全部顾客 / 散客 / 会员</p>
-<p>  - 重置 / 确定</p>
+<p>  - sheet 顶部二段式分段：<b>时间筛选</b> | <b>条件筛选</b></p>
+<p>  - 时间筛选：<b>月历</b>（<code>‹ 2026年9月 ›</code> 翻月，可一直往前翻到任意历史月份、不可翻到未来月；最新月为当前月）；每个日期格显示「日号 + 该日实付总额」（无流水的日子不显示金额，有单但实付为 0 的日子显示 <code>¥0</code>）；当天描圈、选中日品牌色实心、未来日置灰；<b>点某日＝选中该日（不改列表）</b>，需再点「确定」生效；「全部时间」清除日期条件</p>
+<p>  - 条件筛选（四组，点选即改草稿，仍需「确定」生效）</p>
+<p>    - 价格区间（比<b>实付</b>，与日历日额同一口径）：全部 / ¥0–100 / ¥100–300 / ¥300–500 / ¥500以上 / 自定义（最低价–最高价，档位区间为左闭右开，自定义为双闭区间）；自定义留空 → 不限制该端，两端都空 → 提示「请填写价格区间」；最低价 &gt; 最高价 → 提示「最低价不能高于最高价」</p>
+<p>    - 支付方式：全部 + 流水里<b>真实出现过</b>的渠道（种子下为 现金 / 微信 / 支付宝 / 会员卡 / 美团 / 抖音）</p>
+<p>    - 散客 / 会员：全部 / 散客 / 会员</p>
+<p>    - 服务员工：全部 + 流水里<b>真实出现过</b>的服务人（多选，点「全部」清空）</p>
+<p>  - 页脚：重置 / 确定（sheet 内页脚，非悬浮 bar）</p>
 <ul>
+<li><b>实付口径（日历日额）</b>：逐支付行判定 —— 团购券单（<code>kind: group</code>）整单计 0；渠道为<b>经理签单</b>或<b>会员卡（卡付）</b>的行不计；混合支付按行累加（如 支付宝 80 + 现金 40 记 120）；作废 0；已退款 0；部分退款记为「实付 − 已退」。日历只统计日期，不按 Tab 过滤。</li>
 <li><b>Tab</b>：全部 | 项目 | 产品 | 会员卡 | 团购券 | 作废 | 退款（一行均分，不换行、不横滑）</li>
-<li><b>流水卡</b>：头像 + 姓名 | 状态 | › ；类型标签 + 首项名（多项「等 N 项」）+ 服务人 | 标价；支付行（渠道图标 + 方式 | -¥）;实付总额；开单时间。部分退额外「已退 ¥」</li>
-<li><b>团购券单</b>：名称位显示券名，金额位显示核销实付（不进「等 N 项」）</li>
+<li><b>流水卡</b>：头像 + 姓名 | 状态 | › ；类型标签 + 首项名（多项「等 N 项」）+ 服务人 | 标价；支付行（渠道图标 + 方式 | -¥）;实付总额；开单时间。部分退额外「已退 ¥」。右下「实付总额」取<b>统一实付口径</b>（与日历日额、价格区间筛选同源）：团购券单 / 作废 / 已退款 = ¥0，部分退 = 实付 − 已退，卡付·经理签单行不计，混合支付按行累加</li>
+<li><b>团购券单</b>：名称位显示券名，金额位显示<b>券面核销金额</b>（即订单金额，不进「等 N 项」）；右下「实付总额」为 ¥0（券款不进实付，与日历一致）</li>
 <li><b>空态</b>：暂无流水 / 暂无作废订单 / 暂无退款订单（副文案见原型）</li>
 <li><b>点卡</b>：进订单详情</li>
 </ul>
@@ -385,7 +393,7 @@
 <h2 id="sec-6-9-宿主集成与深链">6.9 宿主集成与深链</h2>
 <table>
 <tr><th>能力</th><th>行为</th></tr>
-<tr><td>壳层</td><td><code>#flowModuleRoot</code> + <code>is-flow-mode</code>；退出 <code>exitFlowModule</code></td></tr>
+<tr><td>壳层</td><td><code>#flowModuleRoot</code> + <code>is-flow-mode</code>；退出 <code>exitFlowModule</code>。<b>R48</b>：宿主 <code>activate()</code> 开头调它 → 侧栏「主链路 / 直接收款」可离开流水层；流水内「返回」走 <code>openWorkbench()</code>，宿主接管为「退出流水层 + 回 <code>navStack</code> 顶（无则 s0）」</td></tr>
 <tr><td>深链</td><td><code>?flow=</code> → <code>flow-list</code> / <code>flow-detail</code> / <code>flow-refund</code> / <code>flow-refund-log</code> / <code>flow-refund-log-detail</code> / <code>flow-edit</code> / <code>flow-edit-log</code> / <code>flow-edit-add</code> / <code>flow-edit-item</code> / <code>flow-diff-collect</code> / <code>flow-diff-refund</code></td></tr>
 <tr><td>差额支付</td><td><code>openPayConfirmSheet('flowGap', …)</code> → <code>__onFlowGapPayConfirm</code> / <code>BillingDemo.applyFlowGapPayments</code></td></tr>
 <tr><td>宿主结账写入</td><td><code>checkoutToSuccess</code> 清车前调 <code>BillingDemo.recordFromHostCheckout(payload)</code>：顾客 / 明细（名·价·量·员工）/ 支付（优先确认支付 sheet，空则由成功页支付行推导）/ 实付 / 单号→<code>manualOrderNo</code> / 开单日期→<code>billBizDate</code> / 类型；种子保留，新单 <code>unshift</code></td></tr>
@@ -437,12 +445,13 @@
 <li>充卡三种均须本次实付 &gt; 0；续费不可用于已永久卡。  </li>
 <li>流水单号全列表唯一（原型范围；线上为全门店唯一）。  </li>
 <li>详情业绩/提成只读；提成在编辑项改。  </li>
-<li>支付渠道展示与补差支付枚举对齐开单结账；筛选支付为演示子集。  </li>
+<li>支付渠道展示与补差支付枚举对齐开单结账；筛选的支付方式 / 服务员工 chips 由当前流水数据推导，非硬编码白名单。  </li>
+<li><b>实付口径</b>（日历日额）：团购券单整单 0；经理签单、会员卡（卡付）支付行不计；作废 / 已退款 0；部分退款记「实付 − 已退」；办卡 / 充卡单照常计入。列表卡与详情页脚仍标「实付总额」＝该单核销/收款金额（团购券单会显示核销价，与日历不计入的差异<b>待与设计确认</b>是否改文案）。  </li>
 <li>权限 / 审计 / 真实退款到账 <b>以线上为准</b>。</li>
 </ol>
 <h1 id="sec-模块-9-文案清单与权限">模块 9　文案清单与权限</h1>
 <h2 id="sec-9-1-主要可见文案">9.1 主要可见文案</h2>
-<p>门店流水、订单详情、选择退款、退款记录、退款详情、修改订单、添加项、更换项、编辑项目、筛选、全部/项目/产品/会员卡/团购券/作废/退款、申请退款、作废、修改、修改记录、补录备注/修改备注、补收差价、退还差价、更多、用…补记/退还、选择其他支付方式、原路退回、指定退回、确认退款、充值/续次/续费、办卡/充卡、本次实付、储值金额、赠送金额、延长、日/月/年/永久、保存修改、取消、删除、完成、确认添加、确认更换 …</p>
+<p>门店流水、订单详情、选择退款、退款记录、退款详情、修改订单、添加项、更换项、编辑项目、筛选、时间筛选、条件筛选、按日筛选、全部时间、价格区间（实付）、支付方式、散客 / 会员、服务员工、自定义、最低价、最高价、全部/项目/产品/会员卡/团购券/作废/退款、申请退款、作废、修改、修改记录、补录备注/修改备注、补收差价、退还差价、更多、用…补记/退还、选择其他支付方式、原路退回、指定退回、确认退款、充值/续次/续费、办卡/充卡、本次实付、储值金额、赠送金额、延长、日/月/年/永久、保存修改、取消、删除、完成、确认添加、确认更换 …</p>
 <p>（完整字符串以原型为准；关键 toast 见 §5.3。）</p>
 <h2 id="sec-9-2-权限">9.2 权限</h2>
 <p>店员/店长/店主对改单、退款、作废、改单号等：<b>以目前线上权限体系为准</b>；原型不隐藏入口。</p>
@@ -477,7 +486,16 @@
 <li><b>Given</b> 退部分项，<b>When</b> 确认成功，<b>Then</b> 状态部分退款且可继续退。  </li>
 <li><b>Given</b> 退完全部剩余，<b>When</b> 成功，<b>Then</b> 状态已退款，不可改单。  </li>
 <li><b>Given</b> 可作废，<b>When</b> 确认作废，<b>Then</b> 进作废 Tab 可见该单。  </li>
-<li><b>Given</b> 筛选今日+微信，<b>When</b> 确定，<b>Then</b> 列表仅匹配单。  </li>
+<li><b>Given</b> 门店流水，<b>When</b> 点标题栏「筛选」，<b>Then</b> 打开 <code>flowFilterMask</code>：无 <code>×</code>、无底部灰条、底部为「重置 / 确定」且两钮同高同基线；点 sheet 外空白即收起。  </li>
+</ol>
+<p>19a. <b>Given</b> 筛选 sheet「时间筛选」，<b>When</b> 查看日历，<b>Then</b> 每格显示「日号 + 该日实付总额」，当天描圈；<b>When</b> 点 <code>‹</code>，<b>Then</b> 可一直往前翻到任意历史月份且不显示未来月数据；<b>When</b> 翻回当前月，<b>Then</b> <code>›</code> 置灰；<b>When</b> 点某日，<b>Then</b> 该日品牌色选中且列表不变；<b>When</b> 再点「确定」，<b>Then</b> 列表只剩该日订单，且标题栏「筛选」转为品牌色。  </p>
+<p>19b. <b>Given</b> 日历日额，<b>When</b> 该日含团购券单、会员卡（卡付）单或经理签单单，<b>Then</b> 这些单对当日实付贡献为 0（有单但全非实付的日子应显示 ¥0）；无单的日子不显示金额。  </p>
+<p>19c. <b>Given</b> 时间筛选，<b>When</b> 点「全部时间」，<b>Then</b> 清除日期条件。  </p>
+<p>19d. <b>Given</b> 条件筛选，<b>When</b> 选「价格区间」预设或填写自定义最低价/最高价并确定，<b>Then</b> 列表按<b>实付</b>（与日历日额同一口径，团购券单 / 卡付单 / 经理签单 / 作废单按 0 计，故落入 ¥0–100）落在区间内过滤；自定义留空提示「请填写价格区间」、最低价高于最高价提示「最低价不能高于最高价」。  </p>
+<p>19e. <b>Given</b> 条件筛选，<b>When</b> 多选「服务员工」，<b>Then</b> 命中服务人属于所选集合的订单；点「全部」清空。  </p>
+<p>19f. <b>Given</b> 条件筛选，<b>When</b> 点「重置」，<b>Then</b> 四组 chips 全部回到「全部」（列表待「确定」后再更新）。  </p>
+<p>19g. <b>Given</b> 流水列表，<b>When</b> 查看卡片右下「实付总额」，<b>Then</b> 与日历日额同口径：团购券单 / 已作废 / 已退款显示 ¥0；部分退款显示「实付 − 已退」（另附「已退 ¥…」）；卡付单 ¥0；普通单与支付行金额一致。  </p>
+<ol>
 <li><b>Given</b> 空退款 Tab，<b>When</b> 查看，<b>Then</b> 空态「暂无退款订单」。  </li>
 <li><b>Given</b> 全选可退项确认，<b>When</b> 打开方式 sheet，<b>Then</b> 默认「原路退回」。  </li>
 <li><b>Given</b> 只选部分项，<b>When</b> 打开方式 sheet，<b>Then</b> 默认「指定退回」。  </li>
@@ -485,7 +503,20 @@
 <li><b>Given</b> 详情有未闭合差额，<b>When</b> 点更多→补收/退差，<b>Then</b> 走差额支付或拦截 toast（无差额/方向错误）。  </li>
 <li><b>Given</b> <code>?flow=flow-edit</code>，<b>When</b> 深链打开，<b>Then</b> 进入修改订单（无单时回落列表）。  </li>
 </ol>
+<h3>10.2.1 R48 壳层：宿主导航与流水层的进出（26–31）</h3>
+<ol start="26">
+<li><b>Given</b> 从侧栏「订单流水」任一入口进入流水层，<b>When</b> 点侧栏「主链路」的任意入口（如「首页」「选择顾客」），<b>Then</b> 退出流水层并显示该宿主页（<code>#flowModuleRoot</code> 无 <code>is-active</code>、<code>#frame</code> 无 <code>is-flow-mode</code>）。</li>
+<li><b>Given</b> 同上，<b>When</b> 点侧栏「直接收款」的「直接收款 / 收款 / 开单结算」，<b>Then</b> 同样退出流水层并落到 s2 / s3 / s7。</li>
+<li><b>Given</b> 上一步停留在某宿主页，<b>When</b> 再点侧栏「订单流水」任一入口，<b>Then</b> 流水层可再次打开，且该流水屏可见（不是全屏都 <code>hidden</code>）。</li>
+<li><b>Given</b> 在流水层内点「门店流水」标题栏返回（或客户选择返回 / 挂单列表返回），<b>Then</b> 退出流水层并回到<b>进入流水前的宿主页</b>（<code>navStack</code> 顶；深链进入时为首页 s0）。</li>
+<li><b>Given</b> <code>index.html?flow=flow-list</code> 深链打开，<b>When</b> 加载完成，<b>Then</b> 直接停在门店流水屏（宿主启动的「重置回首页」不得把它顶掉）。</li>
+<li><b>Given</b> 全流程操作，<b>When</b> 观察控制台，<b>Then</b> 无 JS 报错。</li>
+</ol>
 <p>（扩展用例可按 §6 逐条补；冲突以原型为准。）</p>
+<h2 id="sec-10-3-待确认-未定稿">10.3 待确认（未定稿）</h2>
+<ol>
+<li><b>「实付总额」口径</b>（R47 已在列表卡上定稿）：列表卡右下「实付总额」、筛选页历日额、价格区间筛选三处统一按 R47 实付口径（团购券单 / 作废 / 已退款 = 0，部分退 = 实付 − 已退，卡付·经理签单行不计）。<b>详情页脚与「支付信息 → 实付（锁定）」仍显示该单核销/收款金额</b>（退款与作废的金额基数，属于「锁定值」而非常见口径），是否也需要改文案为「核销金额 / 锁定金额」，待设计确认。</li>
+</ol>
 <h1 id="sec-模块-11-非功能-极简">模块 11　非功能（极简）</h1>
 <ul>
 <li>原型本地造数，无真实网络依赖。  </li>

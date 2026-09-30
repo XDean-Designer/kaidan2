@@ -91,8 +91,10 @@
 
 <div class="main">
 
-<h1>PRD：开单结账2.0 <span class="tag">v2.0-draft · R40 · 支付渠道补齐</span></h1>
+<h1>PRD：开单结账2.0 <span class="tag">v2.0-draft · R42 · 左侧导航失效修复</span></h1>
 <p>（散客开单 · 会员开单 · 直接收款 · 商户端）</p>
+<p class="note"><b>R42 左侧导航「主链路 / 直接收款」点击失效修复（2026-09-30）</b>：① <b>现象</b>：从侧栏「订单流水」任一入口（或 <code>index.html?flow=…</code> 深链）进入流水层后，再点左侧导航「主链路」「直接收款」的入口<b>全部没反应</b>。② <b>根因</b>：流水模块 <code>#flowModuleRoot</code> 是盖在 <code>#frame</code> 上的整层（<code>z-index:5</code>）并给 <code>#frame</code> 挂 <code>.is-flow-mode</code>（宿主屏 <code>visibility:hidden</code>）；宿主 <code>activate()</code> 只切 <code>.active</code>，<b>从不退出流水层</b>，宿主屏切了也被挡在下面。③ <b>修复</b>：<code>activate()</code> 开头调 <code>window.exitFlowModule()</code>（<code>go()</code> / <code>goBack()</code> / 导航 <code>onclick</code> 全走它）。④ <b>同时修</b>：流水内「返回」调 <code>openWorkbench()</code>，宿主原先落到 <code>openFlowHub()</code>（无此屏）= 死键，现改为「退出流水层 + 回进入流水前的宿主页」。⑤ <b>同时修</b>：<code>assets/v2.js</code> 的 <code>patchNav()</code> 启动重置会顶掉 <code>?flow=</code> 深链，已加判断。纯 JS 连线修复，未改 DOM 结构 / 样式；未提交，待人工检查。</p>
+<p class="note"><b>R41 挂单列表 s14 样式错乱修复（2026-09-30）</b>：① <b>现象</b>：s14 挂单卡的卡头 / 发丝线 / 明细 / 服务员工 / 金额操作行<b>横排挤在一行</b>。② <b>根因</b>：流水模块样式 <code>flow/flow.css</code> 被 <code>index.html</code> <b>全局引入</b>，其中 <code>.hold-list</code> / <code>.hold-card</code> / <code>.hold-card__*</code> 是不带限定符的顶级规则，而 s14 用了<b>同名类</b>，于是 <code>display:flex; align-items:center; gap:8px</code> 把卡片改成了横向 flex 行。③ <b>修复</b>：把流水侧这批规则<b>限定到 <code>#screen-holds</code> 内</b>，并同步改上游源文件 <code>card/demo.html</code>（<code>flow.css</code> 由它生成）。仅样式作用域调整，未改类名 / DOM / JS。未跑自动化脚本、未提交。</p>
 <p class="note"><b>R40 确认支付 sheet 补齐渠道（2026-09-28）</b>：确认支付列表（s6/s7 + 流水差额「选择其他支付方式」）在「口碑」后追加 <b>现金 → 银行卡 → 信用卡 → 经理签单 → 其他平台团购</b>；列表可滚动，灰框填额规则不变。未跑 CDP、未提交。</p>
 <p class="note"><b>R39 可改金额线索补齐（2026-09-28）</b>：① 充卡表单储值金额/赠送金额/本次实付右侧统一方框笔，点数字或笔开金额键盘。② 指定退款金额输入框旁加方框笔（原路退回只读不加）。③ 其余可改项保持原有笔/±/时长控件。未跑 CDP、未提交。</p>
 <p class="note"><b>R38 充卡三型 + 编辑图标（2026-09-28）</b>：① 改单可编辑线索统一为修改订单「编辑」同款方框笔（价格 / 开单时间 / 流水单号）。② 添加项/更换项 → 会员卡 → 充卡，拆为 <b>充值 / 续次 / 续费</b>：充值=储值金额+赠送金额+本次实付；续次=仅卡上已有权益行加次数/数量+实付；续费=价目表同款时长控件（日/月/年/永久，永久隐藏数字框）从到期日顺延+实付。仅改单路径。未跑 CDP、未提交。</p>
@@ -491,7 +493,7 @@
 </ol>
 <table>
   <tr><th>字段</th><th>内容</th></tr>
-  <tr><td>文档版本</td><td>v2.0-draft（R40 · 2026-09-28；确认支付 sheet 补齐渠道）</td></tr>
+  <tr><td>文档版本</td><td>v2.0-draft（R42 · 2026-09-30；左侧导航主链路/直接收款失效修复）</td></tr>
   <tr><td>日期</td><td>2026-09-24</td></tr>
   <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code></td></tr>
   <tr><td>画布</td><td>390 × 844</td></tr>
@@ -1485,6 +1487,7 @@
 <ul>
   <li><b>入口</b>：s0 首页「取挂单（N）」按钮；s4 选择顾客标题栏右侧「取挂单（N）」；s1 / s5 / s6 挂单成功后自动跳入。左侧导航含「14 挂单列表」可直达（评审用）。</li>
   <li><b>顶部</b>：状态栏 + 返回 + 标题「挂单列表」。</li>
+  <li><b>卡片排布（R41 约束）</b>：卡内<b>自上而下纵向堆叠</b> —— 卡头（顾客名 + VIP + 时间）→ 发丝线 → 明细摘要 → 服务员工字段组 → 操作行（金额左 / 删除 + 去结单右）；<b>不得出现横向并排挤在一行</b>。注意：订单流水模块的 <code>flow/flow.css</code> 里也存在同名 <code>.hold-card</code> 系列类，其规则<b>必须限定在流水模块自己的 <code>#screen-holds</code> 内</b>，否则会把本页卡片改成横向 flex 行（R41 已修）。</li>
   <li><b>顶部失效提示条（R5 新增）</b>：标题栏之下为<b>全宽浅黄提示条</b>（高 40，<code>#FFF8E5</code> 底 / 文字 <code>#B26B00</code> 12px + info 图标），文案固定为 <b>「每日24:00后 挂单自动失效并删除」</b>；提示条<b>不随列表滚动</b>（列表滚动区自提示条下沿开始），空态下同样显示。</li>
   <li><b>挂单卡（R5 信息分层）</b>：
     <ul>
@@ -2579,6 +2582,22 @@ s8-s9（门店流水 / 退款）+ s14-s15（挂单列表 / 开单成功）：原
   <li><b>Given</b> s15（1 条明细），<b>When</b> 检查内容区，<b>Then</b> <code>scrollHeight ≤ clientHeight</code>（<b>无内部滚动</b>）；卡外操作组仍为 <b>4 等分 / 高 62px / 与卡片间距 14px</b>，底栏仍为 <b>3 个按钮</b>。</li>
   <li><b>Given</b> s15，<b>When</b> 点卡片底部「打印小票」行，<b>Then</b> toast「<b>已发送打印小票指令</b>」且<b>停留在 s15</b>（不跳转、不清空单据）。</li>
   <li><b>Given</b> 全原型渲染后，<b>When</b> 全局检索旧类名 <code>.suc-print</code>（不含 <code>-row</code>）与旧样式 <code>#s15 .suc-print {</code>，<b>Then</b> <b>命中 0</b>（无残留死代码）；<code>sucPrint()</code> 仍保留且仅由 <code>.suc-print-row</code> 调用。</li>
+</ol>
+<h3>10.12 R41 验收用例（挂单列表 s14 样式作用域）</h3>
+<ol start="467">
+  <li><b>Given</b> 从首页「取挂单（N）」/ 侧栏「14 挂单列表」进入 s14，<b>When</b> 查看挂单卡，<b>Then</b> 卡内元素<b>自上而下纵向堆叠</b>：卡头（顾客名 + VIP + 时间）→ 发丝线 → 明细摘要 → 「服务员工」字段组 → 操作行；<b>卡与卡纵向排列</b>，不得横向并排挤成一行。</li>
+  <li><b>Given</b> s14 挂单卡操作行，<b>When</b> 查看，<b>Then</b> 金额在左、删除（32×32）与「去结单」（高 34 / 圆角 17 / <code>#F32F41</code>）在右，<b>同处一行且右对齐</b>。</li>
+  <li><b>Given</b> <code>index.html</code> 中全局引入的 <code>flow/flow.css</code>，<b>When</b> 检查挂单卡相关规则，<b>Then</b> <code>.hold-list</code> / <code>.hold-card</code> / <code>.hold-card__*</code> <b>一律带限定符</b>（仅流水模块自己的 <code>#screen-holds</code> 作用域），<b>不存在</b>能命中 <code>#s14</code> 的顶级同名规则。</li>
+  <li><b>Given</b> 流水模块自身的挂单列表（<code>#screen-holds</code>），<b>When</b> 打开，<b>Then</b> 卡片仍是<b>横向卡</b>（金额可点改价 + 右侧箭头），<b>不受本次限定影响</b>。</li>
+</ol>
+<h3>10.13 R42 验收用例（左侧导航与流水层的进出）</h3>
+<ol start="471">
+  <li><b>Given</b> 从侧栏「订单流水」任一入口进入流水层，<b>When</b> 点侧栏「主链路」的任意入口（首页 / 选择顾客 / 开单（散客）/ 开单（会员）/ 开单结算 / 开单成功），<b>Then</b> <b>退出流水层</b>并显示该宿主页（<code>#flowModuleRoot</code> 无 <code>is-active</code>、<code>#frame</code> 无 <code>is-flow-mode</code>），导航高亮切到该页。</li>
+  <li><b>Given</b> 同上，<b>When</b> 点侧栏「直接收款」的「直接收款 / 收款 / 开单结算」，<b>Then</b> 同样退出流水层并落到 <b>s2 / s3 / s7</b>。</li>
+  <li><b>Given</b> 已退出到某宿主页，<b>When</b> 再点侧栏「订单流水」任一入口，<b>Then</b> 流水层可再次打开且目标流水屏可见（不能全屏 <code>hidden</code>）。</li>
+  <li><b>Given</b> 流水层内点「门店流水」返回（或客户选择返回 / 挂单列表返回），<b>Then</b> 退出流水层并回到<b>进入流水前的宿主页</b>（<code>navStack</code> 顶；深链进入时为首页 s0）。</li>
+  <li><b>Given</b> <code>index.html?flow=flow-list</code> 深链，<b>When</b> 加载完成，<b>Then</b> 直接停在门店流水屏（<code>patchNav()</code> 的启动重置不得把它顶掉）。</li>
+  <li><b>Given</b> 上述全流程，<b>When</b> 观察控制台，<b>Then</b> <b>无 JS 报错</b>。</li>
 </ol>
 <h2 id="m11"><span class="no">11</span>非功能（极简）</h2>
 <ul>
