@@ -1396,7 +1396,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     flowFromSuccess: false,
     flowFilter: {
       date: 'all', customStart: '', customEnd: '',
-      pay: 'all', guest: 'all',
+      pay: 'all', guest: 'all', biz: 'all',
       pricePreset: 'all', priceMin: '', priceMax: '',
       staffNames: [],
     },
@@ -7214,6 +7214,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     const f = flowFilterNormalize(state.flowFilter);
     return list.filter(o => {
       if (!flowMatchDateFilter(o, f.date, f.customStart, f.customEnd)) return false;
+      if (!flowMatchBizFilter(o, f.biz)) return false;
       if (!flowMatchPayFilter(o, f.pay)) return false;
       if (!flowMatchGuestFilter(o, f.guest)) return false;
       if (!flowMatchPriceFilter(o, f)) return false;
@@ -7234,7 +7235,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   function flowFilterDefaults() {
     return {
       date: 'all', customStart: '', customEnd: '',
-      pay: 'all', guest: 'all',
+      pay: 'all', guest: 'all', biz: 'all',
       pricePreset: 'all', priceMin: '', priceMax: '',
       staffNames: [],
     };
@@ -7250,6 +7251,7 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   function flowFilterIsActive(f) {
     const d = flowFilterNormalize(f);
     return d.date !== 'all'
+      || (d.biz && d.biz !== 'all')
       || (d.pay && d.pay !== 'all')
       || (d.guest && d.guest !== 'all')
       || (d.pricePreset && d.pricePreset !== 'all')
@@ -7315,6 +7317,14 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
     });
     if (o && o.staff) names.add(o.staff);
     return Array.from(names);
+  }
+
+  /** 单据来源（R50）：收款 = 直接收款流程产生的单（`kind: 'quick'`，明细即「直接收款」）；
+      开单 = 其余全部（项目 / 产品 / 会员卡 / 团购券）。种子与宿主新单同源，新单也吃这个口径。 */
+  function flowMatchBizFilter(o, biz) {
+    if (!biz || biz === 'all') return true;
+    const isCollect = !!(o && o.kind === 'quick');
+    return biz === 'collect' ? isCollect : !isCollect;
   }
 
   function flowMatchPayFilter(o, pay) {
@@ -8522,6 +8532,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
   function flowFilterCondHtml(draft) {
     const chip = (key, val, label, on) =>
       `<button type="button" class="flow-chip${on ? ' is-on' : ''}" data-flow-filter-key="${key}" data-flow-filter-val="${escapeHtml(val)}">${escapeHtml(label)}</button>`;
+    /* R50：单据来源分组 —— 全部 / 开单 / 收款（「收款」= 直接收款流程的单，kind: quick） */
+    const bizChips = chip('biz', 'all', '全部', !draft.biz || draft.biz === 'all')
+      + chip('biz', 'bill', '开单', draft.biz === 'bill')
+      + chip('biz', 'collect', '收款', draft.biz === 'collect');
     const priceChips = FLOW_PRICE_PRESETS
       .map(p => chip('pricePreset', p.id, p.label, (draft.pricePreset || 'all') === p.id)).join('')
       + chip('pricePreset', 'custom', '自定义', draft.pricePreset === 'custom');
@@ -8542,6 +8556,10 @@ if (typeof window.wireAmountKeypadInputs !== 'function') {
         `<button type="button" class="flow-chip${staffSel.indexOf(name) >= 0 ? ' is-on' : ''}" data-flow-filter-staff="${escapeHtml(name)}">${escapeHtml(name)}</button>`
       ).join('');
     return `
+      <div class="flow-filter-section">
+        <div class="flow-filter-section__title">开单 / 收款</div>
+        <div class="flow-chip-row">${bizChips}</div>
+      </div>
       <div class="flow-filter-section">
         <div class="flow-filter-section__title">价格区间（实付）</div>
         <div class="flow-chip-row">${priceChips}</div>
