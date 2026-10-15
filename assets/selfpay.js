@@ -86,21 +86,25 @@
     var t = todayKey();
     var y = shiftDay(t, -1);
     var y2 = shiftDay(t, -2);
+    var y3 = shiftDay(t, -3);
     return [
+      /* —— 今天 · 多项目（≥3 → 等N项） —— */
       {
         id: 'sp-1', seq: 100, isMember: true, status: 'pending', dateKey: t, time: '09:18',
         customerName: '何静', phone: '188****6655',
         avatar: 'assets/avatar_card_female.png',
         cards: '储值卡 美发卡　余额 ¥1,280.00',
         items: [
-          { id: 'p0', name: '洗剪吹', type: 'project', price: 88, qty: 1 },
-          { id: 'p1', name: '蛋白矫正', type: 'project', price: 298, qty: 1 },
-          { id: 'p2', name: '护理', type: 'project', price: 168, qty: 1 },
-          { id: 'g1', name: '发膜', type: 'product', price: 112, qty: 1 }
+          { id: 'p0', name: '洗剪吹', type: 'project', price: 68, qty: 1 },
+          { id: 'p1', name: '蛋白矫正', type: 'project', price: 598, qty: 1 },
+          { id: 'p2', name: '深层滋养', type: 'project', price: 198, qty: 1 },
+          { id: 'g1', name: '剑琅柔顺发膜', type: 'product', price: 148, qty: 1 }
         ],
         paid: 666, payments: [{ method: '微信', amount: 666 }],
-        benefits: '', slipNo: 'SP202610150018', remark: ''
+        benefits: '', slipNo: 'SP202610150018', remark: '',
+        staffs: ['大工·林屿森(点客)']
       },
+      /* 未填项目 */
       {
         id: 'sp-2', seq: 101, isMember: true, status: 'pending', dateKey: t, time: '10:42',
         customerName: '陈昕然', phone: '186****9033',
@@ -110,62 +114,180 @@
         paid: 198, payments: [{ method: '微信', amount: 198 }],
         benefits: '', slipNo: 'SP202610150042', remark: '顾客备注：补项目'
       },
+      /* 1 项 · 仅会员卡 */
       {
         id: 'sp-3', seq: 102, isMember: true, status: 'pending', dateKey: t, time: '11:05',
         customerName: '周雨欣', phone: '159****4412',
         avatar: 'assets/avatar_female2.png',
         cards: '计次卡 洗吹次卡　余 6 次',
-        items: [{ id: 'p2', name: '洗吹', type: 'project', price: 38, qty: 1 }],
-        paid: 38, payments: [{ method: '会员卡', amount: 38 }],
+        items: [{ id: 'p2', name: '时尚洗吹', type: 'project', price: 58, qty: 1 }],
+        paid: 58, payments: [{ method: '会员卡', amount: 58 }],
         benefits: '', slipNo: 'SP202610150055', remark: ''
       },
+      /* 1 项 · 折扣 */
       {
         id: 'sp-4', seq: 103, isMember: true, status: 'pending', dateKey: t, time: '13:20',
         customerName: '马婷', phone: '137****7788',
         avatar: 'assets/avatar_card_female.png',
         cards: '折扣卡 超值折扣　8.0 折',
-        items: [{ id: 'p3', name: '染发', type: 'project', price: 298, qty: 1 }],
-        paid: 238.4, payments: [{ method: '微信', amount: 238.4 }],
+        items: [{ id: 'p3', name: '染发', type: 'project', price: 358, qty: 1 }],
+        paid: 286.4, payments: [{ method: '微信', amount: 286.4 }],
         benefits: '折扣卡 8 折', slipNo: 'SP202610150088', remark: ''
       },
+      /* 恰 2 项 · 项目+产品 · 混合支付 · 无「等2项」 */
       {
         id: 'sp-5', seq: 104, isMember: true, status: 'pending', dateKey: t, time: '14:08',
         customerName: '苏晓萌', phone: '151****2201',
         avatar: 'assets/avatar_female3.png',
         cards: '储值卡 护理卡　余额 ¥560.00',
         items: [
-          { id: 'p4', name: '护理', type: 'project', price: 168, qty: 1 },
-          { id: 'g1', name: '发膜', type: 'product', price: 128, qty: 1 }
+          { id: 'p4', name: '深层滋养', type: 'project', price: 198, qty: 1 },
+          { id: 'g1', name: '剑琅柔顺发膜', type: 'product', price: 148, qty: 1 }
         ],
         paid: 260, payments: [{ method: '会员卡', amount: 200 }, { method: '微信', amount: 60 }],
         benefits: '', slipNo: 'SP202610150102', remark: ''
       },
+      /* 散客 · 未选性别 · 1 项 */
       {
         id: 'sp-6', seq: 105, isMember: false, status: 'pending', dateKey: t, time: '15:33',
         customerName: '散客', phone: '', guestGender: '',
         avatar: 'assets/avatar_default.svg',
         cards: '',
-        items: [{ id: 'p2', name: '洗吹', type: 'project', price: 38, qty: 1 }],
-        paid: 68, payments: [{ method: '微信', amount: 68 }],
+        items: [{ id: 'p2', name: '时尚洗吹', type: 'project', price: 58, qty: 1 }],
+        paid: 58, payments: [{ method: '微信', amount: 58 }],
         benefits: '', slipNo: 'SP202610150133', remark: ''
       },
+      /* 快捷开单 */
       {
-        id: 'sp-y1', seq: 106, isMember: true, status: 'pending', dateKey: y, time: '16:40',
+        id: 'sp-7', seq: 108, isMember: true, status: 'pending', dateKey: t, time: '16:05',
+        customerName: '林晓萱', phone: '135****8820',
+        avatar: 'assets/avatar_card_female.png',
+        cards: '储值卡 美发卡　余额 ¥880.00',
+        items: [], contentMode: 'quick',
+        paid: 168, payments: [{ method: '微信', amount: 168 }],
+        benefits: '', slipNo: 'SP202610150168', remark: '顾客选了快捷'
+      },
+      /* 恰 2 项 · 纯项目 */
+      {
+        id: 'sp-8', seq: 109, isMember: true, status: 'pending', dateKey: t, time: '16:28',
+        customerName: '江若宁', phone: '158****3344',
+        avatar: 'assets/avatar_female2.png',
+        cards: '储值卡　余额 ¥420.00',
+        items: [
+          { id: 'p5', name: '精致剪发', type: 'project', price: 98, qty: 1 },
+          { id: 'p6', name: '时尚造型', type: 'project', price: 128, qty: 1 }
+        ],
+        paid: 226, payments: [{ method: '会员卡', amount: 226 }],
+        benefits: '', slipNo: 'SP202610150188', remark: ''
+      },
+      /* ≥3 · 高实付 · 烫染 */
+      {
+        id: 'sp-9', seq: 110, isMember: true, status: 'pending', dateKey: t, time: '17:10',
+        customerName: '陆思琪', phone: '186****5511',
+        avatar: 'assets/avatar_female3.png',
+        cards: '折扣卡 金卡　8.0 折',
+        items: [
+          { id: 'p7', name: '烫发', type: 'project', price: 398, qty: 1 },
+          { id: 'p8', name: '染发', type: 'project', price: 358, qty: 1 },
+          { id: 'p9', name: '深层滋养', type: 'project', price: 198, qty: 1 },
+          { id: 'g2', name: '剑琅染发护色套装', type: 'product', price: 198, qty: 1 },
+          { id: 'g3', name: '剑琅护色洗发水', type: 'product', price: 138, qty: 1 }
+        ],
+        paid: 980, payments: [{ method: '微信', amount: 500 }, { method: '会员卡', amount: 480 }],
+        benefits: '折扣卡 8 折', slipNo: 'SP202610150210', remark: '烫染套餐',
+        staffs: ['大工·阿Ken', '中工·何苏叶']
+      },
+      /* 散客男 · 恰 2 项 */
+      {
+        id: 'sp-10', seq: 111, isMember: false, status: 'pending', dateKey: t, time: '17:45',
+        customerName: '男散客', phone: '', guestGender: 'male',
+        avatar: 'assets/avatar_default.svg',
+        cards: '',
+        items: [
+          { id: 'p10', name: '洗头', type: 'project', price: 28, qty: 1 },
+          { id: 'p11', name: '精致剪发', type: 'project', price: 98, qty: 1 }
+        ],
+        paid: 126, payments: [{ method: '微信', amount: 126 }],
+        benefits: '', slipNo: 'SP202610150245', remark: ''
+      },
+      /* 散客女 · 3 项 · 等3项 */
+      {
+        id: 'sp-11', seq: 112, isMember: false, status: 'pending', dateKey: t, time: '18:12',
+        customerName: '女散客', phone: '', guestGender: 'female',
+        avatar: 'assets/avatar_default.svg',
+        cards: '',
+        items: [
+          { id: 'p12', name: '挑染', type: 'project', price: 198, qty: 1 },
+          { id: 'p13', name: '漂发', type: 'project', price: 288, qty: 1 },
+          { id: 'g4', name: '剑琅漂后修护乳', type: 'product', price: 138, qty: 1 }
+        ],
+        paid: 624, payments: [{ method: '微信', amount: 624 }],
+        benefits: '', slipNo: 'SP202610150268', remark: ''
+      },
+      /* 低实付 · 纯产品 1 项 */
+      {
+        id: 'sp-12', seq: 113, isMember: true, status: 'pending', dateKey: t, time: '18:40',
+        customerName: '韩雨桐', phone: '139****6677',
+        avatar: 'assets/avatar_card_female.png',
+        cards: '储值卡　余额 ¥90.00',
+        items: [{ id: 'g5', name: '剑琅哑光发泥', type: 'product', price: 78, qty: 1 }],
+        paid: 78, payments: [{ method: '会员卡', amount: 78 }],
+        benefits: '', slipNo: 'SP202610150290', remark: '只买产品'
+      },
+      /* —— 昨天 —— */
+      {
+        id: 'sp-y1', seq: 114, isMember: true, status: 'pending', dateKey: y, time: '16:40',
         customerName: '蔡雅婷', phone: '139****1100',
         avatar: 'assets/avatar_female2.png',
         cards: '储值卡 美发卡　余额 ¥2,100.00',
-        items: [{ id: 'p1', name: '剪发', type: 'project', price: 68, qty: 1 }],
-        paid: 68, payments: [{ method: '微信', amount: 68 }],
+        items: [{ id: 'p1', name: '精致剪发', type: 'project', price: 98, qty: 1 }],
+        paid: 98, payments: [{ method: '微信', amount: 98 }],
         benefits: '', slipNo: 'SP202610140240', remark: '跨日待处理样例'
       },
       {
-        id: 'sp-y2', seq: 107, isMember: false, status: 'pending', dateKey: y2, time: '11:12',
+        id: 'sp-y3', seq: 115, isMember: true, status: 'pending', dateKey: y, time: '19:05',
+        customerName: '沈可欣', phone: '150****2210',
+        avatar: 'assets/avatar_female3.png',
+        cards: '计次卡　余 2 次',
+        items: [
+          { id: 'p14', name: '头皮护理', type: 'project', price: 168, qty: 1 },
+          { id: 'g6', name: '剑琅头皮护理精华', type: 'product', price: 168, qty: 1 },
+          { id: 'g7', name: '剑琅头皮清洁泥', type: 'product', price: 128, qty: 1 }
+        ],
+        paid: 0, payments: [{ method: '会员卡', amount: 0 }],
+        benefits: '计次核销', slipNo: 'SP202610140305', remark: '纯扣次样例'
+      },
+      /* —— 前天 / 更早 —— */
+      {
+        id: 'sp-y2', seq: 116, isMember: false, status: 'pending', dateKey: y2, time: '11:12',
         customerName: '散客', phone: '', guestGender: '',
         avatar: 'assets/avatar_default.svg',
         cards: '',
-        items: [{ id: 'p2', name: '洗吹', type: 'project', price: 38, qty: 1 }],
-        paid: 38, payments: [{ method: '微信', amount: 38 }],
+        items: [{ id: 'p2', name: '时尚洗吹', type: 'project', price: 58, qty: 1 }],
+        paid: 58, payments: [{ method: '微信', amount: 58 }],
         benefits: '', slipNo: 'SP202610130112', remark: ''
+      },
+      {
+        id: 'sp-y4', seq: 117, isMember: true, status: 'pending', dateKey: y3, time: '14:22',
+        customerName: '顾清清', phone: '188****9900',
+        avatar: 'assets/avatar_card_female.png',
+        cards: '储值卡　余额 ¥3,200.00',
+        items: [
+          { id: 'p15', name: '摩根烫', type: 'project', price: 458, qty: 1 },
+          { id: 'p16', name: '蛋白矫正', type: 'project', price: 598, qty: 1 }
+        ],
+        paid: 1056, payments: [{ method: '微信', amount: 1056 }],
+        benefits: '', slipNo: 'SP202610120142', remark: '积压 3 日',
+        staffs: ['大工·顾清扬(点客)']
+      },
+      {
+        id: 'sp-y5', seq: 118, isMember: false, status: 'pending', dateKey: y3, time: '20:08',
+        customerName: '男散客', phone: '', guestGender: 'male',
+        avatar: 'assets/avatar_default.svg',
+        cards: '',
+        items: [],
+        paid: 88, payments: [{ method: '微信', amount: 88 }],
+        benefits: '', slipNo: 'SP202610120208', remark: '散客未填项目'
       }
     ];
   }
@@ -425,11 +547,14 @@
     if (items.length === 1) {
       return '<div class="sp-ticket__line">' + escapeHtml(items[0].name) + '</div>';
     }
+    /* 恰 2 项：两行名，不写「等2项」；≥3 才标注「等N项」 */
+    var more = items.length > 2
+      ? '<span class="sp-ticket__more">等' + items.length + '项</span>'
+      : '';
     return (
       '<div class="sp-ticket__line">' + escapeHtml(items[0].name) + '</div>' +
       '<div class="sp-ticket__line2">' +
-      '<span>' + escapeHtml(items[1].name) + '</span>' +
-      '<span class="sp-ticket__more">等' + items.length + '项</span></div>'
+      '<span>' + escapeHtml(items[1].name) + '</span>' + more + '</div>'
     );
   }
   function ticketHtml(slip) {
@@ -471,7 +596,8 @@
       return '未填项目';
     }
     if (items.length === 1) return items[0].name;
-    return items[0].name + '等' + items.length;
+    if (items.length === 2) return items[0].name + '、' + items[1].name;
+    return items[0].name + '等' + items.length + '项';
   }
   function dateLabel(key) {
     if (!key) return '全部';
