@@ -1926,16 +1926,26 @@
   /* asSheet=true：以底部 sheet 形态呈现（成功页「改日期」/ 结算页「更多 → 选日期」）；
      缺省为标题栏日期控件下拉形态。
      ctx 记录「谁打开的」：'co' = 结算页选日期（只写本单日期），其余 = 成功页（写开单日期）。 */
+  function syncDateQuickBar(ctx) {
+    var ft = document.querySelector('[data-date-ft]');
+    if (!ft) return;
+    var isSp = ctx === 'selfpay';
+    ft.classList.toggle('is-selfpay', isSp);
+    ft.querySelectorAll('[data-sp-date-only]').forEach(function (el) { el.hidden = !isSp; });
+    ft.querySelectorAll('[data-bill-date-only]').forEach(function (el) { el.hidden = !!isSp; });
+  }
   function openDatePop(asSheet, ctx, previewKey) {
     var mask = document.querySelector('[data-date-mask]');
     var pop = document.querySelector('[data-date-pop]');
     if (!pop) return;
     datePopCtx = ctx || null;
+    syncDateQuickBar(datePopCtx);
     /* 自助买单筛选：临时用预览日高亮格子，关闭/确认后还原全局开单日期 */
     if (datePopCtx === 'selfpay') {
       if (!selDateBackup) selDateBackup = new Date(selDate.getFullYear(), selDate.getMonth(), selDate.getDate());
       var pd = dParse(previewKey);
       if (pd && dIn(pd)) selDate = new Date(pd.getFullYear(), pd.getMonth(), pd.getDate());
+      else selDate = new Date(dToday.getFullYear(), dToday.getMonth(), dToday.getDate());
     }
     viewMonth = new Date(selDate.getFullYear(), selDate.getMonth(), 1);
     renderDateGrid();
@@ -1956,19 +1966,23 @@
     if (pop) pop.classList.remove('show');
     if (datePopCtx === 'selfpay') restoreSelDateBackup();
     datePopCtx = null;
+    syncDateQuickBar(null);
+  }
+  function emitSelfpayDate(key) {
+    restoreSelDateBackup();
+    datePopCtx = null;
+    syncDateQuickBar(null);
+    var maskSp = document.querySelector('[data-date-mask]');
+    var popSp = document.querySelector('[data-date-pop]');
+    if (maskSp) maskSp.classList.remove('show');
+    if (popSp) popSp.classList.remove('show');
+    if (typeof window.__v2OnBillDateChange === 'function') window.__v2OnBillDateChange(key, 'selfpay');
   }
   function setBillDate(d) {
     if (!d || !dIn(d)) return;
     var ctx = datePopCtx;
     if (ctx === 'selfpay') {
-      var key = dKey(d);
-      restoreSelDateBackup();
-      datePopCtx = null;
-      var maskSp = document.querySelector('[data-date-mask]');
-      var popSp = document.querySelector('[data-date-pop]');
-      if (maskSp) maskSp.classList.remove('show');
-      if (popSp) popSp.classList.remove('show');
-      if (typeof window.__v2OnBillDateChange === 'function') window.__v2OnBillDateChange(key, ctx);
+      emitSelfpayDate(dKey(d));
       return;
     }
     selDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -2011,6 +2025,10 @@
       if (q) {
         e.stopPropagation();
         var kind = q.getAttribute('data-date-quick');
+        if (kind === 'all' && datePopCtx === 'selfpay') {
+          emitSelfpayDate('');
+          return;
+        }
         var d = new Date(dToday.getFullYear(), dToday.getMonth(), dToday.getDate() - (kind === 'yesterday' ? 1 : 0));
         setBillDate(d);
         return;

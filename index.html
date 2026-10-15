@@ -4,14 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>RTB 开单结账2.0 - 高保真交互原型</title>
-<!-- 全局字体：Noto Sans SC（含金额数字） -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- R46perf：去掉 Google Fonts，避免外网阻塞首屏白屏；流水 CSS/JS 按需加载 -->
 <link rel="stylesheet" href="assets/v2.css">
-<link rel="stylesheet" href="assets/v2-home-pay.css?v=r45b">
-<link rel="stylesheet" href="assets/selfpay.css?v=r45b">
-<link rel="stylesheet" href="flow/flow.css?v=recharge38">
+<link rel="stylesheet" href="assets/v2-home-pay.css?v=r49">
+<link rel="stylesheet" href="assets/selfpay.css?v=r49b">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -21,9 +17,9 @@
     --border: #D7D7D5; --border-light: #E8E8E8; --success: #2BA471; --success-soft: #E8F8F2;
     --card-divider: rgba(0, 0, 0, 0.04);
     --input-border: #D7D7D5; --input-border-focus: #C2C4CC; --input-bg: #F7F7F7;
-    /* 字体：全局 Noto Sans SC（金额数字同源，配合 tabular-nums 对齐） */
-    --font-text: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
-    --font-data: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+    /* 本机中文字体栈（无外网字体请求） */
+    --font-text: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC", sans-serif;
+    --font-data: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC", sans-serif;
     /* 卡片内文字 Token（全站统一，禁止逐处硬编码字号） */
     --fs-card-title: 15px; --fw-card-title: 500; --lh-card-title: 22px;
     --fs-label: 14px;      --fw-label: 400;
@@ -1741,12 +1737,20 @@
     display:flex; gap:10px; margin-top:8px; padding-top:10px;
     border-top:.5px solid #f0f0f0;
   }
+  .dp-ft.is-selfpay {
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .dp-ft.is-selfpay .dp-quick { flex: 0 0 auto; min-width: 88px; padding: 0 16px; }
+  .dp-ft.is-selfpay [data-date-quick="all"] { order: 1; }
+  .dp-ft.is-selfpay [data-date-quick="today"] { order: 2; margin-left: auto; }
   .dp-quick {
     flex:1; height:34px; border:0; border-radius:9px; background:#F5F5F5;
     color:#1a1a1a; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer;
     -webkit-tap-highlight-color:transparent;
   }
   .dp-quick:active { background:#ebebeb; }
+  .dp-quick[hidden] { display: none !important; }
 
   /* ===== 手机预览模式（html.is-mobile） ===== */
   .site-nav-scrim {
@@ -2232,7 +2236,7 @@
   </div>
   <div class="nav-group grow">
     <div class="g-t">文档</div>
-    <a class="nav-link" href="PRD-开单结账.html" target="_blank">
+    <a class="nav-link" href="PRD-自助订单归档.html" target="_blank">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><path d="M14 2v6h6"/></svg>
       PRD 预览
     </a>
@@ -2244,7 +2248,7 @@
   <div class="screen active v2-home" id="s0" data-name="首页">
     <div class="vh-scroll">
       <div class="vh-hero">
-        <img class="vh-hero__bg" src="assets/home/hero-header.png" alt="" draggable="false">
+        <img class="vh-hero__bg" src="assets/home/hero-header.png" alt="" draggable="false" decoding="async" fetchpriority="high">
         <div class="vh-status">
           <div class="time">9:41</div>
           <div class="icons">
@@ -2300,7 +2304,7 @@
         </div>
 
         <section class="vh-actions vh-actions--shot" aria-label="快捷开单">
-          <img class="vh-actions__shot" src="assets/home/actions-card.png" alt="" draggable="false">
+          <img class="vh-actions__shot" src="assets/home/actions-card.png" alt="" draggable="false" decoding="async">
           <button type="button" class="vh-hot vh-hot--bill" data-v2-home="bill" aria-label="开单"></button>
           <button type="button" class="vh-hot vh-hot--card" data-v2-home="card" aria-label="开卡"></button>
           <button type="button" class="vh-hot vh-hot--q1" data-home-toast="验券" aria-label="验券"></button>
@@ -2330,7 +2334,7 @@
     </div>
 
     <nav class="vh-tabbar" aria-label="底部导航">
-      <img class="vh-tabbar__img" src="assets/home/tabbar-float.png" alt="" draggable="false">
+      <img class="vh-tabbar__img" src="assets/home/tabbar-float.png" alt="" draggable="false" decoding="async" loading="lazy">
       <div class="vh-tabbar__hots">
         <button type="button" data-home-toast="首页" aria-label="首页"></button>
         <button type="button" data-home-toast="客户" aria-label="客户"></button>
@@ -3731,18 +3735,15 @@
     </div>
     <div class="nav-bar">
       <button class="btn-back" type="button" onclick="go('s0')"><img src="assets/ic_back.svg"></button>
-      <div class="title">自助订单</div>
+      <div class="title sp-nav-title">
+        自助订单
+        <button type="button" class="sp-help-btn" id="spSortHelpBtn" aria-label="排序规则说明" title="排序规则"><img class="sp-help-btn__ic" src="assets/ic_sp_help.svg" alt="" width="16" height="16"></button>
+      </div>
     </div>
     <div class="sp-body">
-      <!-- R44：隐藏已处理/已作废 Tab（保留节点供归档飞点兜底） -->
-      <div class="sp-tabs" role="tablist" hidden>
-        <button type="button" class="sp-tabs__btn is-on" data-sp-tab="pending" role="tab">待处理 <span class="sp-tabs__n">(0)</span></button>
-        <button type="button" class="sp-tabs__btn" data-sp-tab="done" id="spTabDone" role="tab">已处理</button>
-        <button type="button" class="sp-tabs__btn" data-sp-tab="voided" role="tab">已作废</button>
-      </div>
       <div class="sp-toolbar">
         <button type="button" class="sp-date" id="spDateBtn" aria-label="选择日期">
-          <span id="spDateLabel">今天</span>
+          <span id="spDateLabel">全部</span>
           <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <div class="sp-search">
@@ -3766,9 +3767,8 @@
             <select id="spFltPay">
               <option value="">全部</option>
               <option value="微信">微信</option>
-              <option value="支付宝">支付宝</option>
-              <option value="卡本金">卡本金</option>
-              <option value="计次">计次</option>
+              <option value="微信+会员卡">微信+会员卡</option>
+              <option value="会员卡">会员卡</option>
             </select>
           </div>
           <div class="sp-field">
@@ -3798,6 +3798,14 @@
 
   <!-- ============ s17 补全订单（全屏 · R45） ============ -->
   <div class="screen" id="s17" data-name="补全订单">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
     <div class="nav-bar">
       <button type="button" class="btn-back" id="s17Back" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
       <div class="title" id="s17Title">补全订单</div>
@@ -3805,6 +3813,30 @@
     <div class="s17-body" id="s17Scroll"></div>
     <div class="s17-bar" id="s17Bar">
       <button type="button" class="btn-main" id="s17ArchiveBtn">完成归档</button>
+    </div>
+  </div>
+
+  <!-- 自助 · 规则说明弹层 -->
+  <div class="sp-mask" id="spHelpMask">
+    <div class="sp-dialog" role="dialog" aria-labelledby="spHelpTitle">
+      <div class="sp-dialog__t" id="spHelpTitle">说明</div>
+      <div class="sp-dialog__b" id="spHelpBody"></div>
+      <div class="sp-dialog__acts">
+        <button type="button" class="danger" id="spHelpOk" style="background:#F32F41;flex:1">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 补全页 · 修改业绩金额键盘 -->
+  <div class="sp-mask" id="spPerfKeypadMask">
+    <div class="sp-sheet sp-perf-keypad" role="dialog" aria-label="修改业绩">
+      <div class="sp-sheet__head">修改业绩<button type="button" class="sp-sheet__close" data-sp-close="spPerfKeypadMask" aria-label="关闭">×</button></div>
+      <div class="sp-perf-keypad__display is-empty" id="spPerfKeypadDisplay">请输入</div>
+      <div class="sp-perf-keypad__grid" id="spPerfKeypadGrid"></div>
+      <div class="sp-sheet__foot">
+        <button type="button" class="btn-sec" id="spPerfKeypadCancel">取消</button>
+        <button type="button" class="btn-main" id="spPerfKeypadOk">确定</button>
+      </div>
     </div>
   </div>
 
@@ -4054,16 +4086,18 @@
     <div class="addsheet sp-price-sheet" role="dialog" aria-label="添加项目产品">
       <div class="addsheet__head">
         <div class="addsheet__title">添加项目/产品</div>
-        <button type="button" class="sp-price-quick" id="spPriceQuick" data-sp-price-quick>快捷开单</button>
-        <button type="button" class="sp-price-close" id="spPriceClose" aria-label="关闭">×</button>
+        <button type="button" class="sp-price-quick" id="spPriceQuick" data-sp-price-quick>
+          <img class="sp-price-quick__ic" src="assets/ic_sp_quick_lightning.svg" alt="" width="14" height="14">
+          <span>快捷开单</span>
+        </button>
       </div>
       <div class="addsheet__body sp-price-body" id="spPriceBody"></div>
     </div>
   </div>
 
-  <!-- 自助归档 · 选员工（左名 / 右点客） -->
+  <!-- 自助归档 · 选员工（左名 / 右点客·散客） -->
   <div class="addsheet-mask" id="spPickStaffMask" onclick="if(event.target===this&&window.SelfPay)window.SelfPay.closePickStaff()">
-    <div class="addsheet" role="dialog" aria-label="选择员工">
+    <div class="addsheet sp-pick-sheet" role="dialog" aria-label="选择员工">
       <div class="addsheet__head">
         <div class="addsheet__title" id="spPickStaffTitle">选择员工</div>
         <button type="button" class="sp-price-close" id="spPickStaffClose" aria-label="关闭">×</button>
@@ -4232,9 +4266,10 @@
     </div>
     <div class="dp-wk"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
     <div class="dp-grid" data-date-grid></div>
-    <div class="dp-ft">
+    <div class="dp-ft" data-date-ft>
+      <button type="button" class="dp-quick" data-date-quick="all" data-sp-date-only hidden>全部</button>
       <button type="button" class="dp-quick" data-date-quick="today">今天</button>
-      <button type="button" class="dp-quick" data-date-quick="yesterday">昨天</button>
+      <button type="button" class="dp-quick" data-date-quick="yesterday" data-bill-date-only>昨天</button>
     </div>
   </div>
 </div>
@@ -8226,7 +8261,7 @@
     else { go(h); }
   })();
 </script>
-<script src="assets/v2.js?v=r45b"></script>
+<script src="assets/v2.js?v=r49"></script>
 <script>
 /* ===== 手机预览模式：全屏真机区 + 左缘右滑唤出链路导航 ===== */
 (function () {
@@ -9440,20 +9475,8 @@ html.capture-figma #toast { display:none !important; }
       }, 100);
     },
     's16-void-ro': function (done) {
-      go('s16');
-      waitFor(function () { return !!(window.SelfPay && document.getElementById('spGridWrap')); }, function (err) {
-        if (err) { done(err); return; }
-        window.SelfPay.setTab('voided');
-        setTimeout(function () {
-          window.SelfPay.openExpandById('sp-v1');
-          waitFor(function () {
-            var root = document.getElementById('spExpandRoot');
-            var stamp = document.getElementById('spExpandStamp');
-            return !!(root && !root.hidden && root.classList.contains('is-open') &&
-              !root.classList.contains('is-animating') && stamp && !stamp.hidden);
-          }, function () { setTimeout(function () { done(null); }, 500); }, 140);
-        }, 500);
-      }, 100);
+      /* R46：已作废 Tab / 样例已移除，本步跳过 */
+      done(null);
     }
   };
 
@@ -9513,9 +9536,78 @@ html.capture-figma #toast { display:none !important; }
   });
 })();
 </script>
-<script src="flow/flow-keypad.js"></script>
-<script src="flow/flow.js"></script>
-<script src="flow/flow-bridge.js"></script>
-<script src="assets/selfpay.js?v=r45b"></script>
+<script>
+/* 流水模块 ~600KB：首屏不加载；归档 / ?flow= 深链 / 显式调用时再拉 */
+(function () {
+  var CSS = 'flow/flow.css?v=recharge38';
+  var SCRIPTS = [
+    'flow/flow-keypad.js',
+    'flow/flow.js',
+    'flow/flow-bridge.js'
+  ];
+  function loadCss(href) {
+    if (document.querySelector('link[data-flow-css]')) return;
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = href;
+    l.setAttribute('data-flow-css', '1');
+    document.head.appendChild(l);
+  }
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      if (document.querySelector('script[data-flow-src="' + src + '"]')) {
+        resolve();
+        return;
+      }
+      var s = document.createElement('script');
+      s.src = src;
+      s.async = false;
+      s.setAttribute('data-flow-src', src);
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error('load fail: ' + src)); };
+      document.body.appendChild(s);
+    });
+  }
+  window.ensureFlowBundle = function (cb) {
+    if (window.__flowBundleReady) {
+      if (cb) cb();
+      return Promise.resolve();
+    }
+    if (!window.__flowBundlePromise) {
+      loadCss(CSS);
+      window.__flowBundlePromise = SCRIPTS.reduce(function (p, src) {
+        return p.then(function () { return loadScript(src); });
+      }, Promise.resolve()).then(function () {
+        window.__flowBundleReady = true;
+      }).catch(function (e) {
+        window.__flowBundlePromise = null;
+        console.error('[flow] bundle load failed', e);
+        throw e;
+      });
+    }
+    return window.__flowBundlePromise.then(function () {
+      if (cb) cb();
+    }, function (e) {
+      if (cb) cb(e);
+      throw e;
+    });
+  };
+  /* 首屏空闲后再预取，避免第一次归档卡顿 */
+  function idlePrefetch() {
+    if (window.__flowBundleReady || window.__flowBundlePromise) return;
+    window.ensureFlowBundle(function () {});
+  }
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(idlePrefetch, { timeout: 4000 });
+  } else {
+    setTimeout(idlePrefetch, 2500);
+  }
+  try {
+    var q = new URLSearchParams(location.search).get('flow');
+    if (q && String(q).indexOf('flow-') === 0) window.ensureFlowBundle(function () {});
+  } catch (e) {}
+})();
+</script>
+<script src="assets/selfpay.js?v=r49b"></script>
 </body>
 </html>

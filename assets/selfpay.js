@@ -8,7 +8,35 @@
   var ARCHIVER = '店员小陈';
   var PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
   var CHEV_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
-  var CHEV_RIGHT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  var MORE_ICON = '<img class="vh-sp-more__ic" src="assets/ic_sp_more.svg" alt="" width="20" height="20">';
+  var HELP_ICON = '<img class="sp-help-btn__ic" src="assets/ic_sp_help.svg" alt="" width="16" height="16">';
+  /* 猜你想加 · 演示种子（②热销 / ③搭配 / ④归档常用） */
+  var SUGGEST_HOT = [
+    '洗剪吹', '染发', '深层滋养', '烫发', '时尚洗吹',
+    '蛋白矫正', '精致剪发', '剑琅修护洗发水', '挑染', '头皮护理'
+  ];
+  var SUGGEST_PAIR = {
+    '洗剪吹': ['深层滋养', '剑琅修护洗发水', '时尚造型'],
+    '时尚洗吹': ['深层滋养', '剑琅哑光发泥'],
+    '洗头': ['头皮护理', '剑琅头皮护理精华'],
+    '染发': ['剑琅染发护色套装', '剑琅护色洗发水', '深层滋养'],
+    '漂发': ['剑琅漂后修护乳', '蛋白矫正'],
+    '烫发': ['深层滋养', '剑琅柔顺发膜'],
+    '蛋白矫正': ['剑琅护发精油', '深层滋养'],
+    '深层滋养': ['剑琅柔顺发膜', '剑琅修护洗发水'],
+    '精致剪发': ['时尚造型', '剑琅哑光发泥'],
+    '儿童剪发': ['剑琅儿童护发素'],
+    '头皮护理': ['剑琅头皮护理精华', '剑琅头皮清洁泥'],
+    '护理': ['剑琅柔顺发膜', '深层滋养'],
+    '洗吹': ['深层滋养', '剑琅修护洗发水'],
+    '剪发': ['时尚造型', '剑琅哑光发泥']
+  };
+  var SUGGEST_RECENT = {
+    '洗剪吹': 28, '染发': 22, '深层滋养': 18, '时尚洗吹': 15,
+    '剑琅修护洗发水': 14, '烫发': 12, '精致剪发': 11, '头皮护理': 9,
+    '剑琅柔顺发膜': 8, '蛋白矫正': 7, '挑染': 6, '剑琅护色洗发水': 5,
+    '时尚造型': 4, '剑琅染发护色套装': 4
+  };
   var STATIONS = [
     { id: 'senior', lab: '大工' },
     { id: 'mid', lab: '中工' },
@@ -52,6 +80,8 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  var COMMISSION_RATE = 0.1;
+
   function seedSlips() {
     var t = todayKey();
     var y = shiftDay(t, -1);
@@ -77,7 +107,7 @@
         avatar: 'assets/avatar_female3.png',
         cards: '计次卡 染烫10次　余 4 次',
         items: [],
-        paid: 198, payments: [{ method: '支付宝', amount: 198 }],
+        paid: 198, payments: [{ method: '微信', amount: 198 }],
         benefits: '', slipNo: 'SP202610150042', remark: '顾客备注：补项目'
       },
       {
@@ -86,8 +116,8 @@
         avatar: 'assets/avatar_female2.png',
         cards: '计次卡 洗吹次卡　余 6 次',
         items: [{ id: 'p2', name: '洗吹', type: 'project', price: 38, qty: 1 }],
-        paid: 0, payments: [{ method: '计次', amount: 0 }],
-        benefits: '扣次 ×1', slipNo: 'SP202610150055', remark: ''
+        paid: 38, payments: [{ method: '会员卡', amount: 38 }],
+        benefits: '', slipNo: 'SP202610150055', remark: ''
       },
       {
         id: 'sp-4', seq: 103, isMember: true, status: 'pending', dateKey: t, time: '13:20',
@@ -107,13 +137,13 @@
           { id: 'p4', name: '护理', type: 'project', price: 168, qty: 1 },
           { id: 'g1', name: '发膜', type: 'product', price: 128, qty: 1 }
         ],
-        paid: 260, payments: [{ method: '卡本金', amount: 200 }, { method: '微信', amount: 60 }],
+        paid: 260, payments: [{ method: '会员卡', amount: 200 }, { method: '微信', amount: 60 }],
         benefits: '', slipNo: 'SP202610150102', remark: ''
       },
       {
         id: 'sp-6', seq: 105, isMember: false, status: 'pending', dateKey: t, time: '15:33',
-        customerName: '王先生', phone: '136****8899',
-        avatar: 'assets/avatar_male2.png',
+        customerName: '散客', phone: '', guestGender: '',
+        avatar: 'assets/avatar_default.svg',
         cards: '',
         items: [{ id: 'p2', name: '洗吹', type: 'project', price: 38, qty: 1 }],
         paid: 68, payments: [{ method: '微信', amount: 68 }],
@@ -130,33 +160,12 @@
       },
       {
         id: 'sp-y2', seq: 107, isMember: false, status: 'pending', dateKey: y2, time: '11:12',
-        customerName: '林嘉怡', phone: '138****6210',
-        avatar: 'assets/avatar_card_female.png',
+        customerName: '散客', phone: '', guestGender: '',
+        avatar: 'assets/avatar_default.svg',
         cards: '',
         items: [{ id: 'p2', name: '洗吹', type: 'project', price: 38, qty: 1 }],
-        paid: 38, payments: [{ method: '支付宝', amount: 38 }],
+        paid: 38, payments: [{ method: '微信', amount: 38 }],
         benefits: '', slipNo: 'SP202610130112', remark: ''
-      },
-      {
-        id: 'sp-d1', seq: 108, isMember: true, status: 'done', dateKey: t, time: '08:50',
-        customerName: '黄浩然', phone: '158****3344',
-        avatar: 'assets/avatar_male2.png',
-        cards: '储值卡 美发卡　余额 ¥800.00',
-        items: [{ id: 'p1', name: '剪发', type: 'project', price: 68, qty: 1 }],
-        paid: 68, payments: [{ method: '微信', amount: 68 }],
-        benefits: '', slipNo: 'SP202610150008', remark: '',
-        staffs: ['小美'], contentMode: 'items',
-        archiver: ARCHIVER, flowOrderId: null
-      },
-      {
-        id: 'sp-v1', seq: 109, isMember: true, status: 'voided', dateKey: t, time: '09:02',
-        customerName: '邓伟', phone: '177****5566',
-        avatar: 'assets/avatar_male2.png',
-        cards: '计次卡 洗吹次卡　余 2 次',
-        items: [{ id: 'p2', name: '洗吹', type: 'project', price: 38, qty: 1 }],
-        paid: 0, payments: [{ method: '计次', amount: 0 }],
-        benefits: '扣次已回滚', slipNo: 'SP202610150012', remark: '',
-        voidAt: t
       }
     ];
   }
@@ -164,7 +173,7 @@
   var slips = seedSlips();
   var ui = {
     tab: 'pending',
-    dateKey: todayKey(),
+    dateKey: '', /* '' = 全部 */
     search: '',
     filter: { pay: '', hasItems: '', amtMin: '', amtMax: '' },
     currentId: null,
@@ -177,7 +186,13 @@
     priceGroup: '全部',
     readonly: false,
     allocMode: 'station',
-    pickCtx: null
+    pickCtx: null,
+    guestGender: '',
+    perfRows: [],
+    perfStaffKey: '',
+    perfEditId: null,
+    perfKeypadBuf: '',
+    perfKeypadReplace: false
   };
 
   function emptyAssign() {
@@ -233,6 +248,121 @@
     });
     return all;
   }
+  function peopleFromAssign(a) {
+    a = a || emptyAssign();
+    var out = [];
+    if (ui.allocMode === 'average') {
+      (a.people || []).forEach(function (p) { out.push(p); });
+    } else {
+      STATIONS.forEach(function (st) {
+        (a.stations[st.id] || []).forEach(function (p) { out.push(p); });
+      });
+    }
+    return out;
+  }
+  function collectUniqueStaff() {
+    var map = {};
+    var list = [];
+    function add(p) {
+      if (!p || !p.id || map[p.id]) return;
+      map[p.id] = true;
+      list.push({ id: p.id, name: p.name || p.id });
+    }
+    if (ui.contentMode === 'quick') {
+      peopleFromAssign(ui.orderStaff).forEach(add);
+    } else {
+      ui.editItems.forEach(function (it) {
+        peopleFromAssign(it.assign).forEach(add);
+      });
+    }
+    return list;
+  }
+  function guestDisplayName(gender) {
+    if (gender === 'male') return '男散客';
+    if (gender === 'female') return '女散客';
+    return '散客';
+  }
+  function displayCustomerName(slip) {
+    if (!slip) return '';
+    if (!slip.isMember) return guestDisplayName(slip.guestGender || '');
+    return slip.customerName || '';
+  }
+  function payModeOf(slip) {
+    var methods = (slip.payments || []).map(function (p) { return p.method; });
+    var hasWx = methods.indexOf('微信') >= 0;
+    var hasCard = methods.indexOf('会员卡') >= 0;
+    if (hasWx && hasCard) return '微信+会员卡';
+    if (hasCard) return '会员卡';
+    if (hasWx) return '微信';
+    return methods[0] || '';
+  }
+  function formatPayBits(slip) {
+    var ps = slip.payments || [];
+    if (!ps.length) return '实付 ¥' + money(slip.paid);
+    return ps.map(function (p) {
+      return escapeHtml(p.method) + ' ¥' + money(p.amount);
+    }).join(' · ');
+  }
+  function commissionOf(achievement) {
+    return Math.round((Number(achievement) || 0) * COMMISSION_RATE * 100) / 100;
+  }
+  function reconcilePerfRows() {
+    var slip = getSlip(ui.currentId);
+    var staff = collectUniqueStaff();
+    var key = staff.map(function (s) { return s.id; }).join(',');
+    var paid = slip ? (Number(slip.paid) || 0) : 0;
+    if (!staff.length) {
+      ui.perfRows = [];
+      ui.perfStaffKey = '';
+      return;
+    }
+    if (key === ui.perfStaffKey && ui.perfRows && ui.perfRows.length === staff.length) {
+      ui.perfRows.forEach(function (row, i) {
+        if (staff[i]) row.name = staff[i].name;
+      });
+      return;
+    }
+    ui.perfStaffKey = key;
+    var n = staff.length;
+    var eachCents = Math.floor(Math.round(paid * 100) / n);
+    var rows = staff.map(function (s, i) {
+      var cents = i === n - 1
+        ? Math.round(paid * 100) - eachCents * (n - 1)
+        : eachCents;
+      return { id: s.id, name: s.name, achievement: cents / 100 };
+    });
+    ui.perfRows = rows;
+  }
+  function perfBlockHtml(readonly) {
+    reconcilePerfRows();
+    if (!ui.perfRows.length) {
+      return '<div class="spf-block"><div class="spf-block__h">业绩提成</div>' +
+        '<div class="spf-quick-tip">选择员工后显示业绩与提成</div></div>';
+    }
+    var rows = ui.perfRows.map(function (row) {
+      var achBtn = readonly
+        ? '<span class="spf-perf-row__ach">¥' + money(row.achievement) + '</span>'
+        : '<button type="button" class="spf-perf-row__ach" data-sp-perf="' +
+          escapeHtml(row.id) + '" aria-label="修改业绩">¥' + money(row.achievement) +
+          '<img class="spf-perf-row__ach-ic" src="assets/ic_sp_perf_edit.svg" alt="" width="12" height="12"></button>';
+      return (
+        '<div class="spf-perf-row">' +
+        '<div class="spf-perf-row__nm">' + escapeHtml(row.name) + '</div>' +
+        '<div class="spf-perf-row__col">' + achBtn + '</div>' +
+        '<div class="spf-perf-row__col">' +
+        '<span class="spf-perf-row__comm">¥' + money(commissionOf(row.achievement)) + '</span></div></div>'
+      );
+    }).join('');
+    return (
+      '<div class="spf-block"><div class="spf-block__h">业绩提成</div>' +
+      '<div class="spf-perf-list">' +
+      '<div class="spf-perf-head" aria-hidden="true">' +
+      '<span class="spf-perf-head__nm">员工</span>' +
+      '<span class="spf-perf-head__col">业绩</span>' +
+      '<span class="spf-perf-head__col">提成</span></div>' +
+      rows + '</div></div>'
+    );
+  }
 
   function pendingCount() {
     return slips.filter(function (s) { return s.status === 'pending'; }).length;
@@ -240,10 +370,43 @@
   function getSlip(id) {
     return slips.find(function (s) { return s.id === id; });
   }
+  function dayDiffFromToday(dateKey) {
+    if (!dateKey) return 0;
+    var a = dateKey.split('-').map(Number);
+    var b = todayKey().split('-').map(Number);
+    var da = new Date(a[0], a[1] - 1, a[2]);
+    var db = new Date(b[0], b[1] - 1, b[2]);
+    return Math.round((db - da) / 86400000);
+  }
+  function slipHasStaffSeed(slip) {
+    if (slip.staffs && slip.staffs.length) return true;
+    if (slip.orderStaff && namesFromAssign(slip.orderStaff).length) return true;
+    return (slip.items || []).some(function (it) {
+      return it.assign && namesFromAssign(it.assign).length > 0;
+    });
+  }
+  function scoreSlip(slip) {
+    var score = 0;
+    var noItems = !(slip.items && slip.items.length) && slip.contentMode !== 'quick';
+    if (noItems) score += 3;
+    var days = dayDiffFromToday(slip.dateKey);
+    if (days > 0) score += 2;
+    if (!slipHasStaffSeed(slip)) score += 2;
+    score += Math.min(7, Math.max(0, days)) * 1;
+    var hm = String(slip.time || '00:00').split(':');
+    var mins = (Number(hm[0]) || 0) * 60 + (Number(hm[1]) || 0);
+    score += mins / 1440 * 0.2;
+    return score;
+  }
+  function sortByS4(list) {
+    return list.slice().sort(function (a, b) {
+      var ds = scoreSlip(b) - scoreSlip(a);
+      if (Math.abs(ds) > 1e-6) return ds;
+      return (Number(a.seq) || 0) - (Number(b.seq) || 0);
+    });
+  }
   function pendingSlipsAll() {
-    return slips
-      .filter(function (s) { return s.status === 'pending'; })
-      .sort(function (a, b) { return (Number(a.seq) || 0) - (Number(b.seq) || 0); });
+    return sortByS4(slips.filter(function (s) { return s.status === 'pending'; }));
   }
   function memberTagHtml(slip) {
     var mem = !!slip.isMember;
@@ -274,7 +437,7 @@
       '<button type="button" class="sp-ticket" data-sp-id="' + slip.id + '">' +
       '<i class="sp-ticket__stub" aria-hidden="true"></i>' +
       '<div class="sp-ticket__seq">' + escapeHtml(String(slip.seq != null ? slip.seq : '')) + '</div>' +
-      '<div class="sp-ticket__name">' + escapeHtml(slip.customerName) + '</div>' +
+      '<div class="sp-ticket__name">' + escapeHtml(displayCustomerName(slip)) + '</div>' +
       '<div class="sp-ticket__time">' + escapeHtml(ticketTimeLabel(slip)) + '</div>' +
       '<div class="sp-ticket__items">' + itemLinesHtml(slip) + '</div>' +
       '<div class="sp-ticket__ft">' + memberTagHtml(slip) +
@@ -293,7 +456,7 @@
     list.slice(0, 5).forEach(function (slip) { html += ticketHtml(slip); });
     html +=
       '<button type="button" class="vh-sp-more" data-sp-more aria-label="更多">' +
-      '<span class="vh-sp-more__t">更多</span>' + CHEV_RIGHT +
+      '<span class="vh-sp-more__t">更多</span>' + MORE_ICON +
       '</button>';
     el.innerHTML = html;
   }
@@ -311,6 +474,7 @@
     return items[0].name + '等' + items.length;
   }
   function dateLabel(key) {
+    if (!key) return '全部';
     if (key === todayKey()) return '今天';
     var p = key.split('-');
     return Number(p[1]) + '/' + Number(p[2]);
@@ -320,10 +484,12 @@
     return !!(f.pay || f.hasItems || f.amtMin !== '' || f.amtMax !== '');
   }
   function matchesFilter(slip) {
-    if (slip.dateKey !== ui.dateKey) return false;
+    if (ui.dateKey && slip.dateKey !== ui.dateKey) return false;
     var q = (ui.search || '').trim();
     if (q) {
+      var disp = displayCustomerName(slip);
       var hit =
+        (disp && disp.indexOf(q) >= 0) ||
         (slip.customerName && slip.customerName.indexOf(q) >= 0) ||
         (slip.phone && slip.phone.indexOf(q) >= 0) ||
         (slip.slipNo && slip.slipNo.indexOf(q) >= 0);
@@ -331,8 +497,7 @@
     }
     var f = ui.filter;
     if (f.pay) {
-      var ok = (slip.payments || []).some(function (p) { return p.method === f.pay; });
-      if (!ok) return false;
+      if (payModeOf(slip) !== f.pay) return false;
     }
     if (f.hasItems === 'yes' && !(slip.items && slip.items.length)) return false;
     if (f.hasItems === 'no' && slip.items && slip.items.length) return false;
@@ -341,9 +506,9 @@
     return true;
   }
   function listForTab() {
-    return slips.filter(function (s) {
-      return s.status === ui.tab && matchesFilter(s);
-    });
+    return sortByS4(slips.filter(function (s) {
+      return s.status === 'pending' && matchesFilter(s);
+    }));
   }
 
   function renderList() {
@@ -419,20 +584,33 @@
   }
 
   function completeBodyHtml(slip, readonly) {
-    var payBits = (slip.payments || []).map(function (p) {
-      return escapeHtml(p.method) + ' ¥' + money(p.amount);
-    }).join(' · ');
-    if (!payBits) payBits = '实付 ¥' + money(slip.paid);
-
-    var cardsBlock = '';
-    if (slip.cards) {
-      cardsBlock =
-        '<button type="button" class="spf-sum__cards-toggle' + (ui.cardsOpen ? ' is-open' : '') +
-        '" data-sp-cards-toggle>持卡' + CHEV_SVG + '</button>' +
-        (ui.cardsOpen
-          ? '<div class="spf-sum__cards">' + escapeHtml(slip.cards) + '</div>'
-          : '');
+    var payBits = formatPayBits(slip);
+    var custName = displayCustomerName(slip);
+    var gender = ui.guestGender || '';
+    var genderHtml = '';
+    if (!slip.isMember && !readonly) {
+      genderHtml =
+        '<div class="spf-sum__gender">' +
+        '<span class="spf-sum__gender-lab">性别</span>' +
+        '<button type="button" class="spf-gender-btn' + (gender === '' ? ' is-on' : '') +
+        '" data-sp-gender="">不选</button>' +
+        '<button type="button" class="spf-gender-btn' + (gender === 'male' ? ' is-on' : '') +
+        '" data-sp-gender="male">男</button>' +
+        '<button type="button" class="spf-gender-btn' + (gender === 'female' ? ' is-on' : '') +
+        '" data-sp-gender="female">女</button></div>';
     }
+
+    var timeText = escapeHtml(slip.dateKey.replace(/-/g, '.')) + '  ' + escapeHtml(slip.time);
+    var cardsRow =
+      '<div class="spf-sum__cards-row">' +
+      (slip.cards
+        ? '<button type="button" class="spf-sum__cards-toggle' + (ui.cardsOpen ? ' is-open' : '') +
+          '" data-sp-cards-toggle>持卡' + CHEV_SVG + '</button>'
+        : '<span class="spf-sum__cards-toggle is-empty"></span>') +
+      '<span class="spf-sum__time">' + timeText + '</span></div>' +
+      (slip.cards && ui.cardsOpen
+        ? '<div class="spf-sum__cards">' + escapeHtml(slip.cards) + '</div>'
+        : '');
 
     var sumHtml =
       '<div class="spf-block spf-sum">' +
@@ -440,19 +618,16 @@
       '<img class="spf-sum__av" src="' + escapeHtml(slip.avatar || 'assets/avatar_default.svg') + '" alt="">' +
       '<div class="spf-sum__main">' +
       '<div class="spf-sum__line1">' +
-      '<span class="spf-sum__name">' + escapeHtml(slip.customerName) + '</span>' +
+      '<span class="spf-sum__name">' + escapeHtml(custName) + '</span>' +
       (slip.isMember ? '<span class="spf-sum__vip">会员</span>' : '<span class="spf-sum__vip" style="background:#EEF2FF;color:#4A7BF4">散客</span>') +
-      '<span class="spf-sum__phone">' + escapeHtml(slip.phone || '') + '</span>' +
-      '</div>' + cardsBlock +
+      (slip.phone ? '<span class="spf-sum__phone">' + escapeHtml(slip.phone) + '</span>' : '') +
+      '</div>' + cardsRow + genderHtml +
       '</div></div>' +
       '<div class="spf-sum__pay">' +
       '<div class="spf-sum__amt"><span>¥</span>' + money(slip.paid) + '</div>' +
       '<div class="spf-sum__pays">' + payBits + '</div></div>' +
       (slip.benefits ? '<div class="spf-sum__ben">' + escapeHtml(slip.benefits) + '</div>' : '') +
-      '<div class="spf-sum__meta">' +
-      '<div class="spf-sum__meta-item"><span class="k">时间</span><span class="v">' +
-      escapeHtml(slip.dateKey.replace(/-/g, '.')) + ' ' + escapeHtml(slip.time) + '</span></div>' +
-      '</div></div>';
+      '</div>';
 
     var itemsHtml = '';
     if (readonly) {
@@ -503,6 +678,7 @@
     return (
       sumHtml +
       '<div class="spf-block"><div class="spf-block__h">消费内容</div>' + itemsHtml + '</div>' +
+      perfBlockHtml(readonly) +
       '<div class="spf-block"><div class="spf-block__h">备注</div>' + remarkHtml + '</div>'
     );
   }
@@ -545,6 +721,12 @@
     ui.orderStaff = cloneAssign(slip.orderStaff);
     ui.cardsOpen = false;
     ui.remark = slip.remark || '';
+    ui.guestGender = slip.isMember ? '' : (slip.guestGender || '');
+    if (!slip.isMember) {
+      slip.customerName = guestDisplayName(ui.guestGender);
+    }
+    ui.perfRows = [];
+    ui.perfStaffKey = '';
     go('s17');
     setTimeout(paintS17, 0);
   }
@@ -578,10 +760,31 @@
     slip.orderStaff = cloneAssign(ui.orderStaff);
     slip.staffs = collectStaffNames();
     slip.remark = ui.remark || '';
+    if (!slip.isMember) {
+      slip.guestGender = ui.guestGender || '';
+      slip.customerName = guestDisplayName(slip.guestGender);
+    }
+    reconcilePerfRows();
+    slip.perfRows = (ui.perfRows || []).map(function (r) {
+      return {
+        id: r.id,
+        name: r.name,
+        achievement: Number(r.achievement) || 0,
+        commission: commissionOf(r.achievement)
+      };
+    });
     slip.archiver = ARCHIVER;
     slip.status = 'done';
 
-    if (window.BillingDemo && typeof window.BillingDemo.recordFromHostCheckout === 'function') {
+    function finishArchive() {
+      toast('已归档');
+      closeComplete();
+    }
+    function writeFlowOrder() {
+      if (!(window.BillingDemo && typeof window.BillingDemo.recordFromHostCheckout === 'function')) {
+        finishArchive();
+        return;
+      }
       var safeItems = slip.items.length
         ? slip.items.map(function (it) {
             return {
@@ -628,10 +831,16 @@
         order.source = 'selfpay';
         slip.flowOrderId = order.id;
       }
+      finishArchive();
     }
-
-    toast('已归档');
-    closeComplete();
+    if (typeof window.ensureFlowBundle === 'function' && !window.__flowBundleReady) {
+      window.ensureFlowBundle(function (err) {
+        if (err) console.warn('[selfpay] flow bundle:', err);
+        writeFlowOrder();
+      });
+      return;
+    }
+    writeFlowOrder();
   }
 
   function closeMask(id) {
@@ -643,6 +852,95 @@
     if (m) m.classList.add('show');
   }
 
+  function catalogByName() {
+    var map = {};
+    var catAll = priceCatalog();
+    ((catAll.project && catAll.project.items) || []).forEach(function (it) {
+      if (it && it.name && !map[it.name]) {
+        map[it.name] = { name: it.name, price: it.price, product: false };
+      }
+    });
+    ((catAll.product && catAll.product.items) || []).forEach(function (it) {
+      if (it && it.name && !map[it.name]) {
+        map[it.name] = { name: it.name, price: it.price, product: true };
+      }
+    });
+    return map;
+  }
+  function selectedItemNames() {
+    var set = {};
+    (ui.editItems || []).forEach(function (it) {
+      if (it && it.name) set[it.name] = true;
+    });
+    return set;
+  }
+  function suggestHotScore(name) {
+    var i = SUGGEST_HOT.indexOf(name);
+    return i < 0 ? 0 : 10 - i;
+  }
+  function suggestPairScore(name, selected) {
+    var score = 0;
+    Object.keys(selected).forEach(function (sel) {
+      var pals = SUGGEST_PAIR[sel] || [];
+      if (pals.indexOf(name) >= 0) score += 1;
+    });
+    return score;
+  }
+  function suggestRecentScore(name) {
+    return Math.min(10, Number(SUGGEST_RECENT[name]) || 0);
+  }
+  function suggestTotal(c) {
+    return c.hot * 3 + c.pair * 4 + c.recent * 2;
+  }
+  function hotSuggestItems() {
+    var map = catalogByName();
+    var selected = selectedItemNames();
+    var names = {};
+    SUGGEST_HOT.forEach(function (n) { names[n] = true; });
+    Object.keys(SUGGEST_PAIR).forEach(function (k) {
+      names[k] = true;
+      (SUGGEST_PAIR[k] || []).forEach(function (n) { names[n] = true; });
+    });
+    Object.keys(SUGGEST_RECENT).forEach(function (n) { names[n] = true; });
+    var pool = [];
+    Object.keys(names).forEach(function (name) {
+      if (selected[name] || !map[name]) return;
+      var row = {
+        name: name,
+        price: map[name].price,
+        product: map[name].product,
+        hot: suggestHotScore(name),
+        pair: suggestPairScore(name, selected),
+        recent: suggestRecentScore(name)
+      };
+      row.total = suggestTotal(row);
+      if (row.hot || row.pair || row.recent) pool.push(row);
+    });
+    var picked = [];
+    var used = {};
+    function takeBy(key, n) {
+      var taken = 0;
+      pool.slice().sort(function (a, b) {
+        var d = b[key] - a[key];
+        if (d) return d;
+        return b.total - a.total;
+      }).forEach(function (row) {
+        if (taken >= n || picked.length >= 6 || used[row.name] || !row[key]) return;
+        used[row.name] = true;
+        taken += 1;
+        picked.push({ name: row.name, price: row.price, product: row.product });
+      });
+    }
+    takeBy('hot', 2);
+    takeBy('pair', 2);
+    takeBy('recent', 2);
+    pool.slice().sort(function (a, b) { return b.total - a.total; }).forEach(function (row) {
+      if (picked.length >= 6 || used[row.name]) return;
+      used[row.name] = true;
+      picked.push({ name: row.name, price: row.price, product: row.product });
+    });
+    return picked;
+  }
   function renderPriceSheet() {
     var body = $('#spPriceBody');
     if (!body) return;
@@ -655,8 +953,26 @@
     var items = g === '全部'
       ? (cat.items || []).slice()
       : (cat.items || []).filter(function (it) { return it.g === g; });
+    var suggest = hotSuggestItems();
+    var suggestHtml =
+      '<div class="sp-suggest">' +
+      '<div class="sp-suggest__hd">' +
+      '<span class="sp-suggest__title">猜你想加</span>' +
+      '<button type="button" class="sp-help-btn" data-sp-help="suggest" aria-label="推荐规则说明">' +
+      HELP_ICON + '</button></div>' +
+      '<div class="sp-suggest__scroll">' +
+      suggest.map(function (it) {
+        return (
+          '<button type="button" class="sp-suggest__chip" data-sp-pname="' + escapeHtml(it.name) +
+          '" data-sp-pprice="' + it.price +
+          '" data-sp-pprod="' + (it.product ? '1' : '0') + '" data-sp-padd>' +
+          '<span class="sp-suggest__nm">' + escapeHtml(it.name) + '</span>' +
+          '<span class="sp-suggest__pr">¥' + money(it.price) + '</span></button>'
+        );
+      }).join('') +
+      '</div></div>';
     var tabsHtml =
-      '<div class="v2-page-tabs">' +
+      '<div class="v2-page-tabs" id="spPriceAllAnchor">' +
       '<button type="button" class="' + (tab === 'project' ? 'on' : '') + '" data-sp-ptab="project">项目</button>' +
       '<button type="button" class="' + (tab === 'product' ? 'on' : '') + '" data-sp-ptab="product">产品</button></div>';
     var gTabs = groups.map(function (name) {
@@ -676,7 +992,8 @@
       );
     }).join('');
     body.innerHTML =
-      '<div class="v2-price-card"><div class="v2-price-head">' + tabsHtml +
+      '<div class="v2-price-card">' + suggestHtml +
+      '<div class="v2-price-head">' + tabsHtml +
       '<div class="v2-group-bar"><div class="v2-group-seg"><div class="v2-group-scroll">' +
       gTabs + '</div></div></div></div>' +
       '<div class="v2-catalog">' + (list || '<div class="v2-cat-empty">暂无价目</div>') +
@@ -731,36 +1048,63 @@
     }
     var body = $('#spPickStaffBody');
     var pool = staffPoolList();
+    var assign = getAssignByCtx(ctx);
     if (!body) return;
-    if (!pool.length) {
-      body.innerHTML = '<div class="spf-quick-tip">暂无员工数据</div>';
-    } else {
-      body.innerHTML = pool.map(function (st) {
-        return (
-          '<button type="button" class="sp-pick-row" data-sp-pick="' + escapeHtml(st.id) + '">' +
-          '<span class="sp-pick-row__nm">' + escapeHtml(st.name) +
-          (st.role ? '<span style="color:#8E8E93;font-size:12px;margin-left:6px">' + escapeHtml(st.role) + '</span>' : '') +
-          '</span>' +
-          '<label class="sp-pick-row__dk" onclick="event.stopPropagation()">' +
-          '<input type="checkbox" data-sp-dianke="' + escapeHtml(st.id) + '">点客</label></button>'
-        );
-      }).join('');
+    var blocked = {};
+    var atCap = false;
+    if (assign) {
+      if (ctx.station === 'avg') {
+        var people = assign.people || [];
+        people.forEach(function (p, i) {
+          if (p && p.id && i !== ctx.index) blocked[p.id] = true;
+        });
+        atCap = people.length >= 5 && ctx.index >= people.length;
+      } else {
+        var arr = assign.stations[ctx.station] || [];
+        arr.forEach(function (p, i) {
+          if (p && p.id && i !== ctx.index) blocked[p.id] = true;
+        });
+        atCap = arr.length >= 3 && ctx.index >= arr.length;
+      }
     }
+    var avail = pool.filter(function (st) {
+      return st && st.id && !blocked[st.id];
+    });
+    if (atCap || !avail.length) {
+      ui.pickCtx = null;
+      toast('暂无可选员工');
+      return;
+    }
+    body.innerHTML = avail.map(function (st) {
+      return (
+        '<div class="sp-pick-row">' +
+        '<span class="sp-pick-row__nm">' + escapeHtml(st.name) +
+        (st.role ? '<span class="sp-pick-row__role">' + escapeHtml(st.role) + '</span>' : '') +
+        '</span>' +
+        '<span class="sp-pick-row__acts">' +
+        '<button type="button" class="sp-pick-act sp-pick-act--dk" data-sp-pick="' +
+        escapeHtml(st.id) + '" data-sp-pick-dk="1">点客</button>' +
+        '<button type="button" class="sp-pick-act sp-pick-act--sk" data-sp-pick="' +
+        escapeHtml(st.id) + '" data-sp-pick-dk="0">散客</button>' +
+        '</span></div>'
+      );
+    }).join('');
     openMask('spPickStaffMask');
   }
   function closePickStaff() {
     closeMask('spPickStaffMask');
     ui.pickCtx = null;
   }
-  function pickStaff(sid) {
+  function pickStaff(sid, dianke) {
     var ctx = ui.pickCtx;
     var assign = getAssignByCtx(ctx);
-    if (!ctx || !assign) return;
+    if (!ctx || !assign) {
+      toast('选择失败，请重试');
+      return;
+    }
     var st = typeof window.staffById === 'function' ? window.staffById(sid) : null;
     var name = st ? st.name : sid;
-    var diankeEl = document.querySelector('[data-sp-dianke="' + sid + '"]');
-    var dianke = !!(diankeEl && diankeEl.checked);
-    var person = { id: sid, name: name, dianke: dianke };
+    var person = { id: sid, name: name, dianke: !!dianke };
 
     if (ctx.station === 'avg') {
       var people = assign.people || (assign.people = []);
@@ -782,6 +1126,7 @@
       else { toast('每个工位最多 3 人'); return; }
     }
     closePickStaff();
+    ui.perfStaffKey = '';
     paintS17();
   }
   function clearSlot(ctxRaw) {
@@ -793,11 +1138,96 @@
     } else if (assign.stations[ctx.station] && assign.stations[ctx.station][ctx.index]) {
       assign.stations[ctx.station].splice(ctx.index, 1);
     }
+    ui.perfStaffKey = '';
+    paintS17();
+  }
+
+  function syncPerfKeypadDisplay() {
+    var el = $('#spPerfKeypadDisplay');
+    if (!el) return;
+    var buf = ui.perfKeypadBuf;
+    if (!buf) {
+      el.textContent = '请输入';
+      el.classList.add('is-empty');
+    } else {
+      el.textContent = buf;
+      el.classList.remove('is-empty');
+    }
+  }
+  function renderPerfKeypadGrid() {
+    var grid = $('#spPerfKeypadGrid');
+    if (!grid || grid.dataset.ready === '1') return;
+    var keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'del'];
+    grid.innerHTML = keys.map(function (k) {
+      if (k === 'del') {
+        return '<button type="button" class="sp-perf-keypad__key is-del" data-sp-pkey="del">删除</button>';
+      }
+      return '<button type="button" class="sp-perf-keypad__key" data-sp-pkey="' + k + '">' + k + '</button>';
+    }).join('');
+    grid.dataset.ready = '1';
+  }
+  function openPerfKeypad(sid) {
+    var row = (ui.perfRows || []).find(function (r) { return r.id === sid; });
+    if (!row || ui.readonly) return;
+    ui.perfEditId = sid;
+    ui.perfKeypadBuf = money(row.achievement);
+    ui.perfKeypadReplace = true;
+    renderPerfKeypadGrid();
+    syncPerfKeypadDisplay();
+    openMask('spPerfKeypadMask');
+  }
+  function closePerfKeypad() {
+    closeMask('spPerfKeypadMask');
+    ui.perfEditId = null;
+    ui.perfKeypadBuf = '';
+    ui.perfKeypadReplace = false;
+  }
+  function pushPerfKey(key) {
+    var buf = ui.perfKeypadBuf || '';
+    if (key === 'del') {
+      if (ui.perfKeypadReplace) {
+        ui.perfKeypadBuf = '';
+        ui.perfKeypadReplace = false;
+      } else {
+        ui.perfKeypadBuf = buf.slice(0, -1);
+      }
+      syncPerfKeypadDisplay();
+      return;
+    }
+    if (ui.perfKeypadReplace) {
+      buf = '';
+      ui.perfKeypadReplace = false;
+    }
+    if (key === '.') {
+      if (buf.indexOf('.') >= 0) return;
+      buf = buf ? buf + '.' : '0.';
+    } else {
+      if (buf === '0') buf = key;
+      else {
+        var parts = buf.split('.');
+        if (parts[1] && parts[1].length >= 2) return;
+        buf += key;
+      }
+    }
+    if (/^\d{7,}/.test(buf.split('.')[0])) return;
+    ui.perfKeypadBuf = buf;
+    syncPerfKeypadDisplay();
+  }
+  function confirmPerfKeypad() {
+    var sid = ui.perfEditId;
+    var row = (ui.perfRows || []).find(function (r) { return r.id === sid; });
+    var buf = (ui.perfKeypadBuf || '').trim();
+    if (row && buf !== '') {
+      var n = Number(buf);
+      if (!isNaN(n) && n >= 0) row.achievement = Math.round(n * 100) / 100;
+    }
+    closePerfKeypad();
     paintS17();
   }
 
   function setAllocMode(mode) {
     ui.allocMode = mode === 'average' ? 'average' : 'station';
+    ui.perfStaffKey = '';
     syncAllocNav();
     if ($('#s17') && $('#s17').classList.contains('active')) paintS17();
     toast(ui.allocMode === 'average' ? '演示：平均分配' : '演示：按工位分配');
@@ -813,7 +1243,7 @@
     var prev = window.__v2OnBillDateChange;
     var hooked = function (key, ctx) {
       if (ctx === 'selfpay') {
-        ui.dateKey = key;
+        ui.dateKey = key || '';
         renderList();
         return;
       }
@@ -825,14 +1255,57 @@
   function openSelfpayDate() {
     installDateHook();
     if (typeof window.__v2OpenDatePop === 'function') {
-      window.__v2OpenDatePop(true, 'selfpay', ui.dateKey);
+      window.__v2OpenDatePop(true, 'selfpay', ui.dateKey || todayKey());
     } else toast('日期控件未就绪');
   }
+
+  var HELP_SORT =
+    '列表与首页卡片按「综合分」从高到低排列，优先展示更可能需要处理的自助订单：' +
+    '<br>· 未填项目 +3' +
+    '<br>· 跨日遗留 +2' +
+    '<br>· 尚未指定员工 +2' +
+    '<br>· 等待天数（最多计 7 天）' +
+    '<br>同分再按序号。首页取排序后前 5 张。';
+  var HELP_SUGGEST =
+    '这里会帮你猜几个可能要加的项目/产品，方便点选。' +
+    '<br>会看三方面：店里卖得多的、常和已选项目一起做的、最近店里归档时常用的。' +
+    '<br>运用智能计算列出6个供你快速选择。';
+
+  function openHelp(kind) {
+    var title = $('#spHelpTitle');
+    var body = $('#spHelpBody');
+    if (kind === 'suggest') {
+      if (title) title.textContent = '推荐规则';
+      if (body) body.innerHTML = HELP_SUGGEST;
+    } else {
+      if (title) title.textContent = '排列规则';
+      if (body) body.innerHTML = HELP_SORT;
+    }
+    openMask('spHelpMask');
+  }
+  function closeHelp() { closeMask('spHelpMask'); }
 
   function onS17Click(e) {
     if (e.target.closest('[data-sp-cards-toggle]')) {
       ui.cardsOpen = !ui.cardsOpen;
       paintS17();
+      return;
+    }
+    var genderBtn = e.target.closest('[data-sp-gender]');
+    if (genderBtn) {
+      var g = genderBtn.getAttribute('data-sp-gender') || '';
+      ui.guestGender = g;
+      var slipG = getSlip(ui.currentId);
+      if (slipG && !slipG.isMember) {
+        slipG.guestGender = g;
+        slipG.customerName = guestDisplayName(g);
+      }
+      paintS17();
+      return;
+    }
+    var perfBtn = e.target.closest('[data-sp-perf]');
+    if (perfBtn) {
+      openPerfKeypad(perfBtn.getAttribute('data-sp-perf'));
       return;
     }
     var clear = e.target.closest('[data-sp-slot-clear]');
@@ -856,6 +1329,7 @@
       var idx = Number(del.getAttribute('data-sp-del'));
       if (!isNaN(idx)) {
         ui.editItems.splice(idx, 1);
+        ui.perfStaffKey = '';
         paintS17();
       }
     }
@@ -883,9 +1357,29 @@
     if (back) back.addEventListener('click', function () { closeComplete(); });
     var arch = $('#s17ArchiveBtn');
     if (arch) arch.addEventListener('click', archiveCurrent);
+    var perfCancel = $('#spPerfKeypadCancel');
+    if (perfCancel) perfCancel.addEventListener('click', closePerfKeypad);
+    var perfOk = $('#spPerfKeypadOk');
+    if (perfOk) perfOk.addEventListener('click', confirmPerfKeypad);
+    var perfGrid = $('#spPerfKeypadGrid');
+    if (perfGrid) {
+      renderPerfKeypadGrid();
+      perfGrid.addEventListener('click', function (e) {
+        var key = e.target.closest('[data-sp-pkey]');
+        if (!key) return;
+        pushPerfKey(key.getAttribute('data-sp-pkey'));
+      });
+    }
 
     var dateBtn = $('#spDateBtn');
     if (dateBtn) dateBtn.addEventListener('click', openSelfpayDate);
+    var sortHelp = $('#spSortHelpBtn');
+    if (sortHelp) sortHelp.addEventListener('click', function (e) {
+      e.stopPropagation();
+      openHelp('sort');
+    });
+    var helpOk = $('#spHelpOk');
+    if (helpOk) helpOk.addEventListener('click', closeHelp);
     var search = $('#spSearchInput');
     if (search) {
       search.addEventListener('input', function () {
@@ -919,7 +1413,14 @@
     document.addEventListener('click', function (e) {
       var closeBtn = e.target.closest('[data-sp-close]');
       if (closeBtn) closeMask(closeBtn.getAttribute('data-sp-close'));
-      if (e.target.closest('#spPriceClose')) closePriceSheet();
+      if (e.target.closest('[data-sp-help]')) {
+        openHelp(e.target.closest('[data-sp-help]').getAttribute('data-sp-help') || 'sort');
+        return;
+      }
+      if (e.target.closest('#spHelpMask') && e.target.id === 'spHelpMask') {
+        closeHelp();
+        return;
+      }
       if (e.target.closest('#spPriceQuick') || e.target.closest('[data-sp-price-quick]')) {
         applyQuickMode();
         return;
@@ -927,7 +1428,7 @@
       if (e.target.closest('#spPickStaffClose')) { closePickStaff(); return; }
       var pick = e.target.closest('[data-sp-pick]');
       if (pick && $('#spPickStaffMask') && $('#spPickStaffMask').classList.contains('show')) {
-        pickStaff(pick.getAttribute('data-sp-pick'));
+        pickStaff(pick.getAttribute('data-sp-pick'), pick.getAttribute('data-sp-pick-dk') === '1');
         return;
       }
       var pTab = e.target.closest('[data-sp-ptab]');
@@ -947,17 +1448,20 @@
       if (padd && $('#spPriceMask') && $('#spPriceMask').classList.contains('show')) {
         var row = padd.closest('[data-sp-pname]');
         if (!row) return;
+        var addName = row.getAttribute('data-sp-pname') || '';
         ui.contentMode = 'items';
         ui.editItems.push({
           id: 'x-' + Date.now(),
-          name: row.getAttribute('data-sp-pname'),
+          name: addName,
           type: row.getAttribute('data-sp-pprod') === '1' ? 'product' : 'project',
           price: Number(row.getAttribute('data-sp-pprice')) || 0,
           qty: 1,
           assign: emptyAssign()
         });
         closePriceSheet();
+        ui.perfStaffKey = '';
         paintS17();
+        toast('已添加「' + addName + '」');
       }
     });
 
