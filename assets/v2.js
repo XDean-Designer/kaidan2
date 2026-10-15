@@ -1697,9 +1697,7 @@
     if (!root || root.getAttribute('data-kpi-wired') === '1') return;
     root.setAttribute('data-kpi-wired', '1');
     var eye = root.querySelector('.vh-kpi__eye');
-    var toggle = root.querySelector('.vh-kpi__toggle');
     var masked = false;
-    var expanded = false;
 
     function applyMask() {
       root.querySelectorAll('[data-kpi-val]').forEach(function (el) {
@@ -1721,28 +1719,16 @@
         applyMask();
       });
     }
-
-    if (toggle) {
-      toggle.addEventListener('click', function (e) {
-        e.preventDefault();
-        expanded = !expanded;
-        root.classList.toggle('is-expanded', expanded);
-        toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-        toggle.setAttribute('aria-label', expanded ? '收起明细' : '展开明细');
-      });
-    }
   }
 
   function wireHome() {
     var bill = $('[data-v2-home="bill"]');
     var card = $('[data-v2-home="card"]');
     var hold = $('[data-v2-home="hold"]');
-    /* R44：首页「开单」→ s4 选择顾客（手工开单链路） */
-    if (bill) bill.onclick = function () { go('s4'); };
-    if (card) card.onclick = function () { toast('演示：暂未接入'); };
-    if (hold) hold.onclick = function () {
-      if (typeof window.openHoldList === 'function') window.openHoldList();
-    };
+    /* 自助归档专用夹：开单 / 开卡 / 挂单仅保留视觉，不进主链路 */
+    if (bill) bill.onclick = function () { toast('本原型仅演示自助归档'); };
+    if (card) card.onclick = function () { toast('本原型仅演示自助归档'); };
+    if (hold) hold.onclick = function () { toast('本原型仅演示自助归档'); };
     wireHomeKpi();
     document.querySelectorAll('#s0 [data-home-toast]').forEach(function (el) {
       el.addEventListener('click', function () {
@@ -1754,15 +1740,14 @@
   }
 
   function patchNav() {
-    /* ?flow=flow-xxx 深链：本次加载就该直接进订单流水层。
-       别再执行下面的「重置回首页」——activate() 现在会先退掉流水层
-       （见 index.html 的 activate 注释），否则深链刚打开就被这一步顶掉。 */
-    var flowDeepLink = false;
-    try { flowDeepLink = /^flow-/.test(new URLSearchParams(location.search).get('flow') || ''); } catch (e) {}
-    if (!flowDeepLink) {
-      if (window.navStack) window.navStack = ['s0'];
-      if (typeof window.activate === 'function') window.activate('s0');
+    /* 自助归档专用夹：忽略 ?flow= 深链，始终落首页（流水侧栏已撤）。 */
+    if (window.navStack) window.navStack = ['s0'];
+    if (typeof window.activate === 'function') window.activate('s0');
+    if (typeof window.exitFlowModule === 'function') {
+      try { window.exitFlowModule(); } catch (e) {}
     }
+    /* 挂单入口统一 toast（保留 openHoldList 符号以免外部报错） */
+    window.openHoldList = function () { toast('本原型仅演示自助归档'); };
     /* R26：散客 / 会员选择统一走 returnFromCustPick（保留本单 / 政策 A） */
     window.pickGuest = function (g) {
       if (window.setGuestGender) window.setGuestGender(g);

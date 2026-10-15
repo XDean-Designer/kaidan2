@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/v2.css">
-<link rel="stylesheet" href="assets/v2-home-pay.css?v=r44b">
-<link rel="stylesheet" href="assets/selfpay.css?v=r44a">
+<link rel="stylesheet" href="assets/v2-home-pay.css?v=r45b">
+<link rel="stylesheet" href="assets/selfpay.css?v=r45b">
 <link rel="stylesheet" href="flow/flow.css?v=recharge38">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -2215,57 +2215,20 @@
 <div class="site-nav-scrim" id="siteNavScrim" aria-hidden="true"></div>
 <aside class="site-nav" id="siteNav">
   <div class="nav-brand">
-    <div class="t">RTB 开单结账2.0</div>
-    <div class="s">高保真交互原型</div>
+    <div class="t">RTB 自助订单归档</div>
+    <div class="s">专用原型 · 主链路见「开单结账-主链路完整版」</div>
   </div>
   <div class="nav-group">
-    <div class="g-t">主链路</div>
+    <div class="g-t">自助归档</div>
     <button class="nav-item on" data-target="s0" onclick="go('s0')"><span class="idx">0</span>首页</button>
     <div class="nav-arrow">↓</div>
     <button class="nav-item" data-target="s16" onclick="go('s16')"><span class="idx">16</span>自助订单</button>
-    <div class="nav-arrow">↓</div>
-    <button class="nav-item" data-target="s4" onclick="go('s4')"><span class="idx">4</span>选择顾客</button>
-    <div class="nav-arrow">↓</div>
-    <button class="nav-item" data-target="s1" onclick="go('s1')"><span class="idx">1</span>开单（散客）</button>
-    <button class="nav-item" data-target="s5" onclick="go('s5')"><span class="idx">5</span>开单（会员）</button>
-    <div class="nav-arrow">↓</div>
-    <button class="nav-item" data-target="s6" onclick="go('s6')"><span class="idx">6</span>开单结算</button>
-    <div class="nav-arrow">↓</div>
-    <button class="nav-item" data-target="s15" onclick="go('s15')"><span class="idx">15</span>开单成功</button>
+    <button class="nav-item" data-target="s17" onclick="if(window.SelfPay)window.SelfPay.openExpandById('sp-2');else go('s17')"><span class="idx">17</span>补全订单</button>
   </div>
   <div class="nav-group">
-    <div class="g-t">直接收款</div>
-    <button class="nav-item" data-target="s2" onclick="go('s2')"><span class="idx">2</span>直接收款</button>
-    <button class="nav-item" data-target="s3" onclick="go('s3')"><span class="idx">3</span>收款</button>
-    <button class="nav-item" data-target="s7" onclick="goQuickCheckout(true)"><span class="idx">7</span>开单结算</button>
-  </div>
-  <div class="nav-group">
-    <div class="g-t">订单流水</div>
-    <button type="button" class="nav-item" data-flow="flow-list"><span class="idx">1</span>门店流水</button>
-    <button type="button" class="nav-item" data-flow="flow-detail"><span class="idx">2</span>订单详情</button>
-    <button type="button" class="nav-item" data-flow="flow-refund"><span class="idx">3</span>选择退款</button>
-    <button type="button" class="nav-item" data-flow="flow-refund-log"><span class="idx">4</span>退款记录</button>
-    <button type="button" class="nav-item" data-flow="flow-refund-log-detail"><span class="idx">5</span>退款详情</button>
-    <button type="button" class="nav-item" data-flow="flow-edit"><span class="idx">6</span>修改订单</button>
-    <button type="button" class="nav-item" data-flow="flow-edit-log"><span class="idx">7</span>修改记录</button>
-    <button type="button" class="nav-item" data-flow="flow-edit-add"><span class="idx">8</span>添加项</button>
-    <button type="button" class="nav-item" data-flow="flow-edit-item"><span class="idx">9</span>编辑项目</button>
-    <button type="button" class="nav-item" data-flow="flow-diff-collect"><span class="idx">10</span>补收差价</button>
-    <button type="button" class="nav-item" data-flow="flow-diff-refund"><span class="idx">11</span>退还差价</button>
-  </div>
-  <div class="nav-group">
-    <div class="g-t">逻辑补充</div>
-    <button class="nav-item" onclick="openBenPickSheet(null)"><span class="idx">12</span>选择权益</button>
-    <button class="nav-item" onclick="openCouponPickSheet()"><span class="idx">13</span>选择优惠券</button>
-    <button class="nav-item" data-target="s14" onclick="openHoldList()"><span class="idx">14</span>挂单列表</button>
-    <button class="nav-item" onclick="demoStaffPick({station:true,extra:true,expand12:false})"><span class="idx">S1</span>员工·按工位+指定·5人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:true,extra:true,expand12:true,openPlus:true})"><span class="idx">S2</span>员工·按工位+指定·12人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:true,extra:false,expand12:false})"><span class="idx">S3</span>员工·按工位无指定·5人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:true,extra:false,expand12:true,openPlus:true})"><span class="idx">S4</span>员工·按工位无指定·12人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:false,extra:true,expand12:false})"><span class="idx">S5</span>员工·不分工位+指定·5人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:false,extra:true,expand12:true,openPlus:true})"><span class="idx">S6</span>员工·不分工位+指定·12人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:false,extra:false,expand12:false})"><span class="idx">S7</span>员工·点选即勾选·5人</button>
-    <button class="nav-item" onclick="demoStaffPick({station:false,extra:false,expand12:true,openPlus:true})"><span class="idx">S8</span>员工·点选即勾选·12人</button>
+    <div class="g-t">演示 · 分配模式</div>
+    <button type="button" class="nav-item is-alloc on" data-sp-alloc="station" onclick="window.SelfPay&&window.SelfPay.setAllocMode('station')"><span class="idx">工</span>按工位（默认）</button>
+    <button type="button" class="nav-item is-alloc" data-sp-alloc="average" onclick="window.SelfPay&&window.SelfPay.setAllocMode('average')"><span class="idx">均</span>平均分配</button>
   </div>
   <div class="nav-group grow">
     <div class="g-t">文档</div>
@@ -2323,41 +2286,28 @@
               <div class="vh-kpi__num is-blue" data-kpi-val="1260">1260</div>
             </div>
           </div>
-          <button type="button" class="vh-kpi__toggle" aria-expanded="false" aria-label="展开明细">
-            <img class="vh-kpi__toggle-ico" src="assets/home/kpi-chevron.svg" alt="">
-          </button>
-          <div class="vh-kpi__sub-panel">
-            <div class="vh-kpi__sub-inner">
-              <div class="vh-kpi__sub">
-                <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">现金(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="3600">3600</div></div>
-                <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">卡付(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="2900">2900</div></div>
-                <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">团购(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="1120">1120</div></div>
-                <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">签单(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="800">800</div></div>
-              </div>
-            </div>
+          <div class="vh-kpi__sub">
+            <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">现金(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="3600">3600</div></div>
+            <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">卡付(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="2900">2900</div></div>
+            <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">团购(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="1120">1120</div></div>
+            <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">签单(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="800">800</div></div>
           </div>
         </section>
 
         <!-- 自助订单横滑：个人业绩下方、开单/开卡上方 -->
-        <div class="vh-sp-strip" id="spHomeStrip" aria-label="待归档自助订单"></div>
+        <div class="vh-sp-strip-host" id="spHomeStripHost">
+          <div class="vh-sp-strip" id="spHomeStrip" aria-label="待归档自助订单"></div>
+        </div>
 
-        <section class="vh-actions" aria-label="快捷开单">
-          <div class="vh-actions__row">
-            <button type="button" class="vh-act-img" data-v2-home="bill" aria-label="开单">
-              <img src="assets/home/btn-bill.png" alt="开单">
-            </button>
-            <button type="button" class="vh-act-img" data-v2-home="card" aria-label="开卡">
-              <img src="assets/home/btn-card.png" alt="开卡">
-            </button>
-          </div>
-          <div class="vh-quick">
-            <button type="button" class="vh-quick__item" data-home-toast="验券"><img src="assets/home/quick-coupon.svg" alt=""><span>验券</span></button>
-            <button type="button" class="vh-quick__item" data-home-toast="预约"><img src="assets/home/quick-book.svg" alt=""><span>预约</span></button>
-            <button type="button" class="vh-quick__item" data-v2-home="hold"><img src="assets/home/quick-hold.svg" alt=""><span>挂单</span></button>
-            <button type="button" class="vh-quick__item" data-home-toast="会员卡"><img src="assets/home/quick-member.svg" alt=""><span>会员卡</span></button>
-            <button type="button" class="vh-quick__item" data-home-toast="优惠券"><img src="assets/home/quick-promo.svg" alt=""><span>优惠券</span></button>
-          </div>
-          <div class="vh-quick__dots" aria-hidden="true"></div>
+        <section class="vh-actions vh-actions--shot" aria-label="快捷开单">
+          <img class="vh-actions__shot" src="assets/home/actions-card.png" alt="" draggable="false">
+          <button type="button" class="vh-hot vh-hot--bill" data-v2-home="bill" aria-label="开单"></button>
+          <button type="button" class="vh-hot vh-hot--card" data-v2-home="card" aria-label="开卡"></button>
+          <button type="button" class="vh-hot vh-hot--q1" data-home-toast="验券" aria-label="验券"></button>
+          <button type="button" class="vh-hot vh-hot--q2" data-home-toast="预约" aria-label="预约"></button>
+          <button type="button" class="vh-hot vh-hot--q3" data-v2-home="hold" aria-label="挂单"></button>
+          <button type="button" class="vh-hot vh-hot--q4" data-home-toast="会员卡" aria-label="会员卡"></button>
+          <button type="button" class="vh-hot vh-hot--q5" data-home-toast="优惠券" aria-label="优惠券"></button>
         </section>
 
         <section class="vh-biz" aria-label="经营数据">
@@ -3846,7 +3796,19 @@
     </div>
   </div>
 
-  <!-- 自助订单 · 原地放大 / 作废确认（挂在 #frame，首页与 s16 共用） -->
+  <!-- ============ s17 补全订单（全屏 · R45） ============ -->
+  <div class="screen" id="s17" data-name="补全订单">
+    <div class="nav-bar">
+      <button type="button" class="btn-back" id="s17Back" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
+      <div class="title" id="s17Title">补全订单</div>
+    </div>
+    <div class="s17-body" id="s17Scroll"></div>
+    <div class="s17-bar" id="s17Bar">
+      <button type="button" class="btn-main" id="s17ArchiveBtn">完成归档</button>
+    </div>
+  </div>
+
+  <!-- 自助订单 · 旧 FLIP 层保留 DOM 供兼容，R45 不再打开 -->
   <div class="sp-expand" id="spExpandRoot" hidden>
     <div class="sp-expand__mask" id="spExpandMask"></div>
     <div class="sp-expand__card" id="spExpandCard" role="dialog" aria-label="补全订单">
@@ -4087,14 +4049,26 @@
     </div>
   </div>
 
-  <!-- 自助买单 · 价目表（与开单 v2 同款 Tab/分组/列表） -->
+  <!-- 自助买单 · 价目表（与开单 v2 同款 Tab/分组/列表）+ 快捷开单入口 -->
   <div class="addsheet-mask" id="spPriceMask" onclick="if(event.target===this&&window.SelfPay)window.SelfPay.closePriceSheet()">
     <div class="addsheet sp-price-sheet" role="dialog" aria-label="添加项目产品">
       <div class="addsheet__head">
         <div class="addsheet__title">添加项目/产品</div>
+        <button type="button" class="sp-price-quick" id="spPriceQuick" data-sp-price-quick>快捷开单</button>
         <button type="button" class="sp-price-close" id="spPriceClose" aria-label="关闭">×</button>
       </div>
       <div class="addsheet__body sp-price-body" id="spPriceBody"></div>
+    </div>
+  </div>
+
+  <!-- 自助归档 · 选员工（左名 / 右点客） -->
+  <div class="addsheet-mask" id="spPickStaffMask" onclick="if(event.target===this&&window.SelfPay)window.SelfPay.closePickStaff()">
+    <div class="addsheet" role="dialog" aria-label="选择员工">
+      <div class="addsheet__head">
+        <div class="addsheet__title" id="spPickStaffTitle">选择员工</div>
+        <button type="button" class="sp-price-close" id="spPickStaffClose" aria-label="关闭">×</button>
+      </div>
+      <div class="addsheet__body" id="spPickStaffBody"></div>
     </div>
   </div>
 
@@ -4268,6 +4242,15 @@
 
   <script>
     var navStack = ['s0'];
+    /* 本夹范围：仅自助归档（s0 / s16）。开单主链路 + 流水侧栏已冻结到「开单结账-主链路完整版」。
+       DOM/共用 sheet 仍保留，供补全价目/员工/日期与归档写流水桥接。 */
+    var SCOPE_ALLOWED = { s0: true, s16: true, s17: true };
+    var SCOPE_TOAST = '本原型仅演示自助归档';
+    function scopeBlock(id) {
+      if (SCOPE_ALLOWED[id]) return false;
+      if (typeof toast === 'function') toast(SCOPE_TOAST);
+      return true;
+    }
 
     function activate(id) {
       /* 【必须】先把订单流水层收掉：流水模块（#flowModuleRoot）是盖在 #frame 上的整层
@@ -4275,6 +4258,7 @@
          把所有宿主屏 visibility:hidden。只切 .active 不退出流水层，宿主屏依旧被挡在下面，
          表现就是「左侧导航主链路 / 直接收款点了没反应」。 */
       if (typeof window.exitFlowModule === 'function') window.exitFlowModule();
+      if (!document.getElementById(id)) id = 's0';
       document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
       document.getElementById(id).classList.add('active');
       document.querySelectorAll('.site-nav .nav-item').forEach(function(n){
@@ -4285,6 +4269,7 @@
     }
 
     function go(id) {
+      if (scopeBlock(id)) return;
       if (navStack[navStack.length - 1] !== id) navStack.push(id);
       activate(id);
       if (id === 's6') renderCo();
@@ -8241,7 +8226,7 @@
     else { go(h); }
   })();
 </script>
-<script src="assets/v2.js?v=r44a"></script>
+<script src="assets/v2.js?v=r45b"></script>
 <script>
 /* ===== 手机预览模式：全屏真机区 + 左缘右滑唤出链路导航 ===== */
 (function () {
@@ -9531,6 +9516,6 @@ html.capture-figma #toast { display:none !important; }
 <script src="flow/flow-keypad.js"></script>
 <script src="flow/flow.js"></script>
 <script src="flow/flow-bridge.js"></script>
-<script src="assets/selfpay.js?v=r44a"></script>
+<script src="assets/selfpay.js?v=r45b"></script>
 </body>
 </html>

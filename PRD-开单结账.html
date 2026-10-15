@@ -91,8 +91,11 @@
 
 <div class="main">
 
-<h1>PRD：开单结账2.0 <span class="tag">v2.0-draft · R44c · 业绩折叠与按钮尺寸</span></h1>
-<p>（散客开单 · 会员开单 · 直接收款 · 商户端）</p>
+<h1>PRD：开单结账2.0 <span class="tag">v2.0-draft · R45 · 自助归档全屏补全</span></h1>
+<p>（本夹范围：自助订单归档 · 商户端首页 / s16 / s17）</p>
+<p class="note"><b>R45b 首页修补（2026-10-15）</b>：① 个人业绩取消折叠，4 字段常显，眼睛隐私保留。② 横滑滚动改挂 <code>.vh-sp-strip-host</code>。③ 开单区整卡切图 <code>actions-card.png</code>（来源 <code>首页切图/Frame 1321315846.png</code>）+ 透明热区。④ s17 补全页样式同步原 <code>#spExpandCard .spf-*</code>。未跑 CDP；未推送。</p>
+<p class="note"><b>R45 票卡横滑 + 全屏补全（2026-10-15）</b>：① 修横滑裁切；票卡对齐 Figma <code>194:93</code>（首页+s16）；「会」橙/「散」蓝；右侧「更多」→s16。② 补全改为全屏 <b>s17</b>（push，无 FLIP）；删关闭/作废/单号·开单人·归档人；底栏「完成归档」+安全区。③ 消费内容去两段 Tab；添加→价目 sheet（复用开单）+「快捷开单」；快捷后订单级员工槽。④ 逐项员工：侧栏切换按工位/平均；工位三行每行最多3人；平均最多5人；选人 sheet 左名右点客；无员工可归档并 toast。⑤ 持卡默认折叠。主链路仍见冻结夹。入口：<code>开单结账2.0/index.html</code>。未跑 CDP；未推送。</p>
+<p class="note"><b>R45prep 范围拆分（2026-10-15）</b>：① 完整开单+流水原型已冻结至 <code>开单结账-主链路完整版/</code>（commit <code>b815f29</code>，已去 origin）。② 本夹侧栏仅保留首页 / 自助订单；主链路屏与流水侧栏入口隐藏；首页开单·开卡·挂单点击 toast「本原型仅演示自助归档」。③ 价目/员工/日期等共用 DOM 与 <code>flow/</code> 实现仍保留，供补全与归档桥接。</p>
 <p class="note"><b>R44c 开单/开卡尺寸 + 个人业绩折叠/隐私（2026-10-15）</b>：① 开单/开卡固定 <b>165×74</b>、间距 12。② 眼睛 = 金额隐私（开眼明文 / 闭眼 <code>****</code>，图标 <code>eye.svg</code> ↔ <code>eye-closed.svg</code> · Figma <code>306:824</code>）。③ 4 字段（现金/卡付/团购/签单）默认折叠；「业绩/提成」下无文字箭头条展开/收起，约 200ms；隐私与折叠互不影响。入口：<code>开单结账2.0/index.html</code>。未跑 CDP（仅语法自检）；未提交。</p>
 <p class="note"><b>R44 首页 HTML 还原 + 自助订单横滑（2026-10-15）</b>：① 首页「开单」→ <b>s4</b>；去角标。② s0 整页 HTML 还原（Figma 首页-终）。③ 个人业绩下横滑待归档（最多 5 +「更多」）；序号自 100；会/散；无标题行。④「更多」/侧栏 → s16 标题「自助订单」，无 Tab / 无手工开单，保留日期·搜索·筛选。⑤ 首页卡与列表卡 FLIP 放大（层挂 <code>#frame</code>）。<b>未跑 CDP</b>（仅语法自检）。入口：<code>开单结账2.0/index.html</code>。</p>
 <p class="note"><b>R44b 首页切图精修（2026-10-15）</b>：红头图 / 开单·开卡整图按钮 / 底部悬浮 Tab 用 <code>首页切图</code> PNG；快捷五图标按 Figma <code>532:525</code> SVG；店头按 <code>532:432</code>。资源 <code>assets/home/</code>。</p>
@@ -497,7 +500,7 @@
 </ol>
 <table>
   <tr><th>字段</th><th>内容</th></tr>
-  <tr><td>文档版本</td><td>v2.0-draft（R44c · 2026-10-15；开单/开卡 165×74 + 业绩折叠/隐私）</td></tr>
+  <tr><td>文档版本</td><td>v2.0-draft（R45 · 2026-10-15；票卡横滑 + s17 全屏补全）</td></tr>
   <tr><td>日期</td><td>2026-09-24</td></tr>
   <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code></td></tr>
   <tr><td>画布</td><td>390 × 844</td></tr>
