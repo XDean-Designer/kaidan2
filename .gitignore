@@ -3,3 +3,18 @@
 # 开发期脚手架（截图 / 探针页 / 校验页 / 一次性脚本）——不属于交付物
 # 交付物只有：index.html、PRD-开单结账.md、PRD-开单结账.html、assets/
 _*
+
+# 开发期日志与 capture 中间产物
+*.log
+figma-capture.*.json
+figma-part*.json
+# 例外：capture 清单本身跟版本走
+!figma-capture.manifest.json
+
+# 一次性脚本与校验 / 探针页
+*.mjs
+prd-confirm-quiz.html
+
+# 开发用参考截图（raw / ref），非交付资源
+assets/**/raw*.png
+assets/**/ref.png
