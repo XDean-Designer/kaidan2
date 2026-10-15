@@ -1,27 +1,132 @@
-/* 自助买单 · s16 前置页 + 原地放大补全卡 */
+/* 自助订单 · s16 列表 + 首页横滑 + 原地放大补全卡（R44） */
 
-/* —— 首页开单角标 —— */
-.v2-home-hots .hot[data-v2-home="bill"] {
-  overflow: visible;
+/* —— 首页横滑卡 —— */
+.vh-sp-empty {
+  flex: none;
+  min-width: 100%;
+  padding: 14px 16px;
+  background: #fff;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #999;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
 }
-.sp-home-badge {
-  position: absolute;
-  top: 4px;
-  right: 8px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 9px;
-  background: #F32F41;
-  color: #fff;
+.vh-sp-card {
+  flex: 0 0 132px;
+  width: 132px;
+  height: 148px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.vh-sp-card:active { transform: scale(.98); opacity: .92; }
+.vh-sp-card.is-origin-hide { visibility: hidden; }
+.vh-sp-card__seq {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-variant-numeric: tabular-nums;
+  line-height: 20px;
+  margin-bottom: 4px;
+}
+.vh-sp-card__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 6px;
+}
+.vh-sp-card__time {
   font-size: 11px;
-  font-weight: 600;
-  line-height: 18px;
-  text-align: center;
-  pointer-events: none;
-  box-shadow: 0 1px 3px rgba(243, 47, 65, .35);
+  color: #999;
+  line-height: 16px;
+  white-space: nowrap;
 }
-.sp-home-badge[hidden] { display: none !important; }
+.vh-sp-card__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 20px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vh-sp-card__item {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #666;
+  line-height: 17px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vh-sp-card__item.is-empty { color: #C7C7CC; }
+.vh-sp-card__amt {
+  margin-top: auto;
+  font-size: 16px;
+  font-weight: 700;
+  color: #F32F41;
+  font-variant-numeric: tabular-nums;
+  line-height: 22px;
+}
+.vh-sp-more {
+  flex: 0 0 56px;
+  width: 56px;
+  height: 148px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  font: inherit;
+  color: #666;
+  margin-right: 12px;
+  -webkit-tap-highlight-color: transparent;
+}
+.vh-sp-more:active { opacity: .88; }
+.vh-sp-more__t { font-size: 13px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .12em; }
+.vh-sp-more svg { width: 16px; height: 16px; color: #999; }
+
+.sp-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  flex: none;
+}
+.sp-tag.is-mem { background: #FFF0E6; color: #FF571A; }
+.sp-tag.is-guest { background: #F0F0F5; color: #8E8E93; }
+
+/* #frame 级放大层 */
+#frame > .sp-expand {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+}
+#frame > #spVoidMask { z-index: 90; }
 
 #s16 { background: #F5F5F7; }
 #s16 .nav-bar .title {
@@ -219,7 +324,7 @@
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(40, 30, 10, .06);
   padding: 10px 8px 10px;
-  min-height: 132px;
+  min-height: 140px;
   cursor: pointer;
   text-align: left;
   font: inherit;
@@ -228,6 +333,22 @@
   box-sizing: border-box;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
+  display: flex;
+  flex-direction: column;
+}
+.sp-slip__seq {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-variant-numeric: tabular-nums;
+  line-height: 18px;
+  margin-bottom: 4px;
+}
+.sp-slip__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
 }
 .sp-slip:active { transform: scale(.98); opacity: .92; }
 .sp-slip.is-origin-hide { visibility: hidden; }

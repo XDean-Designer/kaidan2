@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/v2.css">
-<link rel="stylesheet" href="assets/v2-home-pay.css">
-<link rel="stylesheet" href="assets/selfpay.css?v=r43e">
+<link rel="stylesheet" href="assets/v2-home-pay.css?v=r44b">
+<link rel="stylesheet" href="assets/selfpay.css?v=r44a">
 <link rel="stylesheet" href="flow/flow.css?v=recharge38">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -2222,7 +2222,7 @@
     <div class="g-t">主链路</div>
     <button class="nav-item on" data-target="s0" onclick="go('s0')"><span class="idx">0</span>首页</button>
     <div class="nav-arrow">↓</div>
-    <button class="nav-item" data-target="s16" onclick="go('s16')"><span class="idx">16</span>自助买单</button>
+    <button class="nav-item" data-target="s16" onclick="go('s16')"><span class="idx">16</span>自助订单</button>
     <div class="nav-arrow">↓</div>
     <button class="nav-item" data-target="s4" onclick="go('s4')"><span class="idx">4</span>选择顾客</button>
     <div class="nav-arrow">↓</div>
@@ -2277,33 +2277,118 @@
 </aside>
 <div class="stage">
 <div id="frame">
-  <!-- ============ 首页 s0（截图整图 + 热区） ============ -->
-  <div class="screen active v2-home v2-home--shot" id="s0" data-name="首页">
-    <img class="v2-home-shot" src="assets/home/home-full.png" alt="首页" draggable="false">
-    <div class="v2-home-hots" aria-hidden="false">
-      <!-- 顶栏 -->
-      <button type="button" class="hot" data-home-toast="切店" style="left:12px;top:54px;width:200px;height:44px;" aria-label="门店"></button>
-      <button type="button" class="hot" data-home-toast="工作台" style="left:268px;top:58px;width:36px;height:36px;" aria-label="工作台"></button>
-      <button type="button" class="hot" data-home-toast="扫一扫" style="left:308px;top:58px;width:36px;height:36px;" aria-label="扫一扫"></button>
-      <button type="button" class="hot" data-home-toast="消息" style="left:348px;top:58px;width:36px;height:36px;" aria-label="消息"></button>
-      <!-- 业绩显隐 -->
-      <button type="button" class="hot" data-home-toast="业绩显隐" style="left:340px;top:118px;width:32px;height:28px;" aria-label="业绩显隐"></button>
-      <!-- 开单 / 开卡 -->
-      <button type="button" class="hot" data-v2-home="bill" style="left:12px;top:388px;width:178px;height:72px;" aria-label="开单"></button>
-      <button type="button" class="hot" data-v2-home="card" style="left:200px;top:388px;width:178px;height:72px;" aria-label="开卡"></button>
-      <!-- 快捷：验券 / 预约 / 挂单 / 会员卡 / 优惠 -->
-      <button type="button" class="hot" data-home-toast="验券" style="left:8px;top:488px;width:74px;height:72px;" aria-label="验券"></button>
-      <button type="button" class="hot" data-home-toast="预约" style="left:82px;top:488px;width:74px;height:72px;" aria-label="预约"></button>
-      <button type="button" class="hot" data-v2-home="hold" style="left:156px;top:488px;width:78px;height:72px;" aria-label="挂单"></button>
-      <button type="button" class="hot" data-home-toast="会员卡" style="left:234px;top:488px;width:74px;height:72px;" aria-label="会员卡"></button>
-      <button type="button" class="hot" data-home-toast="优惠" style="left:308px;top:488px;width:74px;height:72px;" aria-label="优惠"></button>
-      <!-- 底 Tab -->
-      <button type="button" class="hot" data-home-toast="首页" style="left:0;top:776px;width:78px;height:68px;" aria-label="首页"></button>
-      <button type="button" class="hot" data-home-toast="客户" style="left:78px;top:776px;width:78px;height:68px;" aria-label="客户"></button>
-      <button type="button" class="hot" data-home-toast="助手" style="left:156px;top:776px;width:78px;height:68px;" aria-label="助手"></button>
-      <button type="button" class="hot" data-home-toast="小店" style="left:234px;top:776px;width:78px;height:68px;" aria-label="小店"></button>
-      <button type="button" class="hot" data-home-toast="获客" style="left:312px;top:776px;width:78px;height:68px;" aria-label="获客"></button>
+  <!-- ============ 首页 s0（切图 + Figma 图标 · R44b） ============ -->
+  <div class="screen active v2-home" id="s0" data-name="首页">
+    <div class="vh-scroll">
+      <div class="vh-hero">
+        <img class="vh-hero__bg" src="assets/home/hero-header.png" alt="" draggable="false">
+        <div class="vh-status">
+          <div class="time">9:41</div>
+          <div class="icons">
+            <img src="assets/ic_cellular.svg" alt="">
+            <img src="assets/ic_wifi.svg" alt="">
+            <img src="assets/ic_battery.svg" alt="">
+          </div>
+        </div>
+        <div class="vh-store">
+          <button type="button" class="vh-store__left" data-home-toast="切店" aria-label="门店">
+            <img class="vh-store__logo" src="assets/home/store-logo.svg" alt="">
+            <span class="vh-store__txt">
+              <span class="vh-store__name">悦己美发沙龙</span>
+              <span class="vh-store__role">店长：张淼</span>
+            </span>
+            <img class="vh-store__chev" src="assets/home/chevron-down.svg" alt="">
+          </button>
+          <div class="vh-store__acts">
+            <button type="button" data-home-toast="工作台" aria-label="工作台"><img src="assets/home/icon-grid.svg" alt=""></button>
+            <button type="button" data-home-toast="扫一扫" aria-label="扫一扫"><img src="assets/home/icon-scan.svg" alt=""></button>
+            <button type="button" data-home-toast="消息" aria-label="消息"><img src="assets/home/icon-bell.svg" alt=""></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="vh-body">
+        <section class="vh-kpi" aria-label="个人业绩">
+          <div class="vh-kpi__hd">
+            <div class="vh-kpi__title">个人业绩<em>今日</em></div>
+            <button type="button" class="vh-kpi__eye" aria-label="隐藏金额" aria-pressed="false"><img src="assets/home/eye.svg" alt=""></button>
+          </div>
+          <div class="vh-kpi__main">
+            <div class="vh-kpi__col">
+              <div class="vh-kpi__lab">业绩(¥)</div>
+              <div class="vh-kpi__num is-red" data-kpi-val="8420">8420</div>
+            </div>
+            <div class="vh-kpi__col">
+              <div class="vh-kpi__lab">提成(¥)</div>
+              <div class="vh-kpi__num is-blue" data-kpi-val="1260">1260</div>
+            </div>
+          </div>
+          <button type="button" class="vh-kpi__toggle" aria-expanded="false" aria-label="展开明细">
+            <img class="vh-kpi__toggle-ico" src="assets/home/kpi-chevron.svg" alt="">
+          </button>
+          <div class="vh-kpi__sub-panel">
+            <div class="vh-kpi__sub-inner">
+              <div class="vh-kpi__sub">
+                <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">现金(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="3600">3600</div></div>
+                <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">卡付(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="2900">2900</div></div>
+                <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">团购(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="1120">1120</div></div>
+                <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">签单(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="800">800</div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 自助订单横滑：个人业绩下方、开单/开卡上方 -->
+        <div class="vh-sp-strip" id="spHomeStrip" aria-label="待归档自助订单"></div>
+
+        <section class="vh-actions" aria-label="快捷开单">
+          <div class="vh-actions__row">
+            <button type="button" class="vh-act-img" data-v2-home="bill" aria-label="开单">
+              <img src="assets/home/btn-bill.png" alt="开单">
+            </button>
+            <button type="button" class="vh-act-img" data-v2-home="card" aria-label="开卡">
+              <img src="assets/home/btn-card.png" alt="开卡">
+            </button>
+          </div>
+          <div class="vh-quick">
+            <button type="button" class="vh-quick__item" data-home-toast="验券"><img src="assets/home/quick-coupon.svg" alt=""><span>验券</span></button>
+            <button type="button" class="vh-quick__item" data-home-toast="预约"><img src="assets/home/quick-book.svg" alt=""><span>预约</span></button>
+            <button type="button" class="vh-quick__item" data-v2-home="hold"><img src="assets/home/quick-hold.svg" alt=""><span>挂单</span></button>
+            <button type="button" class="vh-quick__item" data-home-toast="会员卡"><img src="assets/home/quick-member.svg" alt=""><span>会员卡</span></button>
+            <button type="button" class="vh-quick__item" data-home-toast="优惠券"><img src="assets/home/quick-promo.svg" alt=""><span>优惠券</span></button>
+          </div>
+          <div class="vh-quick__dots" aria-hidden="true"></div>
+        </section>
+
+        <section class="vh-biz" aria-label="经营数据">
+          <div class="vh-biz__hd">经营数据</div>
+          <div class="vh-biz__sec-lab">门店业绩</div>
+          <div class="vh-biz__metrics">
+            <div class="vh-biz__m"><div class="vh-biz__m-lab">劳动业绩(¥)</div><div class="vh-biz__m-num">9990</div></div>
+            <div class="vh-biz__m"><div class="vh-biz__m-lab">产品业绩(¥)</div><div class="vh-biz__m-num">7170</div></div>
+            <div class="vh-biz__m"><div class="vh-biz__m-lab">卡业绩(¥)</div><div class="vh-biz__m-num">2000</div></div>
+          </div>
+          <div class="vh-biz__sec-lab">项目排行</div>
+          <div class="vh-biz__table-hd"><span>项目名称</span><span>项目次数</span><span>金额(¥)</span></div>
+          <div class="vh-biz__row"><span><i class="vh-biz__rank">1</i>洗剪吹造型</span><span>45</span><span>6400</span></div>
+          <div class="vh-biz__row"><span><i class="vh-biz__rank">2</i>头皮深层清洁</span><span>32</span><span>4200</span></div>
+          <div class="vh-biz__row"><span><i class="vh-biz__rank">3</i>烫染护理套餐</span><span>26</span><span>3600</span></div>
+          <div class="vh-biz__row"><span><i class="vh-biz__rank">4</i>蛋白护理</span><span>20</span><span>2800</span></div>
+          <div class="vh-biz__row"><span><i class="vh-biz__rank">5</i>染发固色</span><span>18</span><span>2160</span></div>
+        </section>
+      </div>
     </div>
+
+    <nav class="vh-tabbar" aria-label="底部导航">
+      <img class="vh-tabbar__img" src="assets/home/tabbar-float.png" alt="" draggable="false">
+      <div class="vh-tabbar__hots">
+        <button type="button" data-home-toast="首页" aria-label="首页"></button>
+        <button type="button" data-home-toast="客户" aria-label="客户"></button>
+        <button type="button" data-home-toast="助手" aria-label="助手"></button>
+        <button type="button" data-home-toast="小店" aria-label="小店"></button>
+        <button type="button" data-home-toast="获客" aria-label="获客"></button>
+      </div>
+    </nav>
   </div>
 
   <!-- ============ 页面1 散客开单 ============ -->
@@ -3684,8 +3769,8 @@
     </div>
   </div>
 
-  <!-- ============ 页面16 自助买单前置页（补全=原地放大卡，无 s17） ============ -->
-  <div class="screen" id="s16" data-name="自助买单">
+  <!-- ============ 页面16 自助订单（R44：无 Tab / 无手工开单；补全=原地放大） ============ -->
+  <div class="screen" id="s16" data-name="自助订单">
     <div class="status-bar">
       <div class="time">9:41</div>
       <div class="icons">
@@ -3696,13 +3781,11 @@
     </div>
     <div class="nav-bar">
       <button class="btn-back" type="button" onclick="go('s0')"><img src="assets/ic_back.svg"></button>
-      <div class="title">开单</div>
-      <div class="sp-nav-acts">
-        <button type="button" class="sp-nav-manual" id="spNavManual">手工开单</button>
-      </div>
+      <div class="title">自助订单</div>
     </div>
     <div class="sp-body">
-      <div class="sp-tabs" role="tablist">
+      <!-- R44：隐藏已处理/已作废 Tab（保留节点供归档飞点兜底） -->
+      <div class="sp-tabs" role="tablist" hidden>
         <button type="button" class="sp-tabs__btn is-on" data-sp-tab="pending" role="tab">待处理 <span class="sp-tabs__n">(0)</span></button>
         <button type="button" class="sp-tabs__btn" data-sp-tab="done" id="spTabDone" role="tab">已处理</button>
         <button type="button" class="sp-tabs__btn" data-sp-tab="voided" role="tab">已作废</button>
@@ -3722,26 +3805,6 @@
       </div>
       <div class="sp-void-hint" id="spVoidHint" hidden>作废单将于 7 天后清除</div>
       <div class="sp-grid-wrap" id="spGridWrap"></div>
-    </div>
-
-    <!-- 原地放大编辑 / 只读大卡 -->
-    <div class="sp-expand" id="spExpandRoot" hidden>
-      <div class="sp-expand__mask" id="spExpandMask"></div>
-      <div class="sp-expand__card" id="spExpandCard" role="dialog" aria-label="补全订单">
-        <div class="sp-expand__hd">
-          <button type="button" class="sp-expand__close" id="spExpandClose" aria-label="关闭">
-            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M14 6L6 14M14 14L6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-          <div class="sp-expand__title" id="spExpandTitle">补全订单</div>
-          <button type="button" class="sp-expand__void" id="spExpandVoid">作废</button>
-        </div>
-        <div class="sp-expand__scroll" id="spExpandScroll"></div>
-        <div class="sp-expand__ft" id="spExpandFt">
-          <button type="button" class="btn-main" id="spArchiveBtn">完成归档</button>
-        </div>
-        <div class="sp-expand__stamp" id="spExpandStamp" hidden aria-hidden="true"></div>
-      </div>
-      <div class="sp-fly-dot" id="spFlyDot" hidden aria-hidden="true"></div>
     </div>
 
     <div class="sp-mask" id="spFilterMask">
@@ -3781,18 +3844,36 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="sp-mask" id="spVoidMask">
-      <div class="sp-dialog" role="dialog" aria-label="确认作废">
-        <div class="sp-dialog__t">确认作废？</div>
-        <div class="sp-dialog__b">作废后将回滚已扣卡次/券等权益，单据进入「已作废」，满 7 天清除。待处理小单子尚未进流水，不作订单退款。</div>
-        <div class="sp-dialog__acts">
-          <button type="button" class="sec" data-sp-close="spVoidMask">取消</button>
-          <button type="button" class="danger" id="spVoidConfirm">确认作废</button>
-        </div>
+  <!-- 自助订单 · 原地放大 / 作废确认（挂在 #frame，首页与 s16 共用） -->
+  <div class="sp-expand" id="spExpandRoot" hidden>
+    <div class="sp-expand__mask" id="spExpandMask"></div>
+    <div class="sp-expand__card" id="spExpandCard" role="dialog" aria-label="补全订单">
+      <div class="sp-expand__hd">
+        <button type="button" class="sp-expand__close" id="spExpandClose" aria-label="关闭">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M14 6L6 14M14 14L6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <div class="sp-expand__title" id="spExpandTitle">补全订单</div>
+        <button type="button" class="sp-expand__void" id="spExpandVoid">作废</button>
+      </div>
+      <div class="sp-expand__scroll" id="spExpandScroll"></div>
+      <div class="sp-expand__ft" id="spExpandFt">
+        <button type="button" class="btn-main" id="spArchiveBtn">完成归档</button>
+      </div>
+      <div class="sp-expand__stamp" id="spExpandStamp" hidden aria-hidden="true"></div>
+    </div>
+    <div class="sp-fly-dot" id="spFlyDot" hidden aria-hidden="true"></div>
+  </div>
+  <div class="sp-mask" id="spVoidMask">
+    <div class="sp-dialog" role="dialog" aria-label="确认作废">
+      <div class="sp-dialog__t">确认作废？</div>
+      <div class="sp-dialog__b">作废后将回滚已扣卡次/券等权益。待归档小单子尚未进流水，不作订单退款。</div>
+      <div class="sp-dialog__acts">
+        <button type="button" class="sec" data-sp-close="spVoidMask">取消</button>
+        <button type="button" class="danger" id="spVoidConfirm">确认作废</button>
       </div>
     </div>
-
   </div>
 
   <!-- ============ 选择权益（R13：由整屏页 s12 改为底部 sheet，单选，点中即生效并收起） ============ -->
@@ -8160,7 +8241,7 @@
     else { go(h); }
   })();
 </script>
-<script src="assets/v2.js?v=r43d"></script>
+<script src="assets/v2.js?v=r44a"></script>
 <script>
 /* ===== 手机预览模式：全屏真机区 + 左缘右滑唤出链路导航 ===== */
 (function () {
@@ -9450,6 +9531,6 @@ html.capture-figma #toast { display:none !important; }
 <script src="flow/flow-keypad.js"></script>
 <script src="flow/flow.js"></script>
 <script src="flow/flow-bridge.js"></script>
-<script src="assets/selfpay.js?v=r43e"></script>
+<script src="assets/selfpay.js?v=r44a"></script>
 </body>
 </html>

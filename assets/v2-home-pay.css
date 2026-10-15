@@ -1,32 +1,307 @@
-/* —— 首页：截图整图 + 透明热区 —— */
-.v2-home--shot {
+/* —— 首页 s0：HTML 还原（对齐 Figma 首页-终） —— */
+#s0.v2-home {
   background: #f5f6fa;
   overflow: hidden;
+  display: none;
 }
-.v2-home-shot {
+#s0.v2-home.active { display: flex; flex-direction: column; }
+.vh-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 100px;
+  position: relative;
+}
+.vh-hero {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: #E60012;
+}
+.vh-hero__bg {
   position: absolute;
   left: 0; top: 0;
-  width: 390px; height: 844px;
-  object-fit: fill;
+  width: 390px; height: 220px;
+  object-fit: cover;
+  object-position: center top;
   pointer-events: none;
   user-select: none;
   z-index: 1;
 }
-.v2-home-hots {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
+.vh-status {
+  position: absolute; left: 0; right: 0; top: 0;
+  height: 53px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 18px 26px 0 27px;
+  color: #fff; z-index: 2;
 }
-.v2-home-hots .hot {
-  position: absolute;
-  margin: 0; padding: 0; border: 0;
-  background: transparent;
-  cursor: pointer;
+.vh-status .time {
+  font-size: 17px; font-weight: 600; letter-spacing: -.4px; line-height: 21px;
+}
+.vh-status .icons { display: flex; align-items: center; gap: 4px; height: 15px; margin-top: 2px; }
+.vh-status .icons img { height: 13px; display: block; filter: brightness(0) invert(1); }
+.vh-store {
+  position: absolute; left: 20px; right: 20px; top: 57px;
+  height: 37px; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.vh-store__left {
+  display: flex; align-items: flex-start; gap: 6px;
+  border: 0; background: transparent; padding: 0; cursor: pointer;
+  color: #fff; font: inherit; text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  max-width: 220px;
+}
+.vh-store__logo {
+  width: 36px; height: 36px; border-radius: 50%;
+  object-fit: contain; flex: none;
+}
+.vh-store__txt {
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 0; min-width: 0;
+}
+.vh-store__name {
+  font-size: 14px; font-weight: 500; line-height: 20px;
+  white-space: nowrap;
+}
+.vh-store__role {
+  font-size: 12px; font-weight: 600; line-height: 17px;
+  color: rgba(255,255,255,.85);
+  white-space: nowrap;
+}
+.vh-store__chev {
+  width: 16px; height: 16px; flex: none; margin-top: 2px;
+}
+.vh-store__acts { display: flex; align-items: center; gap: 20px; }
+.vh-store__acts button {
+  width: 20px; height: 20px; border: 0; padding: 0;
+  background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.vh-store__acts img {
+  width: 20px; height: 20px; display: block;
+  /* Figma 导出已是白色描边，不再 invert */
+}
+
+.vh-body { position: relative; margin-top: -90px; padding: 0 12px; z-index: 3; }
+
+.vh-kpi {
+  background: linear-gradient(180deg, rgba(255,255,255,.88) 0%, #fff 40%);
+  border: 1px solid #fff;
+  border-radius: 16px;
+  padding: 16px 12px 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.vh-kpi__hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 12px 12px; border-bottom: .5px solid rgba(60,60,67,.12);
+}
+.vh-kpi__title { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+.vh-kpi__title em {
+  font-style: normal; font-size: 12px; font-weight: 400; color: #999; margin-left: 6px;
+}
+.vh-kpi__eye {
+  width: 20px; height: 20px; border: 0; padding: 0; background: transparent; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.v2-home-hots .hot:active {
-  background: rgba(0,0,0,.04);
+.vh-kpi__eye img { width: 20px; height: 20px; display: block; opacity: .45; }
+.vh-kpi__main {
+  display: flex; align-items: flex-start; gap: 0;
+  padding: 14px 12px 4px;
 }
+.vh-kpi__col { flex: 1; min-width: 0; }
+.vh-kpi__col + .vh-kpi__col { padding-left: 24px; border-left: .5px solid rgba(60,60,67,.12); }
+.vh-kpi__lab { font-size: 14px; font-weight: 600; color: #1a1a1a; line-height: 20px; }
+.vh-kpi__num {
+  margin-top: 6px; font-size: 22px; font-weight: 700; line-height: 30px;
+  font-variant-numeric: tabular-nums;
+}
+.vh-kpi__num.is-red { color: #F32F41; }
+.vh-kpi__num.is-blue { color: #4A7BF4; }
+/* 明细折叠条：无文字，仅箭头 */
+.vh-kpi__toggle {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 28px; margin: 0; padding: 0;
+  border: 0; background: transparent; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.vh-kpi__toggle-ico {
+  width: 16px; height: 16px; display: block; opacity: .55;
+  transition: transform .2s ease;
+}
+.vh-kpi.is-expanded .vh-kpi__toggle-ico { transform: rotate(180deg); }
+.vh-kpi__sub-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .2s ease;
+}
+.vh-kpi.is-expanded .vh-kpi__sub-panel { grid-template-rows: 1fr; }
+.vh-kpi__sub-inner { overflow: hidden; min-height: 0; }
+.vh-kpi__sub {
+  display: flex; align-items: stretch; justify-content: space-between;
+  background: #F7F8FC; border-radius: 12px; padding: 16px 4px;
+}
+.vh-kpi__sub-item { flex: 1; text-align: center; min-width: 0; }
+.vh-kpi__sub-lab { font-size: 13px; font-weight: 600; color: #666; line-height: 18px; }
+.vh-kpi__sub-num {
+  margin-top: 6px; font-size: 20px; font-weight: 500; color: #333;
+  font-variant-numeric: tabular-nums; line-height: 28px;
+}
+
+/* 自助订单横滑（JS 注入内容） */
+.vh-sp-strip {
+  margin-top: 12px;
+  margin-right: -12px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 12px 2px 0;
+  scrollbar-width: none;
+}
+.vh-sp-strip::-webkit-scrollbar { display: none; }
+.vh-sp-strip:empty { display: none; }
+
+.vh-actions {
+  margin-top: 12px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 12px 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+.vh-actions__row {
+  display: flex; gap: 12px; justify-content: center;
+}
+.vh-act-img {
+  flex: none;
+  width: 165px; height: 74px;
+  border: 0; padding: 0; background: transparent;
+  cursor: pointer; border-radius: 12px;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 0;
+}
+.vh-act-img:active { opacity: .92; transform: scale(.99); }
+.vh-act-img img {
+  width: 165px; height: 74px; display: block;
+  object-fit: fill;
+  pointer-events: none; user-select: none;
+}
+.vh-quick {
+  margin-top: 18px;
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  gap: 0;
+  padding: 0 2px 8px;
+}
+.vh-quick__item {
+  flex: 0 0 auto;
+  width: 42px;
+  border: 0; background: transparent; padding: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer; font: inherit; color: #1a1a1a;
+}
+.vh-quick__item img {
+  width: 32px; height: 32px; display: block;
+  object-fit: contain;
+}
+.vh-quick__item span { font-size: 14px; line-height: 20px; white-space: nowrap; }
+.vh-quick__dots {
+  margin: 10px auto 0; width: 48px; height: 4px; border-radius: 2px;
+  background: #EDEDED; position: relative; overflow: hidden;
+}
+.vh-quick__dots::after {
+  content: ''; position: absolute; left: 0; top: 0;
+  width: 50%; height: 100%; background: #F32F41; border-radius: 2px;
+}
+
+.vh-biz {
+  margin-top: 12px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 12px 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+.vh-biz__hd {
+  font-size: 16px; font-weight: 600; color: #1a1a1a;
+  padding-bottom: 12px; border-bottom: .5px solid rgba(60,60,67,.12);
+  margin-bottom: 16px;
+}
+.vh-biz__sec-lab {
+  position: relative; display: inline-block;
+  font-size: 12px; font-weight: 600; color: #1a1a1a; line-height: 17px;
+  margin-bottom: 10px;
+}
+.vh-biz__sec-lab::after {
+  content: ''; position: absolute; left: 0; bottom: -2px;
+  width: 100%; height: 6px; background: rgba(243,47,65,.18); border-radius: 2px; z-index: -1;
+}
+.vh-biz__metrics {
+  display: flex; justify-content: space-between;
+  background: #F7F8FC; border-radius: 12px; padding: 16px 12px;
+  margin-bottom: 18px;
+}
+.vh-biz__m { flex: 1; min-width: 0; }
+.vh-biz__m-lab { font-size: 13px; color: #666; line-height: 18px; }
+.vh-biz__m-num {
+  margin-top: 4px; font-size: 20px; font-weight: 600; color: #1a1a1a;
+  font-variant-numeric: tabular-nums; line-height: 28px;
+}
+.vh-biz__table-hd {
+  display: grid; grid-template-columns: 1fr 72px 64px;
+  font-size: 13px; color: #999; padding: 0 0 10px;
+  border-bottom: .5px solid rgba(60,60,67,.12); margin-bottom: 12px;
+}
+.vh-biz__table-hd span:nth-child(2),
+.vh-biz__table-hd span:nth-child(3) { text-align: right; }
+.vh-biz__row {
+  display: grid; grid-template-columns: 1fr 72px 64px;
+  align-items: center; font-size: 13px; color: #1a1a1a;
+  margin-bottom: 14px;
+}
+.vh-biz__row:last-child { margin-bottom: 0; }
+.vh-biz__rank {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 16px; margin-right: 8px;
+  font-size: 11px; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, #FF8A65, #F32F41);
+  border-radius: 3px; vertical-align: 1px;
+}
+.vh-biz__row span:nth-child(2),
+.vh-biz__row span:nth-child(3) {
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+
+.vh-tabbar {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 123px; z-index: 10;
+  pointer-events: none;
+}
+.vh-tabbar__img {
+  position: absolute; left: 0; bottom: 0;
+  width: 390px; height: 123px;
+  object-fit: contain;
+  object-position: bottom center;
+  pointer-events: none;
+  user-select: none;
+}
+.vh-tabbar__hots {
+  pointer-events: auto;
+  position: absolute;
+  left: 23px; right: 23px;
+  bottom: 34px;
+  height: 60px;
+  display: flex; align-items: stretch;
+}
+.vh-tabbar__hots button {
+  flex: 1; border: 0; padding: 0;
+  background: transparent; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.vh-tabbar__hots button:active { background: rgba(0,0,0,.04); }
 
 /* —— 确认支付 sheet —— */
 .pay-sheet-mask {

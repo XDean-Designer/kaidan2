@@ -1692,16 +1692,58 @@
     });
   }
 
+  function wireHomeKpi() {
+    var root = document.querySelector('#s0 .vh-kpi');
+    if (!root || root.getAttribute('data-kpi-wired') === '1') return;
+    root.setAttribute('data-kpi-wired', '1');
+    var eye = root.querySelector('.vh-kpi__eye');
+    var toggle = root.querySelector('.vh-kpi__toggle');
+    var masked = false;
+    var expanded = false;
+
+    function applyMask() {
+      root.querySelectorAll('[data-kpi-val]').forEach(function (el) {
+        el.textContent = masked ? '****' : (el.getAttribute('data-kpi-val') || '');
+      });
+      if (eye) {
+        var img = eye.querySelector('img');
+        if (img) img.src = masked ? 'assets/home/eye-closed.svg' : 'assets/home/eye.svg';
+        eye.setAttribute('aria-pressed', masked ? 'true' : 'false');
+        eye.setAttribute('aria-label', masked ? '显示金额' : '隐藏金额');
+      }
+    }
+
+    if (eye) {
+      eye.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        masked = !masked;
+        applyMask();
+      });
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function (e) {
+        e.preventDefault();
+        expanded = !expanded;
+        root.classList.toggle('is-expanded', expanded);
+        toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        toggle.setAttribute('aria-label', expanded ? '收起明细' : '展开明细');
+      });
+    }
+  }
+
   function wireHome() {
     var bill = $('[data-v2-home="bill"]');
     var card = $('[data-v2-home="card"]');
     var hold = $('[data-v2-home="hold"]');
-    /* R43：首页「开单」→ 自助买单前置页 s16；手工开单仍在 s16 标题栏 → s4 */
-    if (bill) bill.onclick = function () { go('s16'); };
+    /* R44：首页「开单」→ s4 选择顾客（手工开单链路） */
+    if (bill) bill.onclick = function () { go('s4'); };
     if (card) card.onclick = function () { toast('演示：暂未接入'); };
     if (hold) hold.onclick = function () {
       if (typeof window.openHoldList === 'function') window.openHoldList();
     };
+    wireHomeKpi();
     document.querySelectorAll('#s0 [data-home-toast]').forEach(function (el) {
       el.addEventListener('click', function () {
         /* 首页 Tab「首页」本身：无提示 */

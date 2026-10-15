@@ -1,6 +1,6 @@
 /**
- * 自助买单 · s16
- * 待处理小单子 ≠ 订单；点票原地放大编辑；归档绿点飞入「已处理」
+ * 自助订单 · s16（R44）
+ * 首页横滑待归档 + 列表页（无 Tab）；点票对齐 FLIP 放大编辑
  */
 (function () {
   'use strict';
@@ -51,7 +51,7 @@
     var y2 = shiftDay(t, -2);
     return [
       {
-        id: 'sp-1', status: 'pending', dateKey: t, time: '09:18',
+        id: 'sp-1', seq: 100, isMember: true, status: 'pending', dateKey: t, time: '09:18',
         customerName: '林嘉怡', phone: '138****6210',
         avatar: 'assets/avatar_card_female.png',
         cards: '储值卡 美发卡　余额 ¥1,280.00',
@@ -60,7 +60,7 @@
         benefits: '会员折扣 −¥20', slipNo: 'SP202610130018', remark: ''
       },
       {
-        id: 'sp-2', status: 'pending', dateKey: t, time: '10:42',
+        id: 'sp-2', seq: 101, isMember: true, status: 'pending', dateKey: t, time: '10:42',
         customerName: '陈昕然', phone: '186****9033',
         avatar: 'assets/avatar_female3.png',
         cards: '计次卡 染烫10次　余 4 次',
@@ -69,7 +69,7 @@
         benefits: '', slipNo: 'SP202610130042', remark: '顾客备注：补项目'
       },
       {
-        id: 'sp-3', status: 'pending', dateKey: t, time: '11:05',
+        id: 'sp-3', seq: 102, isMember: true, status: 'pending', dateKey: t, time: '11:05',
         customerName: '周雨欣', phone: '159****4412',
         avatar: 'assets/avatar_female2.png',
         cards: '计次卡 洗吹次卡　余 6 次',
@@ -78,7 +78,7 @@
         benefits: '扣次 ×1', slipNo: 'SP202610130055', remark: ''
       },
       {
-        id: 'sp-4', status: 'pending', dateKey: t, time: '13:20',
+        id: 'sp-4', seq: 103, isMember: true, status: 'pending', dateKey: t, time: '13:20',
         customerName: '马婷', phone: '137****7788',
         avatar: 'assets/avatar_card_female.png',
         cards: '折扣卡 超值折扣　8.0 折',
@@ -87,7 +87,7 @@
         benefits: '折扣卡 8 折', slipNo: 'SP202610130088', remark: ''
       },
       {
-        id: 'sp-5', status: 'pending', dateKey: t, time: '14:08',
+        id: 'sp-5', seq: 104, isMember: true, status: 'pending', dateKey: t, time: '14:08',
         customerName: '苏晓萌', phone: '151****2201',
         avatar: 'assets/avatar_female3.png',
         cards: '储值卡 护理卡　余额 ¥560.00',
@@ -99,16 +99,16 @@
         benefits: '', slipNo: 'SP202610130102', remark: ''
       },
       {
-        id: 'sp-6', status: 'pending', dateKey: t, time: '15:33',
+        id: 'sp-6', seq: 105, isMember: false, status: 'pending', dateKey: t, time: '15:33',
         customerName: '何静', phone: '188****6655',
         avatar: 'assets/avatar_card_female.png',
-        cards: '储值卡 美发卡　余额 ¥90.00',
+        cards: '',
         items: [],
         paid: 68, payments: [{ method: '微信', amount: 68 }],
         benefits: '', slipNo: 'SP202610130133', remark: ''
       },
       {
-        id: 'sp-y1', status: 'pending', dateKey: y, time: '16:40',
+        id: 'sp-y1', seq: 106, isMember: true, status: 'pending', dateKey: y, time: '16:40',
         customerName: '蔡雅婷', phone: '139****1100',
         avatar: 'assets/avatar_female2.png',
         cards: '储值卡 美发卡　余额 ¥2,100.00',
@@ -117,16 +117,16 @@
         benefits: '', slipNo: 'SP202610120240', remark: '跨日待处理样例'
       },
       {
-        id: 'sp-y2', status: 'pending', dateKey: y2, time: '11:12',
+        id: 'sp-y2', seq: 107, isMember: false, status: 'pending', dateKey: y2, time: '11:12',
         customerName: '王先生', phone: '136****8899',
         avatar: 'assets/avatar_male2.png',
-        cards: '储值卡 男士卡　余额 ¥500.00',
+        cards: '',
         items: [{ id: 'p2', name: '洗吹', type: 'project', price: 38, qty: 1 }],
         paid: 38, payments: [{ method: '支付宝', amount: 38 }],
         benefits: '', slipNo: 'SP202610110112', remark: ''
       },
       {
-        id: 'sp-d1', status: 'done', dateKey: t, time: '08:50',
+        id: 'sp-d1', seq: 108, isMember: true, status: 'done', dateKey: t, time: '08:50',
         customerName: '黄浩然', phone: '158****3344',
         avatar: 'assets/avatar_male2.png',
         cards: '储值卡 美发卡　余额 ¥800.00',
@@ -137,7 +137,7 @@
         archiver: ARCHIVER, flowOrderId: null
       },
       {
-        id: 'sp-v1', status: 'voided', dateKey: t, time: '09:02',
+        id: 'sp-v1', seq: 109, isMember: true, status: 'voided', dateKey: t, time: '09:02',
         customerName: '邓伟', phone: '177****5566',
         avatar: 'assets/avatar_male2.png',
         cards: '计次卡 洗吹次卡　余 2 次',
@@ -191,24 +191,48 @@
     return slips.find(function (s) { return s.id === id; });
   }
 
+  function pendingSlipsAll() {
+    return slips
+      .filter(function (s) { return s.status === 'pending'; })
+      .sort(function (a, b) { return (Number(a.seq) || 0) - (Number(b.seq) || 0); });
+  }
+  function memberTagHtml(slip) {
+    var mem = !!slip.isMember;
+    return '<span class="sp-tag ' + (mem ? 'is-mem' : 'is-guest') + '">' + (mem ? '会' : '散') + '</span>';
+  }
+  function homeCardHtml(slip) {
+    var empty = !(slip.items && slip.items.length) && slip.contentMode !== 'quick';
+    return (
+      '<button type="button" class="vh-sp-card" data-sp-id="' + slip.id + '">' +
+      '<div class="vh-sp-card__seq">' + escapeHtml(String(slip.seq != null ? slip.seq : '')) + '</div>' +
+      '<div class="vh-sp-card__row">' + memberTagHtml(slip) +
+      '<span class="vh-sp-card__time">' + escapeHtml(slipTimeLabel(slip)) + '</span></div>' +
+      '<div class="vh-sp-card__name">' + escapeHtml(slip.customerName) + '</div>' +
+      '<div class="vh-sp-card__item' + (empty ? ' is-empty' : '') + '">' + escapeHtml(itemSummary(slip)) + '</div>' +
+      '<div class="vh-sp-card__amt">¥' + money(slip.paid) + '</div>' +
+      '</button>'
+    );
+  }
+  function renderHomeStrip() {
+    var el = $('#spHomeStrip');
+    if (!el) return;
+    var list = pendingSlipsAll();
+    if (!list.length) {
+      el.innerHTML = '<div class="vh-sp-empty">暂无待归档订单</div>';
+      return;
+    }
+    var html = '';
+    list.slice(0, 5).forEach(function (slip) { html += homeCardHtml(slip); });
+    html +=
+      '<button type="button" class="vh-sp-more" data-sp-more aria-label="更多">' +
+      '<span class="vh-sp-more__t">更多</span>' + CHEV_RIGHT +
+      '</button>';
+    el.innerHTML = html;
+  }
+  /** R44：去掉开单角标；保留空函数以免外部调用报错 */
   function syncHomeBadge() {
-    var hot = $('[data-v2-home="bill"]');
-    if (!hot) return;
-    var badge = hot.querySelector('.sp-home-badge');
-    if (!badge) {
-      badge = document.createElement('span');
-      badge.className = 'sp-home-badge';
-      badge.setAttribute('aria-hidden', 'true');
-      hot.appendChild(badge);
-    }
-    var n = pendingCount();
-    if (n > 0) {
-      badge.hidden = false;
-      badge.textContent = n > 99 ? '99+' : String(n);
-    } else {
-      badge.hidden = true;
-      badge.textContent = '';
-    }
+    document.querySelectorAll('.sp-home-badge').forEach(function (b) { b.remove(); });
+    renderHomeStrip();
   }
 
   function itemSummary(slip) {
@@ -263,7 +287,8 @@
 
   /** 布局坐标宿主（不受 stage scale 影响） */
   function hostEl() {
-    return document.getElementById('s16') || document.getElementById('frame');
+    var active = document.querySelector('#frame > .screen.active');
+    return active || document.getElementById('frame');
   }
   /** 视觉矩形 → 宿主布局坐标（抵消 transform: scale） */
   function layoutRect(el, host) {
@@ -317,30 +342,17 @@
 
     if (dateEl) dateEl.textContent = dateLabel(ui.dateKey);
     if (filterBtn) filterBtn.classList.toggle('is-on', filterActive());
-    if (hint) hint.hidden = ui.tab !== 'voided';
-
-    $all('.sp-tabs__btn').forEach(function (btn) {
-      var on = btn.getAttribute('data-sp-tab') === ui.tab;
-      btn.classList.toggle('is-on', on);
-      if (btn.getAttribute('data-sp-tab') === 'pending') {
-        var nEl = btn.querySelector('.sp-tabs__n');
-        if (nEl) nEl.textContent = '(' + pendingCount() + ')';
-      }
-    });
+    /* R44：列表仅待归档 */
+    ui.tab = 'pending';
+    if (hint) hint.hidden = true;
 
     var list = listForTab();
     if (!list.length) {
-      var emptyPending = ui.tab === 'pending';
       wrap.innerHTML =
         '<div class="sp-empty">' +
         '<img src="assets/ic_empty.svg" alt="">' +
-        '<div class="sp-empty__t">' +
-        (emptyPending ? '暂无待处理的自助买单' : (ui.tab === 'done' ? '暂无已处理单据' : '暂无已作废单据')) +
-        '</div>' +
-        (emptyPending
-          ? '<div class="sp-empty__s">顾客扫码支付后会出现在这里</div>' +
-            '<button type="button" class="sp-empty__btn" data-sp-manual>手工开单</button>'
-          : '<div class="sp-empty__s">可切换日期或清除筛选后再试</div>') +
+        '<div class="sp-empty__t">暂无待归档订单</div>' +
+        '<div class="sp-empty__s">可切换日期或清除筛选后再试</div>' +
         '</div>';
       return;
     }
@@ -348,24 +360,15 @@
     var html = '<div class="sp-grid">';
     list.forEach(function (slip) {
       var empty = !(slip.items && slip.items.length) && slip.contentMode !== 'quick';
-      var stamp = '';
-      if (slip.status === 'done') {
-        stamp = '<span class="sp-stamp sp-stamp--done">已处理</span>';
-      } else if (slip.status === 'voided') {
-        stamp = '<span class="sp-stamp sp-stamp--void">作废</span>';
-      }
       html +=
-        '<button type="button" class="sp-slip' +
-        (slip.status === 'voided' ? ' is-void' : '') +
-        (slip.status === 'done' ? ' is-done' : '') +
-        '" data-sp-id="' + slip.id + '">' +
-        '<span class="sp-slip__tail">' + String(slip.slipNo || '').slice(-4) + '</span>' +
-        '<div class="sp-slip__time">' + slipTimeLabel(slip) + '</div>' +
+        '<button type="button" class="sp-slip" data-sp-id="' + slip.id + '">' +
+        '<div class="sp-slip__seq">' + escapeHtml(String(slip.seq != null ? slip.seq : '')) + '</div>' +
+        '<div class="sp-slip__meta">' + memberTagHtml(slip) +
+        '<span class="sp-slip__time">' + slipTimeLabel(slip) + '</span></div>' +
         '<div class="sp-slip__name">' + escapeHtml(slip.customerName) + '</div>' +
         '<div class="sp-slip__item' + (empty ? ' is-empty' : '') + '">' +
         escapeHtml(itemSummary(slip)) + '</div>' +
         '<div class="sp-slip__amt">¥' + money(slip.paid) + '</div>' +
-        stamp +
         '</button>';
     });
     html += '</div>';
@@ -630,10 +633,12 @@
     var card = $('#spExpandCard');
     var dot = $('#spFlyDot');
     var doneTab = $('#spTabDone') || $('[data-sp-tab="done"]');
-    if (!root || !card || !dot || !doneTab) {
+    var tabVisible = doneTab && doneTab.offsetParent !== null;
+    if (!root || !card || !dot || !tabVisible) {
       closeExpand(false);
       renderList();
       syncHomeBadge();
+      toast('已归档');
       return;
     }
     ui.animating = true;
@@ -772,7 +777,7 @@
     slip.voidAt = todayKey();
     closeMask('spVoidMask');
     closeExpand(false);
-    ui.tab = 'voided';
+    ui.tab = 'pending';
     renderList();
     syncHomeBadge();
     toast('已作废，权益已回滚');
@@ -891,21 +896,55 @@
     }
   }
 
+  function onExpandClick(e) {
+    if (e.target.closest('#spExpandMask') || e.target.closest('#spExpandClose')) {
+      if (!ui.animating) closeExpand(true);
+      return;
+    }
+    if (e.target.closest('#spExpandVoid')) {
+      openMask('spVoidMask');
+      return;
+    }
+    var mode = e.target.closest('[data-sp-mode]');
+    if (mode && !ui.readonly) {
+      var next = mode.getAttribute('data-sp-mode');
+      if (next === 'quick' && ui.contentMode === 'items' && ui.editItems.length) {
+        if (!window.confirm('切换为快捷开单将清空已选项目/产品，确定？')) return;
+        ui.editItems = [];
+      }
+      ui.contentMode = next;
+      paintExpandContent();
+      return;
+    }
+    if (e.target.closest('[data-sp-cards-toggle]')) {
+      ui.cardsOpen = !ui.cardsOpen;
+      paintExpandContent();
+      return;
+    }
+    if (e.target.closest('[data-sp-add]')) {
+      openPriceSheet();
+      return;
+    }
+    if (e.target.closest('[data-sp-staff-open]')) {
+      openStaffSheet();
+      return;
+    }
+    var del = e.target.closest('[data-sp-del]');
+    if (del) {
+      ui.editItems.splice(Number(del.getAttribute('data-sp-del')), 1);
+      paintExpandContent();
+      return;
+    }
+    if (e.target.closest('#spArchiveBtn')) {
+      archiveCurrent();
+    }
+  }
+
   function wire() {
     var s16 = $('#s16');
     if (!s16) return;
 
     s16.addEventListener('click', function (e) {
-      var tab = e.target.closest('[data-sp-tab]');
-      if (tab && !e.target.closest('#spExpandRoot')) {
-        ui.tab = tab.getAttribute('data-sp-tab');
-        renderList();
-        return;
-      }
-      if (e.target.closest('[data-sp-manual]') || e.target.closest('#spNavManual')) {
-        go('s4');
-        return;
-      }
       if (e.target.closest('#spDateBtn')) {
         openSelfpayDate();
         return;
@@ -919,54 +958,25 @@
         return;
       }
       var slipBtn = e.target.closest('[data-sp-id]');
-      if (slipBtn && !e.target.closest('#spExpandRoot')) {
+      if (slipBtn) {
         openExpand(slipBtn.getAttribute('data-sp-id'), slipBtn);
-        return;
-      }
-
-      /* 放大卡内 */
-      if (e.target.closest('#spExpandMask') || e.target.closest('#spExpandClose')) {
-        if (!ui.animating) closeExpand(true);
-        return;
-      }
-      if (e.target.closest('#spExpandVoid')) {
-        openMask('spVoidMask');
-        return;
-      }
-      var mode = e.target.closest('[data-sp-mode]');
-      if (mode && !ui.readonly) {
-        var next = mode.getAttribute('data-sp-mode');
-        if (next === 'quick' && ui.contentMode === 'items' && ui.editItems.length) {
-          if (!window.confirm('切换为快捷开单将清空已选项目/产品，确定？')) return;
-          ui.editItems = [];
-        }
-        ui.contentMode = next;
-        paintExpandContent();
-        return;
-      }
-      if (e.target.closest('[data-sp-cards-toggle]')) {
-        ui.cardsOpen = !ui.cardsOpen;
-        paintExpandContent();
-        return;
-      }
-      if (e.target.closest('[data-sp-add]')) {
-        openPriceSheet();
-        return;
-      }
-      if (e.target.closest('[data-sp-staff-open]')) {
-        openStaffSheet();
-        return;
-      }
-      var del = e.target.closest('[data-sp-del]');
-      if (del) {
-        ui.editItems.splice(Number(del.getAttribute('data-sp-del')), 1);
-        paintExpandContent();
-        return;
-      }
-      if (e.target.closest('#spArchiveBtn')) {
-        archiveCurrent();
       }
     });
+
+    var expand = $('#spExpandRoot');
+    if (expand) expand.addEventListener('click', onExpandClick);
+
+    var strip = $('#spHomeStrip');
+    if (strip) {
+      strip.addEventListener('click', function (e) {
+        if (e.target.closest('[data-sp-more]')) {
+          go('s16');
+          return;
+        }
+        var btn = e.target.closest('[data-sp-id]');
+        if (btn) openExpand(btn.getAttribute('data-sp-id'), btn);
+      });
+    }
 
     var search = $('#spSearchInput');
     if (search) {
@@ -1052,8 +1062,8 @@
     var orig = fn;
     window.go = function (id) {
       var ret = orig.apply(this, arguments);
-      if (id === 's16') setTimeout(function () { renderList(); syncHomeBadge(); }, 0);
-      if (id === 's0') syncHomeBadge();
+      if (id === 's16') setTimeout(function () { ui.tab = 'pending'; renderList(); }, 0);
+      if (id === 's0') setTimeout(function () { renderHomeStrip(); }, 0);
       if (id === 's17') {
         /* 旧入口兜底：回 s16 */
         setTimeout(function () { orig.call(window, 's16'); }, 0);
@@ -1072,6 +1082,7 @@
     window.SelfPay = {
       pendingCount: pendingCount,
       syncHomeBadge: syncHomeBadge,
+      renderHomeStrip: renderHomeStrip,
       renderList: renderList,
       open: function () { go('s16'); },
       closeStaffSheet: closeStaffSheet,
