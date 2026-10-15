@@ -91,8 +91,9 @@
 
 <div class="main">
 
-<h1>PRD：开单结账2.0 <span class="tag">v2.0-draft · R42 · 左侧导航失效修复</span></h1>
+<h1>PRD：开单结账2.0 <span class="tag">v2.0-draft · R43 · 自助买单原地放大</span></h1>
 <p>（散客开单 · 会员开单 · 直接收款 · 商户端）</p>
+<p class="note"><b>R43 自助买单 / 原地放大补全（2026-10-13）</b>：① 首页「开单」→ <b>s16</b>；「手工开单」白字橙胶囊→s4；无核销。② 点待处理小票 → <b>FLIP 放大 75% 居中大卡</b>编辑；归档绿点飞入「已处理」、仍留待处理；已作废=带灰章只读大卡；小票盖章（已处理绿 / 作废灰）。③ 日期复用开单日历 sheet；筛选金额上下限同行。④ 已移除整页 s17。资源 <code>assets/selfpay.css</code> / <code>assets/selfpay.js</code>。<b>未跑 CDP 自动化验证</b>（仅 JS 语法自检）。入口：<code>开单结账2.0/index.html</code>。</p>
 <p class="note"><b>R42 左侧导航「主链路 / 直接收款」点击失效修复（2026-09-30）</b>：① <b>现象</b>：从侧栏「订单流水」任一入口（或 <code>index.html?flow=…</code> 深链）进入流水层后，再点左侧导航「主链路」「直接收款」的入口<b>全部没反应</b>。② <b>根因</b>：流水模块 <code>#flowModuleRoot</code> 是盖在 <code>#frame</code> 上的整层（<code>z-index:5</code>）并给 <code>#frame</code> 挂 <code>.is-flow-mode</code>（宿主屏 <code>visibility:hidden</code>）；宿主 <code>activate()</code> 只切 <code>.active</code>，<b>从不退出流水层</b>，宿主屏切了也被挡在下面。③ <b>修复</b>：<code>activate()</code> 开头调 <code>window.exitFlowModule()</code>（<code>go()</code> / <code>goBack()</code> / 导航 <code>onclick</code> 全走它）。④ <b>同时修</b>：流水内「返回」调 <code>openWorkbench()</code>，宿主原先落到 <code>openFlowHub()</code>（无此屏）= 死键，现改为「退出流水层 + 回进入流水前的宿主页」。⑤ <b>同时修</b>：<code>assets/v2.js</code> 的 <code>patchNav()</code> 启动重置会顶掉 <code>?flow=</code> 深链，已加判断。纯 JS 连线修复，未改 DOM 结构 / 样式；未提交，待人工检查。</p>
 <p class="note"><b>R41 挂单列表 s14 样式错乱修复（2026-09-30）</b>：① <b>现象</b>：s14 挂单卡的卡头 / 发丝线 / 明细 / 服务员工 / 金额操作行<b>横排挤在一行</b>。② <b>根因</b>：流水模块样式 <code>flow/flow.css</code> 被 <code>index.html</code> <b>全局引入</b>，其中 <code>.hold-list</code> / <code>.hold-card</code> / <code>.hold-card__*</code> 是不带限定符的顶级规则，而 s14 用了<b>同名类</b>，于是 <code>display:flex; align-items:center; gap:8px</code> 把卡片改成了横向 flex 行。③ <b>修复</b>：把流水侧这批规则<b>限定到 <code>#screen-holds</code> 内</b>，并同步改上游源文件 <code>card/demo.html</code>（<code>flow.css</code> 由它生成）。仅样式作用域调整，未改类名 / DOM / JS。未跑自动化脚本、未提交。</p>
 <p class="note"><b>R40 确认支付 sheet 补齐渠道（2026-09-28）</b>：确认支付列表（s6/s7 + 流水差额「选择其他支付方式」）在「口碑」后追加 <b>现金 → 银行卡 → 信用卡 → 经理签单 → 其他平台团购</b>；列表可滚动，灰框填额规则不变。未跑 CDP、未提交。</p>
@@ -493,7 +494,7 @@
 </ol>
 <table>
   <tr><th>字段</th><th>内容</th></tr>
-  <tr><td>文档版本</td><td>v2.0-draft（R42 · 2026-09-30；左侧导航主链路/直接收款失效修复）</td></tr>
+  <tr><td>文档版本</td><td>v2.0-draft（R43 · 2026-10-13；自助买单 s16 原地放大补全）</td></tr>
   <tr><td>日期</td><td>2026-09-24</td></tr>
   <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code></td></tr>
   <tr><td>画布</td><td>390 × 844</td></tr>

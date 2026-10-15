@@ -103,6 +103,8 @@
 
   var billTab = { s1: 'project', s5: 'project' };
   var billGroup = { s1: '全部', s5: '全部' };
+  /* 自助买单补全卡价目表同源数据 */
+  window.__v2Catalog = CATALOG;
 
   var PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
   var CHEV_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
@@ -1694,7 +1696,8 @@
     var bill = $('[data-v2-home="bill"]');
     var card = $('[data-v2-home="card"]');
     var hold = $('[data-v2-home="hold"]');
-    if (bill) bill.onclick = function () { go('s4'); };
+    /* R43：首页「开单」→ 自助买单前置页 s16；手工开单仍在 s16 标题栏 → s4 */
+    if (bill) bill.onclick = function () { go('s16'); };
     if (card) card.onclick = function () { toast('演示：暂未接入'); };
     if (hold) hold.onclick = function () {
       if (typeof window.openHoldList === 'function') window.openHoldList();
@@ -1835,8 +1838,10 @@
   var D_MIN = new Date(dToday.getFullYear(), dToday.getMonth() - 3, dToday.getDate());
   var selDate = new Date(dToday.getFullYear(), dToday.getMonth(), dToday.getDate());
   var viewMonth = new Date(selDate.getFullYear(), selDate.getMonth(), 1);
-  /* 日期浮层的「来源」：null = 标题栏下拉 / 成功页改日期；'co' = 结算页「更多 → 选日期」 */
+  /* 日期浮层的「来源」：null = 标题栏下拉 / 成功页改日期；'co' = 结算页「更多 → 选日期」；
+     'selfpay' = 自助买单 s16 筛选日期（不写全局开单日期） */
   var datePopCtx = null;
+  var selDateBackup = null;
 
   function dSame(a, b) {
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -1894,32 +1899,62 @@
   /* asSheet=true：以底部 sheet 形态呈现（成功页「改日期」/ 结算页「更多 → 选日期」）；
      缺省为标题栏日期控件下拉形态。
      ctx 记录「谁打开的」：'co' = 结算页选日期（只写本单日期），其余 = 成功页（写开单日期）。 */
-  function openDatePop(asSheet, ctx) {
+  function openDatePop(asSheet, ctx, previewKey) {
     var mask = document.querySelector('[data-date-mask]');
     var pop = document.querySelector('[data-date-pop]');
     if (!pop) return;
     datePopCtx = ctx || null;
+    /* 自助买单筛选：临时用预览日高亮格子，关闭/确认后还原全局开单日期 */
+    if (datePopCtx === 'selfpay') {
+      if (!selDateBackup) selDateBackup = new Date(selDate.getFullYear(), selDate.getMonth(), selDate.getDate());
+      var pd = dParse(previewKey);
+      if (pd && dIn(pd)) selDate = new Date(pd.getFullYear(), pd.getMonth(), pd.getDate());
+    }
     viewMonth = new Date(selDate.getFullYear(), selDate.getMonth(), 1);
     renderDateGrid();
     pop.classList.toggle('is-sheet', asSheet === true);
     if (mask) mask.classList.add('show');
     pop.classList.add('show');
   }
+  function restoreSelDateBackup() {
+    if (!selDateBackup) return;
+    selDate = new Date(selDateBackup.getFullYear(), selDateBackup.getMonth(), selDateBackup.getDate());
+    selDateBackup = null;
+    paintBillDates();
+  }
   function closeDatePop() {
     var mask = document.querySelector('[data-date-mask]');
     var pop = document.querySelector('[data-date-pop]');
     if (mask) mask.classList.remove('show');
     if (pop) pop.classList.remove('show');
+    if (datePopCtx === 'selfpay') restoreSelDateBackup();
+    datePopCtx = null;
   }
   function setBillDate(d) {
     if (!d || !dIn(d)) return;
+    var ctx = datePopCtx;
+    if (ctx === 'selfpay') {
+      var key = dKey(d);
+      restoreSelDateBackup();
+      datePopCtx = null;
+      var maskSp = document.querySelector('[data-date-mask]');
+      var popSp = document.querySelector('[data-date-pop]');
+      if (maskSp) maskSp.classList.remove('show');
+      if (popSp) popSp.classList.remove('show');
+      if (typeof window.__v2OnBillDateChange === 'function') window.__v2OnBillDateChange(key, ctx);
+      return;
+    }
     selDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     paintBillDates();
-    closeDatePop();
+    var mask = document.querySelector('[data-date-mask]');
+    var pop = document.querySelector('[data-date-pop]');
+    if (mask) mask.classList.remove('show');
+    if (pop) pop.classList.remove('show');
+    datePopCtx = null;
     /* 日期确认后的落点由打开方决定：
        ctx='co' → 结算页「更多 → 选日期」，只写本单日期；
        其余 → 成功页「改日期」，同步成功页显示的开单日期 */
-    if (typeof window.__v2OnBillDateChange === 'function') window.__v2OnBillDateChange(dKey(selDate), datePopCtx);
+    if (typeof window.__v2OnBillDateChange === 'function') window.__v2OnBillDateChange(dKey(selDate), ctx);
   }
 
   function wireDateCtl() {
