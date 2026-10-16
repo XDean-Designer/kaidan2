@@ -39,11 +39,11 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.3b</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.3c</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.3b</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.3c</span></h1>
 <table>
 <thead>
 <tr>
@@ -54,7 +54,7 @@
 <tbody>
 <tr>
 <td>文档版本</td>
-<td>v1.3b · 2026-10-16</td>
+<td>v1.3c · 2026-10-16</td>
 </tr>
 <tr>
 <td>产品名</td>
@@ -350,7 +350,7 @@
 </tr>
 <tr>
 <td>顾客名</td>
-<td>12/600/<code>#1a1a1a</code>；单行省略。<strong>会员</strong>：姓名下细划线 <code>1px #1a1a1a</code>，点姓名 → toast「会员详情」（不进补全）；<strong>散客</strong>：无划线、点名等同点卡进补全</td>
+<td>12/600/<code>#1a1a1a</code>；单行省略。<strong>会员</strong>：可点文字样式（<code>text-decoration: underline</code>，厚 1px、offset 2px、色同字色），线宽与姓名字形对齐不撑满行；点姓名 → toast「会员详情」（不进补全）；<strong>散客</strong>：无下划线、点名等同点卡进补全</td>
 </tr>
 <tr>
 <td>时间</td>
@@ -1075,6 +1075,11 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>v1.3c</td>
+<td>2026-10-16</td>
+<td>会员姓名改 text-decoration 下划线，与字形同宽。本地未提交</td>
+</tr>
 <tr>
 <td>v1.3b</td>
 <td>2026-10-16</td>

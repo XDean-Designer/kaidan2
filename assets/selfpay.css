@@ -64,9 +64,12 @@
 .sp-ticket__name.is-link {
   display: inline-block;
   max-width: 100%;
-  border-bottom: 1px solid #1a1a1a;
-  line-height: 15px;
+  line-height: 16px;
   cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: #1a1a1a;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
   -webkit-tap-highlight-color: transparent;
 }
 .sp-ticket__name.is-link:active { opacity: .65; }
