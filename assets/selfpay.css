@@ -50,6 +50,7 @@
   font-variant-numeric: tabular-nums;
 }
 .sp-ticket__name {
+  display: block;
   margin-top: 4px;
   font-size: 12px;
   font-weight: 600;
@@ -58,7 +59,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
 }
+.sp-ticket__name.is-link {
+  display: inline-block;
+  max-width: 100%;
+  border-bottom: 1px solid #1a1a1a;
+  line-height: 15px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.sp-ticket__name.is-link:active { opacity: .65; }
 .sp-ticket__time {
   margin-top: 2px;
   font-size: 10px;

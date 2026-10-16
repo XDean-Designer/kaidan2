@@ -558,15 +558,19 @@
     );
   }
   function ticketHtml(slip) {
+    var name = escapeHtml(displayCustomerName(slip));
+    var nameHtml = slip.isMember
+      ? '<span class="sp-ticket__name is-link" data-sp-member-link role="link" tabindex="0">' + name + '</span>'
+      : '<span class="sp-ticket__name">' + name + '</span>';
     return (
-      '<button type="button" class="sp-ticket" data-sp-id="' + slip.id + '">' +
+      '<div role="button" tabindex="0" class="sp-ticket" data-sp-id="' + slip.id + '">' +
       '<i class="sp-ticket__stub" aria-hidden="true"></i>' +
       '<div class="sp-ticket__seq">' + escapeHtml(String(slip.seq != null ? slip.seq : '')) + '</div>' +
-      '<div class="sp-ticket__name">' + escapeHtml(displayCustomerName(slip)) + '</div>' +
+      nameHtml +
       '<div class="sp-ticket__time">' + escapeHtml(ticketTimeLabel(slip)) + '</div>' +
       '<div class="sp-ticket__items">' + itemLinesHtml(slip) + '</div>' +
       '<div class="sp-ticket__ft">' + memberTagHtml(slip) +
-      '<div class="sp-ticket__amt">¥' + money(slip.paid) + '</div></div></button>'
+      '<div class="sp-ticket__amt">¥' + money(slip.paid) + '</div></div></div>'
     );
   }
   function renderHomeStrip() {
@@ -1466,6 +1470,11 @@
     if (stripHost) {
       stripHost.addEventListener('click', function (e) {
         if (e.target.closest('[data-sp-more]')) { go('s16'); return; }
+        if (e.target.closest('[data-sp-member-link]')) {
+          e.stopPropagation();
+          toast('会员详情');
+          return;
+        }
         var card = e.target.closest('[data-sp-id]');
         if (card) openComplete(card.getAttribute('data-sp-id'));
       });
@@ -1473,6 +1482,11 @@
     var grid = $('#spGridWrap');
     if (grid) {
       grid.addEventListener('click', function (e) {
+        if (e.target.closest('[data-sp-member-link]')) {
+          e.stopPropagation();
+          toast('会员详情');
+          return;
+        }
         var card = e.target.closest('[data-sp-id]');
         if (card) openComplete(card.getAttribute('data-sp-id'));
       });
