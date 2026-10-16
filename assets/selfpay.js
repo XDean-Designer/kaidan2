@@ -608,12 +608,28 @@
     }
     var html = '';
     list.slice(0, 5).forEach(function (slip) { html += ticketHtml(slip); });
-    html += '<div class="vh-sp-tail" aria-hidden="true"></div>';
+    html +=
+      '<div class="vh-sp-tail" aria-hidden="true">' +
+      '<div class="sp-floor-dots" id="spFloorDots"><i></i><i></i><i></i></div></div>';
     el.innerHTML = html;
     el.style.transform = '';
     var host = $('#spHomeStripHost');
     if (host) {
       host.classList.remove('is-at-end', 'is-armed', 'is-pulling');
+    }
+  }
+
+  function resetHomeStripScroll() {
+    var host = $('#spHomeStripHost');
+    if (host) {
+      host.scrollLeft = 0;
+      host.classList.remove('is-at-end', 'is-armed', 'is-pulling');
+    }
+    var dots = $('#spFloorDots');
+    if (dots) {
+      dots.classList.remove('is-on', 'is-split', 'is-armed');
+      dots.style.removeProperty('--sp-dot-spread');
+      dots.style.removeProperty('--sp-floor-t');
     }
   }
   function syncHomeBadge() {
@@ -1498,14 +1514,8 @@
   }
 
   function ensureFloorChrome() {
-    var frame = document.getElementById('frame');
-    if (!frame || frame.querySelector('#spFloorDots')) return;
-    var dots = document.createElement('div');
-    dots.id = 'spFloorDots';
-    dots.className = 'sp-floor-dots';
-    dots.setAttribute('aria-hidden', 'true');
-    dots.innerHTML = '<i></i><i></i><i></i>';
-    frame.appendChild(dots);
+    /* 圆点挂在卡流尾部 .vh-sp-tail；由 renderHomeStrip 注入 */
+    return $('#spFloorDots');
   }
 
   function floorVisualPull(raw) {
@@ -1520,10 +1530,20 @@
     el.style.transform = '';
     el.style.opacity = '';
     el.style.zIndex = '';
+    el.style.display = '';
     el.classList.remove('is-floor-peek');
-    if (!el.classList.contains('active') && (el.id === 's0' || el.id === 's16')) {
-      el.style.display = '';
-    }
+  }
+
+  function syncEndDotsOnly() {
+    var host = $('#spHomeStripHost');
+    var dots = $('#spFloorDots');
+    if (!host || !dots) return;
+    var at = host.scrollLeft >= Math.max(0, host.scrollWidth - host.clientWidth) - 18;
+    host.classList.toggle('is-at-end', at);
+    dots.classList.toggle('is-on', at);
+    dots.classList.remove('is-split', 'is-armed');
+    dots.style.setProperty('--sp-dot-spread', '0px');
+    dots.style.removeProperty('--sp-floor-t');
   }
 
   function clearFloorStyles() {
@@ -1535,10 +1555,12 @@
     clearFloorInline(s0);
     clearFloorInline(s16);
     if (dots) {
-      dots.classList.remove('is-on', 'is-split', 'is-armed');
-      dots.style.removeProperty('--sp-dot-spread');
+      dots.classList.remove('is-split', 'is-armed');
+      dots.style.setProperty('--sp-dot-spread', '0px');
       dots.style.removeProperty('--sp-floor-t');
     }
+    /* 若仍在卡流尽头，保留 1 点提示；否则隐藏 */
+    syncEndDotsOnly();
   }
 
   /** dir: 'to-list' | 'to-home'；progress 为跟手像素（逻辑拉力） */
@@ -1551,7 +1573,9 @@
     var raw = Math.max(0, rawPull);
     var visual = floorVisualPull(raw);
     var t = Math.min(1, raw / FLOOR_THRESHOLD);
-    var spread = Math.max(0, (t - 0.18) / 0.82) * 11;
+    /* 约 35% 起才开始分裂，拉满才完全散开，过程更可读 */
+    var splitT = Math.max(0, (t - 0.35) / 0.65);
+    var spread = splitT * 12;
 
     if (frame) frame.classList.toggle('is-floor-dragging', raw > 0);
     if (!raw) {
@@ -1596,8 +1620,8 @@
     }
 
     if (dots) {
-      dots.classList.toggle('is-on', raw > 3);
-      dots.classList.toggle('is-split', t > 0.22);
+      dots.classList.add('is-on');
+      dots.classList.toggle('is-split', splitT > 0.02);
       dots.classList.toggle('is-armed', t >= 1);
       dots.style.setProperty('--sp-floor-t', String(t));
       dots.style.setProperty('--sp-dot-spread', spread.toFixed(2) + 'px');
@@ -1708,10 +1732,11 @@
 
     var pull = 0;
     var tracking = false;
-    var fromEnd = false;
+    var engaged = false;
     var startX = 0;
     var pointerId = null;
     var locking = false;
+    var watch = 0;
 
     function getStrip() {
       return $('#spHomeStrip', host) || $('#spHomeStrip');
@@ -1720,133 +1745,163 @@
       return Math.max(0, host.scrollWidth - host.clientWidth);
     }
     function atEnd(pad) {
-      return host.scrollLeft >= maxScroll() - (pad == null ? 2 : pad);
+      return host.scrollLeft >= maxScroll() - (pad == null ? 18 : pad);
+    }
+    function lastCardReached() {
+      var cards = host.querySelectorAll('.sp-ticket[data-sp-id]');
+      if (!cards.length) return false;
+      var last = cards[cards.length - 1];
+      var hr = host.getBoundingClientRect();
+      var cr = last.getBoundingClientRect();
+      return cr.right <= hr.right + 28;
+    }
+    function canStartFloor() {
+      return atEnd(24) || lastCardReached();
     }
     function hasCards() {
       var strip = getStrip();
       return !!(strip && !strip.querySelector('.vh-sp-empty') && strip.querySelector('[data-sp-id]'));
     }
+    function armWatch() {
+      clearTimeout(watch);
+      watch = setTimeout(function () {
+        if (!locking) return;
+        locking = false;
+        engaged = false;
+        tracking = false;
+        pull = 0;
+        host.classList.remove('is-pulling', 'is-armed', 'is-at-end');
+        clearFloorStyles();
+      }, 900);
+    }
+    function disarmWatch() { clearTimeout(watch); }
     function setPull(px) {
       pull = Math.max(0, px);
-      host.classList.toggle('is-at-end', atEnd(8) || pull > 0);
+      host.classList.toggle('is-at-end', true);
       host.classList.toggle('is-pulling', pull > 0);
       host.classList.toggle('is-armed', pull >= FLOOR_THRESHOLD);
       applyFloorPull(pull, 'to-list');
     }
-    function onScroll() {
-      if (pull > 0 || locking) return;
-      host.classList.toggle('is-at-end', atEnd(8));
-    }
-    host.addEventListener('scroll', onScroll, { passive: true });
-
-    function onPointerDown(e) {
-      if (locking) return;
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      if (!hasCards()) return;
-      tracking = true;
-      fromEnd = atEnd(4);
-      startX = e.clientX;
-      pointerId = e.pointerId;
-      try { host.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
-    }
-    function onPointerMove(e) {
-      if (!tracking || locking || (pointerId != null && e.pointerId !== pointerId)) return;
-      var dx = e.clientX - startX;
-      if (!fromEnd) {
-        if (atEnd(4) && dx < -6) {
-          fromEnd = true;
-          startX = e.clientX;
-          dx = 0;
-        } else {
-          return;
-        }
-      }
-      /* 手指左移继续进二楼；右移可撤回（Q4b D） */
-      if (e.cancelable) e.preventDefault();
-      host.scrollLeft = maxScroll();
-      setPull(Math.max(0, -dx));
-    }
-    function onPointerUp(e) {
-      if (!tracking || (pointerId != null && e.pointerId !== pointerId)) return;
+    function finishGesture() {
+      if (!tracking && !engaged) return;
       tracking = false;
       pointerId = null;
+      if (!engaged) {
+        pull = 0;
+        return;
+      }
+      engaged = false;
       if (locking) return;
-      var shouldGo = pull >= FLOOR_THRESHOLD;
       var last = pull;
+      var shouldGo = last >= FLOOR_THRESHOLD;
       locking = true;
+      armWatch();
       host.classList.remove('is-pulling', 'is-armed');
       if (shouldGo) {
         animateFloorSettle('to-list', last, function () {
           pull = 0;
           locking = false;
+          disarmWatch();
+          clearFloorStyles();
           go('s16');
-          setTimeout(function () { renderList(); }, 0);
         });
       } else if (last > 0) {
         animateFloorCancel('to-list', last, function () {
           pull = 0;
           locking = false;
-          host.classList.toggle('is-at-end', atEnd(8));
+          disarmWatch();
+          clearFloorStyles();
+          host.classList.toggle('is-at-end', atEnd(18));
         });
       } else {
-        clearFloorStyles();
+        pull = 0;
         locking = false;
+        disarmWatch();
+        clearFloorStyles();
       }
     }
-    host.addEventListener('pointerdown', onPointerDown);
-    host.addEventListener('pointermove', onPointerMove, { passive: false });
-    host.addEventListener('pointerup', onPointerUp);
-    host.addEventListener('pointercancel', onPointerUp);
+    /** 仅在已到尽头后继续左拖才接管；普通点击不 preventDefault、不 capture */
+    function onMoveClient(clientX, e) {
+      if (!tracking || locking) return;
+      var dx = clientX - startX;
+      if (!engaged) {
+        if (canStartFloor() && dx < -10) {
+          engaged = true;
+          startX = clientX;
+          dx = 0;
+          if (e.pointerId != null && e.pointerType === 'mouse') {
+            try { host.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+          }
+        } else {
+          return;
+        }
+      }
+      if (e.cancelable) e.preventDefault();
+      host.scrollLeft = maxScroll();
+      setPull(Math.max(0, -(clientX - startX)));
+    }
+
+    host.addEventListener('scroll', function () {
+      if (pull > 0 || locking || engaged) return;
+      syncEndDotsOnly();
+    }, { passive: true });
+
+    host.addEventListener('pointerdown', function (e) {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      if (locking) return;
+      if (e.button !== 0) return;
+      if (!hasCards()) return;
+      tracking = true;
+      engaged = false;
+      pull = 0;
+      startX = e.clientX;
+      pointerId = e.pointerId;
+    });
+    host.addEventListener('pointermove', function (e) {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      if (pointerId != null && e.pointerId !== pointerId) return;
+      onMoveClient(e.clientX, e);
+    }, { passive: false });
+    host.addEventListener('pointerup', function (e) {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      if (pointerId != null && e.pointerId !== pointerId) return;
+      finishGesture();
+    });
+    host.addEventListener('pointercancel', function (e) {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      finishGesture();
+    });
+
+    host.addEventListener('touchstart', function (e) {
+      if (locking || !hasCards() || !e.touches || !e.touches[0]) return;
+      tracking = true;
+      engaged = false;
+      pull = 0;
+      startX = e.touches[0].clientX;
+      pointerId = null;
+    }, { passive: true });
+    host.addEventListener('touchmove', function (e) {
+      if (!tracking || locking || !e.touches || !e.touches[0]) return;
+      onMoveClient(e.touches[0].clientX, e);
+    }, { passive: false });
+    host.addEventListener('touchend', function () { finishGesture(); });
+    host.addEventListener('touchcancel', function () { finishGesture(); });
 
     host.addEventListener('wheel', function (e) {
       if (locking || !hasCards()) return;
       var dx = e.deltaX || 0;
       var dy = e.deltaY || 0;
       var delta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
-      if (delta <= 0) {
-        if (pull > 0) {
-          setPull(Math.max(0, pull + delta));
-          if (e.cancelable) e.preventDefault();
-          clearTimeout(host._spWheelTimer);
-          host._spWheelTimer = setTimeout(function () {
-            if (locking) return;
-            var last = pull;
-            if (last >= FLOOR_THRESHOLD) {
-              locking = true;
-              animateFloorSettle('to-list', last, function () {
-                pull = 0; locking = false; go('s16');
-                setTimeout(function () { renderList(); }, 0);
-              });
-            } else if (last > 0) {
-              locking = true;
-              animateFloorCancel('to-list', last, function () {
-                pull = 0; locking = false;
-              });
-            }
-          }, 140);
-        }
-        return;
-      }
-      if (!atEnd(2) && pull <= 0) return;
+      if (!canStartFloor() && pull <= 0) return;
       if (e.cancelable) e.preventDefault();
       host.scrollLeft = maxScroll();
-      setPull(pull + Math.min(36, delta));
+      setPull(Math.max(0, pull + delta));
+      engaged = pull > 0;
       clearTimeout(host._spWheelTimer);
       host._spWheelTimer = setTimeout(function () {
-        if (locking) return;
-        var last = pull;
-        if (last >= FLOOR_THRESHOLD) {
-          locking = true;
-          animateFloorSettle('to-list', last, function () {
-            pull = 0; locking = false; go('s16');
-            setTimeout(function () { renderList(); }, 0);
-          });
-        } else if (last > 0) {
-          locking = true;
-          animateFloorCancel('to-list', last, function () {
-            pull = 0; locking = false;
-          });
-        }
+        if (!engaged && pull <= 0) return;
+        tracking = true;
+        finishGesture();
       }, 140);
     }, { passive: false });
   }
@@ -1903,7 +1958,10 @@
         animateFloorSettle('to-home', last, function () {
           locking = false;
           goBack();
-          setTimeout(renderHomeStrip, 0);
+          setTimeout(function () {
+            renderHomeStrip();
+            resetHomeStripScroll();
+          }, 0);
         });
       } else if (last > 0) {
         locking = true;
@@ -2067,11 +2125,31 @@
         clearFloorStyles();
         _go.apply(this, arguments);
         setTimeout(syncAllocNav, 0);
-        if (id === 's0') setTimeout(renderHomeStrip, 0);
+        if (id === 's0') {
+          setTimeout(function () {
+            renderHomeStrip();
+            resetHomeStripScroll();
+          }, 0);
+        }
         if (id === 's16') setTimeout(function () { ui.tab = 'pending'; renderList(); }, 0);
         if (id === 's17' && ui.currentId) setTimeout(paintS17, 0);
       };
       window.go._spHook = true;
+    }
+    if (window.goBack && !window.goBack._spHook) {
+      var _back = window.goBack;
+      window.goBack = function () {
+        clearFloorStyles();
+        var ret = _back.apply(this, arguments);
+        setTimeout(function () {
+          if ($('#s0') && $('#s0').classList.contains('active')) {
+            renderHomeStrip();
+            resetHomeStripScroll();
+          }
+        }, 0);
+        return ret;
+      };
+      window.goBack._spHook = true;
     }
   }
 
