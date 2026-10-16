@@ -503,43 +503,23 @@
   function getSlip(id) {
     return slips.find(function (s) { return s.id === id; });
   }
-  function dayDiffFromToday(dateKey) {
-    if (!dateKey) return 0;
-    var a = dateKey.split('-').map(Number);
-    var b = todayKey().split('-').map(Number);
-    var da = new Date(a[0], a[1] - 1, a[2]);
-    var db = new Date(b[0], b[1] - 1, b[2]);
-    return Math.round((db - da) / 86400000);
-  }
-  function slipHasStaffSeed(slip) {
-    if (slip.staffs && slip.staffs.length) return true;
-    if (slip.orderStaff && namesFromAssign(slip.orderStaff).length) return true;
-    return (slip.items || []).some(function (it) {
-      return it.assign && namesFromAssign(it.assign).length > 0;
-    });
-  }
-  function scoreSlip(slip) {
-    var score = 0;
-    var noItems = !(slip.items && slip.items.length) && slip.contentMode !== 'quick';
-    if (noItems) score += 3;
-    var days = dayDiffFromToday(slip.dateKey);
-    if (days > 0) score += 2;
-    if (!slipHasStaffSeed(slip)) score += 2;
-    score += Math.min(7, Math.max(0, days)) * 1;
+  /** 下单时间戳：dateKey + time；越近越前 */
+  function slipTimeMs(slip) {
+    var key = slip.dateKey || todayKey();
+    var p = String(key).split('-').map(Number);
     var hm = String(slip.time || '00:00').split(':');
-    var mins = (Number(hm[0]) || 0) * 60 + (Number(hm[1]) || 0);
-    score += mins / 1440 * 0.2;
-    return score;
+    var d = new Date(p[0] || 1970, (p[1] || 1) - 1, p[2] || 1, Number(hm[0]) || 0, Number(hm[1]) || 0, 0, 0);
+    return d.getTime();
   }
-  function sortByS4(list) {
+  function sortByTimeNewest(list) {
     return list.slice().sort(function (a, b) {
-      var ds = scoreSlip(b) - scoreSlip(a);
-      if (Math.abs(ds) > 1e-6) return ds;
+      var dt = slipTimeMs(b) - slipTimeMs(a);
+      if (dt !== 0) return dt;
       return (Number(a.seq) || 0) - (Number(b.seq) || 0);
     });
   }
   function pendingSlipsAll() {
-    return sortByS4(slips.filter(function (s) { return s.status === 'pending'; }));
+    return sortByTimeNewest(slips.filter(function (s) { return s.status === 'pending'; }));
   }
   function memberTagHtml(slip) {
     var mem = !!slip.isMember;
@@ -679,7 +659,7 @@
     return true;
   }
   function listForTab() {
-    return sortByS4(slips.filter(function (s) {
+    return sortByTimeNewest(slips.filter(function (s) {
       return s.status === 'pending' && matchesFilter(s);
     }));
   }
@@ -1435,13 +1415,6 @@
     } else toast('日期控件未就绪');
   }
 
-  var HELP_SORT =
-    '列表与首页卡片按「综合分」从高到低排列，优先展示更可能需要处理的自助订单：' +
-    '<br>· 未填项目 +3' +
-    '<br>· 跨日遗留 +2' +
-    '<br>· 尚未指定员工 +2' +
-    '<br>· 等待天数（最多计 7 天）' +
-    '<br>同分再按序号。首页取排序后前 5 张。';
   var HELP_SUGGEST =
     '这里会帮你猜几个可能要加的项目/产品，方便点选。' +
     '<br>会看三方面：店里卖得多的、常和已选项目一起做的、最近店里归档时常用的。' +
@@ -1450,13 +1423,10 @@
   function openHelp(kind) {
     var title = $('#spHelpTitle');
     var body = $('#spHelpBody');
-    if (kind === 'suggest') {
-      if (title) title.textContent = '推荐规则';
-      if (body) body.innerHTML = HELP_SUGGEST;
-    } else {
-      if (title) title.textContent = '排列规则';
-      if (body) body.innerHTML = HELP_SORT;
-    }
+    /* 排列规则已废止；仅保留价目「猜你想加」推荐说明 */
+    if (kind !== 'suggest') return;
+    if (title) title.textContent = '推荐规则';
+    if (body) body.innerHTML = HELP_SUGGEST;
     openMask('spHelpMask');
   }
   function closeHelp() { closeMask('spHelpMask'); }
@@ -2029,11 +1999,6 @@
 
     var dateBtn = $('#spDateBtn');
     if (dateBtn) dateBtn.addEventListener('click', openSelfpayDate);
-    var sortHelp = $('#spSortHelpBtn');
-    if (sortHelp) sortHelp.addEventListener('click', function (e) {
-      e.stopPropagation();
-      openHelp('sort');
-    });
     var helpOk = $('#spHelpOk');
     if (helpOk) helpOk.addEventListener('click', closeHelp);
     var search = $('#spSearchInput');
@@ -2070,7 +2035,7 @@
       var closeBtn = e.target.closest('[data-sp-close]');
       if (closeBtn) closeMask(closeBtn.getAttribute('data-sp-close'));
       if (e.target.closest('[data-sp-help]')) {
-        openHelp(e.target.closest('[data-sp-help]').getAttribute('data-sp-help') || 'sort');
+        openHelp(e.target.closest('[data-sp-help]').getAttribute('data-sp-help') || 'suggest');
         return;
       }
       if (e.target.closest('#spHelpMask') && e.target.id === 'spHelpMask') {
