@@ -39,11 +39,11 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.4m</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.4n</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.4m</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.4n</span></h1>
 <table>
 <thead>
 <tr>
@@ -54,7 +54,7 @@
 <tbody>
 <tr>
 <td>文档版本</td>
-<td>v1.4m · 2026-10-16</td>
+<td>v1.4n · 2026-10-16</td>
 </tr>
 <tr>
 <td>产品名</td>
@@ -366,11 +366,11 @@
 </tr>
 <tr>
 <td>顾客名</td>
-<td>12/600/<code>#1a1a1a</code>；单行省略；在编号行下方，间距约 <strong>6px</strong>。<strong>会员</strong>：可点下划线（目标视觉 <strong>0.5px</strong>：盒内 <code>::after</code> + <code>padding-bottom:3px</code>；1x 用半透明 1px，≥2x 用 <code>scaleY(.5)</code>；姓名盒 <code>fit-content</code>）；点姓名 → toast「会员详情」（不进补全）；<strong>散客</strong>：无下划线、点名等同点卡进补全</td>
+<td>12/600/<code>#1a1a1a</code>；单行省略；在编号行下方，间距约 <strong>6px</strong>；<strong>盒高固定 19px</strong>（含下划线占位，散客同高），保证上虚线纵坐标恒定。<strong>会员</strong>：可点下划线（目标视觉 <strong>0.5px</strong>）；点姓名 → toast「会员详情」；<strong>散客</strong>：无下划线但占位相同、点名等同点卡进补全</td>
 </tr>
 <tr>
 <td>项目区</td>
-<td>顶部对齐（<code>flex-start</code>）；上虚线与首行 <strong>8px</strong>，行距 <strong>4px</strong>，第二行与底虚线 <strong>8px</strong>。上/底栏前均为 <strong>.5px dashed #D8D8D8</strong> 虚线。首行项目名 10px。项目名<strong>最多显示 6 字</strong>，超长按字截断后加「…」。<strong>1 项</strong>仅一行；<strong>恰 2 项</strong>两行名；<strong>≥3 项</strong>第二行：第二项名（可带「…」）+ 右侧 12×12 灰圆白字件数 N</td>
+<td>两虚线之间为<strong>定高区</strong>（<code>flex:1</code> + <code>justify-content: space-evenly</code>）：<strong>1 行</strong>在两虚线间垂直居中；<strong>2 行</strong>为上虚线–行1–行2–下虚线<strong>等距</strong>。上/底虚线均为 <strong>.5px dashed #D8D8D8</strong>。项目名最多 6 字截断加「…」；恰 2 项两行；≥3 第二项名+灰圆件数 N</td>
 </tr>
 <tr>
 <td>空项目</td>

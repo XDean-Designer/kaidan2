@@ -1925,6 +1925,8 @@
       if (locking) return;
       if (!s16.classList.contains('active')) return;
       if (e.pointerType === 'mouse' && e.button !== 0) return;
+      /* 不拦截标题栏返回按钮（须始终 go('s0')） */
+      if (e.target && e.target.closest && e.target.closest('.btn-back, .nav-bar')) return;
       var rect = s16.getBoundingClientRect();
       var localX = e.clientX - rect.left;
       if (localX > EDGE) return;

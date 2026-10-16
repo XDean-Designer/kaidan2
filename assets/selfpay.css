@@ -96,6 +96,9 @@
   width: fit-content;
   max-width: 100%;
   margin-top: 6px; /* 靠近编号 */
+  /* 固定盒高：会员下划线与散客同占位，保证上虚线纵坐标一致 */
+  height: 19px;
+  padding-bottom: 3px;
   font-size: 12px;
   font-weight: 600;
   color: #1a1a1a;
@@ -110,7 +113,6 @@
   line-height: 16px;
   cursor: pointer;
   text-decoration: none;
-  padding-bottom: 3px; /* 线在字下约 3px，落在盒内，不被 overflow 裁掉 */
   -webkit-tap-highlight-color: transparent;
 }
 /* 目标视觉：0.5px 字重。1x 屏真 0.5px 常消失，故分档： */
@@ -136,17 +138,17 @@
 }
 .sp-ticket__name.is-link:active { opacity: .65; }
 .sp-ticket__items {
+  /* 两虚线之间定高区：1 行居中 / 2 行等距，均不改变姓名与上虚线位置 */
   flex: 1 1 auto;
   margin-top: 6px;
-  padding-top: 8px; /* 上虚线与首行 */
-  padding-bottom: 8px; /* 第二行与底虚线拉开 */
+  padding: 0;
   border-top: .5px dashed #D8D8D8; /* 规则1：保留原虚线，不跟 Figma 实线 */
   min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  gap: 4px;
+  justify-content: space-evenly;
+  gap: 0;
 }
 .sp-ticket__line {
   font-size: 10px;
