@@ -1,5 +1,24 @@
 /* 自助订单 · s16 列表 + 首页横滑 + s17 全屏补全（R45） */
 
+/* 编号字体：HeadLineA（小掌柜 displayIdFont 实测真名）；Apple 版权，原型演示用 */
+@font-face {
+  font-family: "HeadLineA";
+  src: url("fonts/HeadLineA.woff2") format("woff2"),
+       url("fonts/HeadLineA.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+/* 与线上别名一致，便于对照 */
+@font-face {
+  font-family: "displayIdFont";
+  src: url("fonts/HeadLineA.woff2") format("woff2"),
+       url("fonts/HeadLineA.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* —— 票卡（Figma 194:93 · ~117×132） —— */
 .vh-sp-empty {
   flex: none;
@@ -20,7 +39,8 @@
   border-radius: 6px;
   background: #fff;
   box-shadow: 0 1px 3px rgba(40, 30, 10, .06);
-  padding: 8px 9px 6px;
+  /* 内边距对齐 Figma 212:89：左右 9、上约 10、下 6 */
+  padding: 10px 9px 6px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -40,18 +60,41 @@
   border-radius: 6px;
   background: #E8E4DC;
 }
+.sp-ticket__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+  min-height: 14px;
+}
 .sp-ticket__seq {
-  margin-top: 2px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #1a1a1a;
-  letter-spacing: .18px;
-  line-height: 14px;
-  font-variant-numeric: tabular-nums;
+  margin: 0;
+  /* 对齐小掌柜：displayIdFont = HeadLineA Regular；24→票卡约 20；勿假粗 */
+  font-family: "HeadLineA", "displayIdFont", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #222222;
+  letter-spacing: normal;
+  line-height: 20px;
+  font-variant-numeric: normal;
+  min-width: 0;
+}
+.sp-ticket__when {
+  flex: none;
+  margin: 0;
+  font-size: 10px;
+  font-weight: 400;
+  color: #8E8E93;
+  line-height: 13px;
+  white-space: nowrap;
 }
 .sp-ticket__name {
   display: block;
-  margin-top: 4px;
+  /* 票卡为 column+stretch：须 flex-start，否则姓名盒被撑满，下划线比字宽 */
+  align-self: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 10px; /* Figma：name.y 34 − seq 行底 ≈ 10 */
   font-size: 12px;
   font-weight: 600;
   color: #1a1a1a;
@@ -59,47 +102,55 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
+  box-sizing: border-box;
 }
 .sp-ticket__name.is-link {
-  display: inline-block;
-  max-width: 100%;
+  position: relative;
   line-height: 16px;
   cursor: pointer;
-  text-decoration: underline;
-  text-decoration-color: #1a1a1a;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
+  text-decoration: none;
+  padding-bottom: 3px; /* 线在字下约 3px，落在盒内，不被 overflow 裁掉 */
   -webkit-tap-highlight-color: transparent;
 }
-.sp-ticket__name.is-link:active { opacity: .65; }
-.sp-ticket__time {
-  margin-top: 2px;
-  font-size: 10px;
-  font-weight: 400;
-  color: #8E8E93;
-  line-height: 13px;
-  white-space: nowrap;
+/* 目标视觉：0.5px 字重。1x 屏真 0.5px 常消失，故分档： */
+.sp-ticket__name.is-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  /* 默认（含 1x）：1px + 半透明 ≈ 0.5 字重，且各卡一致、必显示 */
+  background: rgba(26, 26, 26, .55);
+  transform: none;
 }
+/* 高分屏：几何压成 0.5 CSS px（≈1 物理像素），色实心 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .sp-ticket__name.is-link::after {
+    background: #1a1a1a;
+    transform: scaleY(.5);
+    transform-origin: bottom center;
+  }
+}
+.sp-ticket__name.is-link:active { opacity: .65; }
 .sp-ticket__items {
-  margin-top: 8px;
-  padding-top: 4px;
-  border-top: .5px dashed #D8D8D8;
-  min-height: 31px;
+  margin-top: 9px; /* Figma：rule.y 59 − name 底 */
+  padding-top: 7px;
+  border-top: .5px dashed #D8D8D8; /* 规则1：保留原虚线，不跟 Figma 实线 */
+  min-height: 35px;
   overflow: hidden;
 }
 .sp-ticket__line {
   font-size: 10px;
   color: #1a1a1a;
   line-height: 14px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .sp-ticket__line.is-empty { color: #C7C7CC; }
 .sp-ticket__line2 {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 4px;
   margin-top: 0;
   min-width: 0;
@@ -108,16 +159,24 @@
   font-size: 10px;
   color: #1a1a1a;
   line-height: 14px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  flex: 1 1 auto;
 }
-.sp-ticket__more {
+.sp-ticket__count {
   flex: none;
-  font-size: 9px;
-  color: #8E8E93;
-  line-height: 14px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #C7C7CC;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
 }
 .sp-ticket__ft {
   margin-top: auto;
@@ -848,6 +907,10 @@
   padding: 0 4px;
   line-height: 14px;
   flex: none;
+}
+#spExpandCard .spf-sum__vip--guest, #s17 .spf-sum__vip--guest {
+  background: #EEF2FF;
+  color: #4A7BF4;
 }
 #spExpandCard .spf-sum__phone, #s17 .spf-sum__phone {  font-size: 12px;
   color: #8E8E93;
@@ -1591,23 +1654,27 @@
   color: #1a1a1a;
 }
 
-/* 散客性别 */
+/* 散客第二行：性别（左）+ 时间（右），对齐会员持卡行 */
+#spExpandCard .spf-sum__cards-row--guest,
+#s17 .spf-sum__cards-row--guest {
+  align-items: center;
+}
 .spf-sum__gender {
-  margin-top: 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex: none;
+  min-width: 0;
 }
 .spf-sum__gender-lab {
-  font-size: 12px;
-  color: #8E8E93;
+  font-size: 11px;
+  color: #AEAEB2;
   flex: none;
 }
 .spf-gender-btn {
-  height: 28px;
+  height: 26px;
   padding: 0 12px;
-  border-radius: 14px;
+  border-radius: 13px;
   border: 1px solid #E5E5EA;
   background: #fff;
   font: inherit;

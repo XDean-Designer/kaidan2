@@ -39,11 +39,11 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.3c</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.4h</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.3c</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.4h</span></h1>
 <table>
 <thead>
 <tr>
@@ -54,7 +54,7 @@
 <tbody>
 <tr>
 <td>文档版本</td>
-<td>v1.3c · 2026-10-16</td>
+<td>v1.4h · 2026-10-16</td>
 </tr>
 <tr>
 <td>产品名</td>
@@ -346,11 +346,11 @@
 </tr>
 <tr>
 <td>序号 <code>seq</code></td>
-<td>12/500/<code>#1a1a1a</code>；造数自 100 起</td>
+<td>右上角同行左；字体见下文「编号字体（复原规格）」；约 20/400/<code>#222</code>；造数自 100 起（真实 <code>seq</code>）</td>
 </tr>
 <tr>
 <td>顾客名</td>
-<td>12/600/<code>#1a1a1a</code>；单行省略。<strong>会员</strong>：可点文字样式（<code>text-decoration: underline</code>，厚 1px、offset 2px、色同字色），线宽与姓名字形对齐不撑满行；点姓名 → toast「会员详情」（不进补全）；<strong>散客</strong>：无下划线、点名等同点卡进补全</td>
+<td>12/600/<code>#1a1a1a</code>；单行省略。<strong>会员</strong>：可点下划线（目标视觉 <strong>0.5px</strong>：盒内 <code>::after</code> + <code>padding-bottom:3px</code>；1x 用半透明 1px，≥2x 用 <code>scaleY(.5)</code>；姓名盒 <code>fit-content</code>）；点姓名 → toast「会员详情」（不进补全）；<strong>散客</strong>：无下划线、点名等同点卡进补全</td>
 </tr>
 <tr>
 <td>时间</td>
@@ -358,7 +358,7 @@
 </tr>
 <tr>
 <td>项目区</td>
-<td>上虚线分隔；首行项目名 10px。<strong>1 项</strong>仅一行；<strong>恰 2 项</strong>两行名、<strong>不写</strong>「等2项」；<strong>≥3 项</strong>第二行：第二项名 10px +「等N项」<strong>9px</strong>/<code>#8E8E93</code>（N=总数）</td>
+<td>上/底栏前均为 <strong>.5px dashed #D8D8D8</strong> 虚线。首行项目名 10px。项目名<strong>最多显示 6 字</strong>，超长按字截断后加「…」。<strong>1 项</strong>仅一行；<strong>恰 2 项</strong>两行名；<strong>≥3 项</strong>第二行：第二项名（可带「…」）+ 右侧 12×12 灰圆白字件数 N</td>
 </tr>
 <tr>
 <td>空项目</td>
@@ -384,6 +384,23 @@
 <td>点击</td>
 <td>→ 打开该单补全页（<code>openComplete(id)</code>）</td>
 </tr>
+</tbody>
+</table>
+<h5>编号字体（复原规格 · 前端必读）</h5>
+<div class="reader-note">对照样本：小掌柜 APP 拟物订单卡左上角三位数（<code>span.no</code>）。<strong>禁止</strong>用 OC Highway / Noto Sans SC / 系统粗黑体冒充——尤其数字 <code>9</code> 不一致。</div>
+<table>
+<thead><tr><th>项</th><th>规格（按此复原）</th></tr></thead>
+<tbody>
+<tr><td>真名（name table）</td><td><strong>HeadLineA</strong> / Regular</td></tr>
+<tr><td>PostScript 名</td><td><strong>JCHEadA</strong></td></tr>
+<tr><td>线上 CSS 别名</td><td><strong><code>displayIdFont</code></strong>（小掌柜自定义名，同一字体）</td></tr>
+<tr><td>版权</td><td>Copyright (c) 1994–2001 <strong>Apple Computer, Inc.</strong></td></tr>
+<tr><td>CSS <code>font-family</code></td><td><code>"HeadLineA", "displayIdFont", sans-serif</code></td></tr>
+<tr><td><code>font-weight</code></td><td><strong>400</strong>（禁止 700 / 假粗 / text-stroke）</td></tr>
+<tr><td>字号</td><td>线上参考 <strong>24px</strong>；本原型票卡约 <strong>20px</strong></td></tr>
+<tr><td>字色</td><td><code>#222222</code></td></tr>
+<tr><td>原型文件</td><td><code>assets/fonts/HeadLineA.woff2</code>、<code>HeadLineA-digits.woff2</code></td></tr>
+<tr><td>生产注意</td><td>未授权<strong>不可</strong>打包上线；须授权或换等价已授权字体并回归 <code>1/2/9</code></td></tr>
 </tbody>
 </table>
 <p><strong>散客名展示</strong>：非会员票卡名固定为 <code>guestGender</code> 映射结果（默认「散客」），不展示真实姓名。</p>
@@ -619,16 +636,17 @@
 <p><strong>布局</strong></p>
 <ol>
 <li>左头像 32 圆 + 右：姓名行（名 14/600 + 会员金标或散客蓝标 + 手机号靠右 12/<code>#8E8E93</code>，无手机号则隐藏）  </li>
-<li><strong>持卡行</strong>：左「持卡▾」（11/<code>#AEAEB2</code>，可折叠，默认收起；chevron <code>.2s</code> 旋转）；<strong>右时间</strong> <code>YYYY.MM.DD</code> + <strong>两个空格</strong> + <code>HH:mm</code>（日期与时刻间距较单空格多 1），<strong>11/600/<code>#555</code></strong>，<strong>无「时间」二字</strong>  </li>
-<li>展开持卡：11/<code>#8E8E93</code> 卡摘要文案  </li>
+<li><strong>第二行（会员/散客结构对齐）</strong>：会员左「持卡▾」右时间；散客可编辑左「性别」+ 胶囊男/女、右时间；散客只读左空右时间。时间 <code>YYYY.MM.DD</code> + 双空格 + <code>HH:mm</code>，11/600/<code>#555</code>，无「时间」二字  </li>
+<li>展开持卡（仅会员有卡时）：11/<code>#8E8E93</code> 卡摘要文案  </li>
 <li>支付区：顶部分割线；大号实付 18/700 + 支付明细 11/<code>#8E8E93</code>  </li>
 <li>权益说明（若有）11/<code>#AEAEB2</code></li>
 </ol>
 <p><strong>散客性别（仅非会员、可编辑）</strong></p>
 <ul>
-<li>标签「性别」+ 三枚胶囊：不选 / 男 / 女  </li>
-<li>选中：边 <code>#FF571A</code>、底 <code>#FFF3EE</code>、字橙 12/600  </li>
-<li>未选中：边 <code>#E5E5EA</code>、白底、字 <code>#666</code>  </li>
+<li>位置：摘要卡第二行左侧（对齐会员「持卡」位），右侧为下单时间  </li>
+<li>控件：标签「性别」+ 胶囊 <strong>男 / 女</strong>（无「不选」项；二者皆未选 = 不选）  </li>
+<li>未选中：边 <code>#E5E5EA</code>、白底、字 <code>#666</code> 12/500；选中：边 <code>#FF571A</code>、底 <code>#FFF3EE</code>、字橙 12/600  </li>
+<li><strong>再点已选项 → 取消选中</strong>（回到不选）  </li>
 <li>映射：<code>''→散客</code> · <code>male→男散客</code> · <code>female→女散客</code>；写回 <code>customerName</code> / <code>guestGender</code></li>
 </ul>
 <p><strong>只读约束</strong>：实付、支付拆分、持卡摘要、权益 — <strong>不可改</strong>。</p>
@@ -979,7 +997,7 @@
 <li>首页卡流按 S4 取前 5 +「更多」进列表；点卡进补全。  </li>
 <li>列表无 Tab；默认日期「全部」；日历快捷为「全部 | 今天」；筛选支付仅三档；筛选图标无灰圆底。  </li>
 <li>标题信息标打开排列规则；价目「猜你想加」三源混合最多 6 + 信息标推荐规则。  </li>
-<li>票卡恰 2 项无「等2项」、≥3 才有「等N项」（9px）；会橙/散蓝。  </li>
+<li>票卡恰 2 项无角标；≥3 为第二项名后「…」+ 灰圆白字件数；会橙/散蓝。  </li>
 <li>散客名与性别三态正确。  </li>
 <li>价目 sheet 无 ×；快捷开单为橙底白字+白闪电右对齐。  </li>
 <li>选人：过滤已占用；点客/散客一点即落；白底、安全区、末行无线。  </li>
@@ -1075,6 +1093,46 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>v1.4h</td>
+<td>2026-10-16</td>
+<td>散客摘要卡：删「不选」；性别与时间同行对齐会员持卡行；再点已选可取消。本地未提交</td>
+</tr>
+<tr>
+<td>v1.4g</td>
+<td>2026-10-16</td>
+<td>散客性别：男/女胶囊置前，「不选」置末且次要无边样式。本地未提交</td>
+</tr>
+<tr>
+<td>v1.4f</td>
+<td>2026-10-16</td>
+<td>编号字体确认为 <strong>HeadLineA</strong>（小掌柜 <code>displayIdFont</code>）；原型接入并写入复原规格；Apple 版权勿未授权上线。本地未提交</td>
+</tr>
+<tr>
+<td>v1.4e</td>
+<td>2026-10-16</td>
+<td>编号改 Series 3（<code>wdth</code> 150）+ OG，去掉假粗/描边；下载包改 Series3。本地未提交</td>
+</tr>
+<tr>
+<td>v1.4d</td>
+<td>2026-10-16</td>
+<td>票卡项目名最多 6 字按字截断加「…」，避免 CSS 半字裁切。本地未提交</td>
+</tr>
+<tr>
+<td>v1.4c</td>
+<td>2026-10-16</td>
+<td>票卡 ≥3 项时第二项名后补「…」（保留灰圆件数）。本地未提交</td>
+</tr>
+<tr>
+<td>v1.4b</td>
+<td>2026-10-16</td>
+<td>编号接入 OC Highway VAR2（<code>wdth</code> 100 = Series 1）；侧栏「编号字体下载」提供 Series1 数字子集 zip。本地未提交</td>
+</tr>
+<tr>
+<td>v1.4</td>
+<td>2026-10-16</td>
+<td>票卡：右上当日/非当日时间规则；≥3 灰圆件数；编号公路字体占位；布局贴 Figma 212:89；虚线保留。本地未提交</td>
+</tr>
 <tr>
 <td>v1.3c</td>
 <td>2026-10-16</td>

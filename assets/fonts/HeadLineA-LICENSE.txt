@@ -1,0 +1,8 @@
+HeadLineA Regular (Apple)
+PostScript name: JCHEadA
+Copyright (c) 1994-2001 Apple Computer, Inc. All rights reserved.
+
+Prototype reference only.
+Identified from 小掌柜APP: CSS font-family "displayIdFont" -> name table HeadLineA.
+Do NOT redistribute or ship in production without a valid license.
+Production should license HeadLineA (or an approved equivalent) separately.

@@ -534,9 +534,19 @@
     var mem = !!slip.isMember;
     return '<span class="sp-tag ' + (mem ? 'is-mem' : 'is-guest') + '">' + (mem ? '会' : '散') + '</span>';
   }
-  function ticketTimeLabel(slip) {
-    var p = (slip.dateKey || todayKey()).split('-');
-    return Number(p[1]) + '/' + Number(p[2]) + ' ' + (slip.time || '');
+  /* 当日只显 HH:mm；非当日只显 M/D */
+  function ticketWhenLabel(slip) {
+    var key = slip.dateKey || todayKey();
+    if (key === todayKey()) return slip.time || '';
+    var p = key.split('-');
+    return Number(p[1]) + '/' + Number(p[2]);
+  }
+  /** 票卡项目名：最多 6 字；超长或还有更多项时只加一个「…」（按字截断，避免 CSS 半字裁切） */
+  function ticketItemLabel(name, moreItems) {
+    var s = String(name || '');
+    var shown = s.length > 6 ? s.slice(0, 6) : s;
+    var dots = s.length > 6 || moreItems ? '…' : '';
+    return escapeHtml(shown) + dots;
   }
   function itemLinesHtml(slip) {
     var items = slip.items || [];
@@ -545,16 +555,17 @@
       return '<div class="sp-ticket__line is-empty">未填项目</div>';
     }
     if (items.length === 1) {
-      return '<div class="sp-ticket__line">' + escapeHtml(items[0].name) + '</div>';
+      return '<div class="sp-ticket__line">' + ticketItemLabel(items[0].name, false) + '</div>';
     }
-    /* 恰 2 项：两行名，不写「等2项」；≥3 才标注「等N项」 */
-    var more = items.length > 2
-      ? '<span class="sp-ticket__more">等' + items.length + '项</span>'
+    /* 恰 2 项：两行名；≥3：第二项名（可带…）+ 灰圆件数 */
+    var overflow = items.length > 2;
+    var more = overflow
+      ? '<span class="sp-ticket__count" aria-label="共' + items.length + '项">' + items.length + '</span>'
       : '';
     return (
-      '<div class="sp-ticket__line">' + escapeHtml(items[0].name) + '</div>' +
+      '<div class="sp-ticket__line">' + ticketItemLabel(items[0].name, false) + '</div>' +
       '<div class="sp-ticket__line2">' +
-      '<span>' + escapeHtml(items[1].name) + '</span>' + more + '</div>'
+      '<span>' + ticketItemLabel(items[1].name, overflow) + '</span>' + more + '</div>'
     );
   }
   function ticketHtml(slip) {
@@ -562,12 +573,15 @@
     var nameHtml = slip.isMember
       ? '<span class="sp-ticket__name is-link" data-sp-member-link role="link" tabindex="0">' + name + '</span>'
       : '<span class="sp-ticket__name">' + name + '</span>';
+    var when = ticketWhenLabel(slip);
     return (
       '<div role="button" tabindex="0" class="sp-ticket" data-sp-id="' + slip.id + '">' +
       '<i class="sp-ticket__stub" aria-hidden="true"></i>' +
+      '<div class="sp-ticket__top">' +
       '<div class="sp-ticket__seq">' + escapeHtml(String(slip.seq != null ? slip.seq : '')) + '</div>' +
+      (when ? '<div class="sp-ticket__when">' + escapeHtml(when) + '</div>' : '') +
+      '</div>' +
       nameHtml +
-      '<div class="sp-ticket__time">' + escapeHtml(ticketTimeLabel(slip)) + '</div>' +
       '<div class="sp-ticket__items">' + itemLinesHtml(slip) + '</div>' +
       '<div class="sp-ticket__ft">' + memberTagHtml(slip) +
       '<div class="sp-ticket__amt">¥' + money(slip.paid) + '</div></div></div>'
@@ -717,30 +731,31 @@
     var payBits = formatPayBits(slip);
     var custName = displayCustomerName(slip);
     var gender = ui.guestGender || '';
-    var genderHtml = '';
+    var timeText = escapeHtml(slip.dateKey.replace(/-/g, '.')) + '  ' + escapeHtml(slip.time);
+    /* 第二行：会员=持卡+时间；散客可编辑=性别男/女+时间（对齐持卡行）；只读散客仅时间 */
+    var secondRow;
     if (!slip.isMember && !readonly) {
-      genderHtml =
+      secondRow =
+        '<div class="spf-sum__cards-row spf-sum__cards-row--guest">' +
         '<div class="spf-sum__gender">' +
         '<span class="spf-sum__gender-lab">性别</span>' +
-        '<button type="button" class="spf-gender-btn' + (gender === '' ? ' is-on' : '') +
-        '" data-sp-gender="">不选</button>' +
         '<button type="button" class="spf-gender-btn' + (gender === 'male' ? ' is-on' : '') +
         '" data-sp-gender="male">男</button>' +
         '<button type="button" class="spf-gender-btn' + (gender === 'female' ? ' is-on' : '') +
-        '" data-sp-gender="female">女</button></div>';
+        '" data-sp-gender="female">女</button></div>' +
+        '<span class="spf-sum__time">' + timeText + '</span></div>';
+    } else {
+      secondRow =
+        '<div class="spf-sum__cards-row">' +
+        (slip.cards
+          ? '<button type="button" class="spf-sum__cards-toggle' + (ui.cardsOpen ? ' is-open' : '') +
+            '" data-sp-cards-toggle>持卡' + CHEV_SVG + '</button>'
+          : '<span class="spf-sum__cards-toggle is-empty"></span>') +
+        '<span class="spf-sum__time">' + timeText + '</span></div>' +
+        (slip.cards && ui.cardsOpen
+          ? '<div class="spf-sum__cards">' + escapeHtml(slip.cards) + '</div>'
+          : '');
     }
-
-    var timeText = escapeHtml(slip.dateKey.replace(/-/g, '.')) + '  ' + escapeHtml(slip.time);
-    var cardsRow =
-      '<div class="spf-sum__cards-row">' +
-      (slip.cards
-        ? '<button type="button" class="spf-sum__cards-toggle' + (ui.cardsOpen ? ' is-open' : '') +
-          '" data-sp-cards-toggle>持卡' + CHEV_SVG + '</button>'
-        : '<span class="spf-sum__cards-toggle is-empty"></span>') +
-      '<span class="spf-sum__time">' + timeText + '</span></div>' +
-      (slip.cards && ui.cardsOpen
-        ? '<div class="spf-sum__cards">' + escapeHtml(slip.cards) + '</div>'
-        : '');
 
     var sumHtml =
       '<div class="spf-block spf-sum">' +
@@ -749,9 +764,11 @@
       '<div class="spf-sum__main">' +
       '<div class="spf-sum__line1">' +
       '<span class="spf-sum__name">' + escapeHtml(custName) + '</span>' +
-      (slip.isMember ? '<span class="spf-sum__vip">会员</span>' : '<span class="spf-sum__vip" style="background:#EEF2FF;color:#4A7BF4">散客</span>') +
+      (slip.isMember
+        ? '<span class="spf-sum__vip">会员</span>'
+        : '<span class="spf-sum__vip spf-sum__vip--guest">散客</span>') +
       (slip.phone ? '<span class="spf-sum__phone">' + escapeHtml(slip.phone) + '</span>' : '') +
-      '</div>' + cardsRow + genderHtml +
+      '</div>' + secondRow +
       '</div></div>' +
       '<div class="spf-sum__pay">' +
       '<div class="spf-sum__amt"><span>¥</span>' + money(slip.paid) + '</div>' +
@@ -1424,6 +1441,8 @@
     var genderBtn = e.target.closest('[data-sp-gender]');
     if (genderBtn) {
       var g = genderBtn.getAttribute('data-sp-gender') || '';
+      /* 再点已选项 → 取消，视为不选 */
+      if (g && ui.guestGender === g) g = '';
       ui.guestGender = g;
       var slipG = getSlip(ui.currentId);
       if (slipG && !slipG.isMember) {

@@ -18,3 +18,10 @@ prd-confirm-quiz.html
 # 开发用参考截图（raw / ref），非交付资源
 assets/**/raw*.png
 assets/**/ref.png
+
+# 字体调研源包 / 未采用的 OC Highway 产物（编号已改用 HeadLineA）
+assets/fonts/oc-src/
+assets/fonts/oc-highway-src/
+assets/fonts/OC_Highway_VAR2_Download.zip
+assets/fonts/oc-highway.zip
+assets/fonts/OCHighway*
