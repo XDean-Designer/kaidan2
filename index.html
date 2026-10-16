@@ -7,7 +7,7 @@
 <!-- R46perf：去掉 Google Fonts，避免外网阻塞首屏白屏；流水 CSS/JS 按需加载 -->
 <link rel="stylesheet" href="assets/v2.css">
 <link rel="stylesheet" href="assets/v2-home-pay.css?v=r49">
-<link rel="stylesheet" href="assets/selfpay.css?v=r52r">
+<link rel="stylesheet" href="assets/selfpay.css?v=r53c">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -3727,7 +3727,7 @@
     </div>
   </div>
 
-  <!-- ============ 页面16 自助订单（R44：无 Tab / 无手工开单；补全=原地放大） ============ -->
+  <!-- ============ 页面16 自助订单（R44：无 Tab / 无手工开单；补全=全屏 s17，FLIP/原地放大已废止） ============ -->
   <div class="screen" id="s16" data-name="自助订单">
     <div class="status-bar">
       <div class="time">9:41</div>
@@ -3844,7 +3844,7 @@
     </div>
   </div>
 
-  <!-- 自助订单 · 旧 FLIP 层保留 DOM 供兼容，R45 不再打开 -->
+  <!-- 自助订单 · 旧 FLIP/原地放大层：DOM 兼容占位，R45 起已废止，不再打开；补全走全屏 s17 -->
   <div class="sp-expand" id="spExpandRoot" hidden>
     <div class="sp-expand__mask" id="spExpandMask"></div>
     <div class="sp-expand__card" id="spExpandCard" role="dialog" aria-label="补全订单">
@@ -9612,6 +9612,6 @@ html.capture-figma #toast { display:none !important; }
   } catch (e) {}
 })();
 </script>
-<script src="assets/selfpay.js?v=r52o"></script>
+<script src="assets/selfpay.js?v=r53c"></script>
 </body>
 </html>

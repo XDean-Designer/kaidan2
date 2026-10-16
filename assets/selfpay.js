@@ -8,8 +8,12 @@
   var ARCHIVER = '店员小陈';
   var PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
   var CHEV_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
-  var MORE_ICON = '<img class="vh-sp-more__ic" src="assets/ic_sp_more.svg" alt="" width="20" height="20">';
   var HELP_ICON = '<img class="sp-help-btn__ic" src="assets/ic_sp_help.svg" alt="" width="16" height="16">';
+  /** 微信式二楼：预览行程 / 触发阈值（px） */
+  var FLOOR_THRESHOLD = 80;
+  var FLOOR_FRAME_W = 390;
+  var FLOOR_EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+  var FLOOR_MS = 340;
   /* 猜你想加 · 演示种子（②热销 / ③搭配 / ④归档常用） */
   var SUGGEST_HOT = [
     '洗剪吹', '染发', '深层滋养', '烫发', '时尚洗吹',
@@ -62,6 +66,13 @@
   }
   function money(n) {
     return (Math.round((Number(n) || 0) * 100) / 100).toFixed(2);
+  }
+  /** 票卡 / s17 实付：整数无小数；有小数则去掉尾部 0 */
+  function moneyTrim(n) {
+    var v = Math.round((Number(n) || 0) * 100) / 100;
+    if (!isFinite(v)) v = 0;
+    if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
+    return String(parseFloat(v.toFixed(2)));
   }
   function toast(msg, ms) {
     if (typeof window.toast === 'function') window.toast(msg, ms);
@@ -584,7 +595,7 @@
       nameHtml +
       '<div class="sp-ticket__items">' + itemLinesHtml(slip) + '</div>' +
       '<div class="sp-ticket__ft">' + memberTagHtml(slip) +
-      '<div class="sp-ticket__amt">¥' + money(slip.paid) + '</div></div></div>'
+      '<div class="sp-ticket__amt">¥' + moneyTrim(slip.paid) + '</div></div></div>'
     );
   }
   function renderHomeStrip() {
@@ -597,11 +608,13 @@
     }
     var html = '';
     list.slice(0, 5).forEach(function (slip) { html += ticketHtml(slip); });
-    html +=
-      '<button type="button" class="vh-sp-more" data-sp-more aria-label="更多">' +
-      '<span class="vh-sp-more__t">更多</span>' + MORE_ICON +
-      '</button>';
+    html += '<div class="vh-sp-tail" aria-hidden="true"></div>';
     el.innerHTML = html;
+    el.style.transform = '';
+    var host = $('#spHomeStripHost');
+    if (host) {
+      host.classList.remove('is-at-end', 'is-armed', 'is-pulling');
+    }
   }
   function syncHomeBadge() {
     document.querySelectorAll('.sp-home-badge').forEach(function (b) { b.remove(); });
@@ -771,7 +784,7 @@
       '</div>' + secondRow +
       '</div></div>' +
       '<div class="spf-sum__pay">' +
-      '<div class="spf-sum__amt"><span>¥</span>' + money(slip.paid) + '</div>' +
+      '<div class="spf-sum__amt"><span>¥</span>' + moneyTrim(slip.paid) + '</div>' +
       '<div class="spf-sum__pays">' + payBits + '</div></div>' +
       (slip.benefits ? '<div class="spf-sum__ben">' + escapeHtml(slip.benefits) + '</div>' : '') +
       '</div>';
@@ -1484,11 +1497,433 @@
     }
   }
 
+  function ensureFloorChrome() {
+    var frame = document.getElementById('frame');
+    if (!frame || frame.querySelector('#spFloorDots')) return;
+    var dots = document.createElement('div');
+    dots.id = 'spFloorDots';
+    dots.className = 'sp-floor-dots';
+    dots.setAttribute('aria-hidden', 'true');
+    dots.innerHTML = '<i></i><i></i><i></i>';
+    frame.appendChild(dots);
+  }
+
+  function floorVisualPull(raw) {
+    var p = Math.max(0, raw);
+    if (p <= FLOOR_THRESHOLD) return p;
+    return FLOOR_THRESHOLD + (p - FLOOR_THRESHOLD) * 0.32;
+  }
+
+  function clearFloorInline(el) {
+    if (!el) return;
+    el.style.transition = '';
+    el.style.transform = '';
+    el.style.opacity = '';
+    el.style.zIndex = '';
+    el.classList.remove('is-floor-peek');
+    if (!el.classList.contains('active') && (el.id === 's0' || el.id === 's16')) {
+      el.style.display = '';
+    }
+  }
+
+  function clearFloorStyles() {
+    var frame = document.getElementById('frame');
+    var s0 = $('#s0');
+    var s16 = $('#s16');
+    var dots = $('#spFloorDots');
+    if (frame) frame.classList.remove('is-floor-dragging');
+    clearFloorInline(s0);
+    clearFloorInline(s16);
+    if (dots) {
+      dots.classList.remove('is-on', 'is-split', 'is-armed');
+      dots.style.removeProperty('--sp-dot-spread');
+      dots.style.removeProperty('--sp-floor-t');
+    }
+  }
+
+  /** dir: 'to-list' | 'to-home'；progress 为跟手像素（逻辑拉力） */
+  function applyFloorPull(rawPull, dir) {
+    ensureFloorChrome();
+    var frame = document.getElementById('frame');
+    var s0 = $('#s0');
+    var s16 = $('#s16');
+    var dots = $('#spFloorDots');
+    var raw = Math.max(0, rawPull);
+    var visual = floorVisualPull(raw);
+    var t = Math.min(1, raw / FLOOR_THRESHOLD);
+    var spread = Math.max(0, (t - 0.18) / 0.82) * 11;
+
+    if (frame) frame.classList.toggle('is-floor-dragging', raw > 0);
+    if (!raw) {
+      clearFloorStyles();
+      return;
+    }
+
+    if (dir === 'to-list') {
+      if (s0) {
+        s0.classList.add('is-floor-peek');
+        s0.style.display = 'block';
+        s0.style.transition = 'none';
+        s0.style.transform = 'translateX(' + (-visual) + 'px)';
+        s0.style.opacity = '1';
+        s0.style.zIndex = '4';
+      }
+      if (s16) {
+        s16.classList.add('is-floor-peek');
+        s16.style.display = 'block';
+        s16.style.transition = 'none';
+        s16.style.transform = 'translateX(' + (FLOOR_FRAME_W - visual) + 'px)';
+        s16.style.opacity = String(Math.min(1, t * 1.05));
+        s16.style.zIndex = '5';
+      }
+    } else {
+      if (s16) {
+        s16.classList.add('is-floor-peek');
+        s16.style.display = 'block';
+        s16.style.transition = 'none';
+        s16.style.transform = 'translateX(' + visual + 'px)';
+        s16.style.opacity = String(Math.max(0.15, 1 - t * 0.85));
+        s16.style.zIndex = '5';
+      }
+      if (s0) {
+        s0.classList.add('is-floor-peek');
+        s0.style.display = 'block';
+        s0.style.transition = 'none';
+        s0.style.transform = 'translateX(' + (-FLOOR_FRAME_W + visual) + 'px)';
+        s0.style.opacity = String(Math.min(1, t * 1.05));
+        s0.style.zIndex = '4';
+      }
+    }
+
+    if (dots) {
+      dots.classList.toggle('is-on', raw > 3);
+      dots.classList.toggle('is-split', t > 0.22);
+      dots.classList.toggle('is-armed', t >= 1);
+      dots.style.setProperty('--sp-floor-t', String(t));
+      dots.style.setProperty('--sp-dot-spread', spread.toFixed(2) + 'px');
+    }
+  }
+
+  function animateFloorSettle(dir, rawPull, onDone) {
+    var s0 = $('#s0');
+    var s16 = $('#s16');
+    var dots = $('#spFloorDots');
+    var visual = floorVisualPull(rawPull);
+    var enter = dir === 'to-list';
+
+    if (dots) dots.classList.remove('is-on', 'is-split', 'is-armed');
+
+    function prep(el, tx, op) {
+      if (!el) return;
+      el.classList.add('is-floor-peek');
+      el.style.display = 'block';
+      el.style.transition = 'none';
+      el.style.transform = 'translateX(' + tx + 'px)';
+      el.style.opacity = String(op);
+      void el.offsetWidth;
+      el.style.transition =
+        'transform ' + (FLOOR_MS / 1000) + 's ' + FLOOR_EASE +
+        ', opacity ' + (FLOOR_MS / 1000) + 's ' + FLOOR_EASE;
+    }
+
+    if (enter) {
+      prep(s0, -visual, 1);
+      prep(s16, FLOOR_FRAME_W - visual, Math.min(1, rawPull / FLOOR_THRESHOLD));
+      requestAnimationFrame(function () {
+        if (s0) {
+          s0.style.transform = 'translateX(' + (-FLOOR_FRAME_W) + 'px)';
+          s0.style.opacity = '0.35';
+        }
+        if (s16) {
+          s16.style.transform = 'translateX(0)';
+          s16.style.opacity = '1';
+        }
+      });
+    } else {
+      prep(s16, visual, Math.max(0.15, 1 - rawPull / FLOOR_THRESHOLD));
+      prep(s0, -FLOOR_FRAME_W + visual, Math.min(1, rawPull / FLOOR_THRESHOLD));
+      requestAnimationFrame(function () {
+        if (s16) {
+          s16.style.transform = 'translateX(' + FLOOR_FRAME_W + 'px)';
+          s16.style.opacity = '0';
+        }
+        if (s0) {
+          s0.style.transform = 'translateX(0)';
+          s0.style.opacity = '1';
+        }
+      });
+    }
+
+    setTimeout(function () {
+      clearFloorStyles();
+      if (onDone) onDone();
+    }, FLOOR_MS + 20);
+  }
+
+  function animateFloorCancel(dir, rawPull, onDone) {
+    var s0 = $('#s0');
+    var s16 = $('#s16');
+    var dots = $('#spFloorDots');
+    var visual = floorVisualPull(rawPull);
+    if (dots) dots.classList.remove('is-on', 'is-split', 'is-armed');
+
+    function prep(el, tx, op) {
+      if (!el) return;
+      el.classList.add('is-floor-peek');
+      el.style.display = 'block';
+      el.style.transition = 'none';
+      el.style.transform = 'translateX(' + tx + 'px)';
+      el.style.opacity = String(op);
+      void el.offsetWidth;
+      el.style.transition =
+        'transform .3s ' + FLOOR_EASE + ', opacity .3s ' + FLOOR_EASE;
+    }
+
+    if (dir === 'to-list') {
+      prep(s0, -visual, 1);
+      prep(s16, FLOOR_FRAME_W - visual, Math.min(1, rawPull / FLOOR_THRESHOLD));
+      requestAnimationFrame(function () {
+        if (s0) { s0.style.transform = 'translateX(0)'; s0.style.opacity = '1'; }
+        if (s16) { s16.style.transform = 'translateX(' + FLOOR_FRAME_W + 'px)'; s16.style.opacity = '0'; }
+      });
+    } else {
+      prep(s16, visual, 1);
+      prep(s0, -FLOOR_FRAME_W + visual, Math.min(1, rawPull / FLOOR_THRESHOLD));
+      requestAnimationFrame(function () {
+        if (s16) { s16.style.transform = 'translateX(0)'; s16.style.opacity = '1'; }
+        if (s0) { s0.style.transform = 'translateX(' + (-FLOOR_FRAME_W) + 'px)'; s0.style.opacity = '0'; }
+      });
+    }
+
+    setTimeout(function () {
+      clearFloorStyles();
+      if (onDone) onDone();
+    }, 320);
+  }
+
+  function bindHomeStripPull(host) {
+    if (!host || host._spPullBound) return;
+    host._spPullBound = true;
+    ensureFloorChrome();
+
+    var pull = 0;
+    var tracking = false;
+    var fromEnd = false;
+    var startX = 0;
+    var pointerId = null;
+    var locking = false;
+
+    function getStrip() {
+      return $('#spHomeStrip', host) || $('#spHomeStrip');
+    }
+    function maxScroll() {
+      return Math.max(0, host.scrollWidth - host.clientWidth);
+    }
+    function atEnd(pad) {
+      return host.scrollLeft >= maxScroll() - (pad == null ? 2 : pad);
+    }
+    function hasCards() {
+      var strip = getStrip();
+      return !!(strip && !strip.querySelector('.vh-sp-empty') && strip.querySelector('[data-sp-id]'));
+    }
+    function setPull(px) {
+      pull = Math.max(0, px);
+      host.classList.toggle('is-at-end', atEnd(8) || pull > 0);
+      host.classList.toggle('is-pulling', pull > 0);
+      host.classList.toggle('is-armed', pull >= FLOOR_THRESHOLD);
+      applyFloorPull(pull, 'to-list');
+    }
+    function onScroll() {
+      if (pull > 0 || locking) return;
+      host.classList.toggle('is-at-end', atEnd(8));
+    }
+    host.addEventListener('scroll', onScroll, { passive: true });
+
+    function onPointerDown(e) {
+      if (locking) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (!hasCards()) return;
+      tracking = true;
+      fromEnd = atEnd(4);
+      startX = e.clientX;
+      pointerId = e.pointerId;
+      try { host.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    }
+    function onPointerMove(e) {
+      if (!tracking || locking || (pointerId != null && e.pointerId !== pointerId)) return;
+      var dx = e.clientX - startX;
+      if (!fromEnd) {
+        if (atEnd(4) && dx < -6) {
+          fromEnd = true;
+          startX = e.clientX;
+          dx = 0;
+        } else {
+          return;
+        }
+      }
+      /* 手指左移继续进二楼；右移可撤回（Q4b D） */
+      if (e.cancelable) e.preventDefault();
+      host.scrollLeft = maxScroll();
+      setPull(Math.max(0, -dx));
+    }
+    function onPointerUp(e) {
+      if (!tracking || (pointerId != null && e.pointerId !== pointerId)) return;
+      tracking = false;
+      pointerId = null;
+      if (locking) return;
+      var shouldGo = pull >= FLOOR_THRESHOLD;
+      var last = pull;
+      locking = true;
+      host.classList.remove('is-pulling', 'is-armed');
+      if (shouldGo) {
+        animateFloorSettle('to-list', last, function () {
+          pull = 0;
+          locking = false;
+          go('s16');
+          setTimeout(function () { renderList(); }, 0);
+        });
+      } else if (last > 0) {
+        animateFloorCancel('to-list', last, function () {
+          pull = 0;
+          locking = false;
+          host.classList.toggle('is-at-end', atEnd(8));
+        });
+      } else {
+        clearFloorStyles();
+        locking = false;
+      }
+    }
+    host.addEventListener('pointerdown', onPointerDown);
+    host.addEventListener('pointermove', onPointerMove, { passive: false });
+    host.addEventListener('pointerup', onPointerUp);
+    host.addEventListener('pointercancel', onPointerUp);
+
+    host.addEventListener('wheel', function (e) {
+      if (locking || !hasCards()) return;
+      var dx = e.deltaX || 0;
+      var dy = e.deltaY || 0;
+      var delta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
+      if (delta <= 0) {
+        if (pull > 0) {
+          setPull(Math.max(0, pull + delta));
+          if (e.cancelable) e.preventDefault();
+          clearTimeout(host._spWheelTimer);
+          host._spWheelTimer = setTimeout(function () {
+            if (locking) return;
+            var last = pull;
+            if (last >= FLOOR_THRESHOLD) {
+              locking = true;
+              animateFloorSettle('to-list', last, function () {
+                pull = 0; locking = false; go('s16');
+                setTimeout(function () { renderList(); }, 0);
+              });
+            } else if (last > 0) {
+              locking = true;
+              animateFloorCancel('to-list', last, function () {
+                pull = 0; locking = false;
+              });
+            }
+          }, 140);
+        }
+        return;
+      }
+      if (!atEnd(2) && pull <= 0) return;
+      if (e.cancelable) e.preventDefault();
+      host.scrollLeft = maxScroll();
+      setPull(pull + Math.min(36, delta));
+      clearTimeout(host._spWheelTimer);
+      host._spWheelTimer = setTimeout(function () {
+        if (locking) return;
+        var last = pull;
+        if (last >= FLOOR_THRESHOLD) {
+          locking = true;
+          animateFloorSettle('to-list', last, function () {
+            pull = 0; locking = false; go('s16');
+            setTimeout(function () { renderList(); }, 0);
+          });
+        } else if (last > 0) {
+          locking = true;
+          animateFloorCancel('to-list', last, function () {
+            pull = 0; locking = false;
+          });
+        }
+      }, 140);
+    }, { passive: false });
+  }
+
+  /** s16 左缘右滑回首页（对称二楼） */
+  function bindS16EdgeBack() {
+    var s16 = $('#s16');
+    if (!s16 || s16._spEdgeBound) return;
+    s16._spEdgeBound = true;
+    ensureFloorChrome();
+
+    var pull = 0;
+    var tracking = false;
+    var armed = false;
+    var startX = 0;
+    var pointerId = null;
+    var locking = false;
+    var EDGE = 28;
+
+    function onDown(e) {
+      if (locking) return;
+      if (!s16.classList.contains('active')) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      var rect = s16.getBoundingClientRect();
+      var localX = e.clientX - rect.left;
+      if (localX > EDGE) return;
+      tracking = true;
+      armed = false;
+      pull = 0;
+      startX = e.clientX;
+      pointerId = e.pointerId;
+      try { s16.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    }
+    function onMove(e) {
+      if (!tracking || locking || (pointerId != null && e.pointerId !== pointerId)) return;
+      var dx = e.clientX - startX;
+      if (!armed) {
+        if (dx > 8) armed = true;
+        else return;
+      }
+      if (e.cancelable) e.preventDefault();
+      pull = Math.max(0, dx);
+      applyFloorPull(pull, 'to-home');
+    }
+    function onUp(e) {
+      if (!tracking || (pointerId != null && e.pointerId !== pointerId)) return;
+      tracking = false;
+      pointerId = null;
+      if (locking) return;
+      var last = pull;
+      pull = 0;
+      if (last >= FLOOR_THRESHOLD) {
+        locking = true;
+        animateFloorSettle('to-home', last, function () {
+          locking = false;
+          goBack();
+          setTimeout(renderHomeStrip, 0);
+        });
+      } else if (last > 0) {
+        locking = true;
+        animateFloorCancel('to-home', last, function () {
+          locking = false;
+        });
+      } else {
+        clearFloorStyles();
+      }
+    }
+    s16.addEventListener('pointerdown', onDown);
+    s16.addEventListener('pointermove', onMove, { passive: false });
+    s16.addEventListener('pointerup', onUp);
+    s16.addEventListener('pointercancel', onUp);
+  }
+
   function bind() {
     var stripHost = $('#spHomeStripHost') || $('#spHomeStrip');
     if (stripHost) {
       stripHost.addEventListener('click', function (e) {
-        if (e.target.closest('[data-sp-more]')) { go('s16'); return; }
         if (e.target.closest('[data-sp-member-link]')) {
           e.stopPropagation();
           toast('会员详情');
@@ -1497,7 +1932,9 @@
         var card = e.target.closest('[data-sp-id]');
         if (card) openComplete(card.getAttribute('data-sp-id'));
       });
+      bindHomeStripPull(stripHost);
     }
+    bindS16EdgeBack();
     var grid = $('#spGridWrap');
     if (grid) {
       grid.addEventListener('click', function (e) {
@@ -1627,6 +2064,7 @@
     if (window.go && !window.go._spHook) {
       var _go = window.go;
       window.go = function (id) {
+        clearFloorStyles();
         _go.apply(this, arguments);
         setTimeout(syncAllocNav, 0);
         if (id === 's0') setTimeout(renderHomeStrip, 0);
@@ -1638,6 +2076,7 @@
   }
 
   function init() {
+    ensureFloorChrome();
     bind();
     syncAllocNav();
     renderHomeStrip();

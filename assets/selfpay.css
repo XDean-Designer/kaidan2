@@ -92,9 +92,10 @@
   display: block;
   /* 票卡为 column+stretch：须 flex-start，否则姓名盒被撑满，下划线比字宽 */
   align-self: flex-start;
+  flex: none;
   width: fit-content;
   max-width: 100%;
-  margin-top: 10px; /* Figma：name.y 34 − seq 行底 ≈ 10 */
+  margin-top: 6px; /* 靠近编号 */
   font-size: 12px;
   font-weight: 600;
   color: #1a1a1a;
@@ -135,17 +136,23 @@
 }
 .sp-ticket__name.is-link:active { opacity: .65; }
 .sp-ticket__items {
-  margin-top: 9px; /* Figma：rule.y 59 − name 底 */
-  padding-top: 7px;
+  flex: 1 1 auto;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: .5px dashed #D8D8D8; /* 规则1：保留原虚线，不跟 Figma 实线 */
-  min-height: 35px;
+  min-height: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px; /* 两行项目行距均匀 */
 }
 .sp-ticket__line {
   font-size: 10px;
   color: #1a1a1a;
   line-height: 14px;
   white-space: nowrap;
+  flex: none;
 }
 .sp-ticket__line.is-empty { color: #C7C7CC; }
 .sp-ticket__line2 {
@@ -154,6 +161,7 @@
   gap: 4px;
   margin-top: 0;
   min-width: 0;
+  flex: none;
 }
 .sp-ticket__line2 > span:first-child {
   font-size: 10px;
@@ -179,13 +187,15 @@
   font-variant-numeric: tabular-nums;
 }
 .sp-ticket__ft {
-  margin-top: auto;
-  padding-top: 4px;
+  flex: none;
+  margin-top: 0;
+  padding-top: 6px;
   border-top: .5px dashed #D8D8D8;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 22px;
+  box-sizing: content-box;
 }
 .sp-ticket__amt {
   font-size: 13px;
@@ -200,7 +210,8 @@
 /* 横滑由 .vh-sp-strip-host 承担；条本身撑开宽度 */
 .vh-sp-strip {
   margin: 0;
-  padding: 2px 12px 4px;
+  /* 右侧少留白，首屏约 3 整卡 + 第 4 张露出 ~30px */
+  padding: 2px 4px 4px 12px;
   display: flex;
   flex-wrap: nowrap;
   gap: 10px;
@@ -208,35 +219,89 @@
   min-width: 100%;
   box-sizing: border-box;
   overflow: visible;
+  will-change: transform;
 }
 .vh-sp-strip:empty { display: none; }
-.vh-sp-more {
-  flex: 0 0 48px;
-  width: 48px;
+/* 首页横滑卡略窄；列表网格仍用默认 117 */
+.vh-sp-strip .sp-ticket {
+  flex: 0 0 108px;
+  width: 108px;
+}
+/* 尽头隐形占位：保证可滚到头，便于触发二楼（无文案） */
+.vh-sp-tail {
+  flex: 0 0 40px;
+  width: 40px;
   height: 132px;
-  border: 1px solid #E8E4DC;
-  border-radius: 6px;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(40, 30, 10, .06);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  font: inherit;
-  color: #666;
-  margin-right: 12px;
-  -webkit-tap-highlight-color: transparent;
+  pointer-events: none;
+  visibility: hidden;
 }
-.vh-sp-more:active { opacity: .88; }
-.vh-sp-more__t { font-size: 13px; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .12em; }
-.vh-sp-more__ic {
-  width: 20px;
-  height: 20px;
-  display: block;
-  flex: none;
+.vh-sp-strip-host.is-pulling {
+  touch-action: none;
 }
+/* —— 微信式「二楼」：右缘圆点 1→3 + 整页跟手 —— */
+.sp-floor-dots {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 16px;
+  height: 56px;
+  margin-top: -28px;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .16s ease;
+}
+.sp-floor-dots.is-on { opacity: 1; }
+.sp-floor-dots i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: rgba(60, 60, 67, .32);
+  box-shadow: 0 0 0 .5px rgba(255, 255, 255, .35);
+  transform: translateY(0) scale(1);
+  transition: background .18s ease, box-shadow .18s ease;
+  will-change: transform;
+}
+/* 未分裂：三点重叠成 1 点 */
+.sp-floor-dots:not(.is-split) i:nth-child(1),
+.sp-floor-dots:not(.is-split) i:nth-child(3) {
+  opacity: 0;
+}
+.sp-floor-dots.is-split i:nth-child(1) {
+  opacity: 1;
+  transform: translateY(calc(-1 * var(--sp-dot-spread, 0px)));
+}
+.sp-floor-dots.is-split i:nth-child(2) {
+  transform: translateY(0) scale(1.05);
+}
+.sp-floor-dots.is-split i:nth-child(3) {
+  opacity: 1;
+  transform: translateY(var(--sp-dot-spread, 0px));
+}
+.sp-floor-dots.is-armed i {
+  background: #FF571A;
+  box-shadow: 0 0 0 1px rgba(255, 87, 26, .22);
+}
+/* 跟手预览：非 active 屏也要能露出来 */
+.screen.is-floor-peek {
+  display: block !important;
+  pointer-events: none;
+  z-index: 4;
+}
+#s16.is-floor-peek { z-index: 5; }
+#s0.is-floor-peek { z-index: 4; }
+#frame.is-floor-dragging {
+  overflow: hidden;
+}
+#frame.is-floor-dragging .screen.active {
+  pointer-events: none;
+}
+/* 旧「更多」竖卡样式保留类名兼容，原型不再渲染 */
+.vh-sp-more { display: none !important; }
 
 .sp-tag {
   display: inline-flex;
