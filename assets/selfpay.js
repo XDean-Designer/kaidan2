@@ -53,7 +53,7 @@
     f2: pxAvatar(31776048), /* 东京饰品写真 */
     f3: pxAvatar(6316074),  /* 东京街头潮流 */
     f4: pxAvatar(39877058), /* 北京咖啡馆 */
-    f5: pxAvatar(39876575), /* 上海街头 */
+    f5: pxAvatar(34586542), /* 首尔时尚博主 · 绿蝴蝶结写真 */
     f6: pxAvatar(20478046), /* 米色大衣 · 首尔 */
     f7: pxAvatar(19271566), /* 韩屋步行街 */
     m1: pxAvatar(6929324)   /* 男 · 休闲街拍 */
@@ -976,7 +976,7 @@
     if (slip.isMember) {
       var memGender = slip.gender === 'male' ? 'male' : 'female';
       memberBody =
-        '<div class="spf-card spf-card--cust spf-card--member">' +
+        '<div class="spf-card spf-card--cust spf-card--member" data-sp-member-card>' +
         '<div class="spf-cust">' +
         memberAvatarImgHtml('spf-cust__av', slip.avatar) +
         '<div class="spf-cust__main">' +
@@ -2038,6 +2038,11 @@
     }
     if (e.target.closest('[data-sp-pick-member]')) {
       openMemberSheet();
+      return;
+    }
+    if (e.target.closest('[data-sp-member-card]')) {
+      /* 会员卡整卡 → 会员详情（原型用 toast 示意） */
+      toast('会员详情');
       return;
     }
     if (e.target.closest('[data-sp-guest-av]')) {

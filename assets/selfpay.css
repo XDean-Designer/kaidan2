@@ -2062,7 +2062,11 @@
   box-shadow: none;
   border: 1px solid rgba(60, 50, 40, .06);
   border-radius: 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .12s ease, opacity .12s ease;
 }
+#s17 .spf-card--member:active { transform: scale(.985); opacity: .94; }
 #s17 .spf-card--seq {
   display: flex;
   align-items: baseline;
