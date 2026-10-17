@@ -2150,6 +2150,17 @@
   color: #1C1C1E;
 }
 #s17 .spf-card--member .spf-cust__name { font-size: 18px; letter-spacing: .01em; }
+#s17 .spf-cust__sex {
+  flex: none;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  transform: translateY(.5px);
+  pointer-events: none;
+  user-select: none;
+}
+#s17 .spf-cust__sex.is-male { color: #007AFF; }
+#s17 .spf-cust__sex.is-female { color: #FF2D55; }
 #s17 .spf-cust__phone {
   margin-top: 4px;
   font-size: 13px;
@@ -2185,6 +2196,8 @@
   gap: 10px;
 }
 #s17 .spf-cust__last {
+  flex: 1;
+  min-width: 0;
   font-size: 12px;
   color: #8E8E93;
   line-height: 1.35;
@@ -2512,10 +2525,20 @@
   min-width: 0;
 }
 .sp-mem-row__nm {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 16px;
   font-weight: 600;
   color: #1C1C1E;
 }
+.sp-mem-row__nm .spf-cust__sex {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+.sp-mem-row__nm .spf-cust__sex.is-male { color: #007AFF; }
+.sp-mem-row__nm .spf-cust__sex.is-female { color: #FF2D55; }
 .sp-mem-row__ph,
 .sp-mem-row__card {
   font-size: 12px;

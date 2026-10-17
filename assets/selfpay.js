@@ -41,13 +41,28 @@
   var STAFF_BAR_COLOR = {
     st1: '#FFB4B8', st3: '#A8C8F0', st2: '#B5E0C5', st5: '#E2C4F0'
   };
+  /** 会员头像回退（网络图失败时） */
+  var MEM_AVATAR_FALLBACK = 'assets/avatar_card_female.png';
+  /**
+   * 东亚人像 CDN（Faceplacer east-asian 集合；稳定直链，观感接近微信头像）
+   * 来源：faceplacer.com/api/collection?ethnicity=east-asian
+   */
+  var MEM_WX_AVATARS = {
+    m1: 'https://files.stow.sh/b/faceplacer/rrm0nb9157q69',
+    m2: 'https://files.stow.sh/b/faceplacer/g378llejm52ct',
+    m3: 'https://files.stow.sh/b/faceplacer/hqq7iuae1d530',
+    m4: 'https://files.stow.sh/b/faceplacer/1prbnqq2d467g',
+    m5: 'https://files.stow.sh/b/faceplacer/y3ic9tpccqjh8',
+    m6: 'https://files.stow.sh/b/faceplacer/oudpcyp44rbe4',
+    m7: 'https://files.stow.sh/b/faceplacer/j7gqbbmsbynge'
+  };
   /** 选择会员 sheet 演示名单 */
   var SP_DEMO_MEMBERS = [
-    { id: 'm1', name: '何静', phone: '188****6655', avatar: 'assets/avatar_card_female.png', balance: 1280, bonus: 80, debt: 0, lastVisitDate: '2026.10.12', lastItem: '洗剪吹' },
-    { id: 'm2', name: '陈昕然', phone: '186****9033', avatar: 'assets/avatar_female3.png', balance: 0, bonus: 0, debt: 120, lastVisitDate: '2026.10.08', lastItem: '染发' },
-    { id: 'm3', name: '周雨欣', phone: '159****4412', avatar: 'assets/avatar_female2.png', balance: 0, bonus: 20, debt: 0, lastVisitDate: '2026.10.14', lastItem: '时尚洗吹' },
-    { id: 'm4', name: '苏晓萌', phone: '151****2201', avatar: 'assets/avatar_female3.png', balance: 560, bonus: 45, debt: 36.5, lastVisitDate: '2026.09.28', lastItem: '深层滋养' },
-    { id: 'm5', name: '林晓萱', phone: '135****8820', avatar: 'assets/avatar_card_female.png', balance: 880, bonus: 0, debt: 0, lastVisitDate: '2026.10.01', lastItem: '精致剪发' }
+    { id: 'm1', name: '何静', gender: 'female', phone: '188****6655', avatar: MEM_WX_AVATARS.m1, balance: 1280, bonus: 80, debt: 0, lastVisitDate: '2026.10.12', lastItem: '洗剪吹' },
+    { id: 'm2', name: '陈昕然', gender: 'female', phone: '186****9033', avatar: MEM_WX_AVATARS.m2, balance: 0, bonus: 0, debt: 120, lastVisitDate: '2026.10.08', lastItem: '染发' },
+    { id: 'm3', name: '周雨欣', gender: 'female', phone: '159****4412', avatar: MEM_WX_AVATARS.m3, balance: 0, bonus: 20, debt: 0, lastVisitDate: '2026.10.14', lastItem: '时尚洗吹' },
+    { id: 'm4', name: '苏晓萌', gender: 'female', phone: '151****2201', avatar: MEM_WX_AVATARS.m4, balance: 560, bonus: 45, debt: 36.5, lastVisitDate: '2026.09.28', lastItem: '深层滋养' },
+    { id: 'm5', name: '林晓萱', gender: 'female', phone: '135****8820', avatar: MEM_WX_AVATARS.m5, balance: 880, bonus: 0, debt: 0, lastVisitDate: '2026.10.01', lastItem: '精致剪发' }
   ];
   var GUEST_AVATAR = {
     male: 'assets/billing/avatar-male.png',
@@ -127,8 +142,8 @@
       /* 1 会员 · 多项目 · 已有分工 */
       {
         id: 'sp-1', seq: 100, isMember: true, status: 'pending', dateKey: t, time: '09:18',
-        customerName: '何静', phone: '188****6655',
-        avatar: 'assets/avatar_card_female.png',
+        customerName: '何静', gender: 'female', phone: '188****6655',
+        avatar: MEM_WX_AVATARS.m1,
         cards: '', balance: 1280, bonus: 80,
         debt: 0, lastVisitDate: '2026.10.12', lastItem: '洗剪吹',
         items: [
@@ -146,8 +161,8 @@
       /* 2 会员 · 未填项目 · 有欠款 · 智能补全演示主入口 */
       {
         id: 'sp-2', seq: 101, isMember: true, status: 'pending', dateKey: t, time: '10:42',
-        customerName: '陈昕然', phone: '186****9033',
-        avatar: 'assets/avatar_female3.png',
+        customerName: '陈昕然', gender: 'female', phone: '186****9033',
+        avatar: MEM_WX_AVATARS.m2,
         cards: '', balance: 0, bonus: 0,
         debt: 120, lastVisitDate: '2026.10.08', lastItem: '染发',
         items: [],
@@ -157,8 +172,8 @@
       /* 3 会员 · 1 项 · 会员卡 */
       {
         id: 'sp-3', seq: 102, isMember: true, status: 'pending', dateKey: t, time: '11:05',
-        customerName: '周雨欣', phone: '159****4412',
-        avatar: 'assets/avatar_female2.png',
+        customerName: '周雨欣', gender: 'female', phone: '159****4412',
+        avatar: MEM_WX_AVATARS.m3,
         cards: '', balance: 0, bonus: 20,
         debt: 0, lastVisitDate: '2026.10.14', lastItem: '时尚洗吹',
         items: [{ id: 'p2', name: '时尚洗吹', type: 'project', price: 58, qty: 1 }],
@@ -168,8 +183,8 @@
       /* 4 会员 · 混合支付 · 2 项 */
       {
         id: 'sp-5', seq: 104, isMember: true, status: 'pending', dateKey: t, time: '14:08',
-        customerName: '苏晓萌', phone: '151****2201',
-        avatar: 'assets/avatar_female3.png',
+        customerName: '苏晓萌', gender: 'female', phone: '151****2201',
+        avatar: MEM_WX_AVATARS.m4,
         cards: '', balance: 560, bonus: 45,
         debt: 36.5, lastVisitDate: '2026.09.28', lastItem: '深层滋养',
         items: [
@@ -192,8 +207,8 @@
       /* 6 快捷开单 · 保留 */
       {
         id: 'sp-7', seq: 108, isMember: true, status: 'pending', dateKey: t, time: '16:05',
-        customerName: '林晓萱', phone: '135****8820',
-        avatar: 'assets/avatar_card_female.png',
+        customerName: '林晓萱', gender: 'female', phone: '135****8820',
+        avatar: MEM_WX_AVATARS.m5,
         cards: '', balance: 880, bonus: 0,
         debt: 0, lastVisitDate: '2026.10.01', lastItem: '精致剪发',
         items: [], contentMode: 'quick',
@@ -203,8 +218,8 @@
       /* 7 烫染套餐 · 三档工位满态（Figma 抓取主态） */
       {
         id: 'sp-9', seq: 110, isMember: true, status: 'pending', dateKey: t, time: '17:10',
-        customerName: '陆思琪', phone: '186****5511',
-        avatar: 'assets/avatar_female3.png',
+        customerName: '陆思琪', gender: 'female', phone: '186****5511',
+        avatar: MEM_WX_AVATARS.m6,
         cards: '', balance: 1280, bonus: 120,
         debt: 88, lastVisitDate: '2026.09.20', lastItem: '烫发',
         items: [
@@ -262,8 +277,8 @@
       /* 9 跨日 · 昨天 */
       {
         id: 'sp-y1', seq: 114, isMember: true, status: 'pending', dateKey: y, time: '16:40',
-        customerName: '蔡雅婷', phone: '139****1100',
-        avatar: 'assets/avatar_female2.png',
+        customerName: '蔡雅婷', gender: 'female', phone: '139****1100',
+        avatar: MEM_WX_AVATARS.m7,
         cards: '', balance: 2100, bonus: 120,
         debt: 88, lastVisitDate: '2026.10.05', lastItem: '洗剪吹',
         items: [{ id: 'p1', name: '精致剪发', type: 'project', price: 98, qty: 1 }],
@@ -411,9 +426,24 @@
     return (
       '<div class="spf-cust__foot">' +
       (date
-        ? '<span class="spf-cust__last">上次 ' + escapeHtml(date) + '</span>'
+        ? '<span class="spf-cust__last">最近一次消费 ' + escapeHtml(date) + '</span>'
         : '<span class="spf-cust__last is-empty"></span>') +
       '<span class="spf-cust__debt">欠款 ¥' + moneyTrim(debt) + '</span></div>'
+    );
+  }
+  /** 会员姓名旁性别符号（小 ♂/♀，非散客大色圆） */
+  function memberGenderIconHtml(gender) {
+    var g = gender === 'male' ? 'male' : 'female';
+    var sym = g === 'male' ? '♂' : '♀';
+    var lab = g === 'male' ? '男' : '女';
+    return '<span class="spf-cust__sex is-' + g + '" aria-label="' + lab + '">' + sym + '</span>';
+  }
+  function memberAvatarImgHtml(cls, src) {
+    var url = src || MEM_AVATAR_FALLBACK;
+    return (
+      '<img class="' + cls + '" src="' + escapeHtml(url) + '" alt="" loading="lazy" ' +
+      'referrerpolicy="no-referrer" ' +
+      'onerror="this.onerror=null;this.src=\'' + MEM_AVATAR_FALLBACK + '\'">'
     );
   }
   function namesFromAssign(a) {
@@ -927,14 +957,15 @@
     var debt = Number(slip.debt) || 0;
     var memberBody;
     if (slip.isMember) {
-      var memAv = slip.avatar || 'assets/avatar_card_female.png';
+      var memGender = slip.gender === 'male' ? 'male' : 'female';
       memberBody =
         '<div class="spf-card spf-card--cust spf-card--member">' +
         '<div class="spf-cust">' +
-        '<img class="spf-cust__av" src="' + escapeHtml(memAv) + '" alt="">' +
+        memberAvatarImgHtml('spf-cust__av', slip.avatar) +
         '<div class="spf-cust__main">' +
         '<div class="spf-cust__line1">' +
         '<span class="spf-cust__name">' + escapeHtml(custName) + '</span>' +
+        memberGenderIconHtml(memGender) +
         '<span class="spf-sum__vip">会员</span></div>' +
         (slip.phone ? '<div class="spf-cust__phone">' + escapeHtml(slip.phone) + '</div>' : '') +
         memberWalletHtml(slip) +
@@ -1826,11 +1857,12 @@
     body.innerHTML = SP_DEMO_MEMBERS.map(function (m) {
       return (
         '<button type="button" class="sp-mem-row" data-sp-bind-member="' + escapeHtml(m.id) + '">' +
-        '<img class="sp-mem-row__av" src="' + escapeHtml(m.avatar) + '" alt="">' +
+        memberAvatarImgHtml('sp-mem-row__av', m.avatar) +
         '<span class="sp-mem-row__main">' +
-        '<span class="sp-mem-row__nm">' + escapeHtml(m.name) + '</span>' +
+        '<span class="sp-mem-row__nm">' + escapeHtml(m.name) +
+        memberGenderIconHtml(m.gender) + '</span>' +
         '<span class="sp-mem-row__ph">' + escapeHtml(m.phone) + '</span>' +
-        '<span class="sp-mem-row__card">' + escapeHtml(m.cards) + '</span></span></button>'
+        '<span class="sp-mem-row__card">' + escapeHtml(m.cards || '') + '</span></span></button>'
       );
     }).join('');
     openMask('spMemberMask');
@@ -1842,6 +1874,7 @@
     if (!m || !slip || ui.readonly) return;
     slip.isMember = true;
     slip.customerName = m.name;
+    slip.gender = m.gender === 'male' ? 'male' : 'female';
     slip.phone = m.phone;
     slip.avatar = m.avatar;
     slip.cards = '';
