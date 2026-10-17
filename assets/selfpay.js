@@ -200,30 +200,51 @@
         paid: 168, payments: [{ method: '微信', amount: 168 }],
         benefits: '', slipNo: 'SP202610150168', remark: '顾客选了快捷'
       },
-      /* 7 烫染套餐 · 双人分工 */
+      /* 7 烫染套餐 · 三档工位满态（Figma 抓取主态） */
       {
         id: 'sp-9', seq: 110, isMember: true, status: 'pending', dateKey: t, time: '17:10',
         customerName: '陆思琪', phone: '186****5511',
         avatar: 'assets/avatar_female3.png',
-        cards: '', balance: 320, bonus: 50,
-        debt: 0, lastVisitDate: '2026.09.20', lastItem: '烫发',
+        cards: '', balance: 1280, bonus: 120,
+        debt: 88, lastVisitDate: '2026.09.20', lastItem: '烫发',
         items: [
           {
             id: 'p7', name: '烫发', type: 'project', price: 398, qty: 1,
             assign: {
               stations: {
-                senior: [mkPerson('st3', '阿Ken', 'senior', { pct: 100 })],
+                senior: [mkPerson('st3', '阿Ken', 'senior', { pct: 100, dianke: true })],
                 mid: [mkPerson('st2', '何苏叶', 'mid', { pct: 85 })],
+                junior: [mkPerson('st5', '小周', 'junior', { pct: 75 })]
+              },
+              people: []
+            }
+          },
+          {
+            id: 'p8', name: '染发', type: 'project', price: 358, qty: 1,
+            assign: {
+              stations: {
+                senior: [mkPerson('st1', '林屿森', 'senior', { pct: 100 })],
+                mid: [],
                 junior: []
               },
               people: []
             }
           },
-          { id: 'p8', name: '染发', type: 'project', price: 358, qty: 1 },
-          { id: 'p9', name: '深层滋养', type: 'project', price: 198, qty: 1 }
+          {
+            id: 'p9', name: '深层滋养', type: 'project', price: 198, qty: 1,
+            assign: {
+              stations: {
+                senior: [],
+                mid: [mkPerson('st2', '何苏叶', 'mid', { pct: 85, dianke: true })],
+                junior: []
+              },
+              people: []
+            }
+          },
+          { id: 'g2', name: '剑琅柔顺发膜', type: 'product', price: 148, qty: 1 }
         ],
-        paid: 760, payments: [{ method: '微信', amount: 400 }, { method: '会员卡', amount: 360 }],
-        benefits: '折扣卡 8 折', slipNo: 'SP202610150210', remark: '烫染套餐'
+        paid: 860, payments: [{ method: '微信', amount: 400 }, { method: '会员卡', amount: 460 }],
+        benefits: '折扣卡 8 折 · 赠护理券', slipNo: 'SP202610150210', remark: '烫染套餐 · 客户指定阿Ken'
       },
       /* 8 散客女 · 2 项 */
       {
@@ -277,7 +298,7 @@
     priceTab: 'project',
     priceGroup: '全部',
     readonly: false,
-    allocMode: 'station',
+    allocMode: 'average',
     pickCtx: null,
     pickDraft: {},
     pickFootEl: null,
@@ -290,7 +311,8 @@
     perfEditId: null,
     perfKeypadBuf: '',
     perfKeypadReplace: false,
-    perfKeypadTarget: null
+    perfKeypadTarget: null,
+    smartComplete: true
   };
 
   function emptyAssign() {
@@ -350,20 +372,13 @@
   function guestAvatarOf(gender) {
     return gender === 'female' ? GUEST_AVATAR.female : GUEST_AVATAR.male;
   }
-  /** 散客性别符号（圆底：男蓝 / 女粉；实心饱满，圆内占比大） */
+  /** 散客性别符号（稿：粉底倾斜♀ / 蓝底♂ SVG） */
   function guestGenderBadgeHtml(gender, interactive) {
     var g = gender === 'female' ? 'female' : 'male';
-    var icon = g === 'female'
-      ? '<svg class="spf-gender__ic" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">' +
-        '<circle cx="16" cy="11.5" r="6" fill="currentColor"/>' +
-        '<rect x="14.2" y="17.2" width="3.6" height="8.8" rx="1.8" fill="currentColor"/>' +
-        '<rect x="10.2" y="21.4" width="11.6" height="3.4" rx="1.7" fill="currentColor"/>' +
-        '</svg>'
-      : '<svg class="spf-gender__ic" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">' +
-        '<circle cx="13.2" cy="19" r="6" fill="currentColor"/>' +
-        '<path d="M17.6 14.4L26.4 5.6" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/>' +
-        '<path d="M19.4 5.4h7.4v7.4" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
-        '</svg>';
+    var src = g === 'female' ? 'assets/gender/ic_guest_female.svg' : 'assets/gender/ic_guest_male.svg';
+    var icon = '<img class="spf-gender__ic" src="' + src + '" alt="" width="' +
+      (g === 'female' ? '30' : '48') + '" height="' + (g === 'female' ? '30' : '48') +
+      '" aria-hidden="true">';
     var inner = '<span class="spf-gender is-' + g + '">' + icon + '</span>';
     if (!interactive) return inner;
     return '<button type="button" class="spf-cust__av-btn" data-sp-guest-av aria-label="切换性别">' +
@@ -372,9 +387,9 @@
   /** 数值条 % 标签水平位：夹在左右控件之间，0–100 映射到安全区 */
   function pctLabelLeft(pct) {
     var p = Math.max(0, Math.min(100, Number(pct) || 0));
-    /* 收紧：避开左点客(~40px)与右业绩+删除(~76px) */
-    var lo = 24;
-    var hi = 52;
+    /* 稍放宽：更靠近左右控件 */
+    var lo = 18;
+    var hi = 58;
     return lo + (hi - lo) * (p / 100);
   }
   function memberWalletHtml(slip) {
@@ -945,9 +960,13 @@
       '</div>';
 
     var itemsInner = '';
+    var quickHd =
+      '<div class="spf-quick-hd">' +
+      '<img class="spf-quick-hd__ic" src="assets/ic_sp_quick_bolt.svg" alt="" width="23" height="23">' +
+      '<span class="spf-quick-hd__t">快捷开单</span></div>';
     if (readonly) {
       if (slip.contentMode === 'quick') {
-        itemsInner = '<div class="spf-quick-tip">快捷开单</div>' +
+        itemsInner = quickHd +
           assignBarsHtml(slip.orderStaff || emptyAssign(), 'order', { price: slip.paid, qty: 1 }, true);
       } else if (slip.items && slip.items.length) {
         itemsInner = slip.items.map(function (it, idx) {
@@ -958,7 +977,7 @@
       }
     } else if (ui.contentMode === 'quick') {
       itemsInner =
-        '<div class="spf-quick-tip">已选快捷开单（无明细项）</div>' +
+        quickHd +
         assignBarsHtml(ui.orderStaff, 'order', { price: slip.paid, qty: 1 }, false) +
         '<button type="button" class="spf-add-btn" data-sp-add>+ 添加项目/产品</button>';
     } else {
@@ -985,6 +1004,14 @@
     return seqCard + memberBody + payCard + consumeCard + remarkCard;
   }
 
+  function syncSmartToggle() {
+    var wrap = $('#s17SmartToggle');
+    var sw = $('#s17SmartSwitch');
+    if (!wrap || !sw) return;
+    var show = !!ui.currentId && !ui.readonly;
+    wrap.hidden = !show;
+    sw.checked = !!ui.smartComplete;
+  }
   function paintS17() {
     var slip = getSlip(ui.currentId);
     if (!slip) return;
@@ -996,6 +1023,7 @@
     if (title) title.textContent = ui.readonly ? (slip.status === 'voided' ? '已作废' : '单据详情') : '补全订单';
     root.classList.toggle('is-readonly', !!ui.readonly);
     if (bar) bar.hidden = !!ui.readonly;
+    syncSmartToggle();
     scroll.innerHTML = completeBodyHtml(slip, ui.readonly);
     var remark = $('#spRemark');
     if (remark) {
@@ -1039,6 +1067,8 @@
     var best = null;
     var bestScore = -1;
     catalogFlat().forEach(function (c) {
+      /* 硬规则：填入项售价不得低于订单实付 */
+      if (Number(c.price) < paid) return;
       /* 项目优先：同价差下项目加分 */
       var priceDiff = Math.abs(c.price - paid);
       var priceScore = 1 / (1 + priceDiff / Math.max(paid, 1));
@@ -1081,7 +1111,7 @@
     return true;
   }
   function runSmartComplete(slip) {
-    if (ui.readonly) return;
+    if (ui.readonly || !ui.smartComplete) return;
     if (ui.contentMode !== 'quick' && !ui.editItems.length) {
       var pick = smartPickItem(slip);
       if (pick) {
@@ -1151,13 +1181,14 @@
     }
     ui.perfRows = [];
     ui.perfStaffKey = '';
-    runSmartComplete(slip);
+    if (!window.__spSkipSmartComplete) runSmartComplete(slip);
     go('s17');
     setTimeout(paintS17, 0);
   }
 
   function closeComplete() {
     ui.currentId = null;
+    syncSmartToggle();
     goBack();
     renderList();
     syncHomeBadge();
@@ -1459,9 +1490,6 @@
       });
     }
     var remain = pickRemainCap(ctx, assign);
-    var selectedCount = Object.keys(ui.pickDraft).filter(function (id) {
-      return ui.pickDraft[id] && ui.pickDraft[id].on;
-    }).length;
     var pool = staffPoolList().filter(function (st) {
       return st && st.id && !blocked[st.id];
     });
@@ -1480,11 +1508,12 @@
         '" data-sp-pick-dk-toggle="' + escapeHtml(st.id) + '" aria-label="点客">' +
         '<span>点客</span></button>' +
         '<span class="sp-pick-row__nm">' + escapeHtml(st.name) + '</span>' +
-        '<button type="button" class="sp-pick-check' + (draft.on ? ' is-on' : '') +
-        '" data-sp-pick-check="' + escapeHtml(st.id) + '" aria-label="勾选"></button></div>'
+        '<button type="button" class="sp-pick-switch' + (draft.on ? ' is-on' : '') +
+        '" data-sp-pick-check="' + escapeHtml(st.id) + '" role="switch" aria-checked="' +
+        (draft.on ? 'true' : 'false') + '" aria-label="选择">' +
+        '<span class="sp-pick-switch__track"><span class="sp-pick-switch__knob"></span></span></button></div>'
       );
-    }).join('') +
-      '<div class="sp-pick-hint">本工位还可选 ' + Math.max(0, remain - selectedCount) + ' 人（最多 3 人）</div>';
+    }).join('');
   }
   function openPickStaff(ctxRaw) {
     var ctx = parseSlotCtx(ctxRaw);
@@ -1834,7 +1863,16 @@
     if (title) title.textContent = it.name + ' · 业绩提成';
     if (!body) return;
     if (!entries.length) {
-      body.innerHTML = '<div class="spf-quick-tip">请先添加员工</div>';
+      body.innerHTML =
+        '<div class="sp-ipf-empty">' +
+        '<div class="sp-ipf-empty__ico" aria-hidden="true">' +
+        '<svg viewBox="0 0 48 48" width="40" height="40" fill="none">' +
+        '<circle cx="24" cy="16" r="8" stroke="#C7C7CC" stroke-width="2"/>' +
+        '<path d="M10 38c0-7.2 6.3-13 14-13s14 5.8 14 13" stroke="#C7C7CC" stroke-width="2" stroke-linecap="round"/>' +
+        '</svg></div>' +
+        '<div class="sp-ipf-empty__t">暂未指定员工</div>' +
+        '<div class="sp-ipf-empty__d">请先在消费内容中为该项目添加服务员工</div>' +
+        '<button type="button" class="sp-ipf-empty__btn" data-sp-ipf-empty-ok>知道了</button></div>';
     } else {
       var editIc = '<img class="sp-ipf-row__pen" src="assets/ic_sp_perf_edit.svg" alt="" width="12" height="12">';
       body.innerHTML = entries.map(function (en) {
@@ -1994,8 +2032,9 @@
       return;
     }
     var track = e.target.closest('[data-sp-ibar-track]');
-    if (track && !e.target.closest('[data-sp-ibar-dk]') && !e.target.closest('[data-sp-ibar-x]') &&
-        !e.target.closest('[data-sp-ibar-val]') && !e.target.closest('[data-sp-ibar-amt]')) {
+    if (track && !e.target.closest('[data-sp-ibar-dk]') && !e.target.closest('[data-sp-ibar-clear]') &&
+        !e.target.closest('.spf-ibar__x') && !e.target.closest('[data-sp-ibar-val]') &&
+        !e.target.closest('[data-sp-ibar-amt]') && !e.target.closest('.spf-ibar__amt')) {
       var ctxT = parseSlotCtx(track.getAttribute('data-sp-ibar-track'));
       var pT = personFromCtx(ctxT);
       var itT = itemFromCtx(ctxT);
@@ -2521,8 +2560,9 @@
       s17.addEventListener('pointerdown', function (e) {
         var track = e.target.closest('[data-sp-ibar-track]');
         if (!track || ui.readonly) return;
-        if (e.target.closest('[data-sp-ibar-dk]') || e.target.closest('[data-sp-ibar-x]') ||
-            e.target.closest('[data-sp-ibar-val]') || e.target.closest('.spf-ibar__amt')) return;
+        if (e.target.closest('[data-sp-ibar-dk]') || e.target.closest('[data-sp-ibar-clear]') ||
+            e.target.closest('.spf-ibar__x') || e.target.closest('[data-sp-ibar-val]') ||
+            e.target.closest('.spf-ibar__amt')) return;
         var ctxRaw = track.getAttribute('data-sp-ibar-track');
         var ctx = parseSlotCtx(ctxRaw);
         var p = personFromCtx(ctx);
@@ -2572,6 +2612,17 @@
     if (back) back.addEventListener('click', function () { closeComplete(); });
     var arch = $('#s17ArchiveBtn');
     if (arch) arch.addEventListener('click', archiveCurrent);
+    var smartSw = $('#s17SmartSwitch');
+    if (smartSw) {
+      smartSw.addEventListener('change', function () {
+        ui.smartComplete = !!smartSw.checked;
+        var slip = getSlip(ui.currentId);
+        if (ui.smartComplete && slip && !ui.readonly) {
+          runSmartComplete(slip);
+          paintS17();
+        }
+      });
+    }
     var perfCancel = $('#spPerfKeypadCancel');
     if (perfCancel) perfCancel.addEventListener('click', closePerfKeypad);
     var perfOk = $('#spPerfKeypadOk');
@@ -2635,7 +2686,7 @@
         applyQuickMode();
         return;
       }
-      if (e.target.closest('#spPickStaffClose') || e.target.closest('#spPickStaffCancel')) {
+      if (e.target.closest('#spPickStaffCancel')) {
         closePickStaff();
         return;
       }
@@ -2666,7 +2717,10 @@
         return;
       }
       if (e.target.closest('#spMemberClose')) { closeMemberSheet(); return; }
-      if (e.target.closest('#spItemPerfClose')) { closeItemPerfSheet(); return; }
+      if (e.target.closest('#spItemPerfClose') || e.target.closest('[data-sp-ipf-empty-ok]')) {
+        closeItemPerfSheet();
+        return;
+      }
       var ipfAch = e.target.closest('[data-sp-ipf-ach]');
       if (ipfAch) {
         openBarKeypad(ipfAch.getAttribute('data-sp-ipf-ach'), 'achievement');
@@ -2774,7 +2828,9 @@
       closeItemPerfSheet: closeItemPerfSheet,
       setAllocMode: setAllocMode,
       openVoidConfirm: function () {},
-      pendingCount: pendingCount
+      pendingCount: pendingCount,
+      paintS17: paintS17,
+      openPickStaff: openPickStaff
     };
   }
 

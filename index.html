@@ -7,7 +7,7 @@
 <!-- R46perf：去掉 Google Fonts，避免外网阻塞首屏白屏；流水 CSS/JS 按需加载 -->
 <link rel="stylesheet" href="assets/v2.css">
 <link rel="stylesheet" href="assets/v2-home-pay.css?v=r49">
-<link rel="stylesheet" href="assets/selfpay.css?v=r58c">
+<link rel="stylesheet" href="assets/selfpay.css?v=r61">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -2231,8 +2231,8 @@
   </div>
   <div class="nav-group">
     <div class="g-t">演示 · 分配模式</div>
-    <button type="button" class="nav-item is-alloc on" data-sp-alloc="station" onclick="window.SelfPay&&window.SelfPay.setAllocMode('station')"><span class="idx">工</span>按工位（默认）</button>
-    <button type="button" class="nav-item is-alloc" data-sp-alloc="average" onclick="window.SelfPay&&window.SelfPay.setAllocMode('average')"><span class="idx">均</span>平均分配</button>
+    <button type="button" class="nav-item is-alloc" data-sp-alloc="station" onclick="window.SelfPay&&window.SelfPay.setAllocMode('station')"><span class="idx">工</span>按工位</button>
+    <button type="button" class="nav-item is-alloc on" data-sp-alloc="average" onclick="window.SelfPay&&window.SelfPay.setAllocMode('average')"><span class="idx">均</span>平均分配（默认）</button>
   </div>
   <div class="nav-group grow">
     <div class="g-t">文档</div>
@@ -3810,6 +3810,11 @@
     <div class="nav-bar">
       <button type="button" class="btn-back" id="s17Back" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
       <div class="title" id="s17Title">补全订单</div>
+      <label class="s17-smart" id="s17SmartToggle" hidden>
+        <span class="s17-smart__lab">智能补全</span>
+        <input type="checkbox" id="s17SmartSwitch" checked>
+        <span class="s17-smart__track" aria-hidden="true"><span class="s17-smart__knob"></span></span>
+      </label>
     </div>
     <div class="s17-body" id="s17Scroll"></div>
     <div class="s17-bar" id="s17Bar">
@@ -4101,7 +4106,6 @@
     <div class="addsheet sp-pick-sheet" role="dialog" aria-label="选择员工">
       <div class="addsheet__head">
         <div class="addsheet__title" id="spPickStaffTitle">选择员工</div>
-        <button type="button" class="sp-price-close" id="spPickStaffClose" aria-label="关闭">×</button>
       </div>
       <div class="addsheet__body" id="spPickStaffBody"></div>
       <div class="sp-pick-foot" id="spPickStaffFoot">
@@ -9504,6 +9508,106 @@ html.capture-figma #toast { display:none !important; }
     's16-void-ro': function (done) {
       /* R46：已作废 Tab / 样例已移除，本步跳过 */
       done(null);
+    },
+    /* —— s17 补全订单（全屏）· Run to Figma —— */
+    's17-member-full': function (done) {
+      waitFor(function () { return !!(window.SelfPay && window.SelfPay.openExpandById); }, function (err) {
+        if (err) { done(err); return; }
+        window.__spSkipSmartComplete = true;
+        window.SelfPay.setAllocMode('station');
+        window.SelfPay.openExpandById('sp-9');
+        waitFor(function () {
+          var s = document.getElementById('s17');
+          return !!(s && s.classList.contains('active') && document.querySelector('#s17Scroll .spf-card--member'));
+        }, function () {
+          window.__spSkipSmartComplete = false;
+          setTimeout(function () { done(null); }, 600);
+        }, 160);
+      }, 100);
+    },
+    's17-guest-female': function (done) {
+      waitFor(function () { return !!(window.SelfPay && window.SelfPay.openExpandById); }, function (err) {
+        if (err) { done(err); return; }
+        window.__spSkipSmartComplete = true;
+        window.SelfPay.setAllocMode('station');
+        window.SelfPay.openExpandById('sp-10');
+        waitFor(function () {
+          var s = document.getElementById('s17');
+          return !!(s && s.classList.contains('active') && document.querySelector('#s17Scroll .spf-gender.is-female'));
+        }, function () {
+          window.__spSkipSmartComplete = false;
+          setTimeout(function () { done(null); }, 600);
+        }, 160);
+      }, 100);
+    },
+    's17-guest-empty': function (done) {
+      waitFor(function () { return !!(window.SelfPay && window.SelfPay.openExpandById); }, function (err) {
+        if (err) { done(err); return; }
+        window.__spSkipSmartComplete = true;
+        window.SelfPay.setAllocMode('station');
+        window.SelfPay.openExpandById('sp-y5');
+        waitFor(function () {
+          var s = document.getElementById('s17');
+          return !!(s && s.classList.contains('active') && document.querySelector('#s17Scroll .spf-gender.is-male') &&
+            document.querySelector('#s17Scroll .spf-add-btn'));
+        }, function () {
+          window.__spSkipSmartComplete = false;
+          setTimeout(function () { done(null); }, 600);
+        }, 160);
+      }, 100);
+    },
+    's17-quick': function (done) {
+      waitFor(function () { return !!(window.SelfPay && window.SelfPay.openExpandById); }, function (err) {
+        if (err) { done(err); return; }
+        window.__spSkipSmartComplete = true;
+        window.SelfPay.setAllocMode('station');
+        window.SelfPay.openExpandById('sp-7');
+        waitFor(function () {
+          var s = document.getElementById('s17');
+          return !!(s && s.classList.contains('active') &&
+            (document.querySelector('#s17Scroll .spf-quick-tip') || document.querySelector('#s17Scroll .spf-ibar')));
+        }, function () {
+          window.__spSkipSmartComplete = false;
+          setTimeout(function () { done(null); }, 600);
+        }, 160);
+      }, 100);
+    },
+    's17-average': function (done) {
+      waitFor(function () { return !!(window.SelfPay && window.SelfPay.openExpandById); }, function (err) {
+        if (err) { done(err); return; }
+        window.__spSkipSmartComplete = true;
+        window.SelfPay.openExpandById('sp-9');
+        waitFor(function () {
+          var s = document.getElementById('s17');
+          return !!(s && s.classList.contains('active') && document.querySelector('#s17Scroll .spf-card--member'));
+        }, function () {
+          window.SelfPay.setAllocMode('average');
+          window.__spSkipSmartComplete = false;
+          setTimeout(function () { done(null); }, 700);
+        }, 160);
+      }, 100);
+    },
+    's17-staff': function (done) {
+      waitFor(function () { return !!(window.SelfPay && window.SelfPay.openExpandById); }, function (err) {
+        if (err) { done(err); return; }
+        window.__spSkipSmartComplete = true;
+        window.SelfPay.setAllocMode('station');
+        window.SelfPay.openExpandById('sp-9');
+        waitFor(function () {
+          var s = document.getElementById('s17');
+          return !!(s && s.classList.contains('active') && document.querySelector('#s17Scroll .spf-slot'));
+        }, function () {
+          var slot = document.querySelector('#s17Scroll .spf-slot');
+          if (slot) slot.click();
+          waitFor(function () {
+            var m = document.getElementById('spPickStaffMask');
+            return !!(m && m.classList.contains('show'));
+          }, function () {
+            window.__spSkipSmartComplete = false;
+            setTimeout(function () { done(null); }, 700);
+          }, 120);
+        }, 160);
+      }, 100);
     }
   };
 
@@ -9635,6 +9739,6 @@ html.capture-figma #toast { display:none !important; }
   } catch (e) {}
 })();
 </script>
-<script src="assets/selfpay.js?v=r58c"></script>
+<script src="assets/selfpay.js?v=r61"></script>
 </body>
 </html>
