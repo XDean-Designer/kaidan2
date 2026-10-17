@@ -43,11 +43,11 @@
   };
   /** 选择会员 sheet 演示名单 */
   var SP_DEMO_MEMBERS = [
-    { id: 'm1', name: '何静', phone: '188****6655', avatar: 'assets/avatar_card_female.png', cards: '储值卡 美发卡　余额 ¥1,280.00', debt: 0, lastVisit: '上次 10/12 洗剪吹' },
-    { id: 'm2', name: '陈昕然', phone: '186****9033', avatar: 'assets/avatar_female3.png', cards: '计次卡 染烫10次　余 4 次', debt: 120, lastVisit: '上次 10/08 染发' },
-    { id: 'm3', name: '周雨欣', phone: '159****4412', avatar: 'assets/avatar_female2.png', cards: '计次卡 洗吹次卡　余 6 次', debt: 0, lastVisit: '上次 10/14 时尚洗吹' },
-    { id: 'm4', name: '苏晓萌', phone: '151****2201', avatar: 'assets/avatar_female3.png', cards: '储值卡 护理卡　余额 ¥560.00', debt: 36.5, lastVisit: '上次 9/28 深层滋养' },
-    { id: 'm5', name: '林晓萱', phone: '135****8820', avatar: 'assets/avatar_card_female.png', cards: '储值卡 美发卡　余额 ¥880.00', debt: 0, lastVisit: '上次 10/01 精致剪发' }
+    { id: 'm1', name: '何静', phone: '188****6655', avatar: 'assets/avatar_card_female.png', balance: 1280, bonus: 80, debt: 0, lastVisitDate: '2026.10.12', lastItem: '洗剪吹' },
+    { id: 'm2', name: '陈昕然', phone: '186****9033', avatar: 'assets/avatar_female3.png', balance: 0, bonus: 0, debt: 120, lastVisitDate: '2026.10.08', lastItem: '染发' },
+    { id: 'm3', name: '周雨欣', phone: '159****4412', avatar: 'assets/avatar_female2.png', balance: 0, bonus: 20, debt: 0, lastVisitDate: '2026.10.14', lastItem: '时尚洗吹' },
+    { id: 'm4', name: '苏晓萌', phone: '151****2201', avatar: 'assets/avatar_female3.png', balance: 560, bonus: 45, debt: 36.5, lastVisitDate: '2026.09.28', lastItem: '深层滋养' },
+    { id: 'm5', name: '林晓萱', phone: '135****8820', avatar: 'assets/avatar_card_female.png', balance: 880, bonus: 0, debt: 0, lastVisitDate: '2026.10.01', lastItem: '精致剪发' }
   ];
   var GUEST_AVATAR = {
     male: 'assets/billing/avatar-male.png',
@@ -129,8 +129,8 @@
         id: 'sp-1', seq: 100, isMember: true, status: 'pending', dateKey: t, time: '09:18',
         customerName: '何静', phone: '188****6655',
         avatar: 'assets/avatar_card_female.png',
-        cards: '储值卡 美发卡　余额 ¥1,280.00',
-        debt: 0, lastVisit: '上次 10/12 洗剪吹',
+        cards: '', balance: 1280, bonus: 80,
+        debt: 0, lastVisitDate: '2026.10.12', lastItem: '洗剪吹',
         items: [
           {
             id: 'p0', name: '洗剪吹', type: 'project', price: 68, qty: 1,
@@ -148,8 +148,8 @@
         id: 'sp-2', seq: 101, isMember: true, status: 'pending', dateKey: t, time: '10:42',
         customerName: '陈昕然', phone: '186****9033',
         avatar: 'assets/avatar_female3.png',
-        cards: '计次卡 染烫10次　余 4 次',
-        debt: 120, lastVisit: '上次 10/08 染发',
+        cards: '', balance: 0, bonus: 0,
+        debt: 120, lastVisitDate: '2026.10.08', lastItem: '染发',
         items: [],
         paid: 198, payments: [{ method: '微信', amount: 198 }],
         benefits: '', slipNo: 'SP202610150042', remark: '顾客备注：补项目'
@@ -159,8 +159,8 @@
         id: 'sp-3', seq: 102, isMember: true, status: 'pending', dateKey: t, time: '11:05',
         customerName: '周雨欣', phone: '159****4412',
         avatar: 'assets/avatar_female2.png',
-        cards: '计次卡 洗吹次卡　余 6 次',
-        debt: 0, lastVisit: '上次 10/14 时尚洗吹',
+        cards: '', balance: 0, bonus: 20,
+        debt: 0, lastVisitDate: '2026.10.14', lastItem: '时尚洗吹',
         items: [{ id: 'p2', name: '时尚洗吹', type: 'project', price: 58, qty: 1 }],
         paid: 58, payments: [{ method: '会员卡', amount: 58 }],
         benefits: '', slipNo: 'SP202610150055', remark: ''
@@ -170,8 +170,8 @@
         id: 'sp-5', seq: 104, isMember: true, status: 'pending', dateKey: t, time: '14:08',
         customerName: '苏晓萌', phone: '151****2201',
         avatar: 'assets/avatar_female3.png',
-        cards: '储值卡 护理卡　余额 ¥560.00',
-        debt: 36.5, lastVisit: '上次 9/28 深层滋养',
+        cards: '', balance: 560, bonus: 45,
+        debt: 36.5, lastVisitDate: '2026.09.28', lastItem: '深层滋养',
         items: [
           { id: 'p4', name: '深层滋养', type: 'project', price: 198, qty: 1 },
           { id: 'g1', name: '剑琅柔顺发膜', type: 'product', price: 148, qty: 1 }
@@ -194,8 +194,8 @@
         id: 'sp-7', seq: 108, isMember: true, status: 'pending', dateKey: t, time: '16:05',
         customerName: '林晓萱', phone: '135****8820',
         avatar: 'assets/avatar_card_female.png',
-        cards: '储值卡 美发卡　余额 ¥880.00',
-        debt: 0, lastVisit: '上次 10/01 精致剪发',
+        cards: '', balance: 880, bonus: 0,
+        debt: 0, lastVisitDate: '2026.10.01', lastItem: '精致剪发',
         items: [], contentMode: 'quick',
         paid: 168, payments: [{ method: '微信', amount: 168 }],
         benefits: '', slipNo: 'SP202610150168', remark: '顾客选了快捷'
@@ -205,8 +205,8 @@
         id: 'sp-9', seq: 110, isMember: true, status: 'pending', dateKey: t, time: '17:10',
         customerName: '陆思琪', phone: '186****5511',
         avatar: 'assets/avatar_female3.png',
-        cards: '折扣卡 金卡　8.0 折',
-        debt: 0, lastVisit: '上次 9/20 烫发',
+        cards: '', balance: 320, bonus: 50,
+        debt: 0, lastVisitDate: '2026.09.20', lastItem: '烫发',
         items: [
           {
             id: 'p7', name: '烫发', type: 'project', price: 398, qty: 1,
@@ -243,8 +243,8 @@
         id: 'sp-y1', seq: 114, isMember: true, status: 'pending', dateKey: y, time: '16:40',
         customerName: '蔡雅婷', phone: '139****1100',
         avatar: 'assets/avatar_female2.png',
-        cards: '储值卡 美发卡　余额 ¥2,100.00',
-        debt: 88, lastVisit: '上次 10/05 洗剪吹',
+        cards: '', balance: 2100, bonus: 120,
+        debt: 88, lastVisitDate: '2026.10.05', lastItem: '洗剪吹',
         items: [{ id: 'p1', name: '精致剪发', type: 'project', price: 98, qty: 1 }],
         paid: 98, payments: [{ method: '微信', amount: 98 }],
         benefits: '', slipNo: 'SP202610140240', remark: '跨日待处理'
@@ -349,6 +349,49 @@
   }
   function guestAvatarOf(gender) {
     return gender === 'female' ? GUEST_AVATAR.female : GUEST_AVATAR.male;
+  }
+  /** 散客性别符号（圆底：男蓝 / 女粉） */
+  function guestGenderBadgeHtml(gender, interactive) {
+    var g = gender === 'female' ? 'female' : 'male';
+    var icon = g === 'female'
+      ? '<svg class="spf-gender__ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="10" cy="9" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 12.2v7.3M7.2 16.2h5.6M14.2 14.5l4.6 4.6M18.8 15.2v4h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg class="spf-gender__ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="10.5" cy="13.5" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13 11l5.2-5.2M14.2 5.8h4v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    var inner = '<span class="spf-gender is-' + g + '">' + icon + '</span>';
+    if (!interactive) return inner;
+    return '<button type="button" class="spf-cust__av-btn" data-sp-guest-av aria-label="切换性别">' +
+      inner + '</button>';
+  }
+  /** 数值条 % 标签水平位：夹在左右控件之间，0–100 映射到安全区 */
+  function pctLabelLeft(pct) {
+    var p = Math.max(0, Math.min(100, Number(pct) || 0));
+    /* 收紧：避开左点客(~40px)与右业绩+删除(~76px) */
+    var lo = 24;
+    var hi = 52;
+    return lo + (hi - lo) * (p / 100);
+  }
+  function memberWalletHtml(slip) {
+    var bal = slip.balance;
+    var bonus = slip.bonus;
+    var hasBal = bal != null && bal !== '';
+    var hasBonus = bonus != null && bonus !== '';
+    if (!hasBal && !hasBonus) return '';
+    var bits = [];
+    if (hasBal) bits.push('充值余额 ¥' + moneyTrim(bal));
+    if (hasBonus) bits.push('赠金 ¥' + moneyTrim(bonus));
+    return '<div class="spf-cust__wallet">' + bits.map(function (t) {
+      return '<span class="spf-cust__wallet-item">' + escapeHtml(t) + '</span>';
+    }).join('<span class="spf-cust__wallet-dot">·</span>') + '</div>';
+  }
+  function memberFootHtml(slip) {
+    var debt = Number(slip.debt) || 0;
+    var date = slip.lastVisitDate || '';
+    return (
+      '<div class="spf-cust__foot">' +
+      (date
+        ? '<span class="spf-cust__last">上次 ' + escapeHtml(date) + '</span>'
+        : '<span class="spf-cust__last is-empty"></span>') +
+      '<span class="spf-cust__debt">欠款 ¥' + moneyTrim(debt) + '</span></div>'
+    );
   }
   function namesFromAssign(a) {
     a = a || emptyAssign();
@@ -736,8 +779,8 @@
     var on = !!p.active;
     var pct = on ? (Number(p.pct) || 0) : 0;
     var color = barColorOf(p.id);
-    /* % 叠在填充右缘内侧可拖区；控件叠在灰条上 */
-    var pctLeft = Math.max(8, Math.min(78, pct));
+    /* % 标签位映射到安全区，不与左右控件重叠 */
+    var pctLeft = pctLabelLeft(pct);
     var amtHtml = on
       ? '<button type="button" class="spf-ibar__amt" data-sp-ibar-val="' + escapeHtml(entry.ctx) +
         '">' + moneyTrim(p.achievement || 0) + '</button>'
@@ -854,47 +897,43 @@
       '<div class="spf-when">' + escapeHtml(when) + '</div></div>';
 
     var custName = displayCustomerName(slip);
-    var avatarSrc = slip.isMember
-      ? (slip.avatar || 'assets/avatar_card_female.png')
-      : guestAvatarOf(ui.guestGender || slip.guestGender || 'male');
     var debt = Number(slip.debt) || 0;
     var memberBody;
     if (slip.isMember) {
+      var memAv = slip.avatar || 'assets/avatar_card_female.png';
       memberBody =
-        '<div class="spf-card spf-card--cust">' +
+        '<div class="spf-card spf-card--cust spf-card--member">' +
         '<div class="spf-cust">' +
-        '<img class="spf-cust__av" src="' + escapeHtml(avatarSrc) + '" alt="">' +
+        '<img class="spf-cust__av" src="' + escapeHtml(memAv) + '" alt="">' +
         '<div class="spf-cust__main">' +
         '<div class="spf-cust__line1">' +
         '<span class="spf-cust__name">' + escapeHtml(custName) + '</span>' +
-        '<span class="spf-sum__vip">会员</span>' +
-        (slip.phone ? '<span class="spf-cust__phone">' + escapeHtml(slip.phone) + '</span>' : '') +
-        '</div>' +
-        (slip.cards ? '<div class="spf-cust__cards">' + escapeHtml(slip.cards) + '</div>' : '') +
-        (slip.lastVisit ? '<div class="spf-cust__last">' + escapeHtml(slip.lastVisit) + '</div>' : '') +
-        '<div class="spf-cust__debt">欠款 ¥' + moneyTrim(debt) + '</div>' +
+        '<span class="spf-sum__vip">会员</span></div>' +
+        (slip.phone ? '<div class="spf-cust__phone">' + escapeHtml(slip.phone) + '</div>' : '') +
+        memberWalletHtml(slip) +
+        memberFootHtml(slip) +
         '</div></div></div>';
     } else {
+      var g = ui.guestGender || slip.guestGender || 'male';
       memberBody =
-        '<div class="spf-card spf-card--cust">' +
-        '<div class="spf-cust">' +
-        (readonly
-          ? '<img class="spf-cust__av" src="' + escapeHtml(avatarSrc) + '" alt="">'
-          : '<button type="button" class="spf-cust__av-btn" data-sp-guest-av aria-label="切换性别">' +
-            '<img class="spf-cust__av" src="' + escapeHtml(avatarSrc) + '" alt=""></button>') +
+        '<div class="spf-card spf-card--cust spf-card--guest">' +
+        '<div class="spf-cust spf-cust--guest">' +
+        guestGenderBadgeHtml(g, !readonly) +
         '<div class="spf-cust__main">' +
         '<div class="spf-cust__line1">' +
         '<span class="spf-cust__name">' + escapeHtml(custName) + '</span>' +
-        '<span class="spf-sum__vip spf-sum__vip--guest">散客</span></div>' +
+        '<span class="spf-sum__vip spf-sum__vip--guest">散客</span></div></div>' +
         (readonly ? '' :
           '<button type="button" class="spf-pick-mem" data-sp-pick-member>选择会员</button>') +
-        '</div></div></div>';
+        '</div></div>';
     }
 
     var payCard =
       '<div class="spf-card spf-card--pay">' +
+      '<div class="spf-pay__row">' +
       '<div class="spf-pay__amt"><span>¥</span>' + moneyTrim(slip.paid) + '</div>' +
-      '<div class="spf-pay__bits">' + formatPayBits(slip) + '</div>' +
+      '<span class="spf-pay__sep" aria-hidden="true"></span>' +
+      '<div class="spf-pay__bits">' + formatPayBits(slip) + '</div></div>' +
       (slip.benefits ? '<div class="spf-pay__ben">' + escapeHtml(slip.benefits) + '</div>' : '') +
       '</div>';
 
@@ -924,7 +963,9 @@
 
     var consumeCard =
       '<div class="spf-card spf-card--items">' +
-      '<div class="spf-card__h">消费内容</div>' + itemsInner + '</div>';
+      '<div class="spf-card__h">消费内容</div>' +
+      '<div class="spf-card__rule" aria-hidden="true"></div>' +
+      '<div class="spf-card__body">' + itemsInner + '</div></div>';
 
     var remarkHtml = readonly
       ? '<div class="spf-quick-tip">' + escapeHtml(slip.remark || '无') + '</div>'
@@ -956,8 +997,12 @@
     syncAllocNav();
   }
 
-  function parseLastVisitName(text) {
-    var m = String(text || '').match(/上次\s*\d+\/\d+\s*(.+)$/);
+  function parseLastVisitName(slipOrText) {
+    if (slipOrText && typeof slipOrText === 'object') {
+      if (slipOrText.lastItem) return String(slipOrText.lastItem);
+      slipOrText = slipOrText.lastVisit || '';
+    }
+    var m = String(slipOrText || '').match(/上次\s*[\d./]+\s*(.+)$/);
     return m ? m[1].trim() : '';
   }
   function catalogFlat() {
@@ -981,7 +1026,7 @@
   }
   function smartPickItem(slip) {
     var paid = Number(slip.paid) || 0;
-    var lastName = parseLastVisitName(slip.lastVisit);
+    var lastName = parseLastVisitName(slip);
     var hotRank = {};
     HOT_30D.forEach(function (h, i) { hotRank[h.name] = i + 1; });
     var best = null;
@@ -1058,13 +1103,13 @@
       if (ui.allocMode === 'average') {
         ensureAveragePeople(targetAssign, targetIt);
         if (!peopleFromAssign(targetAssign).some(function (p) { return p && p.active; })) {
-          var sidAvg = smartPickStaffId(targetIt.name || parseLastVisitName(slip.lastVisit));
+          var sidAvg = smartPickStaffId(targetIt.name || parseLastVisitName(slip));
           var hit = (targetAssign.people || []).find(function (p) { return p.id === sidAvg; }) ||
             (targetAssign.people || [])[0];
           if (hit) activatePerson(hit, 'senior', targetIt);
         }
       } else if (!peopleFromAssign(targetAssign).length) {
-        var sid = smartPickStaffId(targetIt.name || parseLastVisitName(slip.lastVisit));
+        var sid = smartPickStaffId(targetIt.name || parseLastVisitName(slip));
         pushStaffToAssign(targetAssign, sid, prefixStation, false, targetIt);
       }
     }
@@ -1095,7 +1140,7 @@
     if (!slip.isMember) {
       slip.guestGender = ui.guestGender;
       slip.customerName = guestDisplayName(ui.guestGender);
-      slip.avatar = guestAvatarOf(ui.guestGender);
+      slip.avatar = '';
     }
     ui.perfRows = [];
     ui.perfStaffKey = '';
@@ -1759,9 +1804,12 @@
     slip.customerName = m.name;
     slip.phone = m.phone;
     slip.avatar = m.avatar;
-    slip.cards = m.cards;
+    slip.cards = '';
+    slip.balance = m.balance;
+    slip.bonus = m.bonus;
     slip.debt = m.debt;
-    slip.lastVisit = m.lastVisit;
+    slip.lastVisitDate = m.lastVisitDate || '';
+    slip.lastItem = m.lastItem || '';
     slip.guestGender = '';
     ui.guestGender = '';
     closeMemberSheet();
@@ -1856,7 +1904,7 @@
       if (pctEl) {
         pctEl.hidden = false;
         pctEl.textContent = pct + '%';
-        pctEl.style.left = Math.max(8, Math.min(78, pct)) + '%';
+        pctEl.style.left = pctLabelLeft(pct) + '%';
       }
       if (!amt) {
         amt = document.createElement('button');
@@ -1899,7 +1947,7 @@
       if (slipG && !slipG.isMember) {
         slipG.guestGender = ui.guestGender;
         slipG.customerName = guestDisplayName(ui.guestGender);
-        slipG.avatar = guestAvatarOf(ui.guestGender);
+        slipG.avatar = '';
       }
       paintS17();
       return;
@@ -2478,27 +2526,33 @@
           paintBarDom(track, p);
           return;
         }
-        function pctFromX(clientX) {
-          var rect = track.getBoundingClientRect();
-          /* 左右留给点客 / 业绩+删除，中间为可拖区 */
-          var padL = 36;
-          var padR = 72;
-          var x = clientX - rect.left - padL;
-          var w = Math.max(1, rect.width - padL - padR);
-          return Math.max(0, Math.min(100, Math.round((x / w) * 100)));
-        }
-        ui.dragBar = { ctx: ctxRaw, pointerId: e.pointerId, track: track };
-        setBarPct(ctxRaw, pctFromX(e.clientX));
-        paintBarDom(track, personFromCtx(ctx));
+        /* 按下：只选中分界，不跳变数值；拖动才改值 */
+        var startX = e.clientX;
+        var startPct = Number(p.pct) || 0;
+        var moved = false;
+        track.classList.add('is-grabbing');
+        ui.dragBar = {
+          ctx: ctxRaw, pointerId: e.pointerId, track: track,
+          startX: startX, startPct: startPct
+        };
         try { track.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
         function onMove(ev) {
           if (!ui.dragBar || ev.pointerId !== ui.dragBar.pointerId) return;
           if (ev.cancelable) ev.preventDefault();
-          setBarPct(ui.dragBar.ctx, pctFromX(ev.clientX));
+          var rect = track.getBoundingClientRect();
+          var padL = 44;
+          var padR = 80;
+          var usable = Math.max(1, rect.width - padL - padR);
+          var dx = ev.clientX - ui.dragBar.startX;
+          if (!moved && Math.abs(dx) < 2) return;
+          moved = true;
+          var next = Math.max(0, Math.min(100, Math.round(ui.dragBar.startPct + (dx / usable) * 100)));
+          setBarPct(ui.dragBar.ctx, next);
           paintBarDom(ui.dragBar.track, personFromCtx(parseSlotCtx(ui.dragBar.ctx)));
         }
         function onUp(ev) {
           if (!ui.dragBar || ev.pointerId !== ui.dragBar.pointerId) return;
+          track.classList.remove('is-grabbing');
           ui.dragBar = null;
           track.removeEventListener('pointermove', onMove);
           track.removeEventListener('pointerup', onUp);

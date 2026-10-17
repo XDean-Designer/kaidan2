@@ -1971,8 +1971,29 @@
   font-size: 13px;
   font-weight: 600;
   color: #8E8E93;
-  margin-bottom: 10px;
+  margin-bottom: 0;
   letter-spacing: .02em;
+}
+#s17 .spf-card--items {
+  padding: 14px 0 12px;
+}
+#s17 .spf-card--items .spf-card__h {
+  padding: 0 14px;
+}
+#s17 .spf-card--items .spf-card__rule {
+  height: 0;
+  margin: 10px 12px 12px;
+  border: 0;
+  border-top: .5px solid rgba(60, 60, 67, .18);
+}
+#s17 .spf-card--items .spf-card__body {
+  min-width: 0;
+  padding: 0 14px;
+}
+#s17 .spf-card--member {
+  background: #F7F5F2;
+  box-shadow: none;
+  border: .5px solid rgba(60, 50, 40, .06);
 }
 #s17 .spf-card--seq {
   display: flex;
@@ -1997,16 +2018,20 @@
   gap: 12px;
   align-items: flex-start;
 }
-#s17 .spf-cust__av,
-#s17 .spf-cust__av-btn .spf-cust__av {
+#s17 .spf-cust--guest {
+  align-items: center;
+}
+#s17 .spf-cust__av {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
   display: block;
   background: #E5E5EA;
+  flex: none;
 }
 #s17 .spf-cust__av-btn {
+  flex: none;
   padding: 0;
   border: 0;
   background: none;
@@ -2015,6 +2040,23 @@
   -webkit-tap-highlight-color: transparent;
 }
 #s17 .spf-cust__av-btn:active { transform: scale(.94); }
+#s17 .spf-gender {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+#s17 .spf-gender.is-male {
+  background: #E8F1FF;
+  color: #007AFF;
+}
+#s17 .spf-gender.is-female {
+  background: #FFE8F0;
+  color: #FF2D55;
+}
+#s17 .spf-gender__ic { display: block; }
 #s17 .spf-cust__main { flex: 1; min-width: 0; }
 #s17 .spf-cust__line1 {
   display: flex;
@@ -2027,35 +2069,60 @@
   font-weight: 600;
   color: #1C1C1E;
 }
+#s17 .spf-card--member .spf-cust__name { font-size: 18px; letter-spacing: .01em; }
 #s17 .spf-cust__phone {
-  font-size: 12px;
-  color: #8E8E93;
-}
-#s17 .spf-cust__cards,
-#s17 .spf-cust__last,
-#s17 .spf-cust__debt {
   margin-top: 4px;
+  font-size: 13px;
+  color: #8E8E93;
+  font-variant-numeric: tabular-nums;
+}
+#s17 .spf-cust__cards {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: .5px solid rgba(60, 50, 40, .1);
   font-size: 12px;
   color: #636366;
+  line-height: 1.4;
+}
+#s17 .spf-cust__last {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #8E8E93;
   line-height: 1.35;
 }
-#s17 .spf-cust__debt { color: #F32F41; font-weight: 500; }
-#s17 .spf-pick-mem {
+#s17 .spf-cust__debt {
   margin-top: 8px;
+  font-size: 13px;
+  color: #F32F41;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+#s17 .spf-pick-mem {
+  flex: none;
+  align-self: center;
   height: 32px;
   padding: 0 12px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 16px;
   background: #F2F2F7;
   color: #007AFF;
   font: inherit;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  white-space: nowrap;
 }
+#s17 .spf-pick-mem:active { opacity: .85; }
 #s17 .spf-card--pay { text-align: left; }
+#s17 .spf-pay__row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
 #s17 .spf-pay__amt {
-  font-size: 28px;
+  flex: none;
+  font-size: 26px;
   font-weight: 700;
   color: #1C1C1E;
   font-variant-numeric: tabular-nums;
@@ -2066,10 +2133,19 @@
   font-weight: 600;
   margin-right: 2px;
 }
+#s17 .spf-pay__sep {
+  flex: none;
+  width: 1px;
+  height: 14px;
+  background: #C7C7CC;
+  align-self: center;
+}
 #s17 .spf-pay__bits {
-  margin-top: 4px;
+  flex: 1;
+  min-width: 0;
   font-size: 13px;
   color: #8E8E93;
+  line-height: 1.3;
 }
 #s17 .spf-pay__ben {
   margin-top: 6px;
@@ -2202,14 +2278,16 @@
 #s17 .spf-ibar__pct {
   position: absolute;
   top: 50%;
-  transform: translate(2px, -50%);
+  transform: translate(-50%, -50%);
   z-index: 1;
+  max-width: 36px;
   font-size: 10px;
   font-weight: 600;
   color: #3A3A3C;
   font-variant-numeric: tabular-nums;
   pointer-events: none;
   white-space: nowrap;
+  text-align: center;
 }
 #s17 .spf-ibar__dk {
   position: absolute;
