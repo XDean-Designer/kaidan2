@@ -979,7 +979,7 @@
       itemsInner =
         quickHd +
         assignBarsHtml(ui.orderStaff, 'order', { price: slip.paid, qty: 1 }, false) +
-        '<button type="button" class="spf-add-btn" data-sp-add>+ 添加项目/产品</button>';
+        '<button type="button" class="spf-add-btn" data-sp-add>改为项目/产品</button>';
     } else {
       itemsInner = (ui.editItems.length
         ? ui.editItems.map(function (it, idx) { return itemCardHtml(it, idx, false); }).join('')
