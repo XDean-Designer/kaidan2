@@ -1911,89 +1911,60 @@
   font-weight: 600;
 }
 
-/* 业绩提成卡 · 表头 + 数据行 */
-.spf-perf-list {
+/* s17 业绩提成概览卡 · 只读汇总（消费内容下方） */
+#s17 .spf-card--perf {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#s17 .spf-card--perf .spf-card__h {
+  margin-bottom: 10px;
+}
+#s17 .spf-ov {
   display: flex;
   flex-direction: column;
   gap: 0;
+  cursor: default;
 }
-.spf-perf-head,
-.spf-perf-row {
+#s17 .spf-ov__head,
+#s17 .spf-ov__row {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 40px;
+  min-height: 36px;
 }
-.spf-perf-head {
+#s17 .spf-ov__head {
   padding: 0 0 6px;
   border-bottom: .5px solid rgba(60, 60, 67, .12);
   margin-bottom: 2px;
 }
-.spf-perf-head__nm,
-.spf-perf-head__col {
+#s17 .spf-ov__head .spf-ov__nm,
+#s17 .spf-ov__head .spf-ov__col {
   font-size: 11px;
   font-weight: 500;
   color: #AEAEB2;
 }
-.spf-perf-head__nm { flex: 1; min-width: 0; }
-.spf-perf-head__col {
-  flex: none;
-  width: 88px;
-  text-align: right;
-}
-.spf-perf-row {
-  padding: 8px 0;
-  border-bottom: .5px solid rgba(60, 60, 67, .08);
-}
-.spf-perf-row:last-child { border-bottom: 0; }
-.spf-perf-row__nm {
+#s17 .spf-ov__nm {
   flex: 1;
   min-width: 0;
   font-size: 14px;
   font-weight: 500;
-  color: #1a1a1a;
+  color: #636366;
 }
-.spf-perf-row__col {
+#s17 .spf-ov__col {
   flex: none;
   width: 88px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-.spf-perf-row__ach {
-  border: 0;
-  background: none;
-  padding: 0;
-  font: inherit;
+  text-align: right;
   font-size: 14px;
-  font-weight: 600;
-  color: #FF571A;
-  cursor: pointer;
-  font-variant-numeric: tabular-nums;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  line-height: 1;
-  -webkit-tap-highlight-color: transparent;
-}
-.spf-perf-row__ach-ic {
-  width: 12px;
-  height: 12px;
-  display: block;
-  flex: none;
-}
-.spf-perf-row__ach:active { opacity: .75; }
-.spf-perf-row__comm {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1a1a;
+  font-weight: 500;
+  color: #636366;
   font-variant-numeric: tabular-nums;
 }
-#s17.is-readonly .spf-perf-row__ach {
-  color: #1a1a1a;
-  cursor: default;
-  pointer-events: none;
+#s17 .spf-ov__row {
+  padding: 7px 0;
+  border-bottom: .5px solid rgba(60, 60, 67, .08);
 }
+#s17 .spf-ov__row:last-child { border-bottom: 0; }
 
 /* 修改业绩键盘 */
 .sp-perf-keypad .sp-sheet__body { padding: 0; }

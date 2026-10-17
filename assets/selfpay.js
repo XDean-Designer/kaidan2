@@ -533,34 +533,38 @@
     });
     ui.perfStaffKey = ui.perfRows.map(function (r) { return r.id; }).join(',');
   }
-  function perfBlockHtml(readonly) {
+  /** s17 消费内容下方：本单参与员工业绩/提成概览（只读，业绩为 0 不展示） */
+  function perfOverviewCardHtml() {
     reconcilePerfRows();
-    if (!ui.perfRows.length) {
-      return '<div class="spf-block"><div class="spf-block__h">业绩提成</div>' +
-        '<div class="spf-quick-tip">选择员工后显示业绩与提成</div></div>';
+    var rows = (ui.perfRows || []).filter(function (r) {
+      return (Number(r.achievement) || 0) > 0;
+    });
+    var body;
+    if (!rows.length) {
+      body = '<div class="spf-quick-tip">选择员工后显示业绩与提成</div>';
+    } else {
+      body =
+        '<div class="spf-ov" aria-readonly="true">' +
+        '<div class="spf-ov__head" aria-hidden="true">' +
+        '<span class="spf-ov__nm">员工</span>' +
+        '<span class="spf-ov__col">业绩</span>' +
+        '<span class="spf-ov__col">提成</span></div>' +
+        rows.map(function (row) {
+          var comm = Number(row.commission);
+          if (!isFinite(comm)) comm = commissionOf(row.achievement);
+          return (
+            '<div class="spf-ov__row">' +
+            '<div class="spf-ov__nm">' + escapeHtml(row.name) + '</div>' +
+            '<div class="spf-ov__col">¥' + money(row.achievement) + '</div>' +
+            '<div class="spf-ov__col">¥' + money(comm) + '</div></div>'
+          );
+        }).join('') +
+        '</div>';
     }
-    var rows = ui.perfRows.map(function (row) {
-      var achBtn = readonly
-        ? '<span class="spf-perf-row__ach">¥' + money(row.achievement) + '</span>'
-        : '<button type="button" class="spf-perf-row__ach" data-sp-perf="' +
-          escapeHtml(row.id) + '" aria-label="修改业绩">¥' + money(row.achievement) +
-          '<img class="spf-perf-row__ach-ic" src="assets/ic_sp_perf_edit.svg" alt="" width="12" height="12"></button>';
-      return (
-        '<div class="spf-perf-row">' +
-        '<div class="spf-perf-row__nm">' + escapeHtml(row.name) + '</div>' +
-        '<div class="spf-perf-row__col">' + achBtn + '</div>' +
-        '<div class="spf-perf-row__col">' +
-        '<span class="spf-perf-row__comm">¥' + money(commissionOf(row.achievement)) + '</span></div></div>'
-      );
-    }).join('');
     return (
-      '<div class="spf-block"><div class="spf-block__h">业绩提成</div>' +
-      '<div class="spf-perf-list">' +
-      '<div class="spf-perf-head" aria-hidden="true">' +
-      '<span class="spf-perf-head__nm">员工</span>' +
-      '<span class="spf-perf-head__col">业绩</span>' +
-      '<span class="spf-perf-head__col">提成</span></div>' +
-      rows + '</div></div>'
+      '<div class="spf-card spf-card--perf">' +
+      '<div class="spf-card__h">业绩提成</div>' +
+      body + '</div>'
     );
   }
 
@@ -1001,7 +1005,7 @@
       '<div class="spf-card spf-card--remark">' +
       '<div class="spf-card__h">备注</div>' + remarkHtml + '</div>';
 
-    return seqCard + memberBody + payCard + consumeCard + remarkCard;
+    return seqCard + memberBody + payCard + consumeCard + perfOverviewCardHtml() + remarkCard;
   }
 
   function syncSmartToggle() {
