@@ -1580,7 +1580,8 @@
   bottom: 10px;
   transform: none;
   display: flex;
-  align-items: flex-end;
+  /* 文案与 Switch 中轴垂直居中对齐 */
+  align-items: center;
   gap: 6px;
   margin: 0;
   height: 24px;

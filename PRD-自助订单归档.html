@@ -295,7 +295,7 @@
 </tbody>
 </table>
 <pre><code>┌──────── status bar 53 ────────┐
-│ ←    补全订单     智能补全 🟢 │  nav 44；开关底与标题底对齐
+│ ←    补全订单     智能补全 🟢 │  nav 44；文案与开关中轴对齐
 ├───────────────────────────────┤
 │  [编号·时间卡]                 │
 │  [顾客卡 · 会员/散客]          │
@@ -311,7 +311,7 @@
 <thead><tr><th>元素</th><th>规格</th></tr></thead><tbody>
 <tr><td>返回</td><td>左 10 / 顶 10；24×24；点 → 退出补全（不存档）</td></tr>
 <tr><td>标题</td><td>居中「补全订单」（只读详情可为「单据详情」/「已作废」）</td></tr>
-<tr><td>智能补全</td><td>右 10；<code>bottom: 10</code> 与标题底对齐；文案 12/<code>#636366</code> + iOS Switch（§4.1）</td></tr>
+<tr><td>智能补全</td><td>右 10；<code>bottom: 10</code>；文案 12/<code>#636366</code> 与 Switch <strong>中轴垂直居中</strong>（<code>align-items:center</code>，§4.1）</td></tr>
 <tr><td>显隐</td><td>仅编辑态显示；只读/离开 s17 隐藏</td></tr>
 <tr><td>交互</td><td><strong>开→关</strong>：之后进页/再开前不跑自动填；已有内容不回滚。<strong>关→开</strong>：若当前可补则立刻 <code>runSmartComplete</code> 并重绘</td></tr>
 </tbody>
