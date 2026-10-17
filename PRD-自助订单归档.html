@@ -34,48 +34,23 @@
   hr { border:0; border-top:1px solid var(--border); margin:24px 0; }
   .foot { margin-top:40px; padding-top:16px; border-top:1px solid var(--border); color:var(--text-3); font-size:12px; }
   @media (max-width:900px){ .sidebar{display:none;} .main{margin-left:0;padding:24px 18px 60px;} }
-
 </style>
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.5</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.6</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.5</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.6</span></h1>
 <table>
-<thead>
-<tr>
-<th>字段</th>
-<th>内容</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>文档版本</td>
-<td>v1.5 · 2026-10-16（完整条文以同目录 <code>PRD-自助订单归档.md</code> 为准；本 HTML 同步版本号与修订表）</td>
-</tr>
-<tr>
-<td>产品名</td>
-<td>自助订单归档</td>
-</tr>
-<tr>
-<td>交互原型（唯一可视依据）</td>
-<td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td>
-</tr>
-<tr>
-<td>样式实现</td>
-<td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td>
-</tr>
-<tr>
-<td>读者</td>
-<td>产品 / 设计 / 前端 / 测试 / AI 还原</td>
-</tr>
-<tr>
-<td>目的</td>
-<td><strong>仅描述本功能</strong>；按本文 + 原型即可复原商户端自助订单归档体验</td>
-</tr>
+<thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
+<tr><td>文档版本</td><td>v1.6 · 2026-10-17</td></tr>
+<tr><td>产品名</td><td>自助订单归档</td></tr>
+<tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
+<tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
+<tr><td>读者</td><td>产品 / 设计 / 前端 / 测试 / AI 还原</td></tr>
+<tr><td>目的</td><td><strong>仅描述本功能</strong>；按本文 + 原型即可复原商户端自助订单归档体验</td></tr>
 </tbody>
 </table>
 <p class="reader-note"><strong>权威原则</strong>：UI/UX/动效以本文规格 + 当前原型为准。旧 <code>PRD-开单结账.html</code> 中与本功能冲突的历史章节（如 FLIP / 原地放大、已处理/已作废 Tab、首页开单进 s16 等）<strong>一律作废</strong>。</p>
@@ -92,29 +67,11 @@
 </ol>
 <h3>1.3 范围（In）</h3>
 <table>
-<thead>
-<tr>
-<th>端</th>
-<th>能力</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>商户端首页</td>
-<td>待归档横滑卡流（按下单时间取前 5；尽头右滑进列表）</td>
-</tr>
-<tr>
-<td>自助订单列表</td>
-<td>默认日期「全部」；搜索 / 筛选；按下单时间排序（无排列规则问号）</td>
-</tr>
-<tr>
-<td>补全订单</td>
-<td>全屏补全 → 完成归档</td>
-</tr>
-<tr>
-<td>桥接</td>
-<td>归档写入订单流水（开单人语义可为「自助买单」，另记归档人）</td>
-</tr>
+<thead><tr><th>端</th><th>能力</th></tr></thead><tbody>
+<tr><td>商户端首页</td><td>待归档横滑卡流（按下单时间取前 5；尽头右滑进列表）</td></tr>
+<tr><td>自助订单列表</td><td>默认日期「全部」；搜索 / 筛选；按下单时间排序（无排列规则问号）</td></tr>
+<tr><td>补全订单</td><td>全屏补全 → 完成归档</td></tr>
+<tr><td>桥接</td><td>归档写入订单流水（开单人语义可为「自助买单」，另记归档人）</td></tr>
 </tbody>
 </table>
 <h3>1.4 非范围（Out）— 硬边界</h3>
@@ -136,41 +93,17 @@
 <hr>
 <h2 id="s2-术语"><span class="no">·</span>2. 术语</h2>
 <table>
-<thead>
-<tr>
-<th>术语</th>
-<th>定义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>自助订单</td>
-<td>C 端自助买单生成的待归档半成品单</td>
-</tr>
-<tr>
-<td>补全订单</td>
-<td>商户端编辑并归档自助订单的全屏页（原型 <code>s17</code>）</td>
-</tr>
-<tr>
-<td>归档</td>
-<td>补全完成并提交，半成品变为正式订单并进入订单流水</td>
-</tr>
-<tr>
-<td>点客</td>
-<td>顾客指定的服务员工（与「散客」相对；选人 sheet 上的「散客」按钮 = <strong>非顾客指定</strong>）</td>
-</tr>
-<tr>
-<td>散客（顾客身份）</td>
-<td>非会员顾客；展示名默认「散客」，可选性别变为「男散客」「女散客」</td>
-</tr>
-<tr>
-<td>快捷开单</td>
-<td>补全页不写项目/产品明细、以订单级员工服务整单的内容模式（价目 sheet 入口）</td>
-</tr>
-<tr>
-<td>会 / 散标</td>
-<td>票卡左下角类型标：会员橙「会」、散客蓝「散」</td>
-</tr>
+<thead><tr><th>术语</th><th>定义</th></tr></thead><tbody>
+<tr><td>自助订单</td><td>C 端自助买单生成的待归档半成品单</td></tr>
+<tr><td>补全订单</td><td>商户端编辑并归档自助订单的全屏页（原型 <code>s17</code>）</td></tr>
+<tr><td>归档</td><td>补全完成并提交，半成品变为正式订单并进入订单流水</td></tr>
+<tr><td>点客</td><td>顾客指定的服务员工（横条左侧绿标开关；选人 sheet 左侧点客钮）</td></tr>
+<tr><td>工位</td><td><strong>本次</strong>项目/产品服务时的分工（大工/中工/小工），仅用于本单业绩占比，<strong>不是</strong>员工固定职位头衔</td></tr>
+<tr><td>平均分配</td><td>消费内容默认模式：展示全员数值条，点条选中；无工位「+」槽</td></tr>
+<tr><td>散客（顾客身份）</td><td>非会员；默认 <strong>男散客</strong>；点性别圆在男/女间切换</td></tr>
+<tr><td>快捷开单</td><td>无项目明细、订单级员工条服务整单；消费区红闪电标题；按钮「改为项目/产品」；价目 sheet 仍可切回快捷</td></tr>
+<tr><td>智能补全</td><td>s17 顶栏开关控制；开则进页自动补项目/员工（售价≥实付等规则见 §5.3.12）</td></tr>
+<tr><td>会 / 散标</td><td>票卡左下角类型标：会员橙「会」、散客蓝「散」</td></tr>
 </tbody>
 </table>
 <hr>
@@ -188,95 +121,40 @@
                         ↓
                    完成归档
                         ↓
-              正式订单 → 订单流水
-</code></pre>
+              正式订单 → 订单流水</code></pre>
 <p><strong>导航栈（原型）</strong>：<code>go(id)</code> push；返回 <code>goBack()</code> pop。首页 → 列表 → 补全；或首页卡直接 → 补全。归档成功 toast「已归档」后返回上一页并刷新卡流/列表。</p>
 <hr>
 <h2 id="s4-全局视觉与动效-token"><span class="no">·</span>4. 全局视觉与动效 Token</h2>
 <h3>4.1 画布与字体</h3>
 <table>
-<thead>
-<tr>
-<th>项</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>逻辑画布</td>
-<td>390 × 844</td>
-</tr>
-<tr>
-<td>顶栏占位</td>
-<td><code>--statusbar-h: 53px</code> + <code>--nav-h: 44px</code> → <code>--chrome-top</code></td>
-</tr>
-<tr>
-<td>字体栈</td>
-<td><code>"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC", sans-serif</code>（<strong>禁止</strong>依赖 Google Fonts 外网）</td>
-</tr>
-<tr>
-<td>品牌红</td>
-<td><code>#F32F41</code>（主按钮、金额强调）</td>
-</tr>
-<tr>
-<td>强调橙</td>
-<td><code>#FF571A</code>（快捷开单按钮、筛选激活、点客/业绩可点色）</td>
-</tr>
-<tr>
-<td>页底灰</td>
-<td><code>#F5F5F7</code>（s16 / s17 背景）</td>
-</tr>
-<tr>
-<td>分割线</td>
-<td><code>.5px solid rgba(60,60,67,.12)</code> 或 <code>rgba(60,60,67,.1)</code></td>
-</tr>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>逻辑画布</td><td>390 × 844</td></tr>
+<tr><td>顶栏占位</td><td><code>--statusbar-h: 53px</code> + <code>--nav-h: 44px</code> → <code>--chrome-top</code></td></tr>
+<tr><td>字体栈</td><td><code>"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC", sans-serif</code>（<strong>禁止</strong>依赖 Google Fonts 外网）</td></tr>
+<tr><td>品牌红</td><td><code>#F32F41</code>（主按钮、金额强调）</td></tr>
+<tr><td>强调橙</td><td><code>#FF571A</code>（快捷开单按钮、筛选激活、点客/业绩可点色）</td></tr>
+<tr><td>页底灰</td><td><code>#F5F5F7</code>（s16 / s17 背景）；s17 卡片区亦可用 <code>#F2F2F7</code> 观感</td></tr>
+<tr><td>分割线</td><td><code>.5px solid rgba(60,60,67,.12)</code> 或 <code>rgba(60,60,67,.1)</code> / <code>rgba(60,50,40,.06)</code>（会员卡）</td></tr>
+<tr><td>点客绿</td><td>填充 <code>rgba(200,230,208,.85)</code>；描边/字 <code>#1B6B4A</code></td></tr>
+<tr><td>员工条马卡龙色（演示四人）</td><td>林屿森 <code>#FFB4B8</code> · 阿Ken <code>#A8C8F0</code> · 何苏叶 <code>#B5E0C5</code> · 小周 <code>#E2C4F0</code></td></tr>
+<tr><td>iOS Switch</td><td>轨 40×24 r12；关 <code>#E5E5EA</code>；开 <code>#34C759</code>；旋钮 20 白 + 轻影；旋钮位移 16px · <code>.2s ease</code></td></tr>
 </tbody>
 </table>
 <h3>4.2 通用动效</h3>
 <table>
-<thead>
-<tr>
-<th>场景</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>票卡按下</td>
-<td><code>transform: scale(.98); opacity: .92</code>（即时）</td>
-</tr>
-<tr>
-<td>二楼圆点</td>
-<td>1→3 分裂；达阈值变橙；整页跟手 + 列表淡入</td>
-</tr>
-<tr>
-<td>底部 Sheet 升起</td>
-<td><code>animation: spSheetUp .28s cubic-bezier(0.2, 0.8, 0.2, 1)</code>；<code>from translateY(100%) → 0</code></td>
-</tr>
-<tr>
-<td>通用 addsheet 升起</td>
-<td><code>sheetUp .22s ease</code>；<code>from translateY(40px) opacity .6 → none</code></td>
-</tr>
-<tr>
-<td>持卡 chevron</td>
-<td><code>transition: transform .2s ease</code>；展开时 <code>rotate(180deg)</code></td>
-</tr>
-<tr>
-<td>遮罩</td>
-<td><code>rgba(0,0,0,.45)</code>；点遮罩关闭（价目 sheet / 选人 / 筛选 / 业绩键盘）</td>
-</tr>
-<tr>
-<td>Toast</td>
-<td>全局 <code>toast(msg)</code>；默认短时自动消失</td>
-</tr>
-<tr>
-<td>安全区</td>
-<td>底栏 / 选人 sheet：<code>env(safe-area-inset-bottom, 0px)</code></td>
-</tr>
-<tr>
-<td>主按钮按下</td>
-<td><code>opacity: .88</code></td>
-</tr>
+<thead><tr><th>场景</th><th>规格</th></tr></thead><tbody>
+<tr><td>票卡按下</td><td><code>transform: scale(.98); opacity: .92</code>（即时）</td></tr>
+<tr><td>二楼圆点</td><td>1→3 分裂；达阈值变橙；整页跟手 + 列表淡入；阈值 <strong>80px</strong>；<code>FLOOR_EASE = cubic-bezier(0.2, 0.8, 0.2, 1)</code>；吸满约 <strong>340ms</strong></td></tr>
+<tr><td>底部 Sheet 升起</td><td><code>animation: spSheetUp .28s cubic-bezier(0.2, 0.8, 0.2, 1)</code>；<code>from translateY(100%) → 0</code></td></tr>
+<tr><td>通用 addsheet 升起</td><td><code>sheetUp .22s ease</code>；<code>from translateY(40px) opacity .6 → none</code></td></tr>
+<tr><td>持卡 chevron</td><td><code>transition: transform .2s ease</code>；展开时 <code>rotate(180deg)</code></td></tr>
+<tr><td>点客钮展开</td><td>宽/圆角/底色/边色 <code>.18s ease</code>；「点客」字 <code>opacity .12s</code></td></tr>
+<tr><td>Switch 切换</td><td>轨色与旋钮位移 <code>.2s ease</code></td></tr>
+<tr><td>散客头像按下</td><td><code>scale(.94)</code></td></tr>
+<tr><td>遮罩</td><td><code>rgba(0,0,0,.45)</code>；点遮罩关闭（价目 / 选人 / 选会员 / 业绩 sheet / 业绩键盘 / 筛选）</td></tr>
+<tr><td>Toast</td><td>全局 <code>toast(msg)</code>；默认短时自动消失</td></tr>
+<tr><td>安全区</td><td>底栏 / 选人 sheet：<code>env(safe-area-inset-bottom, 0px)</code></td></tr>
+<tr><td>主按钮按下</td><td><code>opacity: .88</code></td></tr>
 </tbody>
 </table>
 <h3>4.3 页面切换</h3>
@@ -287,208 +165,82 @@
 <hr>
 <h2 id="s5-页面规格"><span class="no">·</span>5. 页面规格</h2>
 <h3>5.1 首页 · 自助订单横滑卡流</h3>
-<p><strong>位置</strong>：个人业绩卡（KPI）下方、开单/开卡区域上方。<br>
-<strong>容器</strong>：<code>.vh-sp-strip-host</code>（横向滚动宿主）+ 内层 <code>.vh-sp-strip</code>。</p>
+<p><strong>位置</strong>：个人业绩卡（KPI）下方、开单/开卡区域上方。  </p>
+<p><strong>容器</strong>：<code>.vh-sp-strip-host</code>（横向滚动宿主）+ 内层 <code>.vh-sp-strip</code>。</p>
 <h4>5.1.1 滚动与布局</h4>
 <table>
-<thead>
-<tr>
-<th>项</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Host</td>
-<td><code>margin: 12px -12px 0</code>；<code>overflow-x: auto</code>；<code>touch-action: pan-x</code>；隐藏滚动条</td>
-</tr>
-<tr>
-<td>Strip</td>
-<td><code>padding: 2px 4px 4px 12px</code>；<code>gap: 10px</code>；<code>flex</code> 不换行；<code>width: max-content</code></td>
-</tr>
-<tr>
-<td>数据</td>
-<td>全部 <code>status=pending</code>，按 <strong>下单时间</strong>（<code>dateKey</code>+<code>time</code>）越近越前；同分按 <code>seq</code> 升序；首页取排序后前 <strong>5</strong> 张</td>
-</tr>
-<tr>
-<td>首屏曝光</td>
-<td>约 <strong>3 整卡 + 第 4 张左侧露出 ~24–32px</strong>（引导横滑）；首页卡宽 <strong>108</strong></td>
-</tr>
-<tr>
-<td>末尾</td>
-<td><strong>无「更多」竖卡</strong>；隐形 <code>.vh-sp-tail</code> 占位（约 40px，无文案）</td>
-</tr>
-<tr>
-<td>二楼进入</td>
-<td>仿微信首页下拉小程序：<strong>整页首页左移</strong> + <code>s16</code> 从右贴边跟手移入，<code>opacity 0→1</code>；右缘 <strong>1 点→分裂 3 点</strong>（无文案）；预览 0–80px，≥<strong>80px</strong> 松手进入（过阈值有阻尼）；松手前可反向拖回；侧栏进列表无此动画</td>
-</tr>
-<tr>
-<td>二楼返回</td>
-<td><code>s16</code> <strong>左缘右滑</strong>对称回首页；亦可用左上角返回</td>
-</tr>
-<tr>
-<td>空态</td>
-<td>无 pending 时：白底圆角 12 提示「暂无待归档订单」（无二楼手势）</td>
-</tr>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>Host</td><td><code>margin: 12px -12px 0</code>；<code>overflow-x: auto</code>；<code>touch-action: pan-x</code>；隐藏滚动条</td></tr>
+<tr><td>Strip</td><td><code>padding: 2px 4px 4px 12px</code>；<code>gap: 10px</code>；<code>flex</code> 不换行；<code>width: max-content</code></td></tr>
+<tr><td>数据</td><td>全部 <code>status=pending</code>，按 <strong>下单时间</strong>（<code>dateKey</code>+<code>time</code>）越近越前；同分按 <code>seq</code> 升序；首页取排序后前 <strong>5</strong> 张</td></tr>
+<tr><td>首屏曝光</td><td>约 <strong>3 整卡 + 第 4 张左侧露出 ~24–32px</strong>（引导横滑）；首页卡宽 <strong>108</strong></td></tr>
+<tr><td>末尾</td><td><strong>无「更多」竖卡</strong>；隐形 <code>.vh-sp-tail</code> 占位（约 40px，无文案）</td></tr>
+<tr><td>二楼进入</td><td>仿微信首页下拉小程序：<strong>整页首页左移</strong> + <code>s16</code> 从右贴边跟手移入，<code>opacity 0→1</code>；右缘 <strong>1 点→分裂 3 点</strong>（无文案）；预览 0–80px，≥<strong>80px</strong> 松手进入（过阈值有阻尼）；松手前可反向拖回；侧栏进列表无此动画</td></tr>
+<tr><td>二楼返回</td><td><code>s16</code> <strong>左缘右滑</strong>对称回首页；亦可用左上角返回</td></tr>
+<tr><td>空态</td><td>无 pending 时：白底圆角 12 提示「暂无待归档订单」（无二楼手势）</td></tr>
 </tbody>
 </table>
-<blockquote>
-<p>桌面滚轮/触控板在尽头可继续触发二楼（评审用）。pending ≤3 张时仍可尽头右滑进列表。</p>
-</blockquote>
+<p class="reader-note">桌面滚轮/触控板在尽头可继续触发二楼（评审用）。pending ≤3 张时仍可尽头右滑进列表。</p>
 <h4>5.1.2 票卡（Figma <code>194:93</code> 对齐）</h4>
 <table>
-<thead>
-<tr>
-<th>项</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>尺寸</td>
-<td>首页横滑 <strong>108 × 132</strong>；s16 列表网格仍约 <strong>117</strong> 宽；高 132；<code>border-radius: 6px</code>；边框 <code>#E8E4DC</code>；影 <code>0 1px 3px rgba(40,30,10,.06)</code></td>
-</tr>
-<tr>
-<td>内边距</td>
-<td>上约 10、左右 9、下 6</td>
-</tr>
-<tr>
-<td>顶部 stub</td>
-<td>绝对定位顶缘浅条 <code>#E8E4DC</code>，高 4，左右各 6</td>
-</tr>
-<tr>
-<td>序号 <code>seq</code></td>
-<td>右上角同行左；字体见下文「编号字体（复原规格）」；约 20/400/<code>#222</code>；造数自 100 起（真实 <code>seq</code>）</td>
-</tr>
-<tr>
-<td>右上时间/日期</td>
-<td>10/400/<code>#8E8E93</code>。<strong>当日</strong>只显 <code>HH:mm</code>；<strong>非当日</strong>只显 <code>M/D</code>（不显时刻）。与序号同行右侧。</td>
-</tr>
-<tr>
-<td>顾客名</td>
-<td>12/600/<code>#1a1a1a</code>；单行省略；在编号行下方，间距约 <strong>6px</strong>；<strong>盒高固定 19px</strong>（含下划线占位，散客同高），保证上虚线纵坐标恒定。<strong>会员</strong>：可点下划线（目标视觉 <strong>0.5px</strong>）；点姓名 → toast「会员详情」；<strong>散客</strong>：无下划线但占位相同、点名等同点卡进补全</td>
-</tr>
-<tr>
-<td>项目区</td>
-<td>两虚线之间为<strong>定高区</strong>（<code>flex:1</code> + <code>justify-content: space-evenly</code>）：<strong>1 行</strong>在两虚线间垂直居中；<strong>2 行</strong>为上虚线–行1–行2–下虚线<strong>等距</strong>。上/底虚线均为 <strong>.5px dashed #D8D8D8</strong>。项目名最多 6 字截断加「…」；恰 2 项两行；≥3 第二项名+灰圆件数 N</td>
-</tr>
-<tr>
-<td>空项目</td>
-<td>「未填项目」<code>#C7C7CC</code>；快捷模式显示「快捷开单」</td>
-</tr>
-<tr>
-<td>底栏</td>
-<td>虚线上；左类型标 + 右金额</td>
-</tr>
-<tr>
-<td>金额</td>
-<td>13/600/<code>#F32F41</code>；<code>¥</code> + <strong>去尾零</strong>（整数不显小数；有小数只保留到最后一位有效小数）。同规则用于 <strong>s17 摘要卡实付</strong></td>
-</tr>
-<tr>
-<td>会标</td>
-<td>16×16，r2.2，9/700 白字，底 <code>#FF8359</code>，文案「会」</td>
-</tr>
-<tr>
-<td>散标</td>
-<td>同上，底 <code>#4A7BF4</code>，文案「散」</td>
-</tr>
-<tr>
-<td>点击</td>
-<td>→ 打开该单补全页（<code>openComplete(id)</code>）</td>
-</tr>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>尺寸</td><td>首页横滑 <strong>108 × 132</strong>；s16 列表网格仍约 <strong>117</strong> 宽（<code>max-width:117</code>）；高 132；<code>border-radius: 6px</code>；边框 <code>#E8E4DC</code>；影 <code>0 1px 3px rgba(40,30,10,.06)</code></td></tr>
+<tr><td>内边距</td><td>上约 10、左右 9、下 6</td></tr>
+<tr><td>顶部 stub</td><td>绝对定位顶缘浅条 <code>#E8E4DC</code>，高 4，左右各 6</td></tr>
+<tr><td>序号 <code>seq</code></td><td>右上角同行左；字体见下表「编号字体（复原规格）」；约 20/400/<code>#222</code>；造数自 100 起（真实 <code>seq</code>）</td></tr>
+<tr><td>右上时间/日期</td><td>10/400/<code>#8E8E93</code>。<strong>当日</strong>只显 <code>HH:mm</code>；<strong>非当日</strong>只显 <code>M/D</code>（不显时刻）。与序号同行右侧。</td></tr>
+<tr><td>顾客名</td><td>12/600/<code>#1a1a1a</code>；在编号下方，间距约 <strong>6px</strong>；<strong>盒高固定 19px</strong>（含下划线占位，散客同高），保证上虚线纵坐标恒定。<strong>会员</strong>：可点下划线（目标视觉 <strong>0.5px</strong>）；点姓名 → toast「会员详情」（不进补全）；<strong>散客</strong>：无下划线但占位相同</td></tr>
+<tr><td>项目区</td><td>两虚线之间为<strong>定高区</strong>（<code>flex:1</code> + <code>justify-content: space-evenly</code>）：<strong>1 行</strong>在两虚线间垂直居中；<strong>2 行</strong>为上虚线–行1–行2–下虚线<strong>等距</strong>。上/底虚线均为 <strong><code>.5px dashed #D8D8D8</code></strong>。项目名最多 6 字截断加「…」；恰 2 项两行；≥3 第二项名+灰圆件数 N</td></tr>
+<tr><td>空项目</td><td>「未填项目」<code>#C7C7CC</code>；快捷模式显示「快捷开单」</td></tr>
+<tr><td>底栏</td><td>虚线上；左类型标 + 右金额</td></tr>
+<tr><td>金额</td><td>13/600/<code>#F32F41</code>；<code>¥</code> + <strong>去尾零</strong>（整数不显小数；有小数只保留到最后一位有效小数，不补 0）。同规则用于 <strong>s17 摘要卡实付</strong></td></tr>
+<tr><td>会标</td><td>16×16，r2.2，9/700 白字，底 <code>#FF8359</code>，文案「会」</td></tr>
+<tr><td>散标</td><td>同上，底 <code>#4A7BF4</code>，文案「散」</td></tr>
+<tr><td>点击</td><td>→ 打开该单补全页（<code>openComplete(id)</code>）</td></tr>
 </tbody>
 </table>
-<h5>编号字体（复原规格 · 前端必读）</h5>
-<div class="reader-note">对照样本：小掌柜 APP 拟物订单卡左上角三位数（<code>span.no</code>）。<strong>禁止</strong>用 OC Highway / Noto Sans SC / 系统粗黑体冒充——尤其数字 <code>9</code> 不一致。</div>
+<p>##### 编号字体（复原规格 · 前端必读）</p>
+<p class="reader-note">对照样本：小掌柜 APP 拟物订单卡左上角三位数编号（<code>http://young.meiguanjia.net/young/</code>，<code>span.no</code>）。  </p>
+<p class="reader-note"><strong>禁止</strong>再用 OC Highway / Noto Sans SC / 系统粗黑体冒充本编号字体——字形（尤其数字 <code>9</code>）不一致。</p>
 <table>
-<thead><tr><th>项</th><th>规格（按此复原）</th></tr></thead>
-<tbody>
+<thead><tr><th>项</th><th>规格（按此复原）</th></tr></thead><tbody>
 <tr><td>真名（name table）</td><td><strong>HeadLineA</strong> / Regular</td></tr>
 <tr><td>PostScript 名</td><td><strong>JCHEadA</strong></td></tr>
-<tr><td>线上 CSS 别名</td><td><strong><code>displayIdFont</code></strong>（小掌柜自定义名，同一字体）</td></tr>
-<tr><td>版权</td><td>Copyright (c) 1994–2001 <strong>Apple Computer, Inc.</strong></td></tr>
-<tr><td>CSS <code>font-family</code></td><td><code>"HeadLineA", "displayIdFont", sans-serif</code></td></tr>
-<tr><td><code>font-weight</code></td><td><strong>400</strong>（禁止 700 / 假粗 / text-stroke）</td></tr>
-<tr><td>字号</td><td>线上参考 <strong>24px</strong>；本原型票卡约 <strong>20px</strong></td></tr>
-<tr><td>字色</td><td><code>#222222</code></td></tr>
-<tr><td>原型文件</td><td><code>assets/fonts/HeadLineA.woff2</code>、<code>HeadLineA-digits.woff2</code></td></tr>
-<tr><td>生产注意</td><td>未授权<strong>不可</strong>打包上线；须授权或换等价已授权字体并回归 <code>1/2/9</code></td></tr>
+<tr><td>线上 CSS 别名</td><td><strong><code>displayIdFont</code></strong>（小掌柜 <code>@font-face</code> 自定义名，指向同一字体）</td></tr>
+<tr><td>版权</td><td>Copyright (c) 1994–2001 <strong>Apple Computer, Inc.</strong> All rights reserved.</td></tr>
+<tr><td>CSS <code>font-family</code></td><td><code>"HeadLineA", "displayIdFont", sans-serif</code>（两名都可，优先真名）</td></tr>
+<tr><td><code>font-weight</code></td><td><strong>400</strong>（Regular；<strong>禁止</strong> <code>700</code> / 假粗 / <code>-webkit-text-stroke</code>）</td></tr>
+<tr><td><code>font-style</code></td><td>normal</td></tr>
+<tr><td>字号（参考线上）</td><td>小掌柜 <strong>24px</strong>；本原型票卡约 <strong>20px</strong>（随 117 宽卡缩放，保持同一字面）</td></tr>
+<tr><td>字色</td><td><code>#222222</code>（线上 <code>rgb(34,34,34)</code>）</td></tr>
+<tr><td><code>letter-spacing</code></td><td>normal</td></tr>
+<tr><td>文件（原型）</td><td><code>assets/fonts/HeadLineA.woff2</code>（全量）、<code>HeadLineA-digits.woff2</code>（0–9 子集）</td></tr>
+<tr><td>生产注意</td><td>Apple 字体<strong>不可</strong>未授权打包上线；发版前须由设计/法务确认授权，或换<strong>已授权</strong>的等价字体并回归数字 <code>1/2/9</code> 字形</td></tr>
 </tbody>
 </table>
 <p><strong>散客名展示</strong>：非会员票卡名固定为 <code>guestGender</code> 映射结果（默认「散客」），不展示真实姓名。</p>
 <h4>5.1.3 二楼指示（微信式圆点，取代「更多」/文案）</h4>
 <table>
-<thead>
-<tr>
-<th>项</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>节点</td>
-<td><code>#spFloorDots</code> 挂在卡流尾部 <code>.vh-sp-tail</code>（末张右侧空隙垂直居中，非屏右缘）</td>
-</tr>
-<tr>
-<td>形态</td>
-<td><strong>滑到尽头</strong>即淡入 <strong>1 灰点</strong>；继续拉动约 <strong>35%</strong> 起才分裂为 3 点（拉满散开，带 transition）；达阈值变橙 <code>#FF571A</code></td>
-</tr>
-<tr>
-<td>文案</td>
-<td><strong>无</strong></td>
-</tr>
-<tr>
-<td>跟手</td>
-<td>首页 <code>translateX(-visual)</code>；列表 <code>translateX(390−visual)</code> + opacity；过 80px 后 visual 阻尼</td>
-</tr>
-<tr>
-<td>松手</td>
-<td>≥80：惯性吸满进 <code>s16</code>；不足：弹簧回弹；回首页时卡流 <code>scrollLeft</code> <strong>复位为 0</strong></td>
-</tr>
-<tr>
-<td>旧「更多」</td>
-<td><strong>已删除</strong></td>
-</tr>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>节点</td><td><code>#spFloorDots</code> 挂在卡流尾部 <code>.vh-sp-tail</code>（末张右侧空隙垂直居中，非屏右缘）</td></tr>
+<tr><td>形态</td><td><strong>滑到尽头</strong>即淡入 <strong>1 灰点</strong>；继续拉动约 <strong>35%</strong> 起才分裂为 3 点（拉满散开，带 transition）；达阈值变橙 <code>#FF571A</code></td></tr>
+<tr><td>文案</td><td><strong>无</strong></td></tr>
+<tr><td>跟手</td><td>首页 <code>translateX(-visual)</code>；列表 <code>translateX(390−visual)</code> + opacity；过 80px 后 visual 阻尼</td></tr>
+<tr><td>松手</td><td>≥80：惯性吸满进 <code>s16</code>；不足：弹簧回弹；回首页时卡流 <code>scrollLeft</code> <strong>复位为 0</strong></td></tr>
+<tr><td>旧「更多」</td><td><strong>已删除</strong></td></tr>
 </tbody>
 </table>
 <hr>
 <h3>5.2 自助订单列表页（<code>s16</code>）</h3>
 <table>
-<thead>
-<tr>
-<th>项</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>标题</td>
-<td>「自助订单」居中（<strong>无</strong>排列规则问号）</td>
-</tr>
-<tr>
-<td>返回</td>
-<td>回首页 <code>s0</code></td>
-</tr>
-<tr>
-<td>背景</td>
-<td><code>#F5F5F7</code></td>
-</tr>
-<tr>
-<td>Tab</td>
-<td><strong>无</strong>（仅待处理；已删除已处理/已作废）</td>
-</tr>
-<tr>
-<td>工具条</td>
-<td>日期胶囊 + 搜索框 + 筛选图标（同行）</td>
-</tr>
-<tr>
-<td>列表</td>
-<td>同款票卡网格；按下单时间越近越前；每行约 3 张</td>
-</tr>
-<tr>
-<td>空态</td>
-<td>插画 +「暂无待归档订单」+ 副文「可切换日期或清除筛选后再试」</td>
-</tr>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>标题</td><td>「自助订单」居中（<strong>无</strong>排列规则问号）</td></tr>
+<tr><td>返回</td><td>回首页 <code>s0</code></td></tr>
+<tr><td>背景</td><td><code>#F5F5F7</code></td></tr>
+<tr><td>Tab</td><td><strong>无</strong>（仅待处理；已删除已处理/已作废）</td></tr>
+<tr><td>工具条</td><td>日期胶囊 + 搜索框 + 筛选图标（同行）</td></tr>
+<tr><td>列表</td><td>同款票卡网格；按下单时间越近越前；每行约 3 张</td></tr>
+<tr><td>空态</td><td>插画 +「暂无待归档订单」+ 副文「可切换日期或清除筛选后再试」</td></tr>
 </tbody>
 </table>
 <h4>5.2.1 日期</h4>
@@ -506,450 +258,258 @@
 </ul>
 <h4>5.2.3 筛选 Sheet</h4>
 <table>
-<thead>
-<tr>
-<th>项</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>打开</td>
-<td>点筛选图标；遮罩 + 底部 sheet（<code>spSheetUp</code>）</td>
-</tr>
-<tr>
-<td>支付方式</td>
-<td>全部 / <strong>微信</strong> / <strong>微信+会员卡</strong> / <strong>会员卡</strong></td>
-</tr>
-<tr>
-<td>是否已填项目</td>
-<td>全部 / 已填 / 未填</td>
-</tr>
-<tr>
-<td>金额区间</td>
-<td>下限 – 上限（同行）</td>
-</tr>
-<tr>
-<td>底栏</td>
-<td>重置（灰）+ 确定（红）</td>
-</tr>
-<tr>
-<td>筛选图标</td>
-<td><strong>无圆形灰底</strong>；默认透明；激活：图标色偏橙 + 右上 6px 红点 <code>#FF571A</code></td>
-</tr>
-<tr>
-<td>关闭</td>
-<td>× / 遮罩 / 确定</td>
-</tr>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>打开</td><td>点筛选图标；遮罩 + 底部 sheet（<code>spSheetUp</code>）</td></tr>
+<tr><td>支付方式</td><td>全部 / <strong>微信</strong> / <strong>微信+会员卡</strong> / <strong>会员卡</strong></td></tr>
+<tr><td>是否已填项目</td><td>全部 / 已填 / 未填</td></tr>
+<tr><td>金额区间</td><td>下限 – 上限（同行）</td></tr>
+<tr><td>底栏</td><td>重置（灰）+ 确定（红）</td></tr>
+<tr><td>筛选图标</td><td><strong>无圆形灰底</strong>；默认透明；激活：图标色偏橙 + 右上 6px 红点 <code>#FF571A</code></td></tr>
+<tr><td>关闭</td><td>× / 遮罩 / 确定</td></tr>
 </tbody>
 </table>
 <h4>5.2.4 支付方式判定（筛选与展示）</h4>
 <table>
-<thead>
-<tr>
-<th>模式</th>
-<th>判定</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>微信</td>
-<td>仅含「微信」</td>
-</tr>
-<tr>
-<td>会员卡</td>
-<td>仅含「会员卡」</td>
-</tr>
-<tr>
-<td>微信+会员卡</td>
-<td>同时含二者</td>
-</tr>
+<thead><tr><th>模式</th><th>判定</th></tr></thead><tbody>
+<tr><td>微信</td><td>仅含「微信」</td></tr>
+<tr><td>会员卡</td><td>仅含「会员卡」</td></tr>
+<tr><td>微信+会员卡</td><td>同时含二者</td></tr>
 </tbody>
 </table>
-<p>补全页支付文案：<code>渠道 ¥金额</code>，多渠道用 <code>·</code> 连接。</p>
+<p>补全页支付文案：<code>渠道 ¥金额</code>，多渠道用 <code> · </code> 连接。</p>
 <h4>5.2.5 时间排序（首页 + 列表共用）</h4>
-<p>按下单时间（<code>dateKey</code> + <code>time</code>）<strong>越近越前</strong>；完全相同再按 <code>seq</code> 升序。首页取排序后前 5。<br>
-<strong>已废止</strong> S4 综合分与标题旁「排列规则」问号弹层（价目「猜你想加」的推荐规则说明仍保留）。</p>
+<p>按下单时间（<code>dateKey</code> + <code>time</code>）<strong>越近越前</strong>；完全相同再按 <code>seq</code> 升序。首页取排序后前 5。  </p>
+<p><strong>已废止</strong> S4 综合分、列表排列规则问号、价目「猜你想加」。</p>
 <hr>
-<h3>5.3 补全订单页（<code>s17</code>）</h3>
+<h3>5.3 补全订单页（<code>s17</code>）· v1.6</h3>
+<p class="reader-note"><strong>本章为前端还原主规格</strong>：布局、控件态、手势、Sheet、toast、算法开关均以当前原型为准。画布 390×844；<code>#s17</code> 全屏；<strong>已废止</strong> FLIP/原地放大。</p>
+<h4>5.3.0 总览</h4>
 <table>
-<thead>
-<tr>
-<th>项</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>进入</td>
-<td>点票卡；<code>go('s17')</code> 全屏</td>
-</tr>
-<tr>
-<td>状态栏</td>
-<td>与其它屏一致：左时间 <code>9:41</code> + 右信号/Wi‑Fi/电量图标（<code>html.is-mobile</code> 下隐藏）</td>
-</tr>
-<tr>
-<td>标题</td>
-<td>编辑中「补全订单」；只读详情另议</td>
-</tr>
-<tr>
-<td>返回</td>
-<td>未归档直接返回；列表/首页刷新</td>
-</tr>
-<tr>
-<td>背景</td>
-<td><code>#F5F5F7</code></td>
-</tr>
-<tr>
-<td>滚动区</td>
-<td>顶 <code>chrome-top</code>，底为底栏高度 + 安全区；内边距 <code>12px 12px 20px</code></td>
-</tr>
-<tr>
-<td>卡片区块</td>
-<td>白底、圆角 12、内边距约 <code>12px 14px</code>、块间距 10</td>
-</tr>
-<tr>
-<td>底栏</td>
-<td>白底顶线；主按钮「完成归档」全宽高 48、圆角 10、底 <code>#F32F41</code>、字 16/600 白；含安全区</td>
-</tr>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>进入</td><td>首页/列表点票卡 → <code>openComplete(id)</code> → <code>go('s17')</code></td></tr>
+<tr><td>退出</td><td>左上返回 → <code>goBack()</code>；归档成功后同样退出并刷新卡流/列表</td></tr>
+<tr><td>背景</td><td>页 <code>#F5F5F7</code>；滚动区卡片间距 12</td></tr>
+<tr><td>结构</td><td>状态栏 → 导航栏 → 可滚五段卡 → 底栏「完成归档」</td></tr>
+<tr><td>分配模式</td><td><strong>默认「平均分配」</strong>；演示侧栏可切「按工位」/<code>station</code>（仅演示，非生产入口）</td></tr>
+<tr><td>智能补全</td><td>顶栏右侧 Switch，<strong>默认开</strong>；关则进页不自动填</td></tr>
 </tbody>
 </table>
-<h4>5.3.1 摘要卡（只读支付 + 顾客）</h4>
-<p><strong>布局</strong></p>
+<pre><code>┌──────── status bar 53 ────────┐
+│ ←    补全订单     智能补全 🟢 │  nav 44；开关底与标题底对齐
+├───────────────────────────────┤
+│  [编号·时间卡]                 │
+│  [顾客卡 · 会员/散客]          │
+│  [支付卡 · 只读]               │
+│  [消费内容卡]                  │
+│  [备注卡]                      │
+├───────────────────────────────┤
+│        完成归档（红）          │  高 48 + safe-area
+└───────────────────────────────┘</code></pre>
+<hr>
+<h4>5.3.1 导航栏与「智能补全」开关</h4>
+<table>
+<thead><tr><th>元素</th><th>规格</th></tr></thead><tbody>
+<tr><td>返回</td><td>左 10 / 顶 10；24×24；点 → 退出补全（不存档）</td></tr>
+<tr><td>标题</td><td>居中「补全订单」（只读详情可为「单据详情」/「已作废」）</td></tr>
+<tr><td>智能补全</td><td>右 10；<code>bottom: 10</code> 与标题底对齐；文案 12/<code>#636366</code> + iOS Switch（§4.1）</td></tr>
+<tr><td>显隐</td><td>仅编辑态显示；只读/离开 s17 隐藏</td></tr>
+<tr><td>交互</td><td><strong>开→关</strong>：之后进页/再开前不跑自动填；已有内容不回滚。<strong>关→开</strong>：若当前可补则立刻 <code>runSmartComplete</code> 并重绘</td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.2 编号 + 时间卡</h4>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>容器</td><td>白底；r14；padding 约 16/16/14</td></tr>
+<tr><td>左</td><td><code>seq</code>；HeadLineA / ~28 / <code>#1C1C1E</code></td></tr>
+<tr><td>右</td><td>与票卡同规则：当日 <code>HH:mm</code>；非当日 <code>M/D</code>；15/<code>#8E8E93</code></td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.3 顾客卡</h4>
+<p>##### 会员</p>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>容器</td><td>竖向渐变 <code>#FFE0BC → #FFFDEB</code>（约 77% 处）+ 白 30% 叠层；边 <code>1px rgba(60,50,40,.06)</code>；r14</td></tr>
+<tr><td>头像</td><td>48 圆；<code>object-fit:cover</code>；白描边 2px ≈97% 不透明</td></tr>
+<tr><td>姓名</td><td>18 Bold/<code>#1C1C1E</code></td></tr>
+<tr><td>「会员」标</td><td>金底 <code>#FFD760</code>；白字 9 Bold；r3；padding 0 4；与姓名 gap 6</td></tr>
+<tr><td>手机</td><td>13/<code>#7C7C7C</code></td></tr>
+<tr><td>钱包行</td><td>顶部分割线；12/<code>#636366</code>：「充值余额 ¥x · 赠金 ¥y」（去尾零）；无字段则整行不渲染</td></tr>
+<tr><td>底行</td><td>「上次 YYYY.MM.DD」12/<code>#8E8E93</code>；右「欠款 ¥x」13 Bold/<code>#EB4756</code>（含 ¥0）</td></tr>
+</tbody>
+</table>
+<p>##### 散客</p>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>头像钮</td><td>48 圆；男底 <code>#E8F1FF</code> + <code>assets/gender/ic_guest_male.svg</code>（48）；女底 <code>#FFE8F0</code> + <code>ic_guest_female.svg</code>（30）；点按 <code>scale(.94)</code></td></tr>
+<tr><td>切换</td><td>点头像在 <strong>男 ↔ 女</strong> 间切换（无「不选」）；同步展示名「男散客」/「女散客」</td></tr>
+<tr><td>选择会员</td><td>右灰胶囊 <code>#F2F2F7</code>；字 <code>#1C1C1E</code> 13 Medium；高 32 r16 → 打开会员 sheet</td></tr>
+</tbody>
+</table>
+<p>##### 选择会员 Sheet（<code>#spMemberMask</code>）</p>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>容器</td><td><strong>整张白底</strong>（含 head/body）；升起同 addsheet</td></tr>
+<tr><td>标题</td><td>「选择会员」+ 右上 ×</td></tr>
+<tr><td>列表行</td><td>头像 44 + 姓名 16/600 + 手机 12 灰；点行 → 绑定会员字段、关 sheet、toast「已绑定会员」、重绘为会员卡</td></tr>
+<tr><td>关闭</td><td>× / 点遮罩</td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.4 支付卡（只读）</h4>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>行</td><td><code>align-items: center</code>；左实付 26 Bold 去尾零（<code>¥</code> 14）；竖分割 1×16 <code>#C7C7CC</code>；右支付拆分 13/<code>#8E8E93</code>（<code>渠道 ¥金额</code>，多段用 <code> · </code>）</td></tr>
+<tr><td>权益</td><td>若有，下行红/橙说明文案（如折扣卡）</td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.5 消费内容卡 · 结构</h4>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>标题</td><td>「消费内容」13/<code>#8E8E93</code>；下分割线</td></tr>
+<tr><td>明细模式</td><td>每项 <code>.spf-icard</code>：名（可红焦点态）+「项目/产品 · ¥价 ×qty」+ 多人图标（开业绩 sheet）+ 右上 × 删项 → 其下员工区 → 卡底「+ 添加项目/产品」</td></tr>
+<tr><td>快捷模式</td><td>顶行：<strong>红闪电 23</strong>（<code>ic_sp_quick_bolt.svg</code>）+ 红字 15 Bold「快捷开单」→ <strong>订单级</strong>员工区 → 按钮文案 <strong>「改为项目/产品」</strong>（点开价目；添加后转明细）</td></tr>
+<tr><td>空明细</td><td>「尚未添加项目/产品」+「+ 添加项目/产品」</td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.6 分配模式与员工区</h4>
+<table>
+<thead><tr><th>模式</th><th>默认</th><th>UI</th></tr></thead><tbody>
+<tr><td><strong>平均分配</strong> <code>average</code></td><td><strong>是</strong></td><td>展示店内演示全员横条；未选中为灰空条；<strong>无</strong>「+」工位槽；点条身选中</td></tr>
+<tr><td><strong>按工位</strong> <code>station</code></td><td>否（侧栏演示）</td><td>三大工位行：大工/中工/小工；已选为条；未满显示虚线「+」槽（最多每工位 3 人）</td></tr>
+</tbody>
+</table>
+<p><strong>工位默认业绩占比（选中时写入）</strong>：大工 <strong>100%</strong> / 中工 <strong>85%</strong> / 小工 <strong>75%</strong>。  </p>
+<p><strong>100% 基准金额</strong> = 该项 <code>price×qty</code>（快捷模式用整单实付）；多条占比之和<strong>不强制</strong> =100%。  </p>
+<p><strong>提成（演示）</strong>：<code>业绩 × 10%</code>；可在业绩键盘改成固定提成金额（0–99999）。正式方案见业绩/提成设置（Out）。</p>
+<p>演示员工池（马卡龙条色）：林屿森 / 阿Ken / 何苏叶 / 小周（§4.1）。</p>
+<hr>
+<h4>5.3.7 员工数值条（血条）· UI</h4>
+<p>条高 32；轨底 <code>#E5E5EA</code>；r10；填充色 = 该员工马卡龙色。</p>
+<table>
+<thead><tr><th>控件</th><th>位置</th><th>规格</th></tr></thead><tbody>
+<tr><td>姓名</td><td>条左外</td><td>13 Medium/<code>#3A3A3C</code>；只读点客时姓名旁可出点客绿标</td></tr>
+<tr><td>点客</td><td>条内左</td><td>未开：26 白圆 + 灰描边。开：宽 40 高 26 r16；底 <code>rgba(200,230,208,.85)</code>；边/字 <code>#1B6B4A</code> 10 Bold「点客」；展开动画 §4.2</td></tr>
+<tr><td>百分比</td><td>条内跟随填充</td><td>10 Bold/<code>#3A3A3C</code> <strong>opacity .66</strong>；<code>left%</code> = 安全区映射：<code>18 + (58−18)×(pct/100)</code>（避开左右控件）</td></tr>
+<tr><td>业绩框</td><td>条内右（× 左侧）</td><td>高 22 r6；底 <code>rgba(255,255,255,.7)</code>；字 11 Bold/<code>#5E5E5E</code>；去尾零；点开金额键盘</td></tr>
+<tr><td>× 清除</td><td>条内最右</td><td>24 圆；底 <code>rgba(255,255,255,.72)</code>；字 <code>#636366</code></td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.8 员工数值条 · 交互逻辑（必还原）</h4>
+<table>
+<thead><tr><th>手势 / 操作</th><th>行为</th></tr></thead><tbody>
+<tr><td>点未选中条身</td><td>选中：<code>active=true</code>；写入默认占比；重算业绩；<strong>不</strong>因按下跳变百分比</td></tr>
+<tr><td>在已选中条上 <strong>按下</strong></td><td>仅建立拖动上下文（记录 <code>startX</code>/<code>startPct</code>）；<strong>不改</strong>数值</td></tr>
+<tr><td><strong>拖动</strong>（位移 ≥2px）</td><td>按可用宽度（左右各留点客/业绩区）换算 Δ%；1% 步进夹紧 0–100；实时改填充与 % 标签与业绩</td></tr>
+<tr><td>点点客</td><td>切换 <code>dianke</code>；仅改钮态，不触发拖条</td></tr>
+<tr><td>点业绩框</td><td>打开业绩金额键盘（字段=业绩）</td></tr>
+<tr><td>点 ×</td><td><strong>平均</strong>：取消选择（<code>active=false</code>，pct/点客清零，条回空态）。<strong>工位</strong>：从该工位数组移除该人。实现注意：pointer 排除须识别 <code>[data-sp-ibar-clear]</code> / <code>.spf-ibar__x</code>，避免被拖条吞掉</td></tr>
+<tr><td>点工位「+」</td><td>仅工位模式；打开选择员工 sheet（该工位）</td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.9 选择员工 Sheet（<code>#spPickStaffMask</code>）</h4>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>打开</td><td>工位「+」；标题「选择{大工\</td><td>中工\</td><td>小工}」</td></tr>
+<tr><td><strong>无</strong></td><td>关闭 ×；「还可选 N 人」底提示</td></tr>
+<tr><td>行</td><td>左：点客圆钮（开则展开为绿点客标，同条上样式）；中：姓名 15 Medium；右：<strong>Switch</strong>（开=勾选加入草稿）</td></tr>
+<tr><td>规则</td><td>本上下文已占用员工不展示；每工位最多 3 人；超限 toast</td></tr>
+<tr><td>底栏</td><td>「取消」灰 +「确认」红；高 <strong>48</strong> r10；确认时写入点客标记</td></tr>
+<tr><td>平均模式</td><td>点「+」类入口 toast「平均分配下已展示全部员工」，不打开</td></tr>
+<tr><td>关闭</td><td>取消 / 确认 / 点遮罩</td></tr>
+<tr><td>动效</td><td>addsheet 升起；点客钮展开同 §4.2</td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.10 单项业绩提成 Sheet（<code>#spItemPerfMask</code>）</h4>
+<table>
+<thead><tr><th>态</th><th>规格</th></tr></thead><tbody>
+<tr><td>有员工</td><td>标题「{项目名} · 业绩提成」；行：姓名(+工位标) / 业绩钮 / 提成钮（带笔标）；点数字开键盘</td></tr>
+<tr><td><strong>空态</strong></td><td>居中：72 灰圆 + 员工线标；主文「暂未指定员工」16/600；辅文「请先在消费内容中为该项目添加服务员工」13/<code>#8E8E93</code>；按钮「知道了」灰底 40 高 → 关 sheet</td></tr>
+<tr><td>关闭</td><td>× / 知道了 / 遮罩</td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.11 业绩 / 提成金额键盘（<code>#spPerfKeypadMask</code>）</h4>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>标题</td><td>「修改业绩」或「修改提成」</td></tr>
+<tr><td>显示</td><td>大号右对齐；空态「请输入」灰</td></tr>
+<tr><td>键</td><td>0–9、点、退格；确定写回并按基准反算 %（改业绩时）；提成可记固定值</td></tr>
+<tr><td>关闭</td><td>取消 / 确定 / 遮罩</td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.12 智能补全规则与开关</h4>
+<p><strong>何时跑</strong>：编辑态进页且开关 <strong>开</strong>；或用户把开关从关拨到开。只读不跑。跑完 toast「已智能补全，请核对」。</p>
+<p><strong>补项目</strong>（仅明细模式且当前无明细时补 <strong>1</strong> 个）：</p>
 <ol>
-<li>左头像 32 圆 + 右：姓名行（名 14/600 + 会员金标或散客蓝标 + 手机号靠右 12/<code>#8E8E93</code>，无手机号则隐藏）  </li>
-<li><strong>第二行（会员/散客结构对齐）</strong>：会员左「持卡▾」右时间；散客可编辑左「性别」+ 胶囊男/女、右时间；散客只读左空右时间。时间 <code>YYYY.MM.DD</code> + 双空格 + <code>HH:mm</code>，11/600/<code>#555</code>，无「时间」二字  </li>
-<li>展开持卡（仅会员有卡时）：11/<code>#8E8E93</code> 卡摘要文案  </li>
-<li>支付区：顶部分割线；大号实付 18/700 + 支付明细 11/<code>#8E8E93</code>  </li>
-<li>权益说明（若有）11/<code>#AEAEB2</code></li>
+<li><strong>硬规则</strong>：候选售价必须 <strong>≥ 订单实付</strong> <code>paid</code>；否则剔除。  </li>
+<li>打分：<code>价格贴近×0.5 + 上次消费项命中×0.3 + 近30天热销名次×0.2 + 项目类型小加成</code>。  </li>
+<li>取最高 1 个写入；无合格候选则不补项目。</li>
 </ol>
-<p><strong>散客性别（仅非会员、可编辑）</strong></p>
+<p><strong>补员工</strong>：</p>
 <ul>
-<li>位置：摘要卡第二行左侧（对齐会员「持卡」位），右侧为下单时间  </li>
-<li>控件：标签「性别」+ 胶囊 <strong>男 / 女</strong>（无「不选」项；二者皆未选 = 不选）  </li>
-<li>未选中：边 <code>#E5E5EA</code>、白底、字 <code>#666</code> 12/500；选中：边 <code>#FF571A</code>、底 <code>#FFF3EE</code>、字橙 12/600  </li>
-<li><strong>再点已选项 → 取消选中</strong>（回到不选）  </li>
-<li>映射：<code>''→散客</code> · <code>male→男散客</code> · <code>female→女散客</code>；写回 <code>customerName</code> / <code>guestGender</code></li>
+<li><strong>平均</strong>：确保全员条存在；若无人 <code>active</code>，按「项目常用员工」偏好激活一人。  </li>
+<li><strong>工位</strong>：若目标项尚无任何人，向大工位推入 1 人（偏好表，否则默认林屿森）；点客默认关。  </li>
+<li>快捷模式：目标为订单级 <code>orderStaff</code>，基准金额=实付。</li>
 </ul>
-<p><strong>只读约束</strong>：实付、支付拆分、持卡摘要、权益 — <strong>不可改</strong>。</p>
-<h4>5.3.2 消费内容卡</h4>
+<hr>
+<h4>5.3.13 备注卡</h4>
+<p><code>textarea</code>；最多 200 字；placeholder「选填」；实时写入内存态。</p>
+<hr>
+<h4>5.3.14 完成归档</h4>
 <table>
-<thead>
-<tr>
-<th>模式</th>
-<th>表现</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>明细模式（默认）</td>
-<td>项目/产品列表：名、类型·单价·数量；右侧 × 删除；每项下方员工槽</td>
-</tr>
-<tr>
-<td>空明细</td>
-<td>「尚未添加项目/产品」</td>
-</tr>
-<tr>
-<td>添加入口</td>
-<td>按钮「+ 添加项目/产品」→ 价目 sheet</td>
-</tr>
-<tr>
-<td>快捷模式</td>
-<td>提示「已选快捷开单（无明细项）」+ 仍可再添加转回明细；<strong>订单级</strong>「服务员工」槽</td>
-</tr>
+<thead><tr><th>步骤</th><th>行为</th></tr></thead><tbody>
+<tr><td>1</td><td>明细模式且无项目 → toast「请添加项目/产品，或使用快捷开单」；<strong>中止</strong></td></tr>
+<tr><td>2</td><td>无任何选中员工 → toast「未指定服务员工」（弱提示，<strong>仍可</strong>继续）</td></tr>
+<tr><td>3</td><td>写回 items / contentMode / orderStaff / 备注 / 散客性别名；聚合业绩提成</td></tr>
+<tr><td>4</td><td><code>status → done</code>；桥接订单流水；toast「已归档」；退出并刷新首页卡流与列表</td></tr>
 </tbody>
 </table>
-<p><strong>Toast</strong>：添加成功 → <code>已添加「{名称}」</code>。</p>
-<h4>5.3.3 员工分配（演示可切按工位 / 平均）</h4>
-<table>
-<thead>
-<tr>
-<th>模式</th>
-<th>槽位</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>按工位（默认）</td>
-<td>大工 / 中工 / 小工 三行；每行最多 <strong>3</strong> 人</td>
-</tr>
-<tr>
-<td>平均分配</td>
-<td>「员工」一行；最多 <strong>5</strong> 人</td>
-</tr>
-</tbody>
-</table>
-<p><strong>空槽</strong>：虚线框 <code>#C7C7CC</code>、底 <code>#FAFAFA</code>、高 32、最小宽 56；「+」<strong>水平垂直居中</strong>。<br>
-<strong>已填槽</strong>：实线边、白底；名 + 可选「点客」橙标 + × 清除。<br>
-<strong>侧栏演示</strong>：可切换分配模式并 toast「演示：按工位分配 / 平均分配」。</p>
-<h4>5.3.4 选员工 Sheet</h4>
-<table>
-<thead>
-<tr>
-<th>项</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>背景</td>
-<td><strong>纯白</strong>（非灰底 <code>#f7f7f7</code>）</td>
-</tr>
-<tr>
-<td>标题</td>
-<td>「选择员工」或「选择{工位}」；右上 × 可关</td>
-</tr>
-<tr>
-<td>列表过滤</td>
-<td><strong>不展示</strong>本槽位上下文中已占用的员工；满员（平均≥5 / 工位≥3）或无可选人时 <strong>不打开 sheet</strong>，toast「暂无可选员工」</td>
-</tr>
-<tr>
-<td>行</td>
-<td>左姓名（+ 角色灰字）；右两按钮「点客」「散客」</td>
-</tr>
-<tr>
-<td>点客按钮</td>
-<td>底 <code>#FFF3EE</code>、字 <code>#FF571A</code>、高 30、圆角 15</td>
-</tr>
-<tr>
-<td>散客按钮</td>
-<td>底 <code>#F2F2F7</code>、字 <code>#1a1a1a</code>（语义=非顾客指定）</td>
-</tr>
-<tr>
-<td>点击</td>
-<td><strong>立即落槽并关闭</strong> sheet</td>
-</tr>
-<tr>
-<td>末行</td>
-<td><strong>无底部分割线</strong></td>
-</tr>
-<tr>
-<td>底部</td>
-<td><code>padding-bottom: 16px + safe-area</code></td>
-</tr>
-<tr>
-<td>失败 toast</td>
-<td>已在本项/本工位；最多 5 人；每工位最多 3 人；暂无可选员工 等</td>
-</tr>
-</tbody>
-</table>
-<h4>5.3.5 业绩提成卡（在「消费内容」与「备注」之间）</h4>
-<table>
-<thead>
-<tr>
-<th>项</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>标题</td>
-<td>「业绩提成」</td>
-</tr>
-<tr>
-<td>表头</td>
-<td>有员工时显示一行灰字表头：<strong>员工</strong> / <strong>业绩</strong> / <strong>提成</strong>（<code>.spf-perf-head</code>）</td>
-</tr>
-<tr>
-<td>人员</td>
-<td>本单已选员工 <strong>去重</strong> 后一人一行</td>
-</tr>
-<tr>
-<td>空态</td>
-<td>「选择员工后显示业绩与提成」（无表头）</td>
-</tr>
-<tr>
-<td>默认业绩</td>
-<td>按<strong>实付金额</strong>在员工间<strong>均分</strong>（分位差落在最后一人）；员工集合变化时重新均分</td>
-</tr>
-<tr>
-<td>业绩</td>
-<td>可点改；橙字 14/600 + 右侧浅灰笔图标 12×12 <code>#C7C7CC</code>（Figma <code>1688:94</code>，<code>assets/ic_sp_perf_edit.svg</code>）</td>
-</tr>
-<tr>
-<td>提成</td>
-<td><strong>只读</strong>；<code>提成 = round(业绩 × 10%, 2)</code>；黑字 14/600</td>
-</tr>
-<tr>
-<td>改业绩</td>
-<td>底部金额键盘 sheet（显示「修改业绩」）；确定后重算提成并刷新</td>
-</tr>
-</tbody>
-</table>
-<h4>5.3.6 备注卡</h4>
-<ul>
-<li>可编辑：<code>textarea</code>，最多 200 字，placeholder「选填」；聚焦边框 <code>#FF571A</code>。</li>
-</ul>
-<h4>5.3.7 完成归档</h4>
-<p><strong>校验（原型）</strong></p>
-<ol>
-<li>明细模式且无项目/产品 → toast「请添加项目/产品，或使用快捷开单」，不归档。  </li>
-<li>未选任何员工 → toast「未指定服务员工」——<strong>仍允许继续归档</strong>（弱提示）。  </li>
-</ol>
-<p><strong>成功</strong></p>
-<ol>
-<li>写入员工、备注、性别名、业绩行等；<code>status → done</code>。  </li>
-<li>桥接流水 <code>BillingDemo.recordFromHostCheckout</code>（若可用）：开单人语义「自助买单」，归档人如「店员小陈」。  </li>
-<li>toast「已归档」→ 关闭补全页 → 刷新首页卡流与列表（该单不再出现在待处理）。</li>
-</ol>
+<p>底栏按钮：全宽高 48；<code>#F32F41</code> 白字；只读态隐藏底栏。</p>
 <hr>
 <h3>5.4 价目 Sheet（添加项目/产品）</h3>
 <table>
-<thead>
-<tr>
-<th>项</th>
-<th>规格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>打开</td>
-<td>补全页「+ 添加项目/产品」</td>
-</tr>
-<tr>
-<td>标题</td>
-<td>「添加项目/产品」</td>
-</tr>
-<tr>
-<td>关闭</td>
-<td><strong>无右上 ×</strong>；点遮罩关闭</td>
-</tr>
-<tr>
-<td>快捷开单</td>
-<td>标题栏<strong>最右侧</strong>；橙底 <code>#FF571A</code>、白字 12/600；左白闪电 14×14（Figma <code>536:203</code>，<code>assets/ic_sp_quick_lightning.svg</code>）；与文字中轴对齐；高 28、圆角 14；<code>right: 12</code>、垂直居中</td>
-</tr>
-<tr>
-<td>猜你想加</td>
-<td>价目内容区<strong>顶部</strong>横滑芯片；标题「猜你想加」+ 信息圆标；最多 <strong>6</strong>；排除本单已选；见下「三源混合」；芯片名 + <code>¥</code> 价；点芯片等同添加</td>
-</tr>
-<tr>
-<td>帮助图标</td>
-<td>同 s16：<code>ic_sp_help.svg</code> 16×16 <code>#8E8E93</code>（Figma <code>1688:98</code>）</td>
-</tr>
-<tr>
-<td>推荐规则弹层</td>
-<td>标题「推荐规则」；<strong>对店员白话</strong>三句（猜几个方便点选 / 看卖得多·常搭配·归档常用 / 智能列出 6 个）；配额与总分等细则只写在本节「三源混合」，不进弹层</td>
-</tr>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>打开</td><td>明细「+ 添加项目/产品」或快捷「改为项目/产品」</td></tr>
+<tr><td>标题</td><td>「添加项目/产品」</td></tr>
+<tr><td>关闭</td><td>点遮罩关闭</td></tr>
+<tr><td>快捷开单</td><td>标题栏右侧保留（橙底闪电入口）→ 切到快捷模式并关 sheet</td></tr>
+<tr><td>猜你想加</td><td><strong>已删除</strong></td></tr>
+<tr><td>内容</td><td>项目/产品 Tab + 分组 + 列表；点「+」添加</td></tr>
 </tbody>
 </table>
-<p><strong>三源混合（原型演示种子）</strong></p>
-<table>
-<thead>
-<tr>
-<th>来源</th>
-<th>单源分</th>
-<th>默认配额</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>② 门店热销 Top</td>
-<td>名次分 <code>10…1</code>（榜外 0）</td>
-<td>最多 2</td>
-</tr>
-<tr>
-<td>③ 与已选常搭配</td>
-<td>命中已选条数</td>
-<td>最多 2</td>
-</tr>
-<tr>
-<td>④ 最近本店归档常用</td>
-<td>近 30 天次数，封顶 10</td>
-<td>最多 2</td>
-</tr>
-</tbody>
-</table>
-<p>某源不足 / 撞已选 → 按 <code>总分 = 热销×3 + 搭配×4 + 常用×2</code> 补齐至 6。无已选时搭配分为 0。<br>
-| 内容 | 复用开单价目：项目/产品 Tab + 分组条 + 列表；点「+」添加 |<br>
-| 快捷开单逻辑 | 若已有明细则 <code>confirm</code> 确认清空；切 <code>contentMode=quick</code> 并关闭 sheet |</p>
 <p>Sheet 容器：白底；<code>max-height</code> 约 78%；升起动画同 addsheet。</p>
 <hr>
 <h2 id="s6-字段与状态"><span class="no">·</span>6. 字段与状态</h2>
 <h3>6.1 自助订单状态</h3>
 <table>
-<thead>
-<tr>
-<th>status</th>
-<th>含义</th>
-<th>列表/卡流</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>pending</code></td>
-<td>待归档</td>
-<td>展示</td>
-</tr>
-<tr>
-<td><code>done</code></td>
-<td>已归档进流水</td>
-<td>不在本功能列表展示</td>
-</tr>
+<thead><tr><th>status</th><th>含义</th><th>列表/卡流</th></tr></thead><tbody>
+<tr><td><code>pending</code></td><td>待归档</td><td>展示</td></tr>
+<tr><td><code>done</code></td><td>已归档进流水</td><td>不在本功能列表展示</td></tr>
 </tbody>
 </table>
-<blockquote>
-<p>本版<strong>无</strong>已作废 Tab / 造数；作废能力不在本 PRD 范围。</p>
-</blockquote>
+<p class="reader-note">本版<strong>无</strong>已作废 Tab / 造数；作废能力不在本 PRD 范围。</p>
 <h3>6.2 商户端字段可见性（摘要）</h3>
 <table>
-<thead>
-<tr>
-<th>字段</th>
-<th>来源</th>
-<th>补全页</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>实付 / 支付拆分</td>
-<td>C 端</td>
-<td>只读</td>
-</tr>
-<tr>
-<td>持卡摘要 / 权益</td>
-<td>C 端</td>
-<td>只读（持卡可折叠）</td>
-</tr>
-<tr>
-<td>顾客名（会员）</td>
-<td>C 端</td>
-<td>只读展示</td>
-</tr>
-<tr>
-<td>顾客名（散客）</td>
-<td>默认「散客」</td>
-<td>可选性别改写</td>
-</tr>
-<tr>
-<td>手机号</td>
-<td>C 端</td>
-<td>有则只读展示</td>
-</tr>
-<tr>
-<td>项目/产品</td>
-<td>C 端可有空</td>
-<td>可增删；或快捷开单</td>
-</tr>
-<tr>
-<td>服务员工</td>
-<td>无</td>
-<td>可按工位/平均选；点客/散客</td>
-</tr>
-<tr>
-<td>业绩 / 提成</td>
-<td>本地计算</td>
-<td>业绩可改；提成只读</td>
-</tr>
-<tr>
-<td>备注</td>
-<td>可有</td>
-<td>可编辑</td>
-</tr>
-<tr>
-<td>下单时间</td>
-<td>C 端</td>
-<td>只读（持卡行右侧）</td>
-</tr>
+<thead><tr><th>字段</th><th>来源</th><th>补全页</th></tr></thead><tbody>
+<tr><td>实付 / 支付拆分</td><td>C 端</td><td>只读</td></tr>
+<tr><td>充值余额 / 赠金 / 权益</td><td>C 端 / 演示</td><td>会员卡只读展示</td></tr>
+<tr><td>顾客名（会员）</td><td>C 端</td><td>只读展示</td></tr>
+<tr><td>顾客名（散客）</td><td>默认男散客</td><td>点性别圆切换；可「选择会员」绑定</td></tr>
+<tr><td>欠款 / 上次消费</td><td>演示</td><td>会员卡展示（欠款含 ¥0）</td></tr>
+<tr><td>手机号</td><td>C 端</td><td>有则只读展示</td></tr>
+<tr><td>项目/产品</td><td>C 端可有空</td><td>可增删；或快捷开单；可智能补全（受开关与售价≥实付约束）</td></tr>
+<tr><td>服务员工</td><td>无</td><td>默认平均全员条；可切工位；点客可开</td></tr>
+<tr><td>业绩 / 提成</td><td>演示计算</td><td>横条/sheet/键盘可改；正式方案见业绩·提成设置</td></tr>
+<tr><td>备注</td><td>可有</td><td>可编辑</td></tr>
+<tr><td>下单时间</td><td>C 端</td><td>只读（编号卡右侧，票卡同规则）</td></tr>
 </tbody>
 </table>
 <h3>6.3 支付三档（业务约束）</h3>
@@ -966,244 +526,86 @@
 <li>不改动开单结账 / 价目表 / 业绩设置 / 提成设置 / 订单流水既有逻辑。  </li>
 <li>实付与支付渠道商户端不可改。  </li>
 <li>内容侧：至少「有明细」或「快捷开单」才能归档。  </li>
-<li>员工可选；无员工可归档（toast 提示）。  </li>
-<li>「散客」按钮（选人）= 非顾客指定；点客 = 顾客指定。  </li>
-<li>提成演示比例 10%（真实比例以门店提成设置为准，本功能不改设置模块）。  </li>
+<li>员工可选；无员工可归档（toast 弱提示）。  </li>
+<li>点客 = 顾客指定；未开点客 = 非指定。  </li>
+<li>提成演示比例 10%（真实以门店提成设置为准，本功能不改设置模块）。  </li>
 <li>首页/列表按下单时间排序；首页最多 5 张；尽头右滑进列表；列表默认可看全部日期 pending。  </li>
-<li>选人 sheet 不展示本上下文已占用员工；无可选时 toast、不打开。</li>
+<li>选人 sheet 不展示本上下文已占用员工；无可选时 toast、不打开。  </li>
+<li>智能补全受顶栏开关控制；自动填入项售价不得低于订单实付。  </li>
+<li>消费内容默认平均分配；工位模式为演示切换。</li>
 </ol>
 <hr>
 <h2 id="s8-验收要点-p0"><span class="no">·</span>8. 验收要点（P0）</h2>
 <ol>
-<li>C 端语义：说明自助订单为半成品；归档后进流水。  </li>
-<li>首页卡流按下单时间取前 5；尽头右滑二楼进列表；列表左缘可右滑回首页；点卡进补全。  </li>
-<li>列表无 Tab；默认日期「全部」；日历快捷为「全部 | 今天」；筛选支付仅三档；筛选图标无灰圆底。  </li>
-<li>价目「猜你想加」三源混合最多 6 + 信息标推荐规则（列表<strong>无</strong>排列规则问号）。  </li>
-<li>票卡恰 2 项无角标；≥3 为第二项名后「…」+ 灰圆白字件数；当日只显时刻、非当日只显日期；金额去尾零；首页 108 宽露出第 4 张；无「更多」、尽头右滑进 s16；会橙/散蓝。  </li>
-<li>散客名与性别三态正确。  </li>
-<li>价目 sheet 无 ×；快捷开单为橙底白字+白闪电右对齐。  </li>
-<li>选人：过滤已占用；点客/散客一点即落；白底、安全区、末行无线。  </li>
-<li>业绩表头「员工/业绩/提成」；均分可改、提成=×10% 只读；笔标可见。  </li>
-<li>s17 有状态栏；持卡行时间日期与时刻之间为双空格。  </li>
-<li>归档成功 toast，卡流/列表移除该 pending；流水可桥接出现。  </li>
+<li>C 端语义：半成品；归档后进流水。  </li>
+<li>首页卡流前 5；尽头右滑二楼进列表；列表左缘右滑回首页；点卡进 s17。  </li>
+<li>列表无 Tab；日期默认「全部」；筛选支付三档；筛选图标无灰圆底。  </li>
+<li>s17 五段卡；顶栏智能补全 Switch 默认开；关则不自动填；售价≥实付。  </li>
+<li>默认平均分配全员条；工位模式三档 +「+」选人；点客绿标 85% 不透明；× 取消选择有效。  </li>
+<li>快捷开单：红闪电标题 +「改为项目/产品」；价目无「猜你想加」。  </li>
+<li>选人 sheet：左点客、右 Switch、无 ×/无底提示、底栏 48；会员 sheet 白底。  </li>
+<li>业绩 sheet 空态完整；键盘可改业绩/提成。  </li>
+<li>票卡时间/件数/去尾零/会橙散蓝/二楼圆点规格仍成立。  </li>
+<li>归档成功 toast；pending 从卡流/列表消失；流水可桥接。  </li>
 <li>外网字体不阻塞首屏；流水大包可按需加载。</li>
 </ol>
 <hr>
 <h2 id="s9-原型文件映射-供-ai-还原"><span class="no">·</span>9. 原型文件映射（供 AI 还原）</h2>
 <table>
-<thead>
-<tr>
-<th>能力</th>
-<th>文件 / 节点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>入口页</td>
-<td><code>index.html</code> → <code>#s0</code> / <code>#s16</code> / <code>#s17</code></td>
-</tr>
-<tr>
-<td>逻辑</td>
-<td><code>assets/selfpay.js</code>、<code>assets/v2.js</code>（自助日期快捷）</td>
-</tr>
-<tr>
-<td>样式</td>
-<td><code>assets/selfpay.css</code>、<code>assets/v2-home-pay.css</code>（<code>.vh-sp-strip-host</code>）</td>
-</tr>
-<tr>
-<td>二楼圆点</td>
-<td><code>#spFloorDots</code>（卡流尾部空隙；尽头 1 点 → 约 35% 起分裂）</td>
-</tr>
-<tr>
-<td>更多图标（废弃）</td>
-<td><code>assets/ic_sp_more.svg</code>（不再使用）</td>
-</tr>
-<tr>
-<td>快捷闪电</td>
-<td><code>assets/ic_sp_quick_lightning.svg</code></td>
-</tr>
-<tr>
-<td>帮助信息标</td>
-<td><code>assets/ic_sp_help.svg</code>（Figma <code>1688:98</code>）</td>
-</tr>
-<tr>
-<td>业绩笔</td>
-<td><code>assets/ic_sp_perf_edit.svg</code></td>
-</tr>
-<tr>
-<td>价目 mask</td>
-<td><code>#spPriceMask</code>（含 <code>.sp-suggest</code>）</td>
-</tr>
-<tr>
-<td>说明弹层</td>
-<td><code>#spHelpMask</code></td>
-</tr>
-<tr>
-<td>选人 mask</td>
-<td><code>#spPickStaffMask</code></td>
-</tr>
-<tr>
-<td>筛选 mask</td>
-<td><code>#spFilterMask</code></td>
-</tr>
-<tr>
-<td>业绩键盘</td>
-<td><code>#spPerfKeypadMask</code></td>
-</tr>
-<tr>
-<td>票卡 Figma</td>
-<td><code>194:93</code>（十月方案 / 或当前对齐稿）</td>
-</tr>
-<tr>
-<td>更多 Figma</td>
-<td><code>198:177</code></td>
-</tr>
-<tr>
-<td>闪电 Figma</td>
-<td><code>536:203</code>（RTB版本优化）</td>
-</tr>
-<tr>
-<td>编辑笔 Figma</td>
-<td><code>1688:94</code></td>
-</tr>
+<thead><tr><th>能力</th><th>文件 / 节点</th></tr></thead><tbody>
+<tr><td>入口页</td><td><code>index.html</code> → <code>#s0</code> / <code>#s16</code> / <code>#s17</code></td></tr>
+<tr><td>逻辑</td><td><code>assets/selfpay.js</code>、<code>assets/v2.js</code>（自助日期快捷）</td></tr>
+<tr><td>样式</td><td><code>assets/selfpay.css</code>、<code>assets/v2-home-pay.css</code>（<code>.vh-sp-strip-host</code>）</td></tr>
+<tr><td>二楼圆点</td><td><code>#spFloorDots</code></td></tr>
+<tr><td>智能补全开关</td><td><code>#s17SmartToggle</code> / <code>#s17SmartSwitch</code></td></tr>
+<tr><td>散客性别 SVG</td><td><code>assets/gender/ic_guest_male.svg</code> · <code>ic_guest_female.svg</code></td></tr>
+<tr><td>快捷闪电（消费区）</td><td><code>assets/ic_sp_quick_bolt.svg</code></td></tr>
+<tr><td>价目快捷闪电</td><td><code>assets/ic_sp_quick_lightning.svg</code>（sheet 标题栏入口）</td></tr>
+<tr><td>业绩笔</td><td><code>assets/ic_sp_perf_edit.svg</code></td></tr>
+<tr><td>价目 mask</td><td><code>#spPriceMask</code></td></tr>
+<tr><td>选人 mask</td><td><code>#spPickStaffMask</code></td></tr>
+<tr><td>选会员 mask</td><td><code>#spMemberMask</code></td></tr>
+<tr><td>单项业绩 mask</td><td><code>#spItemPerfMask</code></td></tr>
+<tr><td>业绩键盘</td><td><code>#spPerfKeypadMask</code></td></tr>
+<tr><td>筛选 mask</td><td><code>#spFilterMask</code></td></tr>
+<tr><td>说明弹层</td><td><code>#spHelpMask</code></td></tr>
+<tr><td>票卡 Figma</td><td><code>194:93</code>（十月方案）</td></tr>
+<tr><td>补全稿参考</td><td>Figma「简化开单方案概览」s17 导出帧</td></tr>
 </tbody>
 </table>
 <hr>
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
-<thead>
-<tr>
-<th>版本</th>
-<th>日期</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>v1.5</td>
-<td>2026-10-16</td>
-<td>s17 五段卡改版：编号时间/顾客/支付/按项员工横条（工位 100/85/75）/备注；去猜你想加；智能补全；四人店。本地未提交</td>
-</tr>
-<tr>
-<td>v1.4o</td>
-<td>2026-10-16</td>
-<td>排序改为下单时间越近越前（同分 seq 升序）；首页取前 5；删除 s16 排列规则问号与 S4</td>
-</tr>
-<tr>
-<td>v1.4n</td>
-<td>2026-10-16</td>
-<td>票卡：姓名/上虚线位置锁死；内容区 space-evenly（1 行居中、2 行等距）；s16 返回不拦截标题栏返回键</td>
-</tr>
-<tr>
-<td>v1.4m</td>
-<td>2026-10-16</td>
-<td>回首页复位卡流滚动；圆点改挂卡流尾部空隙；到尽头先出 1 点，约 35% 拉力起才 1→3 慢分裂</td>
-</tr>
-<tr>
-<td>v1.4l</td>
-<td>2026-10-16</td>
-<td>修复二楼：仅尽头继续左拖才接管（点击/会员名不被吞）；同一次滑动到末张可接上；触控 touchmove 跟手；进页/返回强制清 peek 避免重叠；两行项目顶部对齐并与底虚线留 8px</td>
-</tr>
-<tr>
-<td>v1.4k</td>
-<td>2026-10-16</td>
-<td>二楼改为微信式：右缘圆点 1→3、整页跟手、列表淡入、阈值 80、可撤回；s16 左缘右滑回首页；去掉文案提示</td>
-</tr>
-<tr>
-<td>v1.4j</td>
-<td>2026-10-16</td>
-<td>首页票卡：姓名靠近编号；内容区均分透气；金额去尾零（票卡+s17 实付）；卡宽 108 露出第 4 张；删「更多」，尽头「继续滑动查看全部」+ 右滑二楼进 s16</td>
-</tr>
-<tr>
-<td>v1.4i</td>
-<td>2026-10-16</td>
-<td>与原型对齐：票卡右上<strong>当日仅 HH:mm / 非当日仅 M/D</strong>；明确废止 FLIP/原地放大（全屏 s17）；HTML 与 md 同步</td>
-</tr>
-<tr>
-<td>v1.4h</td>
-<td>2026-10-16</td>
-<td>散客摘要卡：删「不选」；性别与时间同行对齐会员持卡行；再点已选可取消。本地未提交</td>
-</tr>
-<tr>
-<td>v1.4g</td>
-<td>2026-10-16</td>
-<td>散客性别：男/女胶囊置前，「不选」置末且次要无边样式。本地未提交</td>
-</tr>
-<tr>
-<td>v1.4f</td>
-<td>2026-10-16</td>
-<td>编号字体确认为 <strong>HeadLineA</strong>（小掌柜 <code>displayIdFont</code>）；原型接入并写入复原规格；Apple 版权勿未授权上线。本地未提交</td>
-</tr>
-<tr>
-<td>v1.4e</td>
-<td>2026-10-16</td>
-<td>编号改 Series 3（<code>wdth</code> 150）+ OG，去掉假粗/描边；下载包改 Series3。本地未提交</td>
-</tr>
-<tr>
-<td>v1.4d</td>
-<td>2026-10-16</td>
-<td>票卡项目名最多 6 字按字截断加「…」，避免 CSS 半字裁切。本地未提交</td>
-</tr>
-<tr>
-<td>v1.4c</td>
-<td>2026-10-16</td>
-<td>票卡 ≥3 项时第二项名后补「…」（保留灰圆件数）。本地未提交</td>
-</tr>
-<tr>
-<td>v1.4b</td>
-<td>2026-10-16</td>
-<td>编号接入 OC Highway VAR2（<code>wdth</code> 100 = Series 1）；侧栏「编号字体下载」提供 Series1 数字子集 zip。本地未提交</td>
-</tr>
-<tr>
-<td>v1.4</td>
-<td>2026-10-16</td>
-<td>票卡：右上当日/非当日时间规则；≥3 灰圆件数；编号公路字体占位；布局贴 Figma 212:89；虚线保留。本地未提交</td>
-</tr>
-<tr>
-<td>v1.3c</td>
-<td>2026-10-16</td>
-<td>会员姓名改 text-decoration 下划线，与字形同宽。本地未提交</td>
-</tr>
-<tr>
-<td>v1.3b</td>
-<td>2026-10-16</td>
-<td>会员票卡姓名细划线，点姓名 toast「会员详情」（不进补全）。本地未提交</td>
-</tr>
-<tr>
-<td>v1.3</td>
-<td>2026-10-15</td>
-<td>票卡「等N项」仅 ≥3 显示；造数扩至约 17 张 pending 覆盖多场景。本地未提交</td>
-</tr>
-<tr>
-<td>v1.2b</td>
-<td>2026-10-15</td>
-<td>「推荐规则」弹层改为白话三句；细则仍只在 PRD 三源混合。本地未提交</td>
-</tr>
-<tr>
-<td>v1.2</td>
-<td>2026-10-15</td>
-<td>猜你想加改为热销/搭配/常用三源配额混合；帮助「?」换 Figma 信息圆标（s16+价目）。本地未提交；未跑机器验证</td>
-</tr>
-<tr>
-<td>v1.1b</td>
-<td>2026-10-15</td>
-<td>S4 去掉「实付金额归一化」因子；排列规则问号同步。本地未提交；未跑机器验证</td>
-</tr>
-<tr>
-<td>v1.1</td>
-<td>2026-10-15</td>
-<td>R48：s17 状态栏；选人过滤已占用；业绩表头；时间双空格；S4 排序；列表默认「全部」+ 日历「全部|今天」；排列/推荐问号；价目「猜你想加」Top6。本地未提交；未跑机器验证</td>
-</tr>
-<tr>
-<td>v1.0</td>
-<td>2026-10-15</td>
-<td>首版：专述自助订单归档；含 UI/UX/动效级规格；废弃旧 PRD 中冲突历史</td>
-</tr>
+<thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.6</td><td>2026-10-17</td><td><strong>整节重写 §5.3</strong>：顶栏智能补全开关、平均默认、横条手势/点客85%/清除、快捷闪电标题、选人 Switch、业绩空态、会员 sheet 白底、智能补全售价≥实付；§4/7/8/9 对齐</td></tr>
+<tr><td>v1.5</td><td>2026-10-16</td><td>s17 五段卡改版：编号时间/顾客（欠款·上次·选会员·散客头像性别）/支付/按项员工横条（工位占比 100/85/75）/备注；去猜你想加；智能补全；四人店造数</td></tr>
+<tr><td>v1.4o</td><td>2026-10-16</td><td>排序改为下单时间越近越前（同分 seq 升序）；首页取前 5；删除 s16 排列规则问号与 S4</td></tr>
+<tr><td>v1.4n</td><td>2026-10-16</td><td>票卡：姓名/上虚线位置锁死；内容区 space-evenly（1 行居中、2 行等距）；s16 返回不拦截标题栏返回键</td></tr>
+<tr><td>v1.4m</td><td>2026-10-16</td><td>回首页复位卡流滚动；圆点改挂卡流尾部空隙；到尽头先出 1 点，约 35% 拉力起才 1→3 慢分裂</td></tr>
+<tr><td>v1.4l</td><td>2026-10-16</td><td>修复二楼：仅尽头继续左拖才接管（点击/会员名不被吞）；同一次滑动到末张可接上；触控 <code>touchmove</code> 跟手；进页/返回强制清 peek 避免首页与 s16 重叠；两行项目顶部对齐并与底虚线留 8px</td></tr>
+<tr><td>v1.4k</td><td>2026-10-16</td><td>二楼改为微信式：右缘圆点 1→3、整页跟手、列表淡入、阈值 80、可撤回；s16 左缘右滑回首页；去掉文案提示</td></tr>
+<tr><td>v1.4j</td><td>2026-10-16</td><td>首页票卡：姓名靠近编号；内容区均分透气；金额去尾零（票卡+s17 实付）；卡宽 108 露出第 4 张；删「更多」，尽头「继续滑动查看全部」+ 右滑二楼进 s16</td></tr>
+<tr><td>v1.4i</td><td>2026-10-16</td><td>与原型对齐：票卡右上<strong>当日仅 HH:mm / 非当日仅 M/D</strong>；明确废止 FLIP/原地放大（全屏 s17）；HTML 与 md 同步</td></tr>
+<tr><td>v1.4h</td><td>2026-10-16</td><td>散客摘要卡：删「不选」；性别与时间同行对齐会员持卡行；再点已选可取消。本地未提交</td></tr>
+<tr><td>v1.4g</td><td>2026-10-16</td><td>散客性别：男/女胶囊置前，「不选」置末且次要无边样式。本地未提交</td></tr>
+<tr><td>v1.4f</td><td>2026-10-16</td><td>编号字体确认为 <strong>HeadLineA</strong>（小掌柜 <code>displayIdFont</code>）；原型接入并写入复原规格；Apple 版权勿未授权上线。本地未提交</td></tr>
+<tr><td>v1.4e</td><td>2026-10-16</td><td>编号改 Series 3（<code>wdth</code> 150）+ OG，去掉假粗/描边；下载包改 Series3。本地未提交</td></tr>
+<tr><td>v1.4d</td><td>2026-10-16</td><td>票卡项目名最多 6 字按字截断加「…」，避免 CSS 半字裁切。本地未提交</td></tr>
+<tr><td>v1.4c</td><td>2026-10-16</td><td>票卡 ≥3 项时第二项名后补「…」（保留灰圆件数）。本地未提交</td></tr>
+<tr><td>v1.4b</td><td>2026-10-16</td><td>编号接入 OC Highway VAR2（<code>wdth</code> 100 = Series 1）；侧栏「编号字体下载」提供 Series1 数字子集 zip。本地未提交</td></tr>
+<tr><td>v1.4</td><td>2026-10-16</td><td>票卡：右上当日/非当日时间规则；≥3 灰圆件数；编号公路字体占位；布局贴 Figma 212:89；虚线保留。本地未提交</td></tr>
+<tr><td>v1.3c</td><td>2026-10-16</td><td>会员姓名改 text-decoration 下划线，与字形同宽。本地未提交</td></tr>
+<tr><td>v1.3b</td><td>2026-10-16</td><td>会员票卡姓名细划线，点姓名 toast「会员详情」（不进补全）。本地未提交</td></tr>
+<tr><td>v1.3</td><td>2026-10-15</td><td>票卡「等N项」仅 ≥3 显示；造数扩至约 17 张 pending 覆盖多场景。本地未提交</td></tr>
+<tr><td>v1.2b</td><td>2026-10-15</td><td>「推荐规则」弹层改为白话三句；细则仍只在 PRD 三源混合。本地未提交</td></tr>
+<tr><td>v1.2</td><td>2026-10-15</td><td>猜你想加改为热销/搭配/常用三源配额混合；帮助「?」换 Figma 信息圆标（s16+价目）。本地未提交；未跑机器验证</td></tr>
+<tr><td>v1.1b</td><td>2026-10-15</td><td>S4 去掉「实付金额归一化」因子；排列规则问号同步。本地未提交；未跑机器验证</td></tr>
+<tr><td>v1.1</td><td>2026-10-15</td><td>R48：s17 状态栏；选人过滤已占用；业绩表头；时间双空格；S4 排序；列表默认「全部」+ 日历「全部\</td><td>今天」；排列/推荐问号；价目「猜你想加」Top6。本地未提交；未跑机器验证</td></tr>
+<tr><td>v1.0</td><td>2026-10-15</td><td>首版：专述自助订单归档；含 UI/UX/动效级规格；废弃旧 PRD 中冲突历史</td></tr>
 </tbody>
 </table>
 <hr>
-<p><em>完 · 原型入口：<code>开单结账2.0/index.html</code></em></p>
-<div class="foot">完 · 原型入口：<code>开单结账2.0/index.html</code></div>
+<p class="foot">完 · 原型入口：<code>开单结账2.0/index.html</code></p>
 </div>
 </body>
 </html>
