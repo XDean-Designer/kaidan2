@@ -2076,22 +2076,43 @@
   color: #8E8E93;
   font-variant-numeric: tabular-nums;
 }
-#s17 .spf-cust__cards {
+#s17 .spf-cust__wallet {
   margin-top: 8px;
   padding-top: 8px;
   border-top: .5px solid rgba(60, 50, 40, .1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
   font-size: 12px;
   color: #636366;
   line-height: 1.4;
 }
+#s17 .spf-cust__wallet-item {
+  font-variant-numeric: tabular-nums;
+}
+#s17 .spf-cust__wallet-dot {
+  margin: 0 6px;
+  color: #C7C7CC;
+}
+#s17 .spf-cust__foot {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: .5px solid rgba(60, 50, 40, .1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
 #s17 .spf-cust__last {
-  margin-top: 6px;
   font-size: 12px;
   color: #8E8E93;
   line-height: 1.35;
+  font-variant-numeric: tabular-nums;
 }
+#s17 .spf-cust__last.is-empty { flex: 1; }
 #s17 .spf-cust__debt {
-  margin-top: 8px;
+  flex: none;
   font-size: 13px;
   color: #F32F41;
   font-weight: 600;
@@ -2264,6 +2285,14 @@
   overflow: visible;
   touch-action: none;
   user-select: none;
+  transition: box-shadow .15s ease, background .15s ease;
+}
+#s17 .spf-ibar__track.is-grabbing {
+  background: #DEDEE3;
+  box-shadow: inset 0 0 0 1.5px rgba(60, 60, 67, .22);
+}
+#s17 .spf-ibar__track.is-grabbing .spf-ibar__fill {
+  box-shadow: 2px 0 0 0 rgba(28, 28, 30, .35);
 }
 #s17 .spf-ibar__fill {
   position: absolute;
