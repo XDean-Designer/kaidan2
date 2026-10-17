@@ -2056,7 +2056,11 @@
   background: #FFE8F0;
   color: #FF2D55;
 }
-#s17 .spf-gender__ic { display: block; }
+#s17 .spf-gender__ic {
+  display: block;
+  width: 34px;
+  height: 34px;
+}
 #s17 .spf-cust__main { flex: 1; min-width: 0; }
 #s17 .spf-cust__line1 {
   display: flex;
@@ -2126,7 +2130,7 @@
   border: 0;
   border-radius: 16px;
   background: #F2F2F7;
-  color: #007AFF;
+  color: #1C1C1E;
   font: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -2137,27 +2141,31 @@
 #s17 .spf-card--pay { text-align: left; }
 #s17 .spf-pay__row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
   min-width: 0;
 }
 #s17 .spf-pay__amt {
   flex: none;
+  display: flex;
+  align-items: center;
   font-size: 26px;
   font-weight: 700;
   color: #1C1C1E;
   font-variant-numeric: tabular-nums;
   letter-spacing: -.02em;
+  line-height: 1;
 }
 #s17 .spf-pay__amt span {
   font-size: 14px;
   font-weight: 600;
   margin-right: 2px;
+  line-height: 1;
 }
 #s17 .spf-pay__sep {
   flex: none;
   width: 1px;
-  height: 14px;
+  height: 16px;
   background: #C7C7CC;
   align-self: center;
 }
@@ -2166,7 +2174,9 @@
   min-width: 0;
   font-size: 13px;
   color: #8E8E93;
-  line-height: 1.3;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
 }
 #s17 .spf-pay__ben {
   margin-top: 6px;
@@ -2285,14 +2295,6 @@
   overflow: visible;
   touch-action: none;
   user-select: none;
-  transition: box-shadow .15s ease, background .15s ease;
-}
-#s17 .spf-ibar__track.is-grabbing {
-  background: #DEDEE3;
-  box-shadow: inset 0 0 0 1.5px rgba(60, 60, 67, .22);
-}
-#s17 .spf-ibar__track.is-grabbing .spf-ibar__fill {
-  box-shadow: 2px 0 0 0 rgba(28, 28, 30, .35);
 }
 #s17 .spf-ibar__fill {
   position: absolute;
@@ -2388,7 +2390,7 @@
   height: 24px;
   border: 0;
   border-radius: 50%;
-  background: #D1D1D6;
+  background: rgba(255, 255, 255, .72);
   color: #636366;
   font: inherit;
   font-size: 14px;

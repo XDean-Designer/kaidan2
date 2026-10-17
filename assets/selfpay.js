@@ -350,12 +350,20 @@
   function guestAvatarOf(gender) {
     return gender === 'female' ? GUEST_AVATAR.female : GUEST_AVATAR.male;
   }
-  /** 散客性别符号（圆底：男蓝 / 女粉） */
+  /** 散客性别符号（圆底：男蓝 / 女粉；实心饱满，圆内占比大） */
   function guestGenderBadgeHtml(gender, interactive) {
     var g = gender === 'female' ? 'female' : 'male';
     var icon = g === 'female'
-      ? '<svg class="spf-gender__ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="10" cy="9" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 12.2v7.3M7.2 16.2h5.6M14.2 14.5l4.6 4.6M18.8 15.2v4h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-      : '<svg class="spf-gender__ic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="10.5" cy="13.5" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13 11l5.2-5.2M14.2 5.8h4v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      ? '<svg class="spf-gender__ic" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">' +
+        '<circle cx="16" cy="11.5" r="6" fill="currentColor"/>' +
+        '<rect x="14.2" y="17.2" width="3.6" height="8.8" rx="1.8" fill="currentColor"/>' +
+        '<rect x="10.2" y="21.4" width="11.6" height="3.4" rx="1.7" fill="currentColor"/>' +
+        '</svg>'
+      : '<svg class="spf-gender__ic" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">' +
+        '<circle cx="13.2" cy="19" r="6" fill="currentColor"/>' +
+        '<path d="M17.6 14.4L26.4 5.6" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/>' +
+        '<path d="M19.4 5.4h7.4v7.4" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+        '</svg>';
     var inner = '<span class="spf-gender is-' + g + '">' + icon + '</span>';
     if (!interactive) return inner;
     return '<button type="button" class="spf-cust__av-btn" data-sp-guest-av aria-label="切换性别">' +
@@ -921,8 +929,7 @@
         guestGenderBadgeHtml(g, !readonly) +
         '<div class="spf-cust__main">' +
         '<div class="spf-cust__line1">' +
-        '<span class="spf-cust__name">' + escapeHtml(custName) + '</span>' +
-        '<span class="spf-sum__vip spf-sum__vip--guest">散客</span></div></div>' +
+        '<span class="spf-cust__name">' + escapeHtml(custName) + '</span></div></div>' +
         (readonly ? '' :
           '<button type="button" class="spf-pick-mem" data-sp-pick-member>选择会员</button>') +
         '</div></div>';
@@ -2530,7 +2537,6 @@
         var startX = e.clientX;
         var startPct = Number(p.pct) || 0;
         var moved = false;
-        track.classList.add('is-grabbing');
         ui.dragBar = {
           ctx: ctxRaw, pointerId: e.pointerId, track: track,
           startX: startX, startPct: startPct
@@ -2552,7 +2558,6 @@
         }
         function onUp(ev) {
           if (!ui.dragBar || ev.pointerId !== ui.dragBar.pointerId) return;
-          track.classList.remove('is-grabbing');
           ui.dragBar = null;
           track.removeEventListener('pointermove', onMove);
           track.removeEventListener('pointerup', onUp);
