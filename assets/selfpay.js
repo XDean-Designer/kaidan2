@@ -43,26 +43,29 @@
   };
   /** 会员头像回退（网络图失败时） */
   var MEM_AVATAR_FALLBACK = 'assets/avatar_card_female.png';
-  /**
-   * 东亚人像 CDN（Faceplacer east-asian 集合；稳定直链，观感接近微信头像）
-   * 来源：faceplacer.com/api/collection?ethnicity=east-asian
-   */
+  /** Pexels 免费人像直链 · 中日韩网红感（w=320 方形裁切） */
+  function pxAvatar(id) {
+    return 'https://images.pexels.com/photos/' + id + '/pexels-photo-' + id +
+      '.jpeg?auto=compress&cs=tinysrgb&w=320&h=320&fit=crop';
+  }
   var MEM_WX_AVATARS = {
-    m1: 'https://files.stow.sh/b/faceplacer/rrm0nb9157q69',
-    m2: 'https://files.stow.sh/b/faceplacer/g378llejm52ct',
-    m3: 'https://files.stow.sh/b/faceplacer/hqq7iuae1d530',
-    m4: 'https://files.stow.sh/b/faceplacer/1prbnqq2d467g',
-    m5: 'https://files.stow.sh/b/faceplacer/y3ic9tpccqjh8',
-    m6: 'https://files.stow.sh/b/faceplacer/oudpcyp44rbe4',
-    m7: 'https://files.stow.sh/b/faceplacer/j7gqbbmsbynge'
+    f1: pxAvatar(34586559), /* 首尔街拍 */
+    f2: pxAvatar(31776048), /* 东京饰品写真 */
+    f3: pxAvatar(6316074),  /* 东京街头潮流 */
+    f4: pxAvatar(39877058), /* 北京咖啡馆 */
+    f5: pxAvatar(39876575), /* 上海街头 */
+    f6: pxAvatar(20478046), /* 米色大衣 · 首尔 */
+    f7: pxAvatar(19271566), /* 韩屋步行街 */
+    m1: pxAvatar(6929324)   /* 男 · 休闲街拍 */
   };
   /** 选择会员 sheet 演示名单 */
   var SP_DEMO_MEMBERS = [
-    { id: 'm1', name: '何静', gender: 'female', phone: '188****6655', avatar: MEM_WX_AVATARS.m1, balance: 1280, bonus: 80, debt: 0, lastVisitDate: '2026.10.12', lastItem: '洗剪吹' },
-    { id: 'm2', name: '陈昕然', gender: 'female', phone: '186****9033', avatar: MEM_WX_AVATARS.m2, balance: 0, bonus: 0, debt: 120, lastVisitDate: '2026.10.08', lastItem: '染发' },
-    { id: 'm3', name: '周雨欣', gender: 'female', phone: '159****4412', avatar: MEM_WX_AVATARS.m3, balance: 0, bonus: 20, debt: 0, lastVisitDate: '2026.10.14', lastItem: '时尚洗吹' },
-    { id: 'm4', name: '苏晓萌', gender: 'female', phone: '151****2201', avatar: MEM_WX_AVATARS.m4, balance: 560, bonus: 45, debt: 36.5, lastVisitDate: '2026.09.28', lastItem: '深层滋养' },
-    { id: 'm5', name: '林晓萱', gender: 'female', phone: '135****8820', avatar: MEM_WX_AVATARS.m5, balance: 880, bonus: 0, debt: 0, lastVisitDate: '2026.10.01', lastItem: '精致剪发' }
+    { id: 'm1', name: '何静', gender: 'female', phone: '188****6655', avatar: MEM_WX_AVATARS.f1, balance: 1280, bonus: 80, debt: 0, lastVisitDate: '2026.10.12', lastItem: '洗剪吹' },
+    { id: 'm2', name: '陈昕然', gender: 'female', phone: '186****9033', avatar: MEM_WX_AVATARS.f2, balance: 0, bonus: 0, debt: 120, lastVisitDate: '2026.10.08', lastItem: '染发' },
+    { id: 'm3', name: '周雨欣', gender: 'female', phone: '159****4412', avatar: MEM_WX_AVATARS.f3, balance: 0, bonus: 20, debt: 0, lastVisitDate: '2026.10.14', lastItem: '时尚洗吹' },
+    { id: 'm4', name: '苏晓萌', gender: 'female', phone: '151****2201', avatar: MEM_WX_AVATARS.f4, balance: 560, bonus: 45, debt: 36.5, lastVisitDate: '2026.09.28', lastItem: '深层滋养' },
+    { id: 'm5', name: '林晓萱', gender: 'female', phone: '135****8820', avatar: MEM_WX_AVATARS.f5, balance: 880, bonus: 0, debt: 0, lastVisitDate: '2026.10.01', lastItem: '精致剪发' },
+    { id: 'm6', name: '周子昂', gender: 'male', phone: '137****2048', avatar: MEM_WX_AVATARS.m1, balance: 460, bonus: 30, debt: 0, lastVisitDate: '2026.10.11', lastItem: '染发' }
   ];
   var GUEST_AVATAR = {
     male: 'assets/billing/avatar-male.png',
@@ -143,7 +146,7 @@
       {
         id: 'sp-1', seq: 100, isMember: true, status: 'pending', dateKey: t, time: '09:18',
         customerName: '何静', gender: 'female', phone: '188****6655',
-        avatar: MEM_WX_AVATARS.m1,
+        avatar: MEM_WX_AVATARS.f1,
         cards: '', balance: 1280, bonus: 80,
         debt: 0, lastVisitDate: '2026.10.12', lastItem: '洗剪吹',
         items: [
@@ -162,7 +165,7 @@
       {
         id: 'sp-2', seq: 101, isMember: true, status: 'pending', dateKey: t, time: '10:42',
         customerName: '陈昕然', gender: 'female', phone: '186****9033',
-        avatar: MEM_WX_AVATARS.m2,
+        avatar: MEM_WX_AVATARS.f2,
         cards: '', balance: 0, bonus: 0,
         debt: 120, lastVisitDate: '2026.10.08', lastItem: '染发',
         items: [],
@@ -173,18 +176,32 @@
       {
         id: 'sp-3', seq: 102, isMember: true, status: 'pending', dateKey: t, time: '11:05',
         customerName: '周雨欣', gender: 'female', phone: '159****4412',
-        avatar: MEM_WX_AVATARS.m3,
+        avatar: MEM_WX_AVATARS.f3,
         cards: '', balance: 0, bonus: 20,
         debt: 0, lastVisitDate: '2026.10.14', lastItem: '时尚洗吹',
         items: [{ id: 'p2', name: '时尚洗吹', type: 'project', price: 58, qty: 1 }],
         paid: 58, payments: [{ method: '会员卡', amount: 58 }],
         benefits: '', slipNo: 'SP202610150055', remark: ''
       },
+      /* 3b 男会员 · 2 项 · 微信 + 会员卡（验证 ♂ 与男头像） */
+      {
+        id: 'sp-4', seq: 103, isMember: true, status: 'pending', dateKey: t, time: '12:26',
+        customerName: '周子昂', gender: 'male', phone: '137****2048',
+        avatar: MEM_WX_AVATARS.m1,
+        cards: '', balance: 460, bonus: 30,
+        debt: 0, lastVisitDate: '2026.10.11', lastItem: '染发',
+        items: [
+          { id: 'p11', name: '精致剪发', type: 'project', price: 98, qty: 1 },
+          { id: 'p3', name: '染发', type: 'project', price: 358, qty: 1 }
+        ],
+        paid: 456, payments: [{ method: '微信', amount: 300 }, { method: '会员卡', amount: 156 }],
+        benefits: '', slipNo: 'SP202610150078', remark: '男会员演示单'
+      },
       /* 4 会员 · 混合支付 · 2 项 */
       {
         id: 'sp-5', seq: 104, isMember: true, status: 'pending', dateKey: t, time: '14:08',
         customerName: '苏晓萌', gender: 'female', phone: '151****2201',
-        avatar: MEM_WX_AVATARS.m4,
+        avatar: MEM_WX_AVATARS.f4,
         cards: '', balance: 560, bonus: 45,
         debt: 36.5, lastVisitDate: '2026.09.28', lastItem: '深层滋养',
         items: [
@@ -208,7 +225,7 @@
       {
         id: 'sp-7', seq: 108, isMember: true, status: 'pending', dateKey: t, time: '16:05',
         customerName: '林晓萱', gender: 'female', phone: '135****8820',
-        avatar: MEM_WX_AVATARS.m5,
+        avatar: MEM_WX_AVATARS.f5,
         cards: '', balance: 880, bonus: 0,
         debt: 0, lastVisitDate: '2026.10.01', lastItem: '精致剪发',
         items: [], contentMode: 'quick',
@@ -219,7 +236,7 @@
       {
         id: 'sp-9', seq: 110, isMember: true, status: 'pending', dateKey: t, time: '17:10',
         customerName: '陆思琪', gender: 'female', phone: '186****5511',
-        avatar: MEM_WX_AVATARS.m6,
+        avatar: MEM_WX_AVATARS.f6,
         cards: '', balance: 1280, bonus: 120,
         debt: 88, lastVisitDate: '2026.09.20', lastItem: '烫发',
         items: [
@@ -278,7 +295,7 @@
       {
         id: 'sp-y1', seq: 114, isMember: true, status: 'pending', dateKey: y, time: '16:40',
         customerName: '蔡雅婷', gender: 'female', phone: '139****1100',
-        avatar: MEM_WX_AVATARS.m7,
+        avatar: MEM_WX_AVATARS.f7,
         cards: '', balance: 2100, bonus: 120,
         debt: 88, lastVisitDate: '2026.10.05', lastItem: '洗剪吹',
         items: [{ id: 'p1', name: '精致剪发', type: 'project', price: 98, qty: 1 }],
