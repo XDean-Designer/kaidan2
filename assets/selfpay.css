@@ -1679,8 +1679,6 @@
   cursor: pointer;
 }
 .s17-bar .btn-main:active { opacity: .88; }
-#s17.is-readonly .s17-bar { display: none; }
-#s17.is-readonly .s17-body { bottom: 0; }
 
 /* 逐项员工槽 */
 .spf-st-block { margin-top: 10px; }
@@ -2369,20 +2367,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-#s17 .spf-ibar__dk-tag {
-  display: inline-block;
-  margin-left: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  color: #1B6B4A;
-  background: rgba(200, 230, 208, .85);
-  border: .5px solid #1B6B4A;
-  border-radius: 16px;
-  padding: 0 8px;
-  line-height: 26px;
-  height: 26px;
-  box-sizing: border-box;
-}
 #s17 .spf-ibar__track {
   position: relative;
   flex: 1;
@@ -2475,12 +2459,6 @@
   cursor: pointer;
   text-align: center;
   line-height: 16.5px;
-}
-#s17 .spf-ibar__amt.is-ro {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
 }
 #s17 .spf-ibar__x {
   position: absolute;

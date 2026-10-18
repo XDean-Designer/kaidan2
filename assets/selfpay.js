@@ -329,7 +329,6 @@
     cardsOpen: false,
     priceTab: 'project',
     priceGroup: '全部',
-    readonly: false,
     allocMode: 'average',
     pickCtx: null,
     pickDraft: {},
@@ -848,13 +847,14 @@
     return rows;
   }
 
-  function staffBarHtml(entry, readonly) {
+  function staffBarHtml(entry) {
     var p = entry.person;
     var on = !!p.active;
     var pct = on ? (Number(p.pct) || 0) : 0;
     var color = barColorOf(p.id);
     /* % 标签位映射到安全区，不与左右控件重叠 */
     var pctLeft = pctLabelLeft(pct);
+    /* 未选中条只保留姓名与空槽；选中后才渲染 点客 / % / 业绩 / × */
     var amtHtml = on
       ? '<button type="button" class="spf-ibar__amt" data-sp-ibar-val="' + escapeHtml(entry.ctx) +
         '">' + moneyTrim(p.achievement || 0) + '</button>'
@@ -865,30 +865,19 @@
       : '';
     var pctHtml = on
       ? '<span class="spf-ibar__pct" style="left:' + pctLeft + '%">' + pct + '%</span>'
-      : '<span class="spf-ibar__pct" hidden style="left:0">0%</span>';
-    if (readonly) {
-      return (
-        '<div class="spf-ibar is-ro' + (on ? ' is-on' : '') + '" style="--ibar-color:' + color + '">' +
-        '<div class="spf-ibar__nm">' + escapeHtml(p.name) +
-        (p.dianke ? '<span class="spf-ibar__dk-tag">点客</span>' : '') + '</div>' +
-        '<div class="spf-ibar__track">' +
-        '<div class="spf-ibar__fill" style="width:' + pct + '%;background:' + color + '"></div>' +
-        (on ? '<span class="spf-ibar__pct" style="left:' + pctLeft + '%">' + pct + '%</span>' : '') +
-        (on ? '<span class="spf-ibar__amt is-ro">' + moneyTrim(p.achievement || 0) + '</span>' : '') +
-        '</div></div>'
-      );
-    }
+      : '';
+    var dkHtml = on
+      ? '<button type="button" class="spf-ibar__dk' + (p.dianke ? ' is-on' : '') +
+        '" data-sp-ibar-dk="' + escapeHtml(entry.ctx) + '" aria-label="点客">' +
+        '<span class="spf-ibar__dk-lab">点客</span></button>'
+      : '';
     return (
       '<div class="spf-ibar' + (on ? ' is-on' : '') + '" data-sp-ibar="' + escapeHtml(entry.ctx) +
       '" style="--ibar-color:' + color + '">' +
       '<div class="spf-ibar__nm">' + escapeHtml(p.name) + '</div>' +
       '<div class="spf-ibar__track" data-sp-ibar-track="' + escapeHtml(entry.ctx) + '">' +
       '<div class="spf-ibar__fill" style="width:' + pct + '%;background:' + color + '"></div>' +
-      pctHtml +
-      '<button type="button" class="spf-ibar__dk' + (p.dianke ? ' is-on' : '') +
-      '" data-sp-ibar-dk="' + escapeHtml(entry.ctx) + '" aria-label="点客">' +
-      '<span class="spf-ibar__dk-lab">点客</span></button>' +
-      amtHtml + xHtml +
+      pctHtml + dkHtml + amtHtml + xHtml +
       '</div></div>'
     );
   }
@@ -899,7 +888,7 @@
     );
   }
 
-  function assignBarsHtml(assign, prefix, it, readonly) {
+  function assignBarsHtml(assign, prefix, it) {
     assign = assign || emptyAssign();
     /* 平均：全员数值条，不可再添加 */
     if (ui.allocMode === 'average') {
@@ -909,7 +898,7 @@
         return '<div class="spf-quick-tip">暂无员工</div>';
       }
       return '<div class="spf-ibar-list">' + avgRows.map(function (r) {
-        return staffBarHtml(r, readonly);
+        return staffBarHtml(r);
       }).join('') + '</div>';
     }
     /* 工位：三行工位；已选为条；未满留 + 空槽 */
@@ -922,14 +911,11 @@
         syncPersonPerf(p, st.id, it || { price: 0, qty: 1 });
         out += staffBarHtml({
           person: p, station: st.id, ctx: prefix + '|' + st.id + '|' + i, lab: st.lab
-        }, readonly);
+        });
       });
       out += '</div>';
-      if (!readonly && arr.length < 3) {
+      if (arr.length < 3) {
         out += '<div class="spf-st-slots">' + stationSlotBtn(prefix + '|' + st.id + '|' + arr.length) + '</div>';
-      }
-      if (readonly && !arr.length) {
-        out += '<div class="spf-quick-tip">未指定</div>';
       }
       out += '</div></div>';
     });
@@ -937,7 +923,7 @@
     return out;
   }
 
-  function itemCardHtml(it, idx, readonly) {
+  function itemCardHtml(it, idx) {
     ensureItemAssign(it);
     if (ui.allocMode === 'average') ensureAveragePeople(it.assign, it);
     var focus = ui.focusItemIdx === idx ? ' is-focus' : '';
@@ -948,22 +934,20 @@
       '<div class="spf-icard__sub">' +
       '<span class="spf-icard__meta">' + (it.type === 'product' ? '产品' : '项目') + ' · ¥' +
       money(it.price) + ' ×' + (it.qty || 1) + '</span>' +
-      (readonly ? '' :
-        '<span class="spf-icard__sep" aria-hidden="true"></span>' +
-        '<button type="button" class="spf-icard__sheet" data-sp-item-sheet="' + idx +
-        '" aria-label="业绩提成">' +
-        '<img src="assets/ic_sp_staff_sheet.svg" alt="" width="18" height="18"></button>') +
+      '<span class="spf-icard__sep" aria-hidden="true"></span>' +
+      '<button type="button" class="spf-icard__sheet" data-sp-item-sheet="' + idx +
+      '" aria-label="业绩提成">' +
+      '<img src="assets/ic_sp_staff_sheet.svg" alt="" width="18" height="18"></button>' +
       '</div></div>' +
-      (readonly ? '' :
-        '<button type="button" class="spf-item__del" data-sp-del="' + idx + '" aria-label="删除">×</button>') +
+      '<button type="button" class="spf-item__del" data-sp-del="' + idx + '" aria-label="删除">×</button>' +
       '</div>';
     return (
       '<div class="spf-icard' + focus + '" data-sp-item-card="' + idx + '">' +
-      head + assignBarsHtml(it.assign, 'item|' + idx, it, readonly) + '</div>'
+      head + assignBarsHtml(it.assign, 'item|' + idx, it) + '</div>'
     );
   }
 
-  function completeBodyHtml(slip, readonly) {
+  function completeBodyHtml(slip) {
     var when = ticketWhenLabel(slip);
     var seqCard =
       '<div class="spf-card spf-card--seq">' +
@@ -993,12 +977,11 @@
       memberBody =
         '<div class="spf-card spf-card--cust spf-card--guest">' +
         '<div class="spf-cust spf-cust--guest">' +
-        guestGenderBadgeHtml(g, !readonly) +
+        guestGenderBadgeHtml(g, true) +
         '<div class="spf-cust__main">' +
         '<div class="spf-cust__line1">' +
         '<span class="spf-cust__name">' + escapeHtml(custName) + '</span></div></div>' +
-        (readonly ? '' :
-          '<button type="button" class="spf-pick-mem" data-sp-pick-member>选择会员</button>') +
+        '<button type="button" class="spf-pick-mem" data-sp-pick-member>选择会员</button>' +
         '</div></div>';
     }
 
@@ -1016,25 +999,14 @@
       '<div class="spf-quick-hd">' +
       '<img class="spf-quick-hd__ic" src="assets/ic_sp_quick_bolt.svg" alt="" width="23" height="23">' +
       '<span class="spf-quick-hd__t">快捷开单</span></div>';
-    if (readonly) {
-      if (slip.contentMode === 'quick') {
-        itemsInner = quickHd +
-          assignBarsHtml(slip.orderStaff || emptyAssign(), 'order', { price: slip.paid, qty: 1 }, true);
-      } else if (slip.items && slip.items.length) {
-        itemsInner = slip.items.map(function (it, idx) {
-          return itemCardHtml(it, idx, true);
-        }).join('');
-      } else {
-        itemsInner = '<div class="spf-quick-tip">未填项目</div>';
-      }
-    } else if (ui.contentMode === 'quick') {
+    if (ui.contentMode === 'quick') {
       itemsInner =
         quickHd +
-        assignBarsHtml(ui.orderStaff, 'order', { price: slip.paid, qty: 1 }, false) +
+        assignBarsHtml(ui.orderStaff, 'order', { price: slip.paid, qty: 1 }) +
         '<button type="button" class="spf-add-btn" data-sp-add>改为项目/产品</button>';
     } else {
       itemsInner = (ui.editItems.length
-        ? ui.editItems.map(function (it, idx) { return itemCardHtml(it, idx, false); }).join('')
+        ? ui.editItems.map(function (it, idx) { return itemCardHtml(it, idx); }).join('')
         : '<div class="spf-quick-tip">尚未添加项目/产品</div>') +
         '<button type="button" class="spf-add-btn" data-sp-add>+ 添加项目/产品</button>';
     }
@@ -1045,10 +1017,9 @@
       '<div class="spf-card__rule" aria-hidden="true"></div>' +
       '<div class="spf-card__body">' + itemsInner + '</div></div>';
 
-    var remarkHtml = readonly
-      ? '<div class="spf-quick-tip">' + escapeHtml(slip.remark || '无') + '</div>'
-      : '<textarea class="spf-remark" id="spRemark" maxlength="200" placeholder="选填">' +
-        escapeHtml(ui.remark) + '</textarea>';
+    var remarkHtml =
+      '<textarea class="spf-remark" id="spRemark" maxlength="200" placeholder="选填">' +
+      escapeHtml(ui.remark) + '</textarea>';
     var remarkCard =
       '<div class="spf-card spf-card--remark">' +
       '<div class="spf-card__h">备注</div>' + remarkHtml + '</div>';
@@ -1060,7 +1031,7 @@
     var wrap = $('#s17SmartToggle');
     var sw = $('#s17SmartSwitch');
     if (!wrap || !sw) return;
-    var show = !!ui.currentId && !ui.readonly;
+    var show = !!ui.currentId;
     wrap.hidden = !show;
     sw.checked = !!ui.smartComplete;
   }
@@ -1072,11 +1043,10 @@
     var root = $('#s17');
     var bar = $('#s17Bar');
     if (!scroll || !root) return;
-    if (title) title.textContent = ui.readonly ? (slip.status === 'voided' ? '已作废' : '单据详情') : '补全订单';
-    root.classList.toggle('is-readonly', !!ui.readonly);
-    if (bar) bar.hidden = !!ui.readonly;
+    if (title) title.textContent = '补全订单';
+    if (bar) bar.hidden = false;
     syncSmartToggle();
-    scroll.innerHTML = completeBodyHtml(slip, ui.readonly);
+    scroll.innerHTML = completeBodyHtml(slip);
     var remark = $('#spRemark');
     if (remark) {
       remark.addEventListener('input', function () { ui.remark = remark.value || ''; });
@@ -1163,7 +1133,7 @@
     return true;
   }
   function runSmartComplete(slip) {
-    if (ui.readonly || !ui.smartComplete) return;
+    if (!ui.smartComplete) return;
     if (ui.contentMode !== 'quick' && !ui.editItems.length) {
       var pick = smartPickItem(slip);
       if (pick) {
@@ -1213,7 +1183,6 @@
       return;
     }
     ui.currentId = id;
-    ui.readonly = slip.status === 'voided';
     ui.contentMode = slip.contentMode === 'quick' ? 'quick' : 'items';
     ui.editItems = (slip.items || []).map(function (it) {
       return {
@@ -1248,7 +1217,7 @@
 
   function archiveCurrent() {
     var slip = getSlip(ui.currentId);
-    if (!slip || slip.status !== 'pending' || ui.readonly) return;
+    if (!slip || slip.status !== 'pending') return;
 
     if (ui.contentMode === 'items' && !ui.editItems.length) {
       toast('请添加项目/产品，或使用快捷开单');
@@ -1569,7 +1538,7 @@
   }
   function openPickStaff(ctxRaw) {
     var ctx = parseSlotCtx(ctxRaw);
-    if (!ctx || ui.readonly) return;
+    if (!ctx) return;
     if (ui.allocMode === 'average' || ctx.station === 'avg') {
       toast('平均分配下已展示全部员工');
       return;
@@ -1732,7 +1701,7 @@
   }
   function openPerfKeypad(sid) {
     var row = (ui.perfRows || []).find(function (r) { return r.id === sid; });
-    if (!row || ui.readonly) return;
+    if (!row) return;
     ui.perfEditId = sid;
     ui.perfKeypadBuf = money(row.achievement);
     ui.perfKeypadReplace = true;
@@ -1888,7 +1857,7 @@
   function bindMember(mid) {
     var m = SP_DEMO_MEMBERS.find(function (x) { return x.id === mid; });
     var slip = getSlip(ui.currentId);
-    if (!m || !slip || ui.readonly) return;
+    if (!m || !slip) return;
     slip.isMember = true;
     slip.customerName = m.name;
     slip.gender = m.gender === 'male' ? 'male' : 'female';
@@ -1908,7 +1877,7 @@
   }
   function openItemPerfSheet(itemIdx) {
     var it = ui.editItems[itemIdx];
-    if (!it || ui.readonly) return;
+    if (!it) return;
     ui.focusItemIdx = itemIdx;
     ensureItemAssign(it);
     var entries = listStaffEntries(it.assign, 'item|' + itemIdx, it);
@@ -1950,7 +1919,7 @@
   function openBarKeypad(ctxRaw, field) {
     var ctx = parseSlotCtx(ctxRaw);
     var p = personFromCtx(ctx);
-    if (!p || ui.readonly) return;
+    if (!p) return;
     ui.perfKeypadTarget = { ctx: ctxRaw, field: field || 'achievement' };
     ui.perfEditId = null;
     var val = field === 'commission' ? (p.commissionFixed != null ? p.commissionFixed : p.commission) : p.achievement;
@@ -2618,7 +2587,7 @@
       s17.addEventListener('click', onS17Click);
       s17.addEventListener('pointerdown', function (e) {
         var track = e.target.closest('[data-sp-ibar-track]');
-        if (!track || ui.readonly) return;
+        if (!track) return;
         if (e.target.closest('[data-sp-ibar-dk]') || e.target.closest('[data-sp-ibar-clear]') ||
             e.target.closest('.spf-ibar__x') || e.target.closest('[data-sp-ibar-val]') ||
             e.target.closest('.spf-ibar__amt')) return;
@@ -2676,7 +2645,7 @@
       smartSw.addEventListener('change', function () {
         ui.smartComplete = !!smartSw.checked;
         var slip = getSlip(ui.currentId);
-        if (ui.smartComplete && slip && !ui.readonly) {
+        if (ui.smartComplete && slip) {
           runSmartComplete(slip);
           paintS17();
         }

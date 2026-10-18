@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.6</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.7</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.6</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.7</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.6 · 2026-10-17</td></tr>
+<tr><td>文档版本</td><td>v1.7 · 2026-10-18</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -281,7 +281,7 @@
 <p>按下单时间（<code>dateKey</code> + <code>time</code>）<strong>越近越前</strong>；完全相同再按 <code>seq</code> 升序。首页取排序后前 5。  </p>
 <p><strong>已废止</strong> S4 综合分、列表排列规则问号、价目「猜你想加」。</p>
 <hr>
-<h3>5.3 补全订单页（<code>s17</code>）· v1.6</h3>
+<h3>5.3 补全订单页（<code>s17</code>）· v1.7</h3>
 <p class="reader-note"><strong>本章为前端还原主规格</strong>：布局、控件态、手势、Sheet、toast、算法开关均以当前原型为准。画布 390×844；<code>#s17</code> 全屏；<strong>已废止</strong> FLIP/原地放大。</p>
 <h4>5.3.0 总览</h4>
 <table>
@@ -310,9 +310,9 @@
 <table>
 <thead><tr><th>元素</th><th>规格</th></tr></thead><tbody>
 <tr><td>返回</td><td>左 10 / 顶 10；24×24；点 → 退出补全（不存档）</td></tr>
-<tr><td>标题</td><td>居中「补全订单」（只读详情可为「单据详情」/「已作废」）</td></tr>
+<tr><td>标题</td><td>居中「补全订单」</td></tr>
 <tr><td>智能补全</td><td>右 10；<code>bottom: 10</code>；文案 12/<code>#636366</code> 与 Switch <strong>中轴垂直居中</strong>（<code>align-items:center</code>，§4.1）</td></tr>
-<tr><td>显隐</td><td>仅编辑态显示；只读/离开 s17 隐藏</td></tr>
+<tr><td>显隐</td><td>进入 s17 且已打开单据时显示；离开 s17 隐藏</td></tr>
 <tr><td>交互</td><td><strong>开→关</strong>：之后进页/再开前不跑自动填；已有内容不回滚。<strong>关→开</strong>：若当前可补则立刻 <code>runSmartComplete</code> 并重绘</td></tr>
 </tbody>
 </table>
@@ -392,25 +392,26 @@
 <hr>
 <h4>5.3.7 员工数值条（血条）· UI</h4>
 <p>条高 32；轨底 <code>#E5E5EA</code>；r10；填充色 = 该员工马卡龙色。</p>
+<p class="reader-note"><strong>显隐规则（v1.7）</strong>：未选中条<strong>只显示「姓名 + 空灰条」</strong>；点客钮、% 标签、业绩框、× 全部不渲染。选中后才出现上述控件。不存在「点客控件收起态的白圆钮」。</p>
 <table>
 <thead><tr><th>控件</th><th>位置</th><th>规格</th></tr></thead><tbody>
-<tr><td>姓名</td><td>条左外</td><td>13 Medium/<code>#3A3A3C</code>；只读点客时姓名旁可出点客绿标</td></tr>
-<tr><td>点客</td><td>条内左</td><td>未开：26 白圆 + 灰描边。开：宽 40 高 26 r16；底 <code>rgba(200,230,208,.85)</code>；边/字 <code>#1B6B4A</code> 10 Bold「点客」；展开动画 §4.2</td></tr>
-<tr><td>百分比</td><td>条内跟随填充</td><td>10 Bold/<code>#3A3A3C</code> <strong>opacity .66</strong>；<code>left%</code> = 安全区映射：<code>18 + (58−18)×(pct/100)</code>（避开左右控件）</td></tr>
-<tr><td>业绩框</td><td>条内右（× 左侧）</td><td>高 22 r6；底 <code>rgba(255,255,255,.7)</code>；字 11 Bold/<code>#5E5E5E</code>；去尾零；点开金额键盘</td></tr>
-<tr><td>× 清除</td><td>条内最右</td><td>24 圆；底 <code>rgba(255,255,255,.72)</code>；字 <code>#636366</code></td></tr>
+<tr><td>姓名</td><td>条左外</td><td>13 Medium/<code>#3A3A3C</code>；未选中/选中都显示</td></tr>
+<tr><td>点客</td><td>条内左</td><td><strong>仅选中条</strong>；未开：26 白圆 + 灰描边。开：宽 40 高 26 r16；底 <code>rgba(200,230,208,.85)</code>；边/字 <code>#1B6B4A</code> 10 Bold「点客」；展开动画 §4.2</td></tr>
+<tr><td>百分比</td><td>条内跟随填充</td><td><strong>仅选中条</strong>；10 Bold/<code>#3A3A3C</code> <strong>opacity .66</strong>；<code>left%</code> = 安全区映射：<code>18 + (58−18)×(pct/100)</code>（避开左右控件）</td></tr>
+<tr><td>业绩框</td><td>条内右（× 左侧）</td><td><strong>仅选中条</strong>；高 22 r6；底 <code>rgba(255,255,255,.7)</code>；字 11 Bold/<code>#5E5E5E</code>；去尾零；点开金额键盘</td></tr>
+<tr><td>× 清除</td><td>条内最右</td><td><strong>仅选中条</strong>；24 圆；底 <code>rgba(255,255,255,.72)</code>；字 <code>#636366</code></td></tr>
 </tbody>
 </table>
 <hr>
 <h4>5.3.8 员工数值条 · 交互逻辑（必还原）</h4>
 <table>
 <thead><tr><th>手势 / 操作</th><th>行为</th></tr></thead><tbody>
-<tr><td>点未选中条身</td><td>选中：<code>active=true</code>；写入默认占比；重算业绩；<strong>不</strong>因按下跳变百分比</td></tr>
+<tr><td>点未选中条身</td><td>选中：<code>active=true</code>；写入默认占比；重算业绩；渲染 点客/%/业绩/×；<strong>不</strong>因按下跳变百分比</td></tr>
 <tr><td>在已选中条上 <strong>按下</strong></td><td>仅建立拖动上下文（记录 <code>startX</code>/<code>startPct</code>）；<strong>不改</strong>数值</td></tr>
 <tr><td><strong>拖动</strong>（位移 ≥2px）</td><td>按可用宽度（左右各留点客/业绩区）换算 Δ%；1% 步进夹紧 0–100；实时改填充与 % 标签与业绩</td></tr>
 <tr><td>点点客</td><td>切换 <code>dianke</code>；仅改钮态，不触发拖条</td></tr>
 <tr><td>点业绩框</td><td>打开业绩金额键盘（字段=业绩）</td></tr>
-<tr><td>点 ×</td><td><strong>平均</strong>：取消选择（<code>active=false</code>，pct/点客清零，条回空态）。<strong>工位</strong>：从该工位数组移除该人。实现注意：pointer 排除须识别 <code>[data-sp-ibar-clear]</code> / <code>.spf-ibar__x</code>，避免被拖条吞掉</td></tr>
+<tr><td>点 ×</td><td><strong>平均</strong>：取消选择（<code>active=false</code>，pct/点客清零，条回「姓名 + 空灰条」且控件消失）。<strong>工位</strong>：从该工位数组移除该人。实现注意：pointer 排除须识别 <code>[data-sp-ibar-clear]</code> / <code>.spf-ibar__x</code>，避免被拖条吞掉</td></tr>
 <tr><td>点工位「+」</td><td>仅工位模式；打开选择员工 sheet（该工位）</td></tr>
 </tbody>
 </table>
@@ -449,7 +450,7 @@
 </table>
 <hr>
 <h4>5.3.12 智能补全规则与开关</h4>
-<p><strong>何时跑</strong>：编辑态进页且开关 <strong>开</strong>；或用户把开关从关拨到开。只读不跑。跑完 toast「已智能补全，请核对」。</p>
+<p><strong>何时跑</strong>：进入补全页且开关 <strong>开</strong>；或用户把开关从关拨到开。跑完 toast「已智能补全，请核对」。</p>
 <p><strong>补项目</strong>（仅明细模式且当前无明细时补 <strong>1</strong> 个）：</p>
 <ol>
 <li><strong>硬规则</strong>：候选售价必须 <strong>≥ 订单实付</strong> <code>paid</code>；否则剔除。  </li>
@@ -475,7 +476,7 @@
 <tr><td>4</td><td><code>status → done</code>；桥接订单流水；toast「已归档」；退出并刷新首页卡流与列表</td></tr>
 </tbody>
 </table>
-<p>底栏按钮：全宽高 48；<code>#F32F41</code> 白字；只读态隐藏底栏。</p>
+<p>底栏按钮：全宽高 48；<code>#F32F41</code> 白字。</p>
 <hr>
 <h3>5.4 价目 Sheet（添加项目/产品）</h3>
 <table>
@@ -545,6 +546,7 @@
 <li>列表无 Tab；日期默认「全部」；筛选支付三档；筛选图标无灰圆底。  </li>
 <li>s17 五段卡；顶栏智能补全 Switch 默认开；关则不自动填；售价≥实付。  </li>
 <li>默认平均分配全员条；工位模式三档 +「+」选人；点客绿标 85% 不透明；× 取消选择有效。  </li>
+<li><strong>未选中条只显示「姓名 + 空灰条」</strong>；点客钮 / % / 业绩框 / × 仅选中后出现。  </li>
 <li>快捷开单：红闪电标题 +「改为项目/产品」；价目无「猜你想加」。  </li>
 <li>选人 sheet：左点客、右 Switch、无 ×/无底提示、底栏 48；会员 sheet 白底。  </li>
 <li>业绩 sheet 空态完整；键盘可改业绩/提成。  </li>
@@ -580,6 +582,7 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.7</td><td>2026-10-18</td><td>数值条<strong>未选中态只显示姓名 + 空灰条</strong>（点客/%/业绩/× 选中后才出现）；删除原型中不存在的只读/已作废态死代码与 PRD 残留描述</td></tr>
 <tr><td>v1.6</td><td>2026-10-17</td><td><strong>整节重写 §5.3</strong>：顶栏智能补全开关、平均默认、横条手势/点客85%/清除、快捷闪电标题、选人 Switch、业绩空态、会员 sheet 白底、智能补全售价≥实付；§4/7/8/9 对齐</td></tr>
 <tr><td>v1.5</td><td>2026-10-16</td><td>s17 五段卡改版：编号时间/顾客（欠款·上次·选会员·散客头像性别）/支付/按项员工横条（工位占比 100/85/75）/备注；去猜你想加；智能补全；四人店造数</td></tr>
 <tr><td>v1.4o</td><td>2026-10-16</td><td>排序改为下单时间越近越前（同分 seq 升序）；首页取前 5；删除 s16 排列规则问号与 S4</td></tr>
