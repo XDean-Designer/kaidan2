@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.8</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.9</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.8</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.9</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.8 · 2026-10-18</td></tr>
+<tr><td>文档版本</td><td>v1.9 · 2026-10-18</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -281,7 +281,7 @@
 <p>按下单时间（<code>dateKey</code> + <code>time</code>）<strong>越近越前</strong>；完全相同再按 <code>seq</code> 升序。首页取排序后前 5。  </p>
 <p><strong>已废止</strong> S4 综合分、列表排列规则问号、价目「猜你想加」。</p>
 <hr>
-<h3>5.3 补全订单页（<code>s17</code>）· v1.8</h3>
+<h3>5.3 补全订单页（<code>s17</code>）· v1.9</h3>
 <p class="reader-note"><strong>本章为前端还原主规格</strong>：布局、控件态、手势、Sheet、toast、算法开关均以当前原型为准。画布 390×844；<code>#s17</code> 全屏；<strong>已废止</strong> FLIP/原地放大。</p>
 <h4>5.3.0 总览</h4>
 <table>
@@ -373,7 +373,7 @@
 <table>
 <thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
 <tr><td>标题</td><td>「消费内容」13/<code>#8E8E93</code>；下分割线</td></tr>
-<tr><td>明细模式</td><td>每项 <code>.spf-icard</code>：名（可红焦点态）+「项目/产品 · ¥价 ×qty」+ 多人图标（开业绩 sheet）+ 右上 × 删项 → 其下员工区 → 卡底「+ 添加项目/产品」</td></tr>
+<tr><td>明细模式</td><td>每项 <code>.spf-icard</code>：名（可红焦点态；智能补全项名后跟「智能补全」标签，§5.3.15）+「项目/产品 · ¥价 ×qty」+ 多人图标（开业绩 sheet）+ 右上 × 删项 → 其下员工区 → 卡底「+ 添加项目/产品」</td></tr>
 <tr><td>快捷模式</td><td>顶行：<strong>红闪电 23</strong>（<code>ic_sp_quick_bolt.svg</code>）+ 红字 15 Bold「快捷开单」→ <strong>订单级</strong>员工区 → 按钮文案 <strong>「改为项目/产品」</strong>（点开价目；添加后转明细）</td></tr>
 <tr><td>空明细</td><td>「尚未添加项目/产品」+「+ 添加项目/产品」</td></tr>
 </tbody>
@@ -464,6 +464,7 @@
 <li><strong>工位</strong>：若目标项尚无任何人，向大工位推入 1 人（偏好表，否则默认林屿森）；点客默认关。  </li>
 <li>快捷模式：目标为订单级 <code>orderStaff</code>，基准金额=实付。</li>
 </ul>
+<p><strong>来源标记</strong>：由本规则自动写入的明细带 <code>smart: true</code>；卡片名称右侧追加小标签「智能补全」（§5.3.15）。手动添加、手动改过的明细无此标记。</p>
 <hr>
 <h4>5.3.13 备注卡</h4>
 <p><code>textarea</code>；最多 200 字；placeholder「选填」；实时写入内存态。</p>
@@ -483,7 +484,19 @@
 </tbody>
 </table>
 <hr>
-<h4>5.3.15 完成归档</h4>
+<h4>5.3.15 智能补全来源标签</h4>
+<p>用于让归档人员一眼看出「这条明细是系统猜的，需要核对」。</p>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>出现条件</td><td>明细 <code>smart: true</code>（§5.3.12 自动写入）；随明细持久化，归档后仍保留</td></tr>
+<tr><td>位置</td><td>「消费内容」明细卡<strong>名称右侧同一行</strong>，间距 6；名称过长换行时标签跟随换行</td></tr>
+<tr><td>文案</td><td>智能补全</td></tr>
+<tr><td>样式</td><td>10/500 <code>#8E8E93</code>；白底；<code>1px #E5E5EA</code> 描边；圆角 3；<code>padding: 0 3px</code>；行高 15；不可点</td></tr>
+<tr><td>消失条件</td><td>手动删除该明细；或整单重新归档前由用户自行改为手动项</td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.16 完成归档</h4>
 <table>
 <thead><tr><th>步骤</th><th>行为</th></tr></thead><tbody>
 <tr><td>1</td><td>明细模式且无项目 → toast「请添加项目/产品，或使用快捷开单」；<strong>中止</strong></td></tr>
@@ -563,6 +576,7 @@
 <li>s17 六段卡；顶栏智能补全 Switch 默认开；关则不自动填；售价≥实付。  </li>
 <li>默认平均分配全员条；工位模式三档 +「+」选人；点客绿标 85% 不透明；× 取消选择有效。  </li>
 <li><strong>未选中条只显示「姓名 + 空灰条」</strong>；点客钮 / % / 业绩框 / × 仅选中后出现。  </li>
+<li><strong>智能补全</strong>写入的明细，名称右侧显示「智能补全」小标签；手动添加项无标签。  </li>
 <li>快捷开单：红闪电标题 +「改为项目/产品」；价目无「猜你想加」。  </li>
 <li>选人 sheet：左点客、右 Switch、无 ×/无底提示、底栏 48；会员 sheet 白底。  </li>
 <li>业绩 sheet 空态完整；键盘可改业绩/提成。  </li>
@@ -579,6 +593,7 @@
 <tr><td>样式</td><td><code>assets/selfpay.css</code>、<code>assets/v2-home-pay.css</code>（<code>.vh-sp-strip-host</code>）</td></tr>
 <tr><td>二楼圆点</td><td><code>#spFloorDots</code></td></tr>
 <tr><td>智能补全开关</td><td><code>#s17SmartToggle</code> / <code>#s17SmartSwitch</code></td></tr>
+<tr><td>智能补全标签</td><td><code>.spf-icard__smart</code>（挂在 <code>.spf-icard__name</code> 内）</td></tr>
 <tr><td>散客性别 SVG</td><td><code>assets/gender/ic_guest_male.svg</code> · <code>ic_guest_female.svg</code></td></tr>
 <tr><td>快捷闪电（消费区）</td><td><code>assets/ic_sp_quick_bolt.svg</code></td></tr>
 <tr><td>价目快捷闪电</td><td><code>assets/ic_sp_quick_lightning.svg</code>（sheet 标题栏入口）</td></tr>
@@ -598,6 +613,7 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.9</td><td>2026-10-18</td><td>智能补全自动写入的明细在名称右侧显示「智能补全」白底灰字描边小标签，持久化到归档；新增 §5.3.15</td></tr>
 <tr><td>v1.8</td><td>2026-10-18</td><td>修复<strong>业绩提成卡不随新加项目/新选员工实时更新</strong>（条内变动只重绘单条、未重算卡片）；补全选中态「点客 / %」控件；新增 §5.3.14 业绩提成概览卡规格</td></tr>
 <tr><td>v1.7</td><td>2026-10-18</td><td>数值条<strong>未选中态只显示姓名 + 空灰条</strong>（点客/%/业绩/× 选中后才出现）；删除原型中不存在的只读/已作废态死代码与 PRD 残留描述</td></tr>
 <tr><td>v1.6</td><td>2026-10-17</td><td><strong>整节重写 §5.3</strong>：顶栏智能补全开关、平均默认、横条手势/点客85%/清除、快捷闪电标题、选人 Switch、业绩空态、会员 sheet 白底、智能补全售价≥实付；§4/7/8/9 对齐</td></tr>

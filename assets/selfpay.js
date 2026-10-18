@@ -930,7 +930,8 @@
     var head =
       '<div class="spf-icard__hd">' +
       '<div class="spf-icard__info">' +
-      '<div class="spf-icard__name">' + escapeHtml(it.name) + '</div>' +
+      '<div class="spf-icard__name">' + escapeHtml(it.name) +
+      (it.smart ? '<span class="spf-icard__smart">智能补全</span>' : '') + '</div>' +
       '<div class="spf-icard__sub">' +
       '<span class="spf-icard__meta">' + (it.type === 'product' ? '产品' : '项目') + ' · ¥' +
       money(it.price) + ' ×' + (it.qty || 1) + '</span>' +
@@ -1143,6 +1144,7 @@
           type: pick.type,
           price: pick.price,
           qty: 1,
+          smart: true,
           assign: emptyAssign()
         });
       }
@@ -1187,6 +1189,7 @@
     ui.editItems = (slip.items || []).map(function (it) {
       return {
         id: it.id, name: it.name, type: it.type, price: it.price, qty: it.qty || 1,
+        smart: !!it.smart,
         assign: cloneAssign(it.assign)
       };
     });
@@ -1230,6 +1233,7 @@
     slip.items = ui.contentMode === 'quick' ? [] : ui.editItems.map(function (it) {
       return {
         id: it.id, name: it.name, type: it.type, price: it.price, qty: it.qty || 1,
+        smart: !!it.smart,
         assign: cloneAssign(it.assign)
       };
     });
