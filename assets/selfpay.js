@@ -1954,12 +1954,24 @@
     p.pct = Math.max(0, Math.min(100, Math.round(pct)));
     syncPersonPerf(p, ctx.station === 'avg' ? 'senior' : ctx.station, it);
   }
+  /** 就地刷新「业绩提成」概览卡（条内变动时调用，避免整页重绘/跳滚动） */
+  function syncPerfOverviewCard() {
+    var scroll = $('#s17Scroll');
+    if (!scroll) return;
+    var card = scroll.querySelector('.spf-card--perf');
+    if (!card || !card.parentNode) return;
+    var wrap = document.createElement('div');
+    wrap.innerHTML = perfOverviewCardHtml();
+    var next = wrap.firstElementChild;
+    if (next) card.parentNode.replaceChild(next, card);
+  }
   function paintBarDom(track, p) {
     if (!track || !p) return;
     var fill = track.querySelector('.spf-ibar__fill');
     var pctEl = track.querySelector('.spf-ibar__pct');
     var amt = track.querySelector('.spf-ibar__amt');
     var xBtn = track.querySelector('.spf-ibar__x');
+    var dkBtn = track.querySelector('.spf-ibar__dk');
     var root = track.closest('.spf-ibar');
     var pct = Number(p.pct) || 0;
     var ctxRaw = track.getAttribute('data-sp-ibar-track') || '';
@@ -1969,11 +1981,26 @@
       fill.style.background = barColorOf(p.id);
     }
     if (p.active) {
-      if (pctEl) {
-        pctEl.hidden = false;
-        pctEl.textContent = pct + '%';
-        pctEl.style.left = pctLabelLeft(pct) + '%';
+      /* 未选中条不渲染控件；变选中时按 DOM 顺序补齐 点客 → % → 金额 → × */
+      if (!dkBtn) {
+        dkBtn = document.createElement('button');
+        dkBtn.type = 'button';
+        dkBtn.className = 'spf-ibar__dk';
+        dkBtn.setAttribute('data-sp-ibar-dk', ctxRaw);
+        dkBtn.setAttribute('aria-label', '点客');
+        dkBtn.innerHTML = '<span class="spf-ibar__dk-lab">点客</span>';
+        track.insertBefore(dkBtn, track.firstChild);
       }
+      dkBtn.hidden = false;
+      dkBtn.classList.toggle('is-on', !!p.dianke);
+      if (!pctEl) {
+        pctEl = document.createElement('span');
+        pctEl.className = 'spf-ibar__pct';
+        track.appendChild(pctEl);
+      }
+      pctEl.hidden = false;
+      pctEl.textContent = pct + '%';
+      pctEl.style.left = pctLabelLeft(pct) + '%';
       if (!amt) {
         amt = document.createElement('button');
         amt.type = 'button';
@@ -1997,7 +2024,10 @@
       if (pctEl) pctEl.hidden = true;
       if (amt) amt.hidden = true;
       if (xBtn) xBtn.hidden = true;
+      if (dkBtn) dkBtn.hidden = true;
     }
+    /* 条内任何变动都要同步下方业绩提成概览 */
+    syncPerfOverviewCard();
   }
 
   function onS17Click(e) {

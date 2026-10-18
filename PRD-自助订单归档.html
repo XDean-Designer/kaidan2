@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.7</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.8</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.7</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.8</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.7 · 2026-10-18</td></tr>
+<tr><td>文档版本</td><td>v1.8 · 2026-10-18</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -281,7 +281,7 @@
 <p>按下单时间（<code>dateKey</code> + <code>time</code>）<strong>越近越前</strong>；完全相同再按 <code>seq</code> 升序。首页取排序后前 5。  </p>
 <p><strong>已废止</strong> S4 综合分、列表排列规则问号、价目「猜你想加」。</p>
 <hr>
-<h3>5.3 补全订单页（<code>s17</code>）· v1.7</h3>
+<h3>5.3 补全订单页（<code>s17</code>）· v1.8</h3>
 <p class="reader-note"><strong>本章为前端还原主规格</strong>：布局、控件态、手势、Sheet、toast、算法开关均以当前原型为准。画布 390×844；<code>#s17</code> 全屏；<strong>已废止</strong> FLIP/原地放大。</p>
 <h4>5.3.0 总览</h4>
 <table>
@@ -289,7 +289,7 @@
 <tr><td>进入</td><td>首页/列表点票卡 → <code>openComplete(id)</code> → <code>go('s17')</code></td></tr>
 <tr><td>退出</td><td>左上返回 → <code>goBack()</code>；归档成功后同样退出并刷新卡流/列表</td></tr>
 <tr><td>背景</td><td>页 <code>#F5F5F7</code>；滚动区卡片间距 12</td></tr>
-<tr><td>结构</td><td>状态栏 → 导航栏 → 可滚五段卡 → 底栏「完成归档」</td></tr>
+<tr><td>结构</td><td>状态栏 → 导航栏 → 可滚<strong>六段卡</strong> → 底栏「完成归档」</td></tr>
 <tr><td>分配模式</td><td><strong>默认「平均分配」</strong>；演示侧栏可切「按工位」/<code>station</code>（仅演示，非生产入口）</td></tr>
 <tr><td>智能补全</td><td>顶栏右侧 Switch，<strong>默认开</strong>；关则进页不自动填</td></tr>
 </tbody>
@@ -301,6 +301,7 @@
 │  [顾客卡 · 会员/散客]          │
 │  [支付卡 · 只读]               │
 │  [消费内容卡]                  │
+│  [业绩提成卡 · 只读]           │
 │  [备注卡]                      │
 ├───────────────────────────────┤
 │        完成归档（红）          │  高 48 + safe-area
@@ -467,7 +468,22 @@
 <h4>5.3.13 备注卡</h4>
 <p><code>textarea</code>；最多 200 字；placeholder「选填」；实时写入内存态。</p>
 <hr>
-<h4>5.3.14 完成归档</h4>
+<h4>5.3.14 业绩提成概览卡（只读）</h4>
+<p>位于 <strong>「消费内容」与「备注」之间</strong>，独立卡片；仅汇总展示，<strong>不可交互、不可修改</strong>。</p>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>标题</td><td>「业绩提成」13/600/<code>#8E8E93</code>；<strong>无</strong>副标题</td></tr>
+<tr><td>表头</td><td>员工 / 业绩 / 提成；11 灰 <code>#AEAEB2</code>；底分割线 <code>.5px rgba(60,60,67,.12)</code></td></tr>
+<tr><td>数据行</td><td>姓名 14/500/<code>#636366</code>；业绩、提成右对齐 14/500/<code>#636366</code> tabular-nums；行底 <code>.5px rgba(60,60,67,.08)</code>，末行无</td></tr>
+<tr><td>汇总口径</td><td>按<strong>员工去重</strong>累加本单所有项目/产品（含快捷开单）中 <code>active</code> 员工的业绩与提成；提成取条上已算好的值（尊重单项 sheet 改过 / 固定值）</td></tr>
+<tr><td>过滤</td><td><strong>业绩为 0 的员工不展示</strong>；无任何行时显示灰字「选择员工后显示业绩与提成」</td></tr>
+<tr><td>无合计行</td><td>不做总计</td></tr>
+<tr><td>只读观感</td><td>整卡 <code>pointer-events:none</code>；无按钮/箭头/按压态；数值用中性灰，不用可点金额的橙/红</td></tr>
+<tr><td>实时同步</td><td>条内任何变动（<strong>点选 / 拖动改占比 / 键盘改业绩或提成 / 选择员工 sheet 确认 / 删除项目</strong>）都必须立刻重算本卡；实现用「就地替换卡片 DOM」，不整页重绘、不跳滚动</td></tr>
+</tbody>
+</table>
+<hr>
+<h4>5.3.15 完成归档</h4>
 <table>
 <thead><tr><th>步骤</th><th>行为</th></tr></thead><tbody>
 <tr><td>1</td><td>明细模式且无项目 → toast「请添加项目/产品，或使用快捷开单」；<strong>中止</strong></td></tr>
@@ -544,7 +560,7 @@
 <li>C 端语义：半成品；归档后进流水。  </li>
 <li>首页卡流前 5；尽头右滑二楼进列表；列表左缘右滑回首页；点卡进 s17。  </li>
 <li>列表无 Tab；日期默认「全部」；筛选支付三档；筛选图标无灰圆底。  </li>
-<li>s17 五段卡；顶栏智能补全 Switch 默认开；关则不自动填；售价≥实付。  </li>
+<li>s17 六段卡；顶栏智能补全 Switch 默认开；关则不自动填；售价≥实付。  </li>
 <li>默认平均分配全员条；工位模式三档 +「+」选人；点客绿标 85% 不透明；× 取消选择有效。  </li>
 <li><strong>未选中条只显示「姓名 + 空灰条」</strong>；点客钮 / % / 业绩框 / × 仅选中后出现。  </li>
 <li>快捷开单：红闪电标题 +「改为项目/产品」；价目无「猜你想加」。  </li>
@@ -582,6 +598,7 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.8</td><td>2026-10-18</td><td>修复<strong>业绩提成卡不随新加项目/新选员工实时更新</strong>（条内变动只重绘单条、未重算卡片）；补全选中态「点客 / %」控件；新增 §5.3.14 业绩提成概览卡规格</td></tr>
 <tr><td>v1.7</td><td>2026-10-18</td><td>数值条<strong>未选中态只显示姓名 + 空灰条</strong>（点客/%/业绩/× 选中后才出现）；删除原型中不存在的只读/已作废态死代码与 PRD 残留描述</td></tr>
 <tr><td>v1.6</td><td>2026-10-17</td><td><strong>整节重写 §5.3</strong>：顶栏智能补全开关、平均默认、横条手势/点客85%/清除、快捷闪电标题、选人 Switch、业绩空态、会员 sheet 白底、智能补全售价≥实付；§4/7/8/9 对齐</td></tr>
 <tr><td>v1.5</td><td>2026-10-16</td><td>s17 五段卡改版：编号时间/顾客（欠款·上次·选会员·散客头像性别）/支付/按项员工横条（工位占比 100/85/75）/备注；去猜你想加；智能补全；四人店造数</td></tr>
