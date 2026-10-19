@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.20</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.21</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.20</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.21</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.20 · 2026-10-19</td></tr>
+<tr><td>文档版本</td><td>v1.21 · 2026-10-19</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -252,7 +252,7 @@
 <tr><td>尽头</td><td>尾区宽 <strong>44px</strong>；淡入「继续滑动查看更多」+ 灰圆底 chevron；内容左贴末卡（条 <code>gap</code>≈10），右侧紧凑</td></tr>
 <tr><td>过阈值</td><td>同帧：文案变「释放查看全部」；尾区拉宽至 <strong>76px</strong>（只增右侧留白，文案相对末卡距离不变）；文案与圆底同变橙 <code>#FF571A</code></td></tr>
 <tr><td>跟手</td><td><strong>无</strong>分裂圆点、<strong>无</strong>整页跟手预览</td></tr>
-<tr><td>松手</td><td>≥80：从 0 吸满进 <code>s16</code>；不足：文案回「继续滑动查看更多」、尾区回 44px、不进列表</td></tr>
+<tr><td>松手</td><td>≥80：卡流弹簧回弹归位（约 300ms，无过头）→ 再从 0 吸满进 <code>s16</code>；不足：同款弹簧回弹，文案回「继续滑动查看更多」、尾区回 44px、不进列表</td></tr>
 </tbody>
 </table>
 <hr>
@@ -642,6 +642,7 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.21</td><td>2026-10-19</td><td>自助归档金额前缀「¥」比数字小 2px。详见 md</td></tr>
 <tr><td>v1.20</td><td>2026-10-19</td><td>文案版橡皮筋回弹进 s16；首页 8 张；票卡上移金额 18；s16「顾客的自助订单」；点客小圆；业绩 sheet 列表式；重置为散客；KPI 眼/chevron 换位。详见 md</td></tr>
 <tr><td>v1.19</td><td>2026-10-19</td><td>员工条折叠：已选始终可见；未选可藏并补足至少 3 条；「展开（共*人）」仍计总数；工位同规。详见 md</td></tr>
 <tr><td>v1.18</td><td>2026-10-19</td><td>会员卡「恢复为散客」：姓名行右侧 + Figma 回转箭头图标；toast「已恢复为散客」。详见 md</td></tr>

@@ -105,6 +105,10 @@
   function money(n) {
     return moneyTrim(n);
   }
+  /** 金额展示：¥ 比数字小 2px（随父级字号） */
+  function yenHtml(n) {
+    return '<span class="sp-yen">¥</span>' + moneyTrim(n);
+  }
   function toast(msg, ms) {
     if (typeof window.toast === 'function') window.toast(msg, ms);
   }
@@ -494,10 +498,10 @@
     var hasBonus = bonus != null && bonus !== '';
     if (!hasBal && !hasBonus) return '';
     var bits = [];
-    if (hasBal) bits.push('充值余额 ¥' + moneyTrim(bal));
-    if (hasBonus) bits.push('赠金 ¥' + moneyTrim(bonus));
+    if (hasBal) bits.push('充值余额 ' + yenHtml(bal));
+    if (hasBonus) bits.push('赠金 ' + yenHtml(bonus));
     return '<div class="spf-cust__wallet">' + bits.map(function (t) {
-      return '<span class="spf-cust__wallet-item">' + escapeHtml(t) + '</span>';
+      return '<span class="spf-cust__wallet-item">' + t + '</span>';
     }).join('<span class="spf-cust__wallet-dot">·</span>') + '</div>';
   }
   function memberFootHtml(slip) {
@@ -508,7 +512,7 @@
       (date
         ? '<span class="spf-cust__last">上次 ' + escapeHtml(date) + '</span>'
         : '<span class="spf-cust__last is-empty"></span>') +
-      '<span class="spf-cust__debt">欠款 ¥' + moneyTrim(debt) + '</span></div>'
+      '<span class="spf-cust__debt">欠款 ' + yenHtml(debt) + '</span></div>'
     );
   }
   /** 会员姓名旁性别符号（小 ♂/♀，非散客大色圆） */
@@ -606,16 +610,16 @@
   }
   function formatPayBits(slip) {
     var ps = slip.payments || [];
-    if (!ps.length) return '实付 ¥' + money(slip.paid);
+    if (!ps.length) return '实付 ' + yenHtml(slip.paid);
     return ps.map(function (p) {
-      return escapeHtml(p.method) + ' ¥' + money(p.amount);
+      return escapeHtml(p.method) + ' ' + yenHtml(p.amount);
     }).join(' · ');
   }
   function payListCardHtml(slip) {
     var rows = [];
     rows.push({
       lab: '实付金额',
-      val: '¥' + moneyTrim(slip.paid),
+      valHtml: yenHtml(slip.paid),
       bold: true,
       afterHair: true
     });
@@ -623,7 +627,7 @@
       if (!p || !p.method) return;
       var amt = Number(p.amount);
       if (!(amt > 0)) return;
-      rows.push({ lab: p.method, val: '¥' + moneyTrim(amt) });
+      rows.push({ lab: p.method, valHtml: yenHtml(amt) });
     });
     var benefit = slip.benefit || '';
     var coupon = slip.coupon || '';
@@ -634,11 +638,12 @@
     if (coupon) rows.push({ lab: '使用优惠券', val: coupon, red: true });
     var html = '<div class="spf-card spf-card--pay"><div class="spf-pay-list">';
     rows.forEach(function (r) {
+      var val = r.valHtml != null ? r.valHtml : escapeHtml(r.val);
       html +=
         '<div class="spf-pay-row' + (r.bold ? ' is-paid' : '') + (r.red ? ' is-ben' : '') + '">' +
         '<span class="spf-pay-row__lab">' + escapeHtml(r.lab) + '</span>' +
         '<span class="spf-pay-row__val' + (r.bold ? ' is-bold' : '') + (r.red ? ' is-red' : '') + '">' +
-        escapeHtml(r.val) + '</span></div>';
+        val + '</span></div>';
       if (r.afterHair) html += '<div class="spf-pay-hair" aria-hidden="true"></div>';
     });
     html += '</div></div>';
@@ -698,8 +703,8 @@
           return (
             '<div class="spf-ov__row">' +
             '<div class="spf-ov__nm">' + escapeHtml(row.name) + '</div>' +
-            '<div class="spf-ov__col">¥' + moneyTrim(row.achievement) + '</div>' +
-            '<div class="spf-ov__col">¥' + moneyTrim(comm) + '</div></div>'
+            '<div class="spf-ov__col">' + yenHtml(row.achievement) + '</div>' +
+            '<div class="spf-ov__col">' + yenHtml(comm) + '</div></div>'
           );
         }).join('') +
         '</div>';
@@ -796,7 +801,7 @@
       nameHtml +
       '<div class="sp-ticket__items">' + itemLinesHtml(slip) + '</div>' +
       '<div class="sp-ticket__ft">' + memberTagHtml(slip) +
-      '<div class="sp-ticket__amt">¥' + moneyTrim(slip.paid) + '</div></div></div>'
+      '<div class="sp-ticket__amt">' + yenHtml(slip.paid) + '</div></div></div>'
     );
   }
   function renderHomeStrip() {
@@ -1111,8 +1116,8 @@
       '<div class="spf-icard__name">' + escapeHtml(it.name) +
       (it.smart ? '<span class="spf-icard__smart">智能补全</span>' : '') + '</div>' +
       '<div class="spf-icard__sub">' +
-      '<span class="spf-icard__meta">' + (it.type === 'product' ? '产品' : '项目') + ' · ¥' +
-      money(it.price) + ' ×' + (it.qty || 1) + '</span>' +
+      '<span class="spf-icard__meta">' + (it.type === 'product' ? '产品' : '项目') + ' · ' +
+      yenHtml(it.price) + ' ×' + (it.qty || 1) + '</span>' +
       '<span class="spf-icard__sep" aria-hidden="true"></span>' +
       '<button type="button" class="spf-icard__sheet" data-sp-item-sheet="' + idx +
       '" aria-label="业绩提成">' +
@@ -1616,8 +1621,8 @@
         '" data-sp-pprice="' + it.price +
         '" data-sp-pprod="' + (tab === 'product' ? '1' : '0') + '">' +
         '<div class="v2-cat-main"><div class="v2-cat-info"><div class="v2-cat-name">' +
-        escapeHtml(it.name) + '</div><div class="v2-cat-price"><span class="yen">¥</span>' +
-        money(it.price) + '</div></div>' +
+        escapeHtml(it.name) + '</div><div class="v2-cat-price">' + yenHtml(it.price) +
+        '</div></div>' +
         '<div class="v2-cat-right"><button type="button" class="v2-add-btn" data-sp-padd aria-label="添加">' +
         PLUS_SVG + '</button></div></div></div>'
       );
@@ -2136,9 +2141,9 @@
             '<div class="sp-ipf-row__nm">' + escapeHtml(p.name) +
             (en.lab ? '<span class="spf-ibar__st">' + escapeHtml(en.lab) + '</span>' : '') + '</div>' +
             '<button type="button" class="sp-ipf-row__num" data-sp-ipf-ach="' + escapeHtml(en.ctx) +
-            '"><span class="sp-ipf-row__v">¥' + moneyTrim(ach) + '</span>' + editIc + '</button>' +
+            '"><span class="sp-ipf-row__v">' + yenHtml(ach) + '</span>' + editIc + '</button>' +
             '<button type="button" class="sp-ipf-row__num" data-sp-ipf-comm="' + escapeHtml(en.ctx) +
-            '"><span class="sp-ipf-row__v">¥' + moneyTrim(comm) + '</span>' + editIc + '</button></div>'
+            '"><span class="sp-ipf-row__v">' + yenHtml(comm) + '</span>' + editIc + '</button></div>'
           );
         }).join('') +
         '</div>';
@@ -2520,31 +2525,32 @@
     }
   }
 
-  /** 文案版达阈值松手：卡流轻微过头再弹簧归位，再进列表 */
+  /** 文案版松手：卡流弹簧回弹归位（约 300ms，无过头），再可选进列表 */
   function animateHintStripBounce(onDone) {
-    var strip = $('#spHomeStrip');
-    var hostEl = $('#spHomeStripHost');
-    var el = strip || hostEl;
+    var el = $('#spHomeStrip') || $('#spHomeStripHost');
     if (!el) {
       if (onDone) onDone();
       return;
     }
-    var overMs = 160;
-    var backMs = 300;
+    var ms = 300;
     el.style.willChange = 'transform';
-    el.style.transition = 'transform ' + (overMs / 1000) + 's cubic-bezier(0.2, 0.9, 0.2, 1)';
-    el.style.transform = 'translateX(-14px)';
+    void el.offsetWidth;
+    el.style.transition =
+      'transform ' + (ms / 1000) + 's cubic-bezier(0.2, 0.8, 0.2, 1)';
+    el.style.transform = 'translateX(0)';
     setTimeout(function () {
-      el.style.transition =
-        'transform ' + (backMs / 1000) + 's cubic-bezier(0.34, 1.3, 0.64, 1)';
-      el.style.transform = 'translateX(0)';
-      setTimeout(function () {
-        el.style.transition = '';
-        el.style.transform = '';
-        el.style.willChange = '';
-        if (onDone) onDone();
-      }, backMs + 20);
-    }, overMs);
+      el.style.transition = '';
+      el.style.transform = '';
+      el.style.willChange = '';
+      if (onDone) onDone();
+    }, ms + 20);
+  }
+  function applyHintStripPull(px) {
+    var el = $('#spHomeStrip');
+    if (!el) return;
+    var vx = Math.min(Math.max(0, px), 56) * 0.42;
+    el.style.transition = 'none';
+    el.style.transform = vx > 0.5 ? 'translateX(' + (-vx) + 'px)' : '';
   }
 
   function animateFloorSettle(dir, rawPull, onDone) {
@@ -2700,7 +2706,8 @@
       host.classList.toggle('is-pulling', pull > 0);
       host.classList.toggle('is-armed', pull >= FLOOR_THRESHOLD);
       if (ui.floorMode === 'hint') {
-        /* 文案版：无整页跟手预览；达阈值同帧切文案并拉宽尾区 */
+        /* 文案版：无整页跟手预览；卡流轻微跟手位移；达阈值同帧切文案并拉宽尾区 */
+        applyHintStripPull(pull);
         var hint = $('#spFloorHint');
         if (hint) {
           hint.classList.add('is-on');
@@ -2740,18 +2747,20 @@
           });
         }
         if (ui.floorMode === 'hint') {
-          /* 文案版：卡流橡皮筋过头回弹归位后再进 s16 */
+          /* 文案版：弹簧回弹归位后再吸满进 s16 */
           animateHintStripBounce(enterList);
         } else {
           enterList();
         }
       } else if (last > 0) {
         if (ui.floorMode === 'hint') {
-          pull = 0;
-          locking = false;
-          disarmWatch();
-          clearFloorStyles();
-          syncFloorEndChrome();
+          animateHintStripBounce(function () {
+            pull = 0;
+            locking = false;
+            disarmWatch();
+            clearFloorStyles();
+            syncFloorEndChrome();
+          });
         } else {
           animateFloorCancel('to-list', last, function () {
             pull = 0;

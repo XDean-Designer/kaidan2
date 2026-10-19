@@ -209,6 +209,17 @@
   line-height: 22px;
   white-space: nowrap;
 }
+/* 金额前缀 ¥：比同行数字小 2px */
+.sp-yen,
+#s17 .sp-yen,
+#s16 .sp-yen,
+.vh-sp-strip .sp-yen,
+.v2-cat-price .sp-yen {
+  font-size: calc(1em - 2px);
+  font-weight: inherit;
+  line-height: inherit;
+  margin-right: 1px;
+}
 
 .vh-sp-card { /* 兼容旧类名 */ }
 /* 横滑由 .vh-sp-strip-host 承担；条本身撑开宽度 */
