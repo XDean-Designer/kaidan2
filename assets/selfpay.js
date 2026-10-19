@@ -1009,16 +1009,38 @@
       '</div></div>'
     );
   }
+  /** 收起态：全部已选始终露出；未选可藏，并补足至少 3 条（已选≥3 则只露已选）；保持原序 */
+  function foldCollapsedRows(rows) {
+    var activeN = 0;
+    rows.forEach(function (r) {
+      if (r && r.person && r.person.active) activeN += 1;
+    });
+    var inactiveSlots = Math.max(0, 3 - activeN);
+    var show = [];
+    var inactiveShown = 0;
+    rows.forEach(function (r) {
+      var on = !!(r && r.person && r.person.active);
+      if (on) {
+        show.push(r);
+      } else if (inactiveShown < inactiveSlots) {
+        show.push(r);
+        inactiveShown += 1;
+      }
+    });
+    return show;
+  }
   function foldBarsHtml(rows, foldKey) {
     var open = !!(ui.ibarFoldOpen && ui.ibarFoldOpen[foldKey]);
     var show = rows;
     var more = '';
     if (rows.length > 4) {
       if (!open) {
-        show = rows.slice(0, 3);
-        more =
-          '<button type="button" class="spf-ibar-more" data-sp-ibar-more="' +
-          escapeHtml(foldKey) + '">展开（共' + rows.length + '人）</button>';
+        show = foldCollapsedRows(rows);
+        if (show.length < rows.length) {
+          more =
+            '<button type="button" class="spf-ibar-more" data-sp-ibar-more="' +
+            escapeHtml(foldKey) + '">展开（共' + rows.length + '人）</button>';
+        }
       } else {
         more =
           '<button type="button" class="spf-ibar-more is-open" data-sp-ibar-more="' +
@@ -1043,7 +1065,7 @@
   function assignBarsHtml(assign, prefix, it) {
     assign = assign || emptyAssign();
     ensureAssignTints(assign);
-    /* 平均：全员数值条，不可再添加；>4 折叠 */
+    /* 平均：全员数值条，不可再添加；>4 可收起（已选始终露出） */
     if (ui.allocMode === 'average') {
       ensureAveragePeople(assign, it);
       ensureAssignTints(assign);
