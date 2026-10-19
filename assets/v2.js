@@ -1719,6 +1719,17 @@
         applyMask();
       });
     }
+    var fold = root.querySelector('.vh-kpi__fold');
+    if (fold) {
+      fold.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        root.classList.toggle('is-collapsed');
+        var collapsed = root.classList.contains('is-collapsed');
+        fold.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        fold.setAttribute('aria-label', collapsed ? '展开明细' : '收起明细');
+      });
+    }
   }
 
   function wireHome() {

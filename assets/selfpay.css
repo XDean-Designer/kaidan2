@@ -294,6 +294,66 @@
   background: #FF571A;
   box-shadow: 0 0 0 1px rgba(255, 87, 26, .22);
 }
+/* 方案 B：文案版（侧栏切换；无圆点、无跟手预览） */
+.vh-sp-tail--hint {
+  flex: 0 0 76px;
+  width: 76px;
+}
+.sp-floor-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity .2s ease;
+  pointer-events: none;
+  color: #8E8E93;
+}
+.sp-floor-hint.is-on { opacity: 1; }
+.sp-floor-hint__lab {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  transition: color .2s ease, font-weight .2s ease;
+}
+.sp-floor-hint__chev {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(60, 60, 67, .08);
+  color: #8E8E93;
+  box-shadow: inset 0 0 0 .5px rgba(60, 60, 67, .06);
+  transition:
+    background .2s ease,
+    color .2s ease,
+    box-shadow .2s ease,
+    transform .22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sp-floor-hint__chev svg {
+  display: block;
+  /* 竖排文案下方：箭头朝左，暗示继续左拖 */
+  transform: translateX(-0.5px);
+}
+.sp-floor-hint.is-armed {
+  color: #FF571A;
+}
+.sp-floor-hint.is-armed .sp-floor-hint__lab {
+  font-weight: 600;
+  color: #FF571A;
+}
+.sp-floor-hint.is-armed .sp-floor-hint__chev {
+  background: rgba(255, 87, 26, .12);
+  color: #FF571A;
+  box-shadow: inset 0 0 0 .5px rgba(255, 87, 26, .22);
+  transform: scale(1.06);
+}
 /* 跟手预览：非 active 屏也要能露出来 */
 .screen.is-floor-peek {
   display: block !important;

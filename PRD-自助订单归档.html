@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.13</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.16</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.13</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.16</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.13 · 2026-10-19</td></tr>
+<tr><td>文档版本</td><td>v1.16 · 2026-10-19</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -169,9 +169,19 @@
 </ul>
 <hr>
 <h2 id="s5-页面规格"><span class="no">·</span>5. 页面规格</h2>
+<h3>5.0 首页 · 个人业绩卡（KPI）</h3>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>默认</td><td><strong>折叠</strong>：只显示标题「个人业绩 · 今日」、眼睛、业绩/提成两行大数字；<strong>藏</strong>下方 4 项明细（现金/卡付/团购/签单）</td></tr>
+<tr><td>标题行</td><td>左标题；右<strong>仅眼睛</strong>（金额掩码）</td></tr>
+<tr><td>展开入口</td><td><strong>仅</strong>点数字行右侧 chevron（<strong>不</strong>点整卡、<strong>不</strong>与眼睛并列）</td></tr>
+<tr><td>Chevron</td><td>位于业绩/提成数字行最右；折叠向下；展开旋转 180°</td></tr>
+</tbody>
+</table>
 <h3>5.1 首页 · 自助订单横滑卡流</h3>
 <p><strong>位置</strong>：个人业绩卡（KPI）下方、开单/开卡区域上方。  </p>
-<p><strong>容器</strong>：<code>.vh-sp-strip-host</code>（横向滚动宿主）+ 内层 <code>.vh-sp-strip</code>。</p>
+<p><strong>区头</strong>：左上标题「待归档订单」（16/600/<code>#1a1a1a</code>，与业绩卡标题同级）；其下为卡流。</p>
+<p><strong>容器</strong>：<code>.vh-sp-block</code> &gt; <code>.vh-sp-strip-host</code>（横向滚动宿主）+ 内层 <code>.vh-sp-strip</code>。</p>
 <h4>5.1.1 滚动与布局</h4>
 <table>
 <thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
@@ -179,8 +189,8 @@
 <tr><td>Strip</td><td><code>padding: 2px 4px 4px 12px</code>；<code>gap: 10px</code>；<code>flex</code> 不换行；<code>width: max-content</code></td></tr>
 <tr><td>数据</td><td>全部 <code>status=pending</code>，按 <strong>下单时间</strong>（<code>dateKey</code>+<code>time</code>）越近越前；同分按 <code>seq</code> 升序；首页取排序后前 <strong>5</strong> 张</td></tr>
 <tr><td>首屏曝光</td><td>约 <strong>3 整卡 + 第 4 张左侧露出 ~24–32px</strong>（引导横滑）；首页卡宽 <strong>108</strong></td></tr>
-<tr><td>末尾</td><td><strong>无「更多」竖卡</strong>；隐形 <code>.vh-sp-tail</code> 占位（约 40px，无文案）</td></tr>
-<tr><td>二楼进入</td><td>仿微信首页下拉小程序：<strong>整页首页左移</strong> + <code>s16</code> 从右贴边跟手移入，<code>opacity 0→1</code>；右缘 <strong>1 点→分裂 3 点</strong>（无文案）；预览 0–80px，≥<strong>80px</strong> 松手进入（过阈值有阻尼）；松手前可反向拖回；侧栏进列表无此动画</td></tr>
+<tr><td>末尾</td><td><strong>无「更多」竖卡</strong>；<code>.vh-sp-tail</code> 占位挂指示（圆点或文案，见 §5.1.3）</td></tr>
+<tr><td>二楼进入</td><td><strong>双方案</strong>（侧栏「演示 · 进列表手势」切换，默认圆点版）：见 §5.1.3；侧栏直达列表无手势动画</td></tr>
 <tr><td>二楼返回</td><td><strong>仅首页路径进入时</strong>：<code>s16</code> <strong>左缘右滑</strong>对称回首页；亦可用左上角返回。自「自助收银」进入时见 §5.2</td></tr>
 <tr><td>空态</td><td>无 pending 时：白底圆角 12 提示「暂无待归档订单」（无二楼手势）</td></tr>
 </tbody>
@@ -224,22 +234,32 @@
 </tbody>
 </table>
 <p><strong>散客名展示</strong>：非会员票卡名固定为 <code>guestGender</code> 映射结果（默认「散客」），不展示真实姓名。</p>
-<h4>5.1.3 二楼指示（微信式圆点，取代「更多」/文案）</h4>
+<h4>5.1.3 二楼指示（双方案 · 侧栏切换）</h4>
+<p>侧栏「演示 · 进列表手势」：<code>圆点版（默认）</code> / <code>文案版</code>。阈值均为 <strong>80px</strong>。回首页时卡流 <code>scrollLeft</code> <strong>复位为 0</strong>。旧「更多」竖卡 <strong>已删除</strong>。</p>
+<p><strong>方案 A · 圆点版（默认）</strong></p>
 <table>
 <thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
-<tr><td>节点</td><td><code>#spFloorDots</code> 挂在卡流尾部 <code>.vh-sp-tail</code>（末张右侧空隙垂直居中，非屏右缘）</td></tr>
-<tr><td>形态</td><td><strong>滑到尽头</strong>即淡入 <strong>1 灰点</strong>；继续拉动约 <strong>35%</strong> 起才分裂为 3 点（拉满散开，带 transition）；达阈值变橙 <code>#FF571A</code></td></tr>
-<tr><td>文案</td><td><strong>无</strong></td></tr>
-<tr><td>跟手</td><td>首页 <code>translateX(-visual)</code>；列表 <code>translateX(390−visual)</code> + opacity；过 80px 后 visual 阻尼</td></tr>
-<tr><td>松手</td><td>≥80：惯性吸满进 <code>s16</code>；不足：弹簧回弹；回首页时卡流 <code>scrollLeft</code> <strong>复位为 0</strong></td></tr>
-<tr><td>旧「更多」</td><td><strong>已删除</strong></td></tr>
+<tr><td>节点</td><td><code>#spFloorDots</code> 挂在 <code>.vh-sp-tail</code></td></tr>
+<tr><td>形态</td><td><strong>滑到尽头</strong>淡入 <strong>1 灰点</strong>；继续拉约 <strong>35%</strong> 起分裂为 3 点；达阈值变橙 <code>#FF571A</code></td></tr>
+<tr><td>跟手</td><td>首页 <code>translateX(-visual)</code>；列表从右贴边跟手 + opacity；过 80px 后 visual 阻尼</td></tr>
+<tr><td>松手</td><td>≥80：惯性吸满进 <code>s16</code>；不足：弹簧回弹</td></tr>
+</tbody>
+</table>
+<p><strong>方案 B · 文案版</strong></p>
+<table>
+<thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
+<tr><td>节点</td><td><code>#spFloorHint</code> 竖排文案 + 下方圆底左向 chevron，挂在 <code>.vh-sp-tail--hint</code></td></tr>
+<tr><td>尽头</td><td>淡入「继续滑动查看全部」+ 灰圆底 chevron</td></tr>
+<tr><td>过阈值</td><td>文案变「释放查看全部」；文案与圆底 chevron 同变橙 <code>#FF571A</code></td></tr>
+<tr><td>跟手</td><td><strong>无</strong>分裂圆点、<strong>无</strong>整页跟手预览</td></tr>
+<tr><td>松手</td><td>≥80：从 0 吸满进 <code>s16</code>；不足：文案回「继续滑动查看全部」、不进列表</td></tr>
 </tbody>
 </table>
 <hr>
 <h3>5.2 自助订单列表页（<code>s16</code>）</h3>
 <table>
 <thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
-<tr><td>标题</td><td>「自助订单」居中（<strong>无</strong>排列规则问号）</td></tr>
+<tr><td>标题</td><td>「待补全的自助单」居中（<strong>无</strong>排列规则问号）</td></tr>
 <tr><td>入口</td><td>① 首页横滑卡流尽头右滑（§5.1.3）；② 线上「订单流水」→「流水订单」页 →「自助收银」。流水订单页另有「门店流水」；「门店流水 / 自助收银」形态<strong>沿用线上</strong></td></tr>
 <tr><td>返回</td><td>依进入来源：① 首页路径 → 回首页 <code>s0</code>（含左缘右滑）；② 「自助收银」路径 → 回<strong>流水订单</strong>页（不回首页）</td></tr>
 <tr><td>背景</td><td><code>#F5F5F7</code></td></tr>
@@ -620,6 +640,9 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.16</td><td>2026-10-19</td><td>文案版进列表：竖排文案下方加圆底左向 chevron，达阈值同变橙</td></tr>
+<tr><td>v1.15</td><td>2026-10-19</td><td>业绩卡：眼睛独留标题行，chevron 下沉数字行右侧；卡流左上标题「待归档订单」</td></tr>
+<tr><td>v1.14</td><td>2026-10-19</td><td>首页业绩卡默认折叠（藏 4 明细，仅 chevron 展开）；进 s16 侧栏双方案（圆点默认 / 文案版无跟手）；s16 标题「待补全的自助单」</td></tr>
 <tr><td>v1.13</td><td>2026-10-19</td><td>色序已选顺延；百分数不溢出。详见 md</td></tr>
 <tr><td>v1.12</td><td>2026-10-19</td><td>项目名恒色、条上姓名居中、点客竖线白 70%、展开文字链、色序重置、实付/权益字重色、票卡字号与单行占位、工位跨位同人与无限人。详见 md</td></tr>
 <tr><td>v1.11</td><td>2026-10-19</td><td>s17：会员卡跟 Figma；支付卡列表式；员工条 UX；删智能补全开关与核对 toast；散客文字可切性别+恢复散客；s16 工具条仅搜索。详见同目录 md</td></tr>

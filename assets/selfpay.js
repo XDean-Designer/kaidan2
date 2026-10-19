@@ -351,7 +351,9 @@
     perfKeypadBuf: '',
     perfKeypadReplace: false,
     perfKeypadTarget: null,
-    smartComplete: true
+    smartComplete: true,
+    /** 进 s16 手势：dots=圆点版（默认）· hint=文案版 */
+    floorMode: 'dots'
   };
 
   function emptyAssign() {
@@ -804,15 +806,31 @@
     }
     var html = '';
     list.slice(0, 5).forEach(function (slip) { html += ticketHtml(slip); });
-    html +=
-      '<div class="vh-sp-tail" aria-hidden="true">' +
-      '<div class="sp-floor-dots" id="spFloorDots"><i></i><i></i><i></i></div></div>';
+    html += floorTailHtml();
     el.innerHTML = html;
     el.style.transform = '';
     var host = $('#spHomeStripHost');
     if (host) {
       host.classList.remove('is-at-end', 'is-armed', 'is-pulling');
+      host.classList.toggle('is-floor-hint', ui.floorMode === 'hint');
     }
+  }
+  function floorTailHtml() {
+    if (ui.floorMode === 'hint') {
+      return (
+        '<div class="vh-sp-tail vh-sp-tail--hint" aria-hidden="true">' +
+        '<div class="sp-floor-hint" id="spFloorHint">' +
+        '<span class="sp-floor-hint__lab">继续滑动查看全部</span>' +
+        '<span class="sp-floor-hint__chev" aria-hidden="true">' +
+        '<svg viewBox="0 0 12 12" width="12" height="12">' +
+        '<path d="M7.5 3L4.5 6l3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg></span></div></div>'
+      );
+    }
+    return (
+      '<div class="vh-sp-tail" aria-hidden="true">' +
+      '<div class="sp-floor-dots" id="spFloorDots"><i></i><i></i><i></i></div></div>'
+    );
   }
 
   function resetHomeStripScroll() {
@@ -827,6 +845,16 @@
       dots.style.removeProperty('--sp-dot-spread');
       dots.style.removeProperty('--sp-floor-t');
     }
+    var hint = $('#spFloorHint');
+    if (hint) {
+      hint.classList.remove('is-on', 'is-armed');
+      setFloorHintLab(hint, '继续滑动查看全部');
+    }
+  }
+  function setFloorHintLab(hint, text) {
+    if (!hint) return;
+    var lab = hint.querySelector('.sp-floor-hint__lab');
+    if (lab) lab.textContent = text;
   }
   function syncHomeBadge() {
     document.querySelectorAll('.sp-home-badge').forEach(function (b) { b.remove(); });
@@ -1899,6 +1927,19 @@
       btn.classList.toggle('on', btn.getAttribute('data-sp-alloc') === ui.allocMode);
     });
   }
+  function setFloorMode(mode) {
+    ui.floorMode = mode === 'hint' ? 'hint' : 'dots';
+    toast(ui.floorMode === 'hint' ? '演示：进列表 · 文案版' : '演示：进列表 · 圆点版');
+    syncFloorNav();
+    renderHomeStrip();
+    resetHomeStripScroll();
+    syncFloorEndChrome();
+  }
+  function syncFloorNav() {
+    $all('.site-nav [data-sp-floor]').forEach(function (btn) {
+      btn.classList.toggle('on', btn.getAttribute('data-sp-floor') === ui.floorMode);
+    });
+  }
 
   function installDateHook() {
     if (window.__v2OnBillDateChange && window.__v2OnBillDateChange._spSelfpay) return;
@@ -2302,11 +2343,27 @@
   }
 
   function syncEndDotsOnly() {
+    syncFloorEndChrome();
+  }
+  function syncFloorEndChrome() {
     var host = $('#spHomeStripHost');
-    var dots = $('#spFloorDots');
-    if (!host || !dots) return;
+    if (!host) return;
     var at = host.scrollLeft >= Math.max(0, host.scrollWidth - host.clientWidth) - 18;
     host.classList.toggle('is-at-end', at);
+    host.classList.toggle('is-floor-hint', ui.floorMode === 'hint');
+    if (ui.floorMode === 'hint') {
+      var hint = $('#spFloorHint');
+      if (hint) {
+        hint.classList.toggle('is-on', at);
+        if (!host.classList.contains('is-pulling')) {
+          setFloorHintLab(hint, '继续滑动查看全部');
+          hint.classList.remove('is-armed');
+        }
+      }
+      return;
+    }
+    var dots = $('#spFloorDots');
+    if (!dots) return;
     dots.classList.toggle('is-on', at);
     dots.classList.remove('is-split', 'is-armed');
     dots.style.setProperty('--sp-dot-spread', '0px');
@@ -2547,6 +2604,17 @@
       host.classList.toggle('is-at-end', true);
       host.classList.toggle('is-pulling', pull > 0);
       host.classList.toggle('is-armed', pull >= FLOOR_THRESHOLD);
+      if (ui.floorMode === 'hint') {
+        /* 文案版：无整页跟手预览，仅更新尾部文案 */
+        var hint = $('#spFloorHint');
+        if (hint) {
+          hint.classList.add('is-on');
+          var armed = pull >= FLOOR_THRESHOLD;
+          hint.classList.toggle('is-armed', armed);
+          setFloorHintLab(hint, armed ? '释放查看全部' : '继续滑动查看全部');
+        }
+        return;
+      }
       applyFloorPull(pull, 'to-list');
     }
     function finishGesture() {
@@ -2565,7 +2633,9 @@
       armWatch();
       host.classList.remove('is-pulling', 'is-armed');
       if (shouldGo) {
-        animateFloorSettle('to-list', last, function () {
+        /* 文案版松手前无跟手：从 0 吸满进列表；圆点版从当前拉距吸满 */
+        var settleFrom = ui.floorMode === 'hint' ? 0 : last;
+        animateFloorSettle('to-list', settleFrom, function () {
           pull = 0;
           locking = false;
           disarmWatch();
@@ -2573,18 +2643,27 @@
           go('s16');
         });
       } else if (last > 0) {
-        animateFloorCancel('to-list', last, function () {
+        if (ui.floorMode === 'hint') {
           pull = 0;
           locking = false;
           disarmWatch();
           clearFloorStyles();
-          host.classList.toggle('is-at-end', atEnd(18));
-        });
+          syncFloorEndChrome();
+        } else {
+          animateFloorCancel('to-list', last, function () {
+            pull = 0;
+            locking = false;
+            disarmWatch();
+            clearFloorStyles();
+            host.classList.toggle('is-at-end', atEnd(18));
+          });
+        }
       } else {
         pull = 0;
         locking = false;
         disarmWatch();
         clearFloorStyles();
+        if (ui.floorMode === 'hint') syncFloorEndChrome();
       }
     }
     /** 仅在已到尽头后继续左拖才接管；普通点击不 preventDefault、不 capture */
@@ -2998,7 +3077,7 @@
       window.go = function (id) {
         clearFloorStyles();
         _go.apply(this, arguments);
-        setTimeout(syncAllocNav, 0);
+        setTimeout(function () { syncAllocNav(); syncFloorNav(); }, 0);
         if (id === 's0') {
           setTimeout(function () {
             renderHomeStrip();
@@ -3031,6 +3110,7 @@
     ensureFloorChrome();
     bind();
     syncAllocNav();
+    syncFloorNav();
     renderHomeStrip();
     if ($('#s16') && $('#s16').classList.contains('active')) renderList();
     window.SelfPay = {
@@ -3055,6 +3135,7 @@
       closeMemberSheet: closeMemberSheet,
       closeItemPerfSheet: closeItemPerfSheet,
       setAllocMode: setAllocMode,
+      setFloorMode: setFloorMode,
       openVoidConfirm: function () {},
       pendingCount: pendingCount,
       paintS17: paintS17,
