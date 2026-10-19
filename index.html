@@ -7,7 +7,7 @@
 <!-- R46perf：去掉 Google Fonts，避免外网阻塞首屏白屏；流水 CSS/JS 按需加载 -->
 <link rel="stylesheet" href="assets/v2.css">
 <link rel="stylesheet" href="assets/v2-home-pay.css?v=r54">
-<link rel="stylesheet" href="assets/selfpay.css?v=r87">
+<link rel="stylesheet" href="assets/selfpay.css?v=r89">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -2234,8 +2234,8 @@
     <button type="button" class="nav-item is-alloc" data-sp-alloc="station" onclick="window.SelfPay&&window.SelfPay.setAllocMode('station')"><span class="idx">工</span>按工位</button>
     <button type="button" class="nav-item is-alloc on" data-sp-alloc="average" onclick="window.SelfPay&&window.SelfPay.setAllocMode('average')"><span class="idx">均</span>平均分配（默认）</button>
     <div class="g-t">演示 · 进列表手势</div>
-    <button type="button" class="nav-item is-floor on" data-sp-floor="dots" onclick="window.SelfPay&&window.SelfPay.setFloorMode('dots')"><span class="idx">A</span>圆点版（默认）</button>
-    <button type="button" class="nav-item is-floor" data-sp-floor="hint" onclick="window.SelfPay&&window.SelfPay.setFloorMode('hint')"><span class="idx">B</span>文案版</button>
+    <button type="button" class="nav-item is-floor" data-sp-floor="dots" onclick="window.SelfPay&&window.SelfPay.setFloorMode('dots')"><span class="idx">A</span>圆点版</button>
+    <button type="button" class="nav-item is-floor on" data-sp-floor="hint" onclick="window.SelfPay&&window.SelfPay.setFloorMode('hint')"><span class="idx">B</span>文案版（默认）</button>
   </div>
   <div class="nav-group grow">
     <div class="g-t">文档</div>
@@ -3816,6 +3816,7 @@
     <div class="nav-bar">
       <button type="button" class="btn-back" id="s17Back" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
       <div class="title" id="s17Title">补全订单</div>
+      <div class="s17-nav-when" id="s17When"></div>
     </div>
     <div class="s17-body" id="s17Scroll"></div>
     <div class="s17-bar" id="s17Bar">
@@ -9740,6 +9741,6 @@ html.capture-figma #toast { display:none !important; }
   } catch (e) {}
 })();
 </script>
-<script src="assets/selfpay.js?v=r87"></script>
+<script src="assets/selfpay.js?v=r88"></script>
 </body>
 </html>

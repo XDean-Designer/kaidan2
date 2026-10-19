@@ -356,8 +356,8 @@
     perfKeypadReplace: false,
     perfKeypadTarget: null,
     smartComplete: true,
-    /** 进 s16 手势：dots=圆点版（默认）· hint=文案版 */
-    floorMode: 'dots'
+    /** 进 s16 手势：dots=圆点版 · hint=文案版（默认） */
+    floorMode: 'hint'
   };
 
   function emptyAssign() {
@@ -594,10 +594,39 @@
     if (gender === 'female') return '女散客';
     return '男散客';
   }
+  /** s17 等详情：散客显示男散客/女散客 */
   function displayCustomerName(slip) {
     if (!slip) return '';
     if (!slip.isMember) return guestDisplayName(slip.guestGender || '');
     return slip.customerName || '';
+  }
+  /** 首页/s16 票卡：散客固定「散客」 */
+  function ticketCustomerName(slip) {
+    if (!slip) return '';
+    if (!slip.isMember) return '散客';
+    return slip.customerName || '';
+  }
+  /** s17 标题栏右侧：今天HH:mm / 非今日 M/D HH:mm */
+  function s17NavWhenLabel(slip) {
+    if (!slip) return '';
+    var key = slip.dateKey || todayKey();
+    var time = slip.time || '';
+    if (key === todayKey()) return '今天' + time;
+    var p = String(key).split('-');
+    var md = Number(p[1]) + '/' + Number(p[2]);
+    return time ? (md + ' ' + time) : md;
+  }
+  function s17NavTitle(slip) {
+    return String(slip && slip.seq != null ? slip.seq : '') + '订单';
+  }
+  function payLabIconHtml(lab) {
+    if (lab === '微信') {
+      return '<img class="spf-pay-row__ic" src="assets/ic_pay_wechat.svg" alt="" width="16" height="16">';
+    }
+    if (lab === '会员卡') {
+      return '<img class="spf-pay-row__ic" src="assets/ic_pay_member.svg" alt="" width="16" height="16">';
+    }
+    return '';
   }
   function payModeOf(slip) {
     var methods = (slip.payments || []).map(function (p) { return p.method; });
@@ -641,7 +670,8 @@
       var val = r.valHtml != null ? r.valHtml : escapeHtml(r.val);
       html +=
         '<div class="spf-pay-row' + (r.bold ? ' is-paid' : '') + (r.red ? ' is-ben' : '') + '">' +
-        '<span class="spf-pay-row__lab">' + escapeHtml(r.lab) + '</span>' +
+        '<span class="spf-pay-row__lab">' + payLabIconHtml(r.lab) +
+        '<span>' + escapeHtml(r.lab) + '</span></span>' +
         '<span class="spf-pay-row__val' + (r.bold ? ' is-bold' : '') + (r.red ? ' is-red' : '') + '">' +
         val + '</span></div>';
       if (r.afterHair) html += '<div class="spf-pay-hair" aria-hidden="true"></div>';
@@ -786,7 +816,7 @@
     );
   }
   function ticketHtml(slip) {
-    var name = escapeHtml(displayCustomerName(slip));
+    var name = escapeHtml(ticketCustomerName(slip));
     var nameHtml = slip.isMember
       ? '<span class="sp-ticket__name is-link" data-sp-member-link role="link" tabindex="0">' + name + '</span>'
       : '<span class="sp-ticket__name">' + name + '</span>';
@@ -899,8 +929,10 @@
     var q = (ui.search || '').trim();
     if (q) {
       var disp = displayCustomerName(slip);
+      var ticketName = ticketCustomerName(slip);
       var hit =
         (disp && disp.indexOf(q) >= 0) ||
+        (ticketName && ticketName.indexOf(q) >= 0) ||
         (slip.customerName && slip.customerName.indexOf(q) >= 0) ||
         (slip.phone && slip.phone.indexOf(q) >= 0) ||
         (slip.slipNo && slip.slipNo.indexOf(q) >= 0);
@@ -1047,7 +1079,7 @@
         if (show.length < rows.length) {
           more =
             '<button type="button" class="spf-ibar-more" data-sp-ibar-more="' +
-            escapeHtml(foldKey) + '">展开（共' + rows.length + '人）' + CHEV_SVG + '</button>';
+            escapeHtml(foldKey) + '">展开' + CHEV_SVG + '</button>';
         }
       } else {
         more =
@@ -1112,18 +1144,15 @@
     var focus = ui.focusItemIdx === idx ? ' is-focus' : '';
     var head =
       '<div class="spf-icard__hd">' +
-      '<div class="spf-icard__info">' +
-      '<div class="spf-icard__name">' + escapeHtml(it.name) +
-      (it.smart ? '<span class="spf-icard__smart">智能补全</span>' : '') + '</div>' +
-      '<div class="spf-icard__sub">' +
-      '<span class="spf-icard__meta">' + (it.type === 'product' ? '产品' : '项目') + ' · ' +
-      yenHtml(it.price) + ' ×' + (it.qty || 1) + '</span>' +
-      '<span class="spf-icard__sep" aria-hidden="true"></span>' +
+      '<button type="button" class="spf-icard__del" data-sp-del="' + idx + '" aria-label="删除">' +
+      '<img src="assets/ic_sp_del_item.svg" alt="" width="20" height="20"></button>' +
+      '<div class="spf-icard__name">' + escapeHtml(it.name) + '</div>' +
+      '<span class="spf-icard__qty">×' + (it.qty || 1) + '</span>' +
       '<button type="button" class="spf-icard__sheet" data-sp-item-sheet="' + idx +
       '" aria-label="业绩提成">' +
       '<img class="spf-icard__sheet-ic" src="assets/ic_sp_staff_sheet.svg" alt="" width="18" height="18"></button>' +
-      '</div></div>' +
-      '<button type="button" class="spf-item__del" data-sp-del="' + idx + '" aria-label="删除">×</button>' +
+      (it.smart ? '<span class="spf-icard__smart">智能补全</span>' : '') +
+      '<span class="spf-icard__price">' + yenHtml(it.price) + '</span>' +
       '</div>';
     return (
       '<div class="spf-icard' + focus + '" data-sp-item-card="' + idx + '">' +
@@ -1132,12 +1161,6 @@
   }
 
   function completeBodyHtml(slip) {
-    var when = ticketWhenLabel(slip);
-    var seqCard =
-      '<div class="spf-card spf-card--seq">' +
-      '<div class="spf-seq">' + escapeHtml(String(slip.seq != null ? slip.seq : '')) + '</div>' +
-      '<div class="spf-when">' + escapeHtml(when) + '</div></div>';
-
     var custName = displayCustomerName(slip);
     var memberBody;
     if (slip.isMember) {
@@ -1178,17 +1201,21 @@
 
     var itemsInner = '';
     var quickHd =
-      '<div class="spf-quick-hd">' +
-      '<img class="spf-quick-hd__ic" src="assets/ic_sp_quick_bolt.svg" alt="" width="23" height="23">' +
-      '<span class="spf-quick-hd__t">快捷开单</span>' +
+      '<div class="spf-icard__hd spf-quick-hd">' +
+      '<img class="spf-quick-hd__ic" src="assets/ic_sp_quick_bolt.svg" alt="" width="20" height="20">' +
+      '<div class="spf-icard__name spf-quick-hd__t">快捷开单</div>' +
       '<button type="button" class="spf-icard__sheet spf-quick-hd__sheet" data-sp-order-sheet aria-label="业绩提成">' +
-      '<img class="spf-icard__sheet-ic" src="assets/ic_sp_staff_sheet.svg" alt="" width="18" height="18"></button></div>';
+      '<img class="spf-icard__sheet-ic" src="assets/ic_sp_staff_sheet.svg" alt="" width="18" height="18"></button>' +
+      '<span class="spf-icard__price">' + yenHtml(slip.paid) + '</span></div>';
+    var itemCount = 0;
     if (ui.contentMode === 'quick') {
+      itemCount = 1;
       itemsInner =
         quickHd +
         assignBarsHtml(ui.orderStaff, 'order', { price: slip.paid, qty: 1 }) +
         '<button type="button" class="spf-add-btn" data-sp-add>改为项目/产品</button>';
     } else {
+      itemCount = ui.editItems.length;
       itemsInner = (ui.editItems.length
         ? ui.editItems.map(function (it, idx) { return itemCardHtml(it, idx); }).join('')
         : '<div class="spf-quick-tip">尚未添加项目/产品</div>') +
@@ -1197,7 +1224,9 @@
 
     var consumeCard =
       '<div class="spf-card spf-card--items">' +
-      '<div class="spf-card__h">消费内容</div>' +
+      '<div class="spf-card__h">消费内容' +
+      (itemCount > 0 ? '<span class="spf-card__h-n">' + itemCount + '项</span>' : '') +
+      '</div>' +
       '<div class="spf-card__rule" aria-hidden="true"></div>' +
       '<div class="spf-card__body">' + itemsInner + '</div></div>';
 
@@ -1208,7 +1237,7 @@
       '<div class="spf-card spf-card--remark">' +
       '<div class="spf-card__h">备注</div>' + remarkHtml + '</div>';
 
-    return seqCard + memberBody + payCard + consumeCard + perfOverviewCardHtml() + remarkCard;
+    return memberBody + payCard + consumeCard + perfOverviewCardHtml() + remarkCard;
   }
 
   function paintS17() {
@@ -1216,10 +1245,12 @@
     if (!slip) return;
     var scroll = $('#s17Scroll');
     var title = $('#s17Title');
+    var whenEl = $('#s17When');
     var root = $('#s17');
     var bar = $('#s17Bar');
     if (!scroll || !root) return;
-    if (title) title.textContent = '补全订单';
+    if (title) title.textContent = s17NavTitle(slip);
+    if (whenEl) whenEl.textContent = s17NavWhenLabel(slip);
     if (bar) bar.hidden = false;
     scroll.innerHTML = completeBodyHtml(slip);
     var remark = $('#spRemark');

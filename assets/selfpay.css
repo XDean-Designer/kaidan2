@@ -33,7 +33,7 @@
 .sp-ticket {
   flex: 0 0 117px;
   width: 117px;
-  height: 132px;
+  height: 132px; /* 首页横滑保持 132；s16 网格另见 .sp-grid .sp-ticket */
   box-sizing: border-box;
   border: 1px solid #E8E4DC;
   border-radius: 6px;
@@ -98,9 +98,9 @@
   margin-top: 1px; /* 更靠近编号，为底栏腾高 */
   /* 固定盒高：会员下划线与散客同占位，保证上虚线纵坐标一致 */
   height: 19px;
-  padding-bottom: 3px;
+  padding-bottom: 1px; /* 下划线更贴字 */
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: #1a1a1a;
   line-height: 16px;
   overflow: hidden;
@@ -641,7 +641,13 @@
   width: 100%;
   max-width: 117px;
   margin: 0 auto;
+  /* 与首页 108×132 同长宽比 → 117×143；增高落在项目区 */
+  height: 143px;
 }
+.sp-grid .sp-ticket__items { margin-top: 6px; }
+.sp-grid .sp-ticket__line { line-height: 15px; }
+.sp-grid .sp-ticket__line2 { min-height: 15px; }
+.sp-grid .sp-ticket__line2 > span:first-child { line-height: 15px; }
 
 /* 旧 sp-slip 保留兼容；列表改用 .sp-ticket */
 .sp-slip {
@@ -1653,7 +1659,22 @@
   left: 50%;
   transform: translateX(-50%);
   width: auto;
-  max-width: 140px;
+  max-width: 200px;
+  font-variant-numeric: tabular-nums;
+}
+#s17 .nav-bar .s17-nav-when {
+  position: absolute;
+  right: 12px;
+  top: calc(10px + var(--nav-shift-12, 3.7px));
+  height: 24px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8E8E93;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
 }
 #s17 .s17-smart {
   position: absolute;
@@ -1713,17 +1734,9 @@
   transform: translateX(16px);
 }
 #s17 .spf-quick-hd {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 0;
-  min-height: 23px;
-}
-#s17 .spf-quick-hd__ic {
-  width: 23px;
-  height: 23px;
-  display: block;
-  flex: none;
+  /* 与项目卡顶栏同行结构 */
+  padding: 0;
+  min-height: 28px;
 }
 #s17 .spf-quick-hd__t {
   flex: 1;
@@ -2130,6 +2143,19 @@
 }
 #s17 .spf-card--items .spf-card__h {
   padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#s17 .spf-card__h-n {
+  flex: none;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  color: #8E8E93;
+  background: #F2F2F7;
+  border-radius: 4px;
+  padding: 0 6px;
 }
 #s17 .spf-card--items .spf-card__rule {
   height: 0;
@@ -2399,6 +2425,17 @@
 #s17 .spf-pay-row__lab {
   flex: none;
   color: #636366;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+#s17 .spf-pay-row__ic {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex: none;
+  border-radius: 3px;
+  object-fit: cover;
 }
 #s17 .spf-pay-row__val {
   flex: 1;
@@ -2432,19 +2469,51 @@
 #s17 .spf-icard.is-focus .spf-icard__name { color: #1A1A1A; }
 #s17 .spf-icard__hd {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-#s17 .spf-icard__info { flex: 1; min-width: 0; }
-#s17 .spf-icard__name {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1A1A1A;
-  display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  margin-bottom: 10px;
+  min-width: 0;
+}
+#s17 .spf-icard__del {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+#s17 .spf-icard__del img {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+#s17 .spf-icard__del:active { opacity: .65; }
+#s17 .spf-icard__del--ph {
+  visibility: hidden;
+  pointer-events: none;
+}
+#s17 .spf-icard__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1A1A1A;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 20px;
+}
+#s17 .spf-icard__qty {
+  flex: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8E8E93;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
 }
 #s17 .spf-icard__smart {
   flex: none;
@@ -2457,26 +2526,14 @@
   border-radius: 3px;
   padding: 0 3px;
 }
-#s17 .spf-icard__sub {
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 8px;
-  font-size: 12px;
-  color: #8E8E93;
-}
-#s17 .spf-icard__meta {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-#s17 .spf-icard__sep {
+#s17 .spf-icard__price {
   flex: none;
-  width: 1px;
-  height: 12px;
-  background: #C7C7CC;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1A1A1A;
+  font-variant-numeric: tabular-nums;
+  line-height: 20px;
+  white-space: nowrap;
 }
 #s17 .spf-icard__sheet {
   flex: none;
@@ -2498,6 +2555,15 @@
   height: 18px;
 }
 #s17 .spf-icard__sheet:active { opacity: .7; }
+#s17 .spf-quick-hd.spf-icard__hd .spf-icard__name {
+  flex: 1 1 auto;
+}
+#s17 .spf-quick-hd__ic {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: block;
+}
 #s17 .spf-st-main {
   flex: 1;
   min-width: 0;
@@ -2524,7 +2590,7 @@
   position: relative;
   width: 100%;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 5px;
   background: #FAFAFA;
   border: 1px solid #E5E5EA;
   overflow: visible;
@@ -2561,23 +2627,24 @@
   position: absolute;
   left: 0; top: 0; bottom: 0;
   background: var(--ibar-color);
-  border-radius: 10px;
+  border-radius: 5px;
   pointer-events: none;
   will-change: width;
   z-index: 0;
 }
 #s17 .spf-ibar:not(.is-on) .spf-ibar__fill { width: 0 !important; }
+/* 分界线左侧圆角小竖条：与色条同色系、略深（复用 --ibar-pct-color） */
 #s17 .spf-ibar__handle {
   position: absolute;
-  right: -5px;
+  right: 3px;
   top: 50%;
   transform: translateY(-50%);
-  width: 10px;
-  height: 18px;
-  border-radius: 5px;
-  background: rgba(60, 60, 67, .28);
-  border: 1.5px solid rgba(255, 255, 255, .9);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .12);
+  width: 3px;
+  height: 14px;
+  border-radius: 1.5px;
+  background: var(--ibar-pct-color, var(--ibar-color));
+  border: 0;
+  box-shadow: none;
   pointer-events: auto;
   touch-action: none;
   cursor: ew-resize;
@@ -2601,17 +2668,18 @@
   white-space: nowrap;
   line-height: 1.2;
 }
+/* 点客关：小圆角白底点（Figma 247:218）；开：绿底白字胶囊（247:194） */
 #s17 .spf-ibar__dk {
   position: absolute;
   left: 6px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  width: 7px;
-  height: 7px;
+  width: 13px;
+  height: 13px;
   padding: 0;
-  border: 0;
-  border-radius: 50%;
+  border: .5px solid rgba(0, 0, 0, .35);
+  border-radius: 13px;
   background: rgba(255, 255, 255, .7);
   color: transparent;
   font: inherit;
@@ -2619,20 +2687,23 @@
   font-weight: 700;
   overflow: hidden;
   cursor: pointer;
+  display: grid;
+  place-items: center;
   transition: width .16s ease, height .16s ease, border-radius .16s ease,
-    background .16s ease, color .12s ease;
+    background .16s ease, color .12s ease, border-color .12s ease;
 }
 #s17 .spf-ibar__dk-lab {
   opacity: 0;
   transition: opacity .12s ease;
+  line-height: 1;
 }
 #s17 .spf-ibar__dk.is-on {
-  width: 36px;
+  width: 40px;
   height: 22px;
-  border-radius: 11px;
-  background: rgba(200, 230, 208, .95);
-  color: #1B6B4A;
-  border: .5px solid #1B6B4A;
+  border-radius: 8px;
+  background: #A4DDB3;
+  color: #fff;
+  border: .5px solid #78CB8E;
 }
 #s17 .spf-ibar__dk.is-on .spf-ibar__dk-lab { opacity: 1; }
 #s17 .spf-ibar__x {
@@ -2641,14 +2712,14 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   border: 0;
   border-radius: 50%;
   background: #8E8E93;
   color: #fff;
   font: inherit;
-  font-size: 11px;
+  font-size: 9px;
   line-height: 1;
   cursor: pointer;
   display: grid;
