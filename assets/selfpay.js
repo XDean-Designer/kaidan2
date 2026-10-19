@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 自助订单 · R45
  * 首页横滑票卡 + s16 列表 + s17 全屏补全（逐项员工 / 价目 sheet / 快捷开单）
  */
@@ -31,16 +31,22 @@
     { id: 'junior', lab: '小工', pct: 75 }
   ];
   var STATION_PCT = { senior: 100, mid: 85, junior: 75 };
-  /** 四人店演示池（分工在单据内选，不绑固定工位头衔）；每人马卡龙实色 */
+  /** 演示店员工池（分工在单据内选）；>4 人时数值条折叠 */
   var SP_DEMO_STAFF = [
-    { id: 'st1', name: '林屿森', short: '森', avatar: 'assets/emp-avatars/man-a.jpg', barColor: '#FFB4B8' },
-    { id: 'st3', name: '阿Ken', short: 'Ken', avatar: 'assets/emp-avatars/man-b.jpg', barColor: '#A8C8F0' },
-    { id: 'st2', name: '何苏叶', short: '叶', avatar: 'assets/emp-avatars/woman-a.jpg', barColor: '#B5E0C5' },
-    { id: 'st5', name: '小周', short: '周', avatar: 'assets/emp-avatars/man-c.jpg', barColor: '#E2C4F0' }
+    { id: 'st1', name: '林屿森', short: '森', avatar: 'assets/emp-avatars/man-a.jpg' },
+    { id: 'st3', name: '阿Ken', short: 'Ken', avatar: 'assets/emp-avatars/man-b.jpg' },
+    { id: 'st2', name: '何苏叶', short: '叶', avatar: 'assets/emp-avatars/woman-a.jpg' },
+    { id: 'st5', name: '小周', short: '周', avatar: 'assets/emp-avatars/man-c.jpg' },
+    { id: 'st6', name: '阿棠', short: '棠', avatar: 'assets/emp-avatars/woman-a.jpg' },
+    { id: 'st7', name: '老吴', short: '吴', avatar: 'assets/emp-avatars/man-a.jpg' }
   ];
-  var STAFF_BAR_COLOR = {
-    st1: '#FFB4B8', st3: '#A8C8F0', st2: '#B5E0C5', st5: '#E2C4F0'
-  };
+  /** 选中色条按点击顺序循环：红→黄→绿→蓝（较淡）；pct 为更深可读色 */
+  var BAR_TINTS = [
+    { fill: '#FFB3B8', pct: '#B83A44' },
+    { fill: '#FFE08A', pct: '#9A7B12' },
+    { fill: '#A8E0B8', pct: '#2F7A4F' },
+    { fill: '#A8C8F0', pct: '#2F5F9E' }
+  ];
   /** 会员头像回退（网络图失败时） */
   var MEM_AVATAR_FALLBACK = 'assets/avatar_card_female.png';
   /** Pexels 免费人像直链 · 中日韩网红感（w=320 方形裁切） */
@@ -276,7 +282,8 @@
           { id: 'g2', name: '剑琅柔顺发膜', type: 'product', price: 148, qty: 1 }
         ],
         paid: 860, payments: [{ method: '微信', amount: 400 }, { method: '会员卡', amount: 460 }],
-        benefits: '折扣卡 8 折 · 赠护理券', slipNo: 'SP202610150210', remark: '烫染套餐 · 客户指定阿Ken'
+        benefits: '折扣卡 8 折', benefit: '折扣卡 8 折', coupon: '护理券满减 ¥20',
+        slipNo: 'SP202610150210', remark: '烫染套餐 · 客户指定阿Ken'
       },
       /* 8 散客女 · 2 项 */
       {
@@ -337,6 +344,7 @@
     focusItemIdx: 0,
     itemPerfEdit: null,
     dragBar: null,
+    ibarFoldOpen: {},
     perfRows: [],
     perfStaffKey: '',
     perfEditId: null,
@@ -349,7 +357,8 @@
   function emptyAssign() {
     return {
       stations: { senior: [], mid: [], junior: [] },
-      people: []
+      people: [],
+      _tintSeqMap: {}
     };
   }
   function cloneAssign(a) {
@@ -360,7 +369,8 @@
         mid: (a.stations.mid || []).map(function (x) { return Object.assign({}, x); }),
         junior: (a.stations.junior || []).map(function (x) { return Object.assign({}, x); })
       },
-      people: (a.people || []).map(function (x) { return Object.assign({}, x); })
+      people: (a.people || []).map(function (x) { return Object.assign({}, x); }),
+      _tintSeqMap: Object.assign({}, a._tintSeqMap || {})
     };
   }
   function ensureItemAssign(it) {
@@ -381,24 +391,77 @@
     if (ui.allocMode === 'average') return 100;
     return STATION_PCT[stId] || 100;
   }
+  function roundHalf(n) {
+    return Math.round((Number(n) || 0) * 2) / 2;
+  }
   function syncPersonPerf(p, stId, it) {
     if (!p) return;
     var base = itemAmount(it);
     if (p.active == null) p.active = true;
     if (p.pct == null) p.pct = p.active ? defaultPctForStation(stId) : 0;
     if (!p.active) p.pct = 0;
-    p.pct = Math.max(0, Math.min(100, Math.round(Number(p.pct) || 0)));
-    p.achievement = Math.round(base * p.pct) / 100;
+    p.pct = Math.max(0, Math.min(100, Number(p.pct) || 0));
+    p.achievement = roundHalf(base * p.pct / 100);
     if (p.commissionFixed != null && p.commissionFixed !== '') {
       p.commission = Math.max(0, Math.min(99999, Number(p.commissionFixed) || 0));
     } else {
       p.commission = Math.round(p.achievement * COMMISSION_RATE * 100) / 100;
     }
   }
-  function activatePerson(p, stId, it) {
+  function tintScopeOf(station) {
+    if (ui.allocMode === 'average' || !station || station === 'avg') return 'avg';
+    return station;
+  }
+  function listInTintScope(assign, scope) {
+    if (!assign) return [];
+    if (scope === 'avg') return assign.people || [];
+    return assign.stations[scope] || [];
+  }
+  function activatePerson(p, stId, it, assign) {
     p.active = true;
     if (p.pct == null || p.pct === 0) p.pct = defaultPctForStation(stId);
+    if (assign) assignNextTint(assign, p, tintScopeOf(stId));
     syncPersonPerf(p, stId, it);
+  }
+  /** 同项目卡（平均）/ 同工位行内按点击序上色；有已选则取最大色序+1 顺延；全未选中才从红起 */
+  function assignNextTint(assign, p, station) {
+    if (!assign || !p || p.tintIdx != null) return;
+    var scope = tintScopeOf(station);
+    if (!assign._tintSeqMap) assign._tintSeqMap = {};
+    var others = listInTintScope(assign, scope).filter(function (x) {
+      return x && x.active && x !== p;
+    });
+    var seq;
+    if (!others.length) {
+      seq = 0;
+    } else {
+      var maxIdx = -1;
+      others.forEach(function (x) {
+        if (x.tintIdx != null && x.tintIdx > maxIdx) maxIdx = x.tintIdx;
+      });
+      /* 已有色则顺延；若已选尚无 tintIdx（极端），回退 map */
+      if (maxIdx >= 0) seq = maxIdx + 1;
+      else seq = assign._tintSeqMap[scope] || 0;
+    }
+    p.tintIdx = seq % BAR_TINTS.length;
+    assign._tintSeqMap[scope] = seq + 1;
+  }
+  function ensureAssignTints(assign) {
+    if (!assign) return;
+    (assign.people || []).forEach(function (p) {
+      if (p && p.active) assignNextTint(assign, p, 'avg');
+    });
+    STATIONS.forEach(function (st) {
+      (assign.stations[st.id] || []).forEach(function (p) {
+        if (p && p.active) assignNextTint(assign, p, st.id);
+      });
+    });
+  }
+  function barTintOf(p) {
+    if (p && p.active && p.tintIdx != null) {
+      return BAR_TINTS[p.tintIdx % BAR_TINTS.length];
+    }
+    return { fill: '#E5E5EA', pct: '#8E8E93' };
   }
   function guestAvatarOf(gender) {
     return gender === 'female' ? GUEST_AVATAR.female : GUEST_AVATAR.male;
@@ -415,13 +478,12 @@
     return '<button type="button" class="spf-cust__av-btn" data-sp-guest-av aria-label="切换性别">' +
       inner + '</button>';
   }
-  /** 数值条 % 标签水平位：夹在左右控件之间，0–100 映射到安全区 */
+  /** 选中态 %：贴分界线左侧（CSS translateX(-100%)），left 夹在条内安全区 */
   function pctLabelLeft(pct) {
     var p = Math.max(0, Math.min(100, Number(pct) || 0));
-    /* 稍放宽：更靠近左右控件 */
-    var lo = 18;
-    var hi = 58;
-    return lo + (hi - lo) * (p / 100);
+    var lo = 8;
+    var hi = 92;
+    return Math.max(lo, Math.min(hi, p));
   }
   function memberWalletHtml(slip) {
     var bal = slip.balance;
@@ -442,7 +504,7 @@
     return (
       '<div class="spf-cust__foot">' +
       (date
-        ? '<span class="spf-cust__last">最近一次消费 ' + escapeHtml(date) + '</span>'
+        ? '<span class="spf-cust__last">上次 ' + escapeHtml(date) + '</span>'
         : '<span class="spf-cust__last is-empty"></span>') +
       '<span class="spf-cust__debt">欠款 ¥' + moneyTrim(debt) + '</span></div>'
     );
@@ -546,6 +608,39 @@
     return ps.map(function (p) {
       return escapeHtml(p.method) + ' ¥' + money(p.amount);
     }).join(' · ');
+  }
+  function payListCardHtml(slip) {
+    var rows = [];
+    rows.push({
+      lab: '实付金额',
+      val: '¥' + moneyTrim(slip.paid),
+      bold: true,
+      afterHair: true
+    });
+    (slip.payments || []).forEach(function (p) {
+      if (!p || !p.method) return;
+      var amt = Number(p.amount);
+      if (!(amt > 0)) return;
+      rows.push({ lab: p.method, val: '¥' + moneyTrim(amt) });
+    });
+    var benefit = slip.benefit || '';
+    var coupon = slip.coupon || '';
+    if (!benefit && !coupon && slip.benefits) {
+      benefit = String(slip.benefits);
+    }
+    if (benefit) rows.push({ lab: '使用权益', val: benefit, red: true });
+    if (coupon) rows.push({ lab: '使用优惠券', val: coupon, red: true });
+    var html = '<div class="spf-card spf-card--pay"><div class="spf-pay-list">';
+    rows.forEach(function (r) {
+      html +=
+        '<div class="spf-pay-row' + (r.bold ? ' is-paid' : '') + (r.red ? ' is-ben' : '') + '">' +
+        '<span class="spf-pay-row__lab">' + escapeHtml(r.lab) + '</span>' +
+        '<span class="spf-pay-row__val' + (r.bold ? ' is-bold' : '') + (r.red ? ' is-red' : '') + '">' +
+        escapeHtml(r.val) + '</span></div>';
+      if (r.afterHair) html += '<div class="spf-pay-hair" aria-hidden="true"></div>';
+    });
+    html += '</div></div>';
+    return html;
   }
   function commissionOf(achievement) {
     return Math.round((Number(achievement) || 0) * COMMISSION_RATE * 100) / 100;
@@ -663,7 +758,11 @@
       return '<div class="sp-ticket__line is-empty">未填项目</div>';
     }
     if (items.length === 1) {
-      return '<div class="sp-ticket__line">' + ticketItemLabel(items[0].name, false) + '</div>';
+      /* 仅 1 项：仍按两行占位，名称固定在上行 */
+      return (
+        '<div class="sp-ticket__line">' + ticketItemLabel(items[0].name, false) + '</div>' +
+        '<div class="sp-ticket__line2"><span></span></div>'
+      );
     }
     /* 恰 2 项：两行名；≥3：第二项名（可带…）+ 灰圆件数 */
     var overflow = items.length > 2;
@@ -784,12 +883,10 @@
   function renderList() {
     var wrap = $('#spGridWrap');
     var hint = $('#spVoidHint');
-    var dateEl = $('#spDateLabel');
-    var filterBtn = $('#spFilterBtn');
     if (!wrap) return;
-    if (dateEl) dateEl.textContent = dateLabel(ui.dateKey);
-    if (filterBtn) filterBtn.classList.toggle('is-on', filterActive());
     ui.tab = 'pending';
+    ui.dateKey = '';
+    ui.filter = { pay: '', hasItems: '', amtMin: '', amtMax: '' };
     if (hint) hint.hidden = true;
     var list = listForTab();
     if (!list.length) {
@@ -797,7 +894,7 @@
         '<div class="sp-empty">' +
         '<img src="assets/ic_empty.svg" alt="">' +
         '<div class="sp-empty__t">暂无待归档订单</div>' +
-        '<div class="sp-empty__s">可切换日期或清除筛选后再试</div></div>';
+        '<div class="sp-empty__s">可调整搜索关键词后再试</div></div>';
       return;
     }
     var html = '<div class="sp-grid">';
@@ -806,9 +903,6 @@
     wrap.innerHTML = html;
   }
 
-  function barColorOf(sid) {
-    return STAFF_BAR_COLOR[sid] || '#FFB4B8';
-  }
   function ensureAveragePeople(assign, it) {
     assign = assign || emptyAssign();
     var map = {};
@@ -851,35 +945,59 @@
     var p = entry.person;
     var on = !!p.active;
     var pct = on ? (Number(p.pct) || 0) : 0;
-    var color = barColorOf(p.id);
-    /* % 标签位映射到安全区，不与左右控件重叠 */
+    var tint = barTintOf(p);
     var pctLeft = pctLabelLeft(pct);
-    /* 未选中条只保留姓名与空槽；选中后才渲染 点客 / % / 业绩 / × */
-    var amtHtml = on
-      ? '<button type="button" class="spf-ibar__amt" data-sp-ibar-val="' + escapeHtml(entry.ctx) +
-        '">' + moneyTrim(p.achievement || 0) + '</button>'
-      : '';
     var xHtml = on
       ? '<button type="button" class="spf-ibar__x" data-sp-ibar-clear="' + escapeHtml(entry.ctx) +
         '" aria-label="清除">×</button>'
       : '';
     var pctHtml = on
-      ? '<span class="spf-ibar__pct" style="left:' + pctLeft + '%">' + pct + '%</span>'
+      ? '<span class="spf-ibar__pct" style="left:' + pctLeft + '%">' + Math.round(pct) + '%</span>'
       : '';
     var dkHtml = on
       ? '<button type="button" class="spf-ibar__dk' + (p.dianke ? ' is-on' : '') +
         '" data-sp-ibar-dk="' + escapeHtml(entry.ctx) + '" aria-label="点客">' +
         '<span class="spf-ibar__dk-lab">点客</span></button>'
       : '';
+    var handleHtml = on
+      ? '<span class="spf-ibar__handle" data-sp-ibar-handle aria-hidden="true"></span>'
+      : '';
     return (
-      '<div class="spf-ibar' + (on ? ' is-on' : '') + '" data-sp-ibar="' + escapeHtml(entry.ctx) +
-      '" style="--ibar-color:' + color + '">' +
-      '<div class="spf-ibar__nm">' + escapeHtml(p.name) + '</div>' +
+      '<div class="spf-ibar' + (on ? ' is-on' : '') + (p.dianke ? ' is-dk' : '') +
+      '" data-sp-ibar="' + escapeHtml(entry.ctx) +
+      '" style="--ibar-color:' + tint.fill + ';--ibar-pct-color:' + tint.pct + '">' +
       '<div class="spf-ibar__track" data-sp-ibar-track="' + escapeHtml(entry.ctx) + '">' +
-      '<div class="spf-ibar__fill" style="width:' + pct + '%;background:' + color + '"></div>' +
-      pctHtml + dkHtml + amtHtml + xHtml +
+      '<div class="spf-ibar__fill" style="width:' + pct + '%;background:' + tint.fill + '">' +
+      handleHtml + '</div>' +
+      '<div class="spf-ibar__nm">' + escapeHtml(p.name) + '</div>' +
+      pctHtml + dkHtml + xHtml +
+      '<div class="spf-ibar__bubble" hidden></div>' +
       '</div></div>'
     );
+  }
+  function foldBarsHtml(rows, foldKey) {
+    var open = !!(ui.ibarFoldOpen && ui.ibarFoldOpen[foldKey]);
+    var show = rows;
+    var more = '';
+    if (rows.length > 4) {
+      if (!open) {
+        show = rows.slice(0, 3);
+        more =
+          '<button type="button" class="spf-ibar-more" data-sp-ibar-more="' +
+          escapeHtml(foldKey) + '">展开（共' + rows.length + '人）</button>';
+      } else {
+        more =
+          '<button type="button" class="spf-ibar-more is-open" data-sp-ibar-more="' +
+          escapeHtml(foldKey) + '">收起</button>';
+      }
+    }
+    return '<div class="spf-ibar-list" data-sp-ibar-fold="' + escapeHtml(foldKey) + '">' +
+      show.map(function (r) { return staffBarHtml(r); }).join('') + more + '</div>';
+  }
+  function stationCanAddMore(arr) {
+    var used = {};
+    (arr || []).forEach(function (p) { if (p && p.id) used[p.id] = true; });
+    return staffPoolList().some(function (st) { return st && st.id && !used[st.id]; });
   }
 
   function stationSlotBtn(ctxRaw) {
@@ -890,31 +1008,32 @@
 
   function assignBarsHtml(assign, prefix, it) {
     assign = assign || emptyAssign();
-    /* 平均：全员数值条，不可再添加 */
+    ensureAssignTints(assign);
+    /* 平均：全员数值条，不可再添加；>4 折叠 */
     if (ui.allocMode === 'average') {
       ensureAveragePeople(assign, it);
+      ensureAssignTints(assign);
       var avgRows = listStaffEntries(assign, prefix, it);
       if (!avgRows.length) {
         return '<div class="spf-quick-tip">暂无员工</div>';
       }
-      return '<div class="spf-ibar-list">' + avgRows.map(function (r) {
-        return staffBarHtml(r);
-      }).join('') + '</div>';
+      return foldBarsHtml(avgRows, prefix);
     }
     /* 工位：三行工位；已选为条；未满留 + 空槽 */
     var out = '<div class="spf-st-block">';
     STATIONS.forEach(function (st) {
       var arr = assign.stations[st.id] || [];
       out += '<div class="spf-st-row"><div class="spf-st-lab">' + st.lab + '</div><div class="spf-st-main">';
-      out += '<div class="spf-ibar-list">';
+      var stRows = [];
       arr.forEach(function (p, i) {
         syncPersonPerf(p, st.id, it || { price: 0, qty: 1 });
-        out += staffBarHtml({
+        stRows.push({
           person: p, station: st.id, ctx: prefix + '|' + st.id + '|' + i, lab: st.lab
         });
       });
-      out += '</div>';
-      if (arr.length < 3) {
+      out += foldBarsHtml(stRows, prefix + '|' + st.id);
+      /* 本工位已选满演示池全部员工时隐藏 +；人数不限、可跨工位同人 */
+      if (stationCanAddMore(arr)) {
         out += '<div class="spf-st-slots">' + stationSlotBtn(prefix + '|' + st.id + '|' + arr.length) + '</div>';
       }
       out += '</div></div>';
@@ -956,10 +1075,8 @@
       '<div class="spf-when">' + escapeHtml(when) + '</div></div>';
 
     var custName = displayCustomerName(slip);
-    var debt = Number(slip.debt) || 0;
     var memberBody;
     if (slip.isMember) {
-      var memGender = slip.gender === 'male' ? 'male' : 'female';
       memberBody =
         '<div class="spf-card spf-card--cust spf-card--member" data-sp-member-card>' +
         '<div class="spf-cust">' +
@@ -967,11 +1084,13 @@
         '<div class="spf-cust__main">' +
         '<div class="spf-cust__line1">' +
         '<span class="spf-cust__name">' + escapeHtml(custName) + '</span>' +
-        memberGenderIconHtml(memGender) +
         '<span class="spf-sum__vip">会员</span></div>' +
         (slip.phone ? '<div class="spf-cust__phone">' + escapeHtml(slip.phone) + '</div>' : '') +
         memberWalletHtml(slip) +
         memberFootHtml(slip) +
+        (slip.canRestoreGuest
+          ? '<button type="button" class="spf-restore-guest" data-sp-restore-guest>恢复散客</button>'
+          : '') +
         '</div></div></div>';
     } else {
       var g = ui.guestGender || slip.guestGender || 'male';
@@ -981,19 +1100,13 @@
         guestGenderBadgeHtml(g, true) +
         '<div class="spf-cust__main">' +
         '<div class="spf-cust__line1">' +
-        '<span class="spf-cust__name">' + escapeHtml(custName) + '</span></div></div>' +
+        '<button type="button" class="spf-cust__name spf-cust__name--btn" data-sp-guest-av>' +
+        escapeHtml(custName) + '</button></div></div>' +
         '<button type="button" class="spf-pick-mem" data-sp-pick-member>选择会员</button>' +
         '</div></div>';
     }
 
-    var payCard =
-      '<div class="spf-card spf-card--pay">' +
-      '<div class="spf-pay__row">' +
-      '<div class="spf-pay__amt"><span>¥</span>' + moneyTrim(slip.paid) + '</div>' +
-      '<span class="spf-pay__sep" aria-hidden="true"></span>' +
-      '<div class="spf-pay__bits">' + formatPayBits(slip) + '</div></div>' +
-      (slip.benefits ? '<div class="spf-pay__ben">' + escapeHtml(slip.benefits) + '</div>' : '') +
-      '</div>';
+    var payCard = payListCardHtml(slip);
 
     var itemsInner = '';
     var quickHd =
@@ -1028,14 +1141,6 @@
     return seqCard + memberBody + payCard + consumeCard + perfOverviewCardHtml() + remarkCard;
   }
 
-  function syncSmartToggle() {
-    var wrap = $('#s17SmartToggle');
-    var sw = $('#s17SmartSwitch');
-    if (!wrap || !sw) return;
-    var show = !!ui.currentId;
-    wrap.hidden = !show;
-    sw.checked = !!ui.smartComplete;
-  }
   function paintS17() {
     var slip = getSlip(ui.currentId);
     if (!slip) return;
@@ -1046,7 +1151,6 @@
     if (!scroll || !root) return;
     if (title) title.textContent = '补全订单';
     if (bar) bar.hidden = false;
-    syncSmartToggle();
     scroll.innerHTML = completeBodyHtml(slip);
     var remark = $('#spRemark');
     if (remark) {
@@ -1121,6 +1225,7 @@
       active: true,
       pct: defaultPctForStation(station === 'avg' ? 'senior' : station)
     };
+    assignNextTint(assign, person, tintScopeOf(station));
     syncPersonPerf(person, station === 'avg' ? 'senior' : station, it);
     if (ui.allocMode === 'average' || station === 'avg') {
       assign.people = assign.people || [];
@@ -1134,7 +1239,7 @@
     return true;
   }
   function runSmartComplete(slip) {
-    if (!ui.smartComplete) return;
+    ui.smartComplete = true;
     if (ui.contentMode !== 'quick' && !ui.editItems.length) {
       var pick = smartPickItem(slip);
       if (pick) {
@@ -1167,14 +1272,13 @@
           var sidAvg = smartPickStaffId(targetIt.name || parseLastVisitName(slip));
           var hit = (targetAssign.people || []).find(function (p) { return p.id === sidAvg; }) ||
             (targetAssign.people || [])[0];
-          if (hit) activatePerson(hit, 'senior', targetIt);
+          if (hit) activatePerson(hit, 'senior', targetIt, targetAssign);
         }
       } else if (!peopleFromAssign(targetAssign).length) {
         var sid = smartPickStaffId(targetIt.name || parseLastVisitName(slip));
         pushStaffToAssign(targetAssign, sid, prefixStation, false, targetIt);
       }
     }
-    toast('已智能补全，请核对');
   }
 
   function openComplete(id) {
@@ -1212,7 +1316,6 @@
 
   function closeComplete() {
     ui.currentId = null;
-    syncSmartToggle();
     goBack();
     renderList();
     syncHomeBadge();
@@ -1497,10 +1600,18 @@
     if (!it) return null;
     return ensureItemAssign(it);
   }
+  function pickStationBlocked(assign, station) {
+    var blocked = {};
+    var arr = (assign && assign.stations && assign.stations[station]) || [];
+    arr.forEach(function (p) { if (p && p.id) blocked[p.id] = true; });
+    return blocked;
+  }
   function pickRemainCap(ctx, assign) {
     if (!ctx || !assign || ctx.station === 'avg') return 0;
-    var arr = assign.stations[ctx.station] || [];
-    return Math.max(0, 3 - arr.length);
+    var blocked = pickStationBlocked(assign, ctx.station);
+    return staffPoolList().filter(function (st) {
+      return st && st.id && !blocked[st.id];
+    }).length;
   }
   function renderPickStaffBody() {
     var body = $('#spPickStaffBody');
@@ -1508,12 +1619,8 @@
     var ctx = ui.pickCtx;
     if (!body || !ctx) return;
     var assign = getAssignByCtx(ctx);
-    var blocked = {};
-    if (assign) {
-      peopleFromAssign(assign).forEach(function (p) {
-        if (p && p.id) blocked[p.id] = true;
-      });
-    }
+    /* 仅排除本工位已有员工；其他工位已选的人仍可选 */
+    var blocked = pickStationBlocked(assign, ctx.station);
     var remain = pickRemainCap(ctx, assign);
     var pool = staffPoolList().filter(function (st) {
       return st && st.id && !blocked[st.id];
@@ -1555,18 +1662,6 @@
     var assign = getAssignByCtx(ctx);
     if (pickRemainCap(ctx, assign) <= 0) {
       ui.pickCtx = null;
-      toast('该工位最多 3 人');
-      return;
-    }
-    var blocked = {};
-    if (assign) {
-      peopleFromAssign(assign).forEach(function (p) {
-        if (p && p.id) blocked[p.id] = true;
-      });
-    }
-    var avail = staffPoolList().filter(function (s) { return s && s.id && !blocked[s.id]; });
-    if (!avail.length) {
-      ui.pickCtx = null;
       toast('暂无可选员工');
       return;
     }
@@ -1589,7 +1684,7 @@
         return ui.pickDraft[id] && ui.pickDraft[id].on;
       }).length;
       if (selectedCount >= remain) {
-        toast('该工位最多 3 人');
+        toast('暂无可选员工');
         return;
       }
       draft.on = true;
@@ -1614,7 +1709,7 @@
     }
     var it = itemFromCtx(ctx);
     var arr = assign.stations[ctx.station] || (assign.stations[ctx.station] = []);
-    var remain = Math.max(0, 3 - arr.length);
+    var remain = pickRemainCap(ctx, assign);
     var chosen = Object.keys(ui.pickDraft).filter(function (id) {
       return ui.pickDraft[id] && ui.pickDraft[id].on;
     });
@@ -1623,12 +1718,11 @@
       return;
     }
     if (chosen.length > remain) {
-      toast('该工位最多 3 人');
+      toast('暂无可选员工');
       return;
     }
     chosen.forEach(function (sid) {
       if (arr.some(function (p) { return p.id === sid; })) return;
-      if (peopleFromAssign(assign).some(function (p) { return p.id === sid; })) return;
       var st = demoStaffById(sid);
       var person = {
         id: sid,
@@ -1637,6 +1731,7 @@
         active: true,
         pct: defaultPctForStation(ctx.station)
       };
+      assignNextTint(assign, person, ctx.station);
       syncPersonPerf(person, ctx.station, it);
       arr.push(person);
     });
@@ -1669,6 +1764,7 @@
         p.active = false;
         p.pct = 0;
         p.dianke = false;
+        p.tintIdx = null;
         p.commissionFixed = null;
         syncPersonPerf(p, 'avg', it);
       }
@@ -1862,6 +1958,10 @@
     var m = SP_DEMO_MEMBERS.find(function (x) { return x.id === mid; });
     var slip = getSlip(ui.currentId);
     if (!m || !slip) return;
+    if (!slip.isMember) {
+      slip.canRestoreGuest = true;
+      slip.restoreGuestGender = slip.guestGender || ui.guestGender || 'male';
+    }
     slip.isMember = true;
     slip.customerName = m.name;
     slip.gender = m.gender === 'male' ? 'male' : 'female';
@@ -1878,6 +1978,28 @@
     closeMemberSheet();
     paintS17();
     toast('已绑定会员');
+  }
+  function restoreGuestOrder() {
+    var slip = getSlip(ui.currentId);
+    if (!slip || !slip.canRestoreGuest) return;
+    var g = slip.restoreGuestGender === 'female' ? 'female' : 'male';
+    slip.isMember = false;
+    slip.guestGender = g;
+    ui.guestGender = g;
+    slip.customerName = guestDisplayName(g);
+    slip.phone = '';
+    slip.avatar = '';
+    slip.gender = '';
+    slip.cards = '';
+    slip.balance = null;
+    slip.bonus = null;
+    slip.debt = 0;
+    slip.lastVisitDate = '';
+    slip.lastItem = '';
+    slip.canRestoreGuest = false;
+    slip.restoreGuestGender = '';
+    paintS17();
+    toast('已恢复散客');
   }
   function openItemPerfSheet(itemIdx) {
     var it = ui.editItems[itemIdx];
@@ -1953,10 +2075,32 @@
     var ctx = parseSlotCtx(ctxRaw);
     var p = personFromCtx(ctx);
     var it = itemFromCtx(ctx);
+    var assign = getAssignByCtx(ctx);
     if (!p) return;
     p.active = true;
-    p.pct = Math.max(0, Math.min(100, Math.round(pct)));
-    syncPersonPerf(p, ctx.station === 'avg' ? 'senior' : ctx.station, it);
+    assignNextTint(assign, p, tintScopeOf(ctx.station));
+    var base = itemAmount(it);
+    var ach = roundHalf(base * Math.max(0, Math.min(100, Number(pct) || 0)) / 100);
+    p.achievement = ach;
+    p.pct = base > 0 ? Math.max(0, Math.min(100, (ach / base) * 100)) : 0;
+    if (p.commissionFixed == null || p.commissionFixed === '') {
+      p.commission = Math.round(p.achievement * COMMISSION_RATE * 100) / 100;
+    }
+  }
+  function setBarAchievement(ctxRaw, ach) {
+    var ctx = parseSlotCtx(ctxRaw);
+    var p = personFromCtx(ctx);
+    var it = itemFromCtx(ctx);
+    var assign = getAssignByCtx(ctx);
+    if (!p) return;
+    p.active = true;
+    assignNextTint(assign, p, tintScopeOf(ctx.station));
+    var base = itemAmount(it);
+    p.achievement = roundHalf(Math.max(0, Math.min(base || 99999, ach)));
+    p.pct = base > 0 ? Math.max(0, Math.min(100, (p.achievement / base) * 100)) : 0;
+    if (p.commissionFixed == null || p.commissionFixed === '') {
+      p.commission = Math.round(p.achievement * COMMISSION_RATE * 100) / 100;
+    }
   }
   /** 就地刷新「业绩提成」概览卡（条内变动时调用，避免整页重绘/跳滚动） */
   function syncPerfOverviewCard() {
@@ -1969,23 +2113,39 @@
     var next = wrap.firstElementChild;
     if (next) card.parentNode.replaceChild(next, card);
   }
-  function paintBarDom(track, p) {
+  function paintBarDom(track, p, opts) {
     if (!track || !p) return;
+    opts = opts || {};
     var fill = track.querySelector('.spf-ibar__fill');
     var pctEl = track.querySelector('.spf-ibar__pct');
-    var amt = track.querySelector('.spf-ibar__amt');
     var xBtn = track.querySelector('.spf-ibar__x');
     var dkBtn = track.querySelector('.spf-ibar__dk');
+    var nm = track.querySelector('.spf-ibar__nm');
+    var bubble = track.querySelector('.spf-ibar__bubble');
+    var handle = track.querySelector('.spf-ibar__handle');
     var root = track.closest('.spf-ibar');
     var pct = Number(p.pct) || 0;
+    var tint = barTintOf(p);
     var ctxRaw = track.getAttribute('data-sp-ibar-track') || '';
-    if (root) root.classList.toggle('is-on', !!p.active);
+    if (root) {
+      root.classList.toggle('is-on', !!p.active);
+      root.classList.toggle('is-dk', !!p.dianke);
+      root.style.setProperty('--ibar-color', tint.fill);
+      root.style.setProperty('--ibar-pct-color', tint.pct);
+    }
     if (fill) {
       fill.style.width = (p.active ? pct : 0) + '%';
-      fill.style.background = barColorOf(p.id);
+      fill.style.background = tint.fill;
     }
+    if (nm) nm.textContent = p.name || '';
     if (p.active) {
-      /* 未选中条不渲染控件；变选中时按 DOM 顺序补齐 点客 → % → 金额 → × */
+      if (!handle && fill) {
+        handle = document.createElement('span');
+        handle.className = 'spf-ibar__handle';
+        handle.setAttribute('data-sp-ibar-handle', '');
+        handle.setAttribute('aria-hidden', 'true');
+        fill.appendChild(handle);
+      }
       if (!dkBtn) {
         dkBtn = document.createElement('button');
         dkBtn.type = 'button';
@@ -1993,7 +2153,7 @@
         dkBtn.setAttribute('data-sp-ibar-dk', ctxRaw);
         dkBtn.setAttribute('aria-label', '点客');
         dkBtn.innerHTML = '<span class="spf-ibar__dk-lab">点客</span>';
-        track.insertBefore(dkBtn, track.firstChild);
+        track.appendChild(dkBtn);
       }
       dkBtn.hidden = false;
       dkBtn.classList.toggle('is-on', !!p.dianke);
@@ -2003,17 +2163,8 @@
         track.appendChild(pctEl);
       }
       pctEl.hidden = false;
-      pctEl.textContent = pct + '%';
+      pctEl.textContent = Math.round(pct) + '%';
       pctEl.style.left = pctLabelLeft(pct) + '%';
-      if (!amt) {
-        amt = document.createElement('button');
-        amt.type = 'button';
-        amt.className = 'spf-ibar__amt';
-        amt.setAttribute('data-sp-ibar-val', ctxRaw);
-        track.appendChild(amt);
-      }
-      amt.hidden = false;
-      amt.textContent = moneyTrim(p.achievement || 0);
       if (!xBtn) {
         xBtn = document.createElement('button');
         xBtn.type = 'button';
@@ -2024,13 +2175,26 @@
         track.appendChild(xBtn);
       }
       xBtn.hidden = false;
+      if (!bubble) {
+        bubble = document.createElement('div');
+        bubble.className = 'spf-ibar__bubble';
+        bubble.hidden = true;
+        track.appendChild(bubble);
+      }
+      if (opts.showBubble) {
+        bubble.hidden = false;
+        bubble.textContent = '业绩 ' + moneyTrim(p.achievement || 0);
+        bubble.style.left = Math.max(0, Math.min(100, pct)) + '%';
+      } else {
+        bubble.hidden = true;
+      }
     } else {
       if (pctEl) pctEl.hidden = true;
-      if (amt) amt.hidden = true;
       if (xBtn) xBtn.hidden = true;
       if (dkBtn) dkBtn.hidden = true;
+      if (handle) handle.remove();
+      if (bubble) bubble.hidden = true;
     }
-    /* 条内任何变动都要同步下方业绩提成概览 */
     syncPerfOverviewCard();
   }
 
@@ -2039,11 +2203,23 @@
     if (card && !e.target.closest('[data-sp-del]') && !e.target.closest('[data-sp-item-sheet]')) {
       ui.focusItemIdx = Number(card.getAttribute('data-sp-item-card')) || 0;
     }
+    if (e.target.closest('[data-sp-restore-guest]')) {
+      e.stopPropagation();
+      restoreGuestOrder();
+      return;
+    }
     if (e.target.closest('[data-sp-pick-member]')) {
       openMemberSheet();
       return;
     }
-    if (e.target.closest('[data-sp-member-card]')) {
+    if (e.target.closest('[data-sp-ibar-more]')) {
+      var foldKey = e.target.closest('[data-sp-ibar-more]').getAttribute('data-sp-ibar-more') || '';
+      ui.ibarFoldOpen = ui.ibarFoldOpen || {};
+      ui.ibarFoldOpen[foldKey] = !ui.ibarFoldOpen[foldKey];
+      paintS17();
+      return;
+    }
+    if (e.target.closest('[data-sp-member-card]') && !e.target.closest('[data-sp-restore-guest]')) {
       /* 会员卡整卡 → 会员详情（原型用 toast 示意） */
       toast('会员详情');
       return;
@@ -2087,25 +2263,7 @@
       clearSlot(clearBar.getAttribute('data-sp-ibar-clear'));
       return;
     }
-    var valBtn = e.target.closest('[data-sp-ibar-val]');
-    if (valBtn) {
-      e.stopPropagation();
-      openBarKeypad(valBtn.getAttribute('data-sp-ibar-val'), 'achievement');
-      return;
-    }
-    var track = e.target.closest('[data-sp-ibar-track]');
-    if (track && !e.target.closest('[data-sp-ibar-dk]') && !e.target.closest('[data-sp-ibar-clear]') &&
-        !e.target.closest('.spf-ibar__x') && !e.target.closest('[data-sp-ibar-val]') &&
-        !e.target.closest('[data-sp-ibar-amt]') && !e.target.closest('.spf-ibar__amt')) {
-      var ctxT = parseSlotCtx(track.getAttribute('data-sp-ibar-track'));
-      var pT = personFromCtx(ctxT);
-      var itT = itemFromCtx(ctxT);
-      if (pT && !pT.active) {
-        activatePerson(pT, ctxT.station === 'avg' ? 'senior' : ctxT.station, itT);
-        paintS17();
-      }
-      return;
-    }
+    /* 数值条点击选中 / 点客切换由 pointer 手势处理，避免与拖动冲突 */
     if (e.target.closest('[data-sp-add]')) {
       openPriceSheet();
       return;
@@ -2623,47 +2781,66 @@
         var track = e.target.closest('[data-sp-ibar-track]');
         if (!track) return;
         if (e.target.closest('[data-sp-ibar-dk]') || e.target.closest('[data-sp-ibar-clear]') ||
-            e.target.closest('.spf-ibar__x') || e.target.closest('[data-sp-ibar-val]') ||
-            e.target.closest('.spf-ibar__amt')) return;
+            e.target.closest('.spf-ibar__x') || e.target.closest('[data-sp-ibar-more]')) return;
         var ctxRaw = track.getAttribute('data-sp-ibar-track');
         var ctx = parseSlotCtx(ctxRaw);
         var p = personFromCtx(ctx);
         var it = itemFromCtx(ctx);
+        var assign = getAssignByCtx(ctx);
         if (!p) return;
-        if (!p.active) {
-          activatePerson(p, ctx.station === 'avg' ? 'senior' : ctx.station, it);
+        var wasActive = !!p.active;
+        var useHandle = !!e.target.closest('[data-sp-ibar-handle]');
+        if (!wasActive) {
+          activatePerson(p, ctx.station === 'avg' ? 'senior' : ctx.station, it, assign);
           paintBarDom(track, p);
-          return;
         }
-        /* 按下：只选中分界，不跳变数值；拖动才改值 */
         var startX = e.clientX;
         var startPct = Number(p.pct) || 0;
         var moved = false;
         ui.dragBar = {
           ctx: ctxRaw, pointerId: e.pointerId, track: track,
-          startX: startX, startPct: startPct
+          startX: startX, startPct: startPct,
+          wasActiveAtDown: wasActive, useHandle: useHandle
         };
         try { track.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
         function onMove(ev) {
           if (!ui.dragBar || ev.pointerId !== ui.dragBar.pointerId) return;
           if (ev.cancelable) ev.preventDefault();
           var rect = track.getBoundingClientRect();
-          var padL = 44;
-          var padR = 80;
-          var usable = Math.max(1, rect.width - padL - padR);
           var dx = ev.clientX - ui.dragBar.startX;
-          if (!moved && Math.abs(dx) < 2) return;
+          if (!moved && Math.abs(dx) < 3) return;
           moved = true;
-          var next = Math.max(0, Math.min(100, Math.round(ui.dragBar.startPct + (dx / usable) * 100)));
+          var next;
+          if (ui.dragBar.useHandle) {
+            var x = ev.clientX - rect.left;
+            next = Math.max(0, Math.min(100, (x / Math.max(1, rect.width)) * 100));
+          } else {
+            var padL = 28;
+            var padR = 28;
+            var usable = Math.max(1, rect.width - padL - padR);
+            next = Math.max(0, Math.min(100, ui.dragBar.startPct + (dx / usable) * 100));
+          }
           setBarPct(ui.dragBar.ctx, next);
-          paintBarDom(ui.dragBar.track, personFromCtx(parseSlotCtx(ui.dragBar.ctx)));
+          paintBarDom(
+            ui.dragBar.track,
+            personFromCtx(parseSlotCtx(ui.dragBar.ctx)),
+            { showBubble: true }
+          );
         }
         function onUp(ev) {
           if (!ui.dragBar || ev.pointerId !== ui.dragBar.pointerId) return;
+          var drag = ui.dragBar;
           ui.dragBar = null;
           track.removeEventListener('pointermove', onMove);
           track.removeEventListener('pointerup', onUp);
           track.removeEventListener('pointercancel', onUp);
+          var pUp = personFromCtx(parseSlotCtx(drag.ctx));
+          if (!moved && drag.wasActiveAtDown && pUp) {
+            pUp.dianke = !pUp.dianke;
+            paintBarDom(drag.track, pUp);
+          } else if (pUp) {
+            paintBarDom(drag.track, pUp, { showBubble: false });
+          }
         }
         track.addEventListener('pointermove', onMove);
         track.addEventListener('pointerup', onUp);
@@ -2674,17 +2851,6 @@
     if (back) back.addEventListener('click', function () { closeComplete(); });
     var arch = $('#s17ArchiveBtn');
     if (arch) arch.addEventListener('click', archiveCurrent);
-    var smartSw = $('#s17SmartSwitch');
-    if (smartSw) {
-      smartSw.addEventListener('change', function () {
-        ui.smartComplete = !!smartSw.checked;
-        var slip = getSlip(ui.currentId);
-        if (ui.smartComplete && slip) {
-          runSmartComplete(slip);
-          paintS17();
-        }
-      });
-    }
     var perfCancel = $('#spPerfKeypadCancel');
     if (perfCancel) perfCancel.addEventListener('click', closePerfKeypad);
     var perfOk = $('#spPerfKeypadOk');

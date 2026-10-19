@@ -7,7 +7,7 @@
 <!-- R46perf：去掉 Google Fonts，避免外网阻塞首屏白屏；流水 CSS/JS 按需加载 -->
 <link rel="stylesheet" href="assets/v2.css">
 <link rel="stylesheet" href="assets/v2-home-pay.css?v=r49">
-<link rel="stylesheet" href="assets/selfpay.css?v=r72">
+<link rel="stylesheet" href="assets/selfpay.css?v=r75">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -3743,17 +3743,10 @@
     </div>
     <div class="sp-body">
       <div class="sp-toolbar">
-        <button type="button" class="sp-date" id="spDateBtn" aria-label="选择日期">
-          <span id="spDateLabel">全部</span>
-          <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
         <div class="sp-search">
           <img src="assets/ic_search.svg" alt="">
           <input type="search" id="spSearchInput" placeholder="手机号 / 姓名 / 单号" autocomplete="off">
         </div>
-        <button type="button" class="sp-filter" id="spFilterBtn" aria-label="筛选">
-          <img src="assets/ic_filter.svg" alt="">
-        </button>
       </div>
       <div class="sp-void-hint" id="spVoidHint" hidden>作废单将于 7 天后清除</div>
       <div class="sp-grid-wrap" id="spGridWrap"></div>
@@ -3810,11 +3803,6 @@
     <div class="nav-bar">
       <button type="button" class="btn-back" id="s17Back" aria-label="返回"><img src="assets/ic_back.svg" alt=""></button>
       <div class="title" id="s17Title">补全订单</div>
-      <label class="s17-smart" id="s17SmartToggle" hidden>
-        <span class="s17-smart__lab">智能补全</span>
-        <input type="checkbox" id="s17SmartSwitch" checked>
-        <span class="s17-smart__track" aria-hidden="true"><span class="s17-smart__knob"></span></span>
-      </label>
     </div>
     <div class="s17-body" id="s17Scroll"></div>
     <div class="s17-bar" id="s17Bar">
@@ -9739,6 +9727,6 @@ html.capture-figma #toast { display:none !important; }
   } catch (e) {}
 })();
 </script>
-<script src="assets/selfpay.js?v=r72"></script>
+<script src="assets/selfpay.js?v=r75"></script>
 </body>
 </html>
