@@ -95,15 +95,15 @@
     d.setDate(d.getDate() + delta);
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   }
-  function money(n) {
-    return (Math.round((Number(n) || 0) * 100) / 100).toFixed(2);
-  }
-  /** 票卡 / s17 实付：整数无小数；有小数则去掉尾部 0 */
+  /** 整数无小数；有 1 位显 1 位；有 2 位显 2 位（去尾 0） */
   function moneyTrim(n) {
     var v = Math.round((Number(n) || 0) * 100) / 100;
     if (!isFinite(v)) v = 0;
     if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
     return String(parseFloat(v.toFixed(2)));
+  }
+  function money(n) {
+    return moneyTrim(n);
   }
   function toast(msg, ms) {
     if (typeof window.toast === 'function') window.toast(msg, ms);
@@ -698,8 +698,8 @@
           return (
             '<div class="spf-ov__row">' +
             '<div class="spf-ov__nm">' + escapeHtml(row.name) + '</div>' +
-            '<div class="spf-ov__col">¥' + money(row.achievement) + '</div>' +
-            '<div class="spf-ov__col">¥' + money(comm) + '</div></div>'
+            '<div class="spf-ov__col">¥' + moneyTrim(row.achievement) + '</div>' +
+            '<div class="spf-ov__col">¥' + moneyTrim(comm) + '</div></div>'
           );
         }).join('') +
         '</div>';
@@ -756,8 +756,11 @@
   function itemLinesHtml(slip) {
     var items = slip.items || [];
     if (!items.length) {
-      if (slip.contentMode === 'quick') return '<div class="sp-ticket__line">快捷开单</div>';
-      return '<div class="sp-ticket__line is-empty">未填项目</div>';
+      /* 与单项目相同：文案固定第一行，第二行占位 */
+      var emptyLab = slip.contentMode === 'quick'
+        ? '<div class="sp-ticket__line">快捷开单</div>'
+        : '<div class="sp-ticket__line is-empty">未填项目</div>';
+      return emptyLab + '<div class="sp-ticket__line2"><span></span></div>';
     }
     if (items.length === 1) {
       /* 仅 1 项：仍按两行占位，名称固定在上行 */
@@ -805,7 +808,7 @@
       return;
     }
     var html = '';
-    list.slice(0, 5).forEach(function (slip) { html += ticketHtml(slip); });
+    list.slice(0, 8).forEach(function (slip) { html += ticketHtml(slip); });
     html += floorTailHtml();
     el.innerHTML = html;
     el.style.transform = '';
@@ -1039,12 +1042,12 @@
         if (show.length < rows.length) {
           more =
             '<button type="button" class="spf-ibar-more" data-sp-ibar-more="' +
-            escapeHtml(foldKey) + '">展开（共' + rows.length + '人）</button>';
+            escapeHtml(foldKey) + '">展开（共' + rows.length + '人）' + CHEV_SVG + '</button>';
         }
       } else {
         more =
           '<button type="button" class="spf-ibar-more is-open" data-sp-ibar-more="' +
-          escapeHtml(foldKey) + '">收起</button>';
+          escapeHtml(foldKey) + '">收起' + CHEV_SVG + '</button>';
       }
     }
     return '<div class="spf-ibar-list" data-sp-ibar-fold="' + escapeHtml(foldKey) + '">' +
@@ -1113,7 +1116,7 @@
       '<span class="spf-icard__sep" aria-hidden="true"></span>' +
       '<button type="button" class="spf-icard__sheet" data-sp-item-sheet="' + idx +
       '" aria-label="业绩提成">' +
-      '<img src="assets/ic_sp_staff_sheet.svg" alt="" width="18" height="18"></button>' +
+      '<img class="spf-icard__sheet-ic" src="assets/ic_sp_staff_sheet.svg" alt="" width="18" height="18"></button>' +
       '</div></div>' +
       '<button type="button" class="spf-item__del" data-sp-del="' + idx + '" aria-label="删除">×</button>' +
       '</div>';
@@ -1143,8 +1146,9 @@
         '<span class="spf-sum__vip">会员</span>' +
         (slip.canRestoreGuest
           ? '<button type="button" class="spf-restore-guest" data-sp-restore-guest>' +
-            '<img class="spf-restore-guest__ic" src="assets/ic_sp_restore_guest.svg" width="200" height="200" alt="">' +
-            '<span>恢复为散客</span></button>'
+            '<span>重置为散客</span>' +
+            '<svg class="spf-restore-guest__chev" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">' +
+            '<path d="M4.5 3L7.5 6l-3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
           : '') +
         '</div>' +
         (slip.phone ? '<div class="spf-cust__phone">' + escapeHtml(slip.phone) + '</div>' : '') +
@@ -1171,7 +1175,9 @@
     var quickHd =
       '<div class="spf-quick-hd">' +
       '<img class="spf-quick-hd__ic" src="assets/ic_sp_quick_bolt.svg" alt="" width="23" height="23">' +
-      '<span class="spf-quick-hd__t">快捷开单</span></div>';
+      '<span class="spf-quick-hd__t">快捷开单</span>' +
+      '<button type="button" class="spf-icard__sheet spf-quick-hd__sheet" data-sp-order-sheet aria-label="业绩提成">' +
+      '<img class="spf-icard__sheet-ic" src="assets/ic_sp_staff_sheet.svg" alt="" width="18" height="18"></button></div>';
     if (ui.contentMode === 'quick') {
       itemsInner =
         quickHd +
@@ -2071,17 +2077,32 @@
     slip.canRestoreGuest = false;
     slip.restoreGuestGender = '';
     paintS17();
-    toast('已恢复为散客');
+    toast('已重置为散客');
   }
   function openItemPerfSheet(itemIdx) {
-    var it = ui.editItems[itemIdx];
-    if (!it) return;
-    ui.focusItemIdx = itemIdx;
-    ensureItemAssign(it);
-    var entries = listStaffEntries(it.assign, 'item|' + itemIdx, it);
+    var isOrder = itemIdx === 'order' || itemIdx === -1;
+    var it = null;
+    var entries;
     var body = $('#spItemPerfBody');
     var title = $('#spItemPerfTitle');
-    if (title) title.textContent = it.name + ' · 业绩提成';
+    if (isOrder) {
+      var orderIt = { price: (getSlip(ui.currentId) || {}).paid || 0, qty: 1 };
+      if (ui.allocMode === 'average') ensureAveragePeople(ui.orderStaff, orderIt);
+      ensureAssignTints(ui.orderStaff);
+      entries = listStaffEntries(ui.orderStaff, 'order', orderIt).filter(function (en) {
+        return en.person && en.person.active;
+      });
+      if (title) title.textContent = '快捷开单 · 业绩提成';
+    } else {
+      it = ui.editItems[itemIdx];
+      if (!it) return;
+      ui.focusItemIdx = itemIdx;
+      ensureItemAssign(it);
+      entries = listStaffEntries(it.assign, 'item|' + itemIdx, it).filter(function (en) {
+        return en.person && en.person.active;
+      });
+      if (title) title.textContent = it.name + ' · 业绩提成';
+    }
     if (!body) return;
     if (!entries.length) {
       body.innerHTML =
@@ -2092,24 +2113,35 @@
         '<path d="M10 38c0-7.2 6.3-13 14-13s14 5.8 14 13" stroke="#C7C7CC" stroke-width="2" stroke-linecap="round"/>' +
         '</svg></div>' +
         '<div class="sp-ipf-empty__t">暂未指定员工</div>' +
-        '<div class="sp-ipf-empty__d">请先在消费内容中为该项目添加服务员工</div>' +
+        '<div class="sp-ipf-empty__d">请先在消费内容中' +
+        (isOrder ? '为快捷开单' : '为该项目') +
+        '添加服务员工</div>' +
         '<button type="button" class="sp-ipf-empty__btn" data-sp-ipf-empty-ok>知道了</button></div>';
     } else {
       var editIc = '<img class="sp-ipf-row__pen" src="assets/ic_sp_perf_edit.svg" alt="" width="12" height="12">';
-      body.innerHTML = entries.map(function (en) {
-        var p = en.person;
-        return (
-          '<div class="sp-ipf-row" data-sp-ipf-ctx="' + escapeHtml(en.ctx) + '">' +
-          '<div class="sp-ipf-row__nm">' + escapeHtml(p.name) +
-          (en.lab ? '<span class="spf-ibar__st">' + escapeHtml(en.lab) + '</span>' : '') + '</div>' +
-          '<button type="button" class="sp-ipf-row__num" data-sp-ipf-ach="' + escapeHtml(en.ctx) +
-          '"><span class="sp-ipf-row__lab">业绩</span><span class="sp-ipf-row__v">¥' +
-          money(p.achievement) + '</span>' + editIc + '</button>' +
-          '<button type="button" class="sp-ipf-row__num" data-sp-ipf-comm="' + escapeHtml(en.ctx) +
-          '"><span class="sp-ipf-row__lab">提成</span><span class="sp-ipf-row__v">¥' +
-          money(p.commission) + '</span>' + editIc + '</button></div>'
-        );
-      }).join('');
+      body.innerHTML =
+        '<div class="sp-ipf-list">' +
+        '<div class="sp-ipf-head" aria-hidden="true">' +
+        '<span class="sp-ipf-head__nm">员工</span>' +
+        '<span class="sp-ipf-head__col">业绩</span>' +
+        '<span class="sp-ipf-head__col">提成</span></div>' +
+        entries.map(function (en) {
+          var p = en.person;
+          var ach = p.active ? p.achievement : 0;
+          var comm = p.active
+            ? (p.commissionFixed != null ? p.commissionFixed : p.commission)
+            : 0;
+          return (
+            '<div class="sp-ipf-row" data-sp-ipf-ctx="' + escapeHtml(en.ctx) + '">' +
+            '<div class="sp-ipf-row__nm">' + escapeHtml(p.name) +
+            (en.lab ? '<span class="spf-ibar__st">' + escapeHtml(en.lab) + '</span>' : '') + '</div>' +
+            '<button type="button" class="sp-ipf-row__num" data-sp-ipf-ach="' + escapeHtml(en.ctx) +
+            '"><span class="sp-ipf-row__v">¥' + moneyTrim(ach) + '</span>' + editIc + '</button>' +
+            '<button type="button" class="sp-ipf-row__num" data-sp-ipf-comm="' + escapeHtml(en.ctx) +
+            '"><span class="sp-ipf-row__v">¥' + moneyTrim(comm) + '</span>' + editIc + '</button></div>'
+          );
+        }).join('') +
+        '</div>';
     }
     openMask('spItemPerfMask');
   }
@@ -2307,6 +2339,10 @@
       paintS17();
       return;
     }
+    if (e.target.closest('[data-sp-order-sheet]')) {
+      openItemPerfSheet('order');
+      return;
+    }
     var sheetBtn = e.target.closest('[data-sp-item-sheet]');
     if (sheetBtn) {
       openItemPerfSheet(Number(sheetBtn.getAttribute('data-sp-item-sheet')) || 0);
@@ -2482,6 +2518,33 @@
       dots.style.setProperty('--sp-floor-t', String(t));
       dots.style.setProperty('--sp-dot-spread', spread.toFixed(2) + 'px');
     }
+  }
+
+  /** 文案版达阈值松手：卡流轻微过头再弹簧归位，再进列表 */
+  function animateHintStripBounce(onDone) {
+    var strip = $('#spHomeStrip');
+    var hostEl = $('#spHomeStripHost');
+    var el = strip || hostEl;
+    if (!el) {
+      if (onDone) onDone();
+      return;
+    }
+    var overMs = 160;
+    var backMs = 300;
+    el.style.willChange = 'transform';
+    el.style.transition = 'transform ' + (overMs / 1000) + 's cubic-bezier(0.2, 0.9, 0.2, 1)';
+    el.style.transform = 'translateX(-14px)';
+    setTimeout(function () {
+      el.style.transition =
+        'transform ' + (backMs / 1000) + 's cubic-bezier(0.34, 1.3, 0.64, 1)';
+      el.style.transform = 'translateX(0)';
+      setTimeout(function () {
+        el.style.transition = '';
+        el.style.transform = '';
+        el.style.willChange = '';
+        if (onDone) onDone();
+      }, backMs + 20);
+    }, overMs);
   }
 
   function animateFloorSettle(dir, rawPull, onDone) {
@@ -2666,15 +2729,22 @@
       armWatch();
       host.classList.remove('is-pulling', 'is-armed');
       if (shouldGo) {
-        /* 文案版松手前无跟手：从 0 吸满进列表；圆点版从当前拉距吸满 */
-        var settleFrom = ui.floorMode === 'hint' ? 0 : last;
-        animateFloorSettle('to-list', settleFrom, function () {
-          pull = 0;
-          locking = false;
-          disarmWatch();
-          clearFloorStyles();
-          go('s16');
-        });
+        function enterList() {
+          var settleFrom = ui.floorMode === 'hint' ? 0 : last;
+          animateFloorSettle('to-list', settleFrom, function () {
+            pull = 0;
+            locking = false;
+            disarmWatch();
+            clearFloorStyles();
+            go('s16');
+          });
+        }
+        if (ui.floorMode === 'hint') {
+          /* 文案版：卡流橡皮筋过头回弹归位后再进 s16 */
+          animateHintStripBounce(enterList);
+        } else {
+          enterList();
+        }
       } else if (last > 0) {
         if (ui.floorMode === 'hint') {
           pull = 0;

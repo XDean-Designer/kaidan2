@@ -95,7 +95,7 @@
   flex: none;
   width: fit-content;
   max-width: 100%;
-  margin-top: 6px; /* 靠近编号 */
+  margin-top: 2px; /* 更靠近编号，为底栏腾高 */
   /* 固定盒高：会员下划线与散客同占位，保证上虚线纵坐标一致 */
   height: 19px;
   padding-bottom: 3px;
@@ -138,9 +138,9 @@
 }
 .sp-ticket__name.is-link:active { opacity: .65; }
 .sp-ticket__items {
-  /* 两虚线之间定高区：1 行居中 / 2 行等距，均不改变姓名与上虚线位置 */
+  /* 两虚线之间定高区：1 行居中 / 2 行等距；整体随姓名上移后底栏更高 */
   flex: 1 1 auto;
-  margin-top: 6px;
+  margin-top: 4px;
   padding: 0;
   border-top: .5px dashed #D8D8D8; /* 规则1：保留原虚线，不跟 Figma 实线 */
   min-height: 0;
@@ -193,20 +193,20 @@
 .sp-ticket__ft {
   flex: none;
   margin-top: 0;
-  padding-top: 6px;
+  padding-top: 8px;
   border-top: .5px dashed #D8D8D8;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 22px;
+  height: 26px;
   box-sizing: content-box;
 }
 .sp-ticket__amt {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
   color: #F32F41;
   font-variant-numeric: tabular-nums;
-  line-height: 18px;
+  line-height: 22px;
   white-space: nowrap;
 }
 
@@ -1715,10 +1715,15 @@
   flex: none;
 }
 #s17 .spf-quick-hd__t {
+  flex: 1;
+  min-width: 0;
   font-size: 15px;
   font-weight: 700;
   color: #F32F41;
   line-height: 22.5px;
+}
+#s17 .spf-quick-hd__sheet {
+  margin-left: auto;
 }
 .s17-body {
   position: absolute;
@@ -2328,24 +2333,22 @@
   flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   padding: 0;
   border: 0;
   background: none;
   font: inherit;
   font-size: 13px;
   font-weight: 500;
-  color: #FF571A;
+  color: #8E8E93;
   line-height: 1.2;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-#s17 .spf-restore-guest__ic {
-  width: 14px;
-  height: 14px;
+#s17 .spf-restore-guest__chev {
   display: block;
   flex: none;
-  object-fit: contain;
+  color: #8E8E93;
 }
 #s17 .spf-restore-guest:active { opacity: .7; }
 #s17 .spf-pick-mem {
@@ -2593,11 +2596,11 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  width: 4px;
-  height: 18px;
+  width: 7px;
+  height: 7px;
   padding: 0;
   border: 0;
-  border-radius: 2px;
+  border-radius: 50%;
   background: rgba(255, 255, 255, .7);
   color: transparent;
   font: inherit;
@@ -2683,20 +2686,15 @@
   align-self: center;
   width: 100%;
 }
-#s17 .spf-ibar-more::after {
-  content: '';
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 5px solid #8E8E93;
-  margin-top: 1px;
+#s17 .spf-ibar-more svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  display: block;
+  transition: transform .2s ease;
 }
-#s17 .spf-ibar-more.is-open::after {
-  border-top: 0;
-  border-bottom: 5px solid #8E8E93;
-  margin-top: 0;
-  margin-bottom: 1px;
+#s17 .spf-ibar-more.is-open svg {
+  transform: rotate(180deg);
 }
 #s17 .spf-ibar-more:active { opacity: .65; }
 #s17 .spf-add-btn {
@@ -2813,15 +2811,32 @@
   cursor: pointer;
 }
 .sp-ipf-empty__btn:active { opacity: .85; }
+.sp-ipf-list { padding: 0 4px 8px; }
+.sp-ipf-head,
 .sp-ipf-row {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr 88px 88px;
   gap: 8px;
   align-items: center;
+}
+.sp-ipf-head {
+  padding: 4px 0 8px;
+  border-bottom: .5px solid rgba(60, 60, 67, .12);
+  margin-bottom: 2px;
+}
+.sp-ipf-head__nm,
+.sp-ipf-head__col {
+  font-size: 12px;
+  font-weight: 500;
+  color: #AEAEB2;
+}
+.sp-ipf-head__col { text-align: right; }
+.sp-ipf-row {
   padding: 12px 0;
   border-bottom: .5px solid rgba(60, 60, 67, .12);
   background: #fff;
 }
+.sp-ipf-row:last-child { border-bottom: 0; }
 .sp-ipf-row__nm {
   font-size: 15px;
   font-weight: 500;
@@ -2829,21 +2844,24 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 .sp-ipf-row__num {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
   border: 0;
   border-radius: 8px;
-  background: #F2F2F7;
-  padding: 8px 10px;
+  background: transparent;
+  padding: 6px 0;
   font: inherit;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #1C1C1E;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
+  text-align: right;
 }
 .sp-ipf-row__lab {
   color: #8E8E93;

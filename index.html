@@ -6,8 +6,8 @@
 <title>RTB 开单结账2.0 - 高保真交互原型</title>
 <!-- R46perf：去掉 Google Fonts，避免外网阻塞首屏白屏；流水 CSS/JS 按需加载 -->
 <link rel="stylesheet" href="assets/v2.css">
-<link rel="stylesheet" href="assets/v2-home-pay.css?v=r52">
-<link rel="stylesheet" href="assets/selfpay.css?v=r81">
+<link rel="stylesheet" href="assets/v2-home-pay.css?v=r53">
+<link rel="stylesheet" href="assets/selfpay.css?v=r84">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -2286,7 +2286,9 @@
           <div class="vh-kpi__hd">
             <div class="vh-kpi__title">个人业绩<em>今日</em></div>
             <div class="vh-kpi__hd-acts">
-              <button type="button" class="vh-kpi__eye" aria-label="隐藏金额" aria-pressed="false"><img src="assets/home/eye.svg" alt=""></button>
+              <button type="button" class="vh-kpi__fold" aria-label="展开明细" aria-expanded="false">
+                <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
             </div>
           </div>
           <div class="vh-kpi__main">
@@ -2300,9 +2302,7 @@
                 <div class="vh-kpi__num is-blue" data-kpi-val="1260">1260</div>
               </div>
             </div>
-            <button type="button" class="vh-kpi__fold" aria-label="展开明细" aria-expanded="false">
-              <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
+            <button type="button" class="vh-kpi__eye" aria-label="隐藏金额" aria-pressed="false"><img src="assets/home/eye.svg" alt=""></button>
           </div>
           <div class="vh-kpi__sub">
             <div class="vh-kpi__sub-item"><div class="vh-kpi__sub-lab">现金(¥)</div><div class="vh-kpi__sub-num" data-kpi-val="3600">3600</div></div>
@@ -3741,7 +3741,7 @@
   </div>
 
   <!-- ============ 页面16 自助订单（R44：无 Tab / 无手工开单；补全=全屏 s17，FLIP/原地放大已废止） ============ -->
-  <div class="screen" id="s16" data-name="待补全的自助单">
+  <div class="screen" id="s16" data-name="顾客的自助订单">
     <div class="status-bar">
       <div class="time">9:41</div>
       <div class="icons">
@@ -3752,7 +3752,7 @@
     </div>
     <div class="nav-bar">
       <button class="btn-back" type="button" id="s16Back" onclick="go('s0')" aria-label="返回首页"><img src="assets/ic_back.svg" alt=""></button>
-      <div class="title sp-nav-title">待补全的自助单</div>
+      <div class="title sp-nav-title">顾客的自助订单</div>
     </div>
     <div class="sp-body">
       <div class="sp-toolbar">
@@ -8293,7 +8293,7 @@
     else { go(h); }
   })();
 </script>
-<script src="assets/v2.js?v=r52"></script>
+<script src="assets/v2.js?v=r53"></script>
 <script>
 /* ===== 手机预览模式：全屏真机区 + 左缘右滑唤出链路导航 ===== */
 (function () {
@@ -9740,6 +9740,6 @@ html.capture-figma #toast { display:none !important; }
   } catch (e) {}
 })();
 </script>
-<script src="assets/selfpay.js?v=r82"></script>
+<script src="assets/selfpay.js?v=r84"></script>
 </body>
 </html>
