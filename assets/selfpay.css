@@ -295,7 +295,15 @@
   box-shadow: 0 0 0 1px rgba(255, 87, 26, .22);
 }
 /* 方案 B：文案版（侧栏切换；无圆点、无跟手预览） */
+/* 尽头窄 44；达阈值同帧拉宽至 76，内容左贴末卡（条 gap≈10），只增右侧留白 */
 .vh-sp-tail--hint {
+  flex: 0 0 44px;
+  width: 44px;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  transition: width .2s ease, flex-basis .2s ease;
+}
+.vh-sp-tail--hint.is-armed {
   flex: 0 0 76px;
   width: 76px;
 }
@@ -305,6 +313,8 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  flex: none;
+  width: 44px;
   opacity: 0;
   transition: opacity .2s ease;
   pointer-events: none;

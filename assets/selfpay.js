@@ -820,7 +820,7 @@
       return (
         '<div class="vh-sp-tail vh-sp-tail--hint" aria-hidden="true">' +
         '<div class="sp-floor-hint" id="spFloorHint">' +
-        '<span class="sp-floor-hint__lab">继续滑动查看全部</span>' +
+        '<span class="sp-floor-hint__lab">继续滑动查看更多</span>' +
         '<span class="sp-floor-hint__chev" aria-hidden="true">' +
         '<svg viewBox="0 0 12 12" width="12" height="12">' +
         '<path d="M4.5 3L7.5 6l-3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
@@ -848,13 +848,19 @@
     var hint = $('#spFloorHint');
     if (hint) {
       hint.classList.remove('is-on', 'is-armed');
-      setFloorHintLab(hint, '继续滑动查看全部');
+      setFloorHintLab(hint, '继续滑动查看更多');
     }
+    var hintTail = document.querySelector('.vh-sp-tail--hint');
+    if (hintTail) hintTail.classList.remove('is-armed');
   }
   function setFloorHintLab(hint, text) {
     if (!hint) return;
     var lab = hint.querySelector('.sp-floor-hint__lab');
     if (lab) lab.textContent = text;
+  }
+  function syncHintTailArmed(armed) {
+    var hintTail = document.querySelector('.vh-sp-tail--hint');
+    if (hintTail) hintTail.classList.toggle('is-armed', !!armed);
   }
   function syncHomeBadge() {
     document.querySelectorAll('.sp-home-badge').forEach(function (b) { b.remove(); });
@@ -2356,8 +2362,9 @@
       if (hint) {
         hint.classList.toggle('is-on', at);
         if (!host.classList.contains('is-pulling')) {
-          setFloorHintLab(hint, '继续滑动查看全部');
+          setFloorHintLab(hint, '继续滑动查看更多');
           hint.classList.remove('is-armed');
+          syncHintTailArmed(false);
         }
       }
       return;
@@ -2605,13 +2612,14 @@
       host.classList.toggle('is-pulling', pull > 0);
       host.classList.toggle('is-armed', pull >= FLOOR_THRESHOLD);
       if (ui.floorMode === 'hint') {
-        /* 文案版：无整页跟手预览，仅更新尾部文案 */
+        /* 文案版：无整页跟手预览；达阈值同帧切文案并拉宽尾区 */
         var hint = $('#spFloorHint');
         if (hint) {
           hint.classList.add('is-on');
           var armed = pull >= FLOOR_THRESHOLD;
           hint.classList.toggle('is-armed', armed);
-          setFloorHintLab(hint, armed ? '释放查看全部' : '继续滑动查看全部');
+          syncHintTailArmed(armed);
+          setFloorHintLab(hint, armed ? '释放查看全部' : '继续滑动查看更多');
         }
         return;
       }
@@ -2683,8 +2691,9 @@
         }
       }
       if (e.cancelable) e.preventDefault();
-      host.scrollLeft = maxScroll();
       setPull(Math.max(0, -(clientX - startX)));
+      /* 文案版达阈值拉宽尾区后需再钉到新尽头，避免末卡相对文案位移 */
+      host.scrollLeft = maxScroll();
     }
 
     host.addEventListener('scroll', function () {
@@ -2740,8 +2749,8 @@
       var delta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
       if (!canStartFloor() && pull <= 0) return;
       if (e.cancelable) e.preventDefault();
-      host.scrollLeft = maxScroll();
       setPull(Math.max(0, pull + delta));
+      host.scrollLeft = maxScroll();
       engaged = pull > 0;
       clearTimeout(host._spWheelTimer);
       host._spWheelTimer = setTimeout(function () {
