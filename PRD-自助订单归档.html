@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.21</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.23</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.21</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.23</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.21 · 2026-10-19</td></tr>
+<tr><td>文档版本</td><td>v1.23 · 2026-10-19</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -172,10 +172,10 @@
 <h3>5.0 首页 · 个人业绩卡（KPI）</h3>
 <table>
 <thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
-<tr><td>默认</td><td><strong>折叠</strong>：只显示标题「个人业绩 · 今日」、眼睛、业绩/提成两行大数字；<strong>藏</strong>下方 4 项明细（现金/卡付/团购/签单）</td></tr>
-<tr><td>标题行</td><td>左标题；右<strong>仅眼睛</strong>（金额掩码）</td></tr>
-<tr><td>展开入口</td><td><strong>仅</strong>点数字行右侧 chevron（<strong>不</strong>点整卡、<strong>不</strong>与眼睛并列）</td></tr>
-<tr><td>Chevron</td><td>位于业绩/提成数字行最右；折叠向下；展开旋转 180°</td></tr>
+<tr><td>默认</td><td><strong>折叠</strong>：只显示标题「个人业绩 · 今日」、chevron、业绩/提成两行大数字；<strong>藏</strong>下方 4 项明细（现金/卡付/团购/签单）</td></tr>
+<tr><td>标题行</td><td>左标题；右<strong>仅 chevron</strong>（展开/收起）</td></tr>
+<tr><td>眼睛</td><td>位于业绩/提成<strong>数字行最右</strong>（两列共用一枚，掩码联动）；与大数字<strong>同一水平线</strong>视觉对齐</td></tr>
+<tr><td>Chevron</td><td>折叠向下；展开旋转 180°</td></tr>
 </tbody>
 </table>
 <h3>5.1 首页 · 自助订单横滑卡流</h3>
@@ -204,7 +204,7 @@
 <tr><td>顶部 stub</td><td>绝对定位顶缘浅条 <code>#E8E4DC</code>，高 4，左右各 6</td></tr>
 <tr><td>序号 <code>seq</code></td><td>右上角同行左；字体见下表「编号字体（复原规格）」；约 20/400/<code>#222</code>；造数自 100 起（真实 <code>seq</code>）</td></tr>
 <tr><td>右上时间/日期</td><td>10/400/<code>#8E8E93</code>。<strong>当日</strong>只显 <code>HH:mm</code>；<strong>非当日</strong>只显 <code>M/D</code>（不显时刻）。与序号同行右侧。</td></tr>
-<tr><td>顾客名</td><td>12/600/<code>#1a1a1a</code>；在编号下方，间距约 <strong>6px</strong>；<strong>盒高固定 19px</strong>（含下划线占位，散客同高），保证上虚线纵坐标恒定。<strong>会员</strong>：可点下划线（目标视觉 <strong>0.5px</strong>）；点姓名 → toast「会员详情」（不进补全）；<strong>散客</strong>：无下划线但占位相同</td></tr>
+<tr><td>顾客名</td><td>12/600/<code>#1a1a1a</code>；在编号下方，间距约 <strong>1px</strong>；<strong>盒高固定 19px</strong>（含下划线占位，散客同高），保证上虚线纵坐标恒定。<strong>会员</strong>：可点下划线（目标视觉 <strong>0.5px</strong>）；点姓名 → toast「会员详情」（不进补全）；<strong>散客</strong>：无下划线但占位相同</td></tr>
 <tr><td>项目区</td><td>两虚线之间为<strong>定高区</strong>（<code>flex:1</code> + <code>justify-content: space-evenly</code>）：<strong>1 行</strong>在两虚线间垂直居中；<strong>2 行</strong>为上虚线–行1–行2–下虚线<strong>等距</strong>。上/底虚线均为 <strong><code>.5px dashed #D8D8D8</code></strong>。项目名最多 6 字截断加「…」；恰 2 项两行；≥3 第二项名+灰圆件数 N</td></tr>
 <tr><td>空项目</td><td>「未填项目」<code>#C7C7CC</code>；快捷模式显示「快捷开单」</td></tr>
 <tr><td>底栏</td><td>虚线上；左类型标 + 右金额</td></tr>
@@ -642,6 +642,8 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.23</td><td>2026-10-19</td><td>票卡顾客名上移：编号下间距 2px→1px</td></tr>
+<tr><td>v1.22</td><td>2026-10-19</td><td>首页 KPI：眼睛与业绩/提成大数字水平对齐</td></tr>
 <tr><td>v1.21</td><td>2026-10-19</td><td>自助归档金额前缀「¥」比数字小 2px。详见 md</td></tr>
 <tr><td>v1.20</td><td>2026-10-19</td><td>文案版橡皮筋回弹进 s16；首页 8 张；票卡上移金额 18；s16「顾客的自助订单」；点客小圆；业绩 sheet 列表式；重置为散客；KPI 眼/chevron 换位。详见 md</td></tr>
 <tr><td>v1.19</td><td>2026-10-19</td><td>员工条折叠：已选始终可见；未选可藏并补足至少 3 条；「展开（共*人）」仍计总数；工位同规。详见 md</td></tr>

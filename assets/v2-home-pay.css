@@ -143,13 +143,15 @@
 .vh-kpi.is-collapsed .vh-kpi__sub { display: none; }
 .vh-kpi.is-collapsed .vh-kpi__main { padding-bottom: 4px; }
 .vh-kpi__main {
-  display: flex; align-items: center; gap: 0;
+  display: flex; align-items: flex-end; gap: 0;
   padding: 14px 8px 16px 12px;
 }
 .vh-kpi__main .vh-kpi__eye {
   flex: none;
-  align-self: center;
+  align-self: flex-end;
   margin-left: 4px;
+  /* 与数字行（line-height 30）视觉水平对齐：底对齐后再上移 (30-20)/2 */
+  margin-bottom: 5px;
 }
 .vh-kpi__cols {
   flex: 1; min-width: 0;

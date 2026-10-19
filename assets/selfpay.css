@@ -95,7 +95,7 @@
   flex: none;
   width: fit-content;
   max-width: 100%;
-  margin-top: 2px; /* 更靠近编号，为底栏腾高 */
+  margin-top: 1px; /* 更靠近编号，为底栏腾高 */
   /* 固定盒高：会员下划线与散客同占位，保证上虚线纵坐标一致 */
   height: 19px;
   padding-bottom: 3px;
