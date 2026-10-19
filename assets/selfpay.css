@@ -2227,8 +2227,14 @@
 #s17 .spf-cust__line1 {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
+}
+#s17 .spf-card--member .spf-cust__line1 .spf-cust__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 #s17 .spf-cust__name {
   font-size: 17px;
@@ -2318,7 +2324,11 @@
   font-variant-numeric: tabular-nums;
 }
 #s17 .spf-restore-guest {
-  margin-top: 10px;
+  margin-left: auto;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 0;
   border: 0;
   background: none;
@@ -2326,8 +2336,16 @@
   font-size: 13px;
   font-weight: 500;
   color: #FF571A;
+  line-height: 1.2;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+#s17 .spf-restore-guest__ic {
+  width: 14px;
+  height: 14px;
+  display: block;
+  flex: none;
+  object-fit: contain;
 }
 #s17 .spf-restore-guest:active { opacity: .7; }
 #s17 .spf-pick-mem {

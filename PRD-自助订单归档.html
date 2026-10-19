@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.17</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.18</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.17</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.18</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.17 · 2026-10-19</td></tr>
+<tr><td>文档版本</td><td>v1.18 · 2026-10-19</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -365,8 +365,9 @@
 <tr><td>钱包行</td><td>顶部分割线；12/<code>#636366</code>：「充值余额 ¥x · 赠金 ¥y」（去尾零）；无字段则整行不渲染</td></tr>
 <tr><td>底行</td><td>「最近一次消费 YYYY.MM.DD」12/<code>#8E8E93</code>；右「欠款 ¥x」13 Bold/<code>#EB4756</code>（含 ¥0）</td></tr>
 <tr><td>性别符</td><td>姓名右侧 ♂/♀；14 Bold；男 <code>#007AFF</code>、女 <code>#FF2D55</code>；只读不响应</td></tr>
+<tr><td>恢复为散客</td><td>若本单由散客「选择会员」绑成会员：姓名行右侧「回转箭头 + 恢复为散客」（图标 <code>assets/ic_sp_restore_guest.svg</code>，Figma <code>270:81</code>；13/500/<code>#FF571A</code>）；点按还原；toast「已恢复为散客」</td></tr>
 <tr><td>头像来源</td><td>网络人像直链（Pexels 中日韩街拍/写真，320 方形）；<code>referrerpolicy=no-referrer</code>；加载失败回退本地图</td></tr>
-<tr><td>点击</td><td><strong>整卡可点</strong> → 会员详情页；原型以 toast「会员详情」示意；按下 <code>scale(.985)</code> + 94% 不透明</td></tr>
+<tr><td>点击</td><td><strong>整卡可点</strong>（不含「恢复为散客」）→ toast「会员详情」；按下 <code>scale(.985)</code> + 94% 不透明</td></tr>
 </tbody>
 </table>
 <p>##### 散客</p>
@@ -374,7 +375,7 @@
 <thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
 <tr><td>头像钮</td><td>48 圆；男底 <code>#E8F1FF</code> + <code>assets/gender/ic_guest_male.svg</code>（48）；女底 <code>#FFE8F0</code> + <code>ic_guest_female.svg</code>（30）；点按 <code>scale(.94)</code></td></tr>
 <tr><td>切换</td><td>点头像在 <strong>男 ↔ 女</strong> 间切换（无「不选」）；同步展示名「男散客」/「女散客」</td></tr>
-<tr><td>选择会员</td><td>右灰胶囊 <code>#F2F2F7</code>；字 <code>#1C1C1E</code> 13 Medium；高 32 r16 → 打开会员 sheet</td></tr>
+<tr><td>选择会员</td><td>右灰胶囊 <code>#F2F2F7</code>；字 <code>#1C1C1E</code> 13 Medium；高 32 r16 → 打开会员 sheet；绑定后可「恢复为散客」</td></tr>
 </tbody>
 </table>
 <p>##### 选择会员 Sheet（<code>#spMemberMask</code>）</p>
@@ -622,6 +623,7 @@
 <tr><td>智能补全开关</td><td><code>#s17SmartToggle</code> / <code>#s17SmartSwitch</code></td></tr>
 <tr><td>智能补全标签</td><td><code>.spf-icard__smart</code>（挂在 <code>.spf-icard__name</code> 内）</td></tr>
 <tr><td>散客性别 SVG</td><td><code>assets/gender/ic_guest_male.svg</code> · <code>ic_guest_female.svg</code></td></tr>
+<tr><td>恢复为散客图标</td><td><code>assets/ic_sp_restore_guest.svg</code>（Figma <code>270:81</code>）</td></tr>
 <tr><td>快捷闪电（消费区）</td><td><code>assets/ic_sp_quick_bolt.svg</code></td></tr>
 <tr><td>价目快捷闪电</td><td><code>assets/ic_sp_quick_lightning.svg</code>（sheet 标题栏入口）</td></tr>
 <tr><td>业绩笔</td><td><code>assets/ic_sp_perf_edit.svg</code></td></tr>
@@ -640,6 +642,7 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.18</td><td>2026-10-19</td><td>会员卡「恢复为散客」：姓名行右侧 + Figma 回转箭头图标；toast「已恢复为散客」。详见 md</td></tr>
 <tr><td>v1.17</td><td>2026-10-19</td><td>文案版：尽头尾区 44px，「继续滑动查看更多」；达阈值同帧拉宽至 76px（内容左贴、只增右白）；释放文案仍「释放查看全部」</td></tr>
 <tr><td>v1.16</td><td>2026-10-19</td><td>文案版进列表：竖排文案下方加圆底右向 chevron，达阈值同变橙</td></tr>
 <tr><td>v1.15</td><td>2026-10-19</td><td>业绩卡：眼睛独留标题行，chevron 下沉数字行右侧；卡流左上标题「待归档订单」</td></tr>

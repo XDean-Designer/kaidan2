@@ -1118,13 +1118,16 @@
         '<div class="spf-cust__main">' +
         '<div class="spf-cust__line1">' +
         '<span class="spf-cust__name">' + escapeHtml(custName) + '</span>' +
-        '<span class="spf-sum__vip">会员</span></div>' +
+        '<span class="spf-sum__vip">会员</span>' +
+        (slip.canRestoreGuest
+          ? '<button type="button" class="spf-restore-guest" data-sp-restore-guest>' +
+            '<img class="spf-restore-guest__ic" src="assets/ic_sp_restore_guest.svg" width="200" height="200" alt="">' +
+            '<span>恢复为散客</span></button>'
+          : '') +
+        '</div>' +
         (slip.phone ? '<div class="spf-cust__phone">' + escapeHtml(slip.phone) + '</div>' : '') +
         memberWalletHtml(slip) +
         memberFootHtml(slip) +
-        (slip.canRestoreGuest
-          ? '<button type="button" class="spf-restore-guest" data-sp-restore-guest>恢复散客</button>'
-          : '') +
         '</div></div></div>';
     } else {
       var g = ui.guestGender || slip.guestGender || 'male';
@@ -2046,7 +2049,7 @@
     slip.canRestoreGuest = false;
     slip.restoreGuestGender = '';
     paintS17();
-    toast('已恢复散客');
+    toast('已恢复为散客');
   }
   function openItemPerfSheet(itemIdx) {
     var it = ui.editItems[itemIdx];
