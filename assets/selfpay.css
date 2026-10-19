@@ -338,8 +338,8 @@
 }
 .sp-floor-hint__chev svg {
   display: block;
-  /* 竖排文案下方：箭头朝左，暗示继续左拖 */
-  transform: translateX(-0.5px);
+  /* 竖排文案下方：箭头朝右 */
+  transform: translateX(0.5px);
 }
 .sp-floor-hint.is-armed {
   color: #FF571A;

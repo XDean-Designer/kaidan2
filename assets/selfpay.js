@@ -823,7 +823,7 @@
         '<span class="sp-floor-hint__lab">继续滑动查看全部</span>' +
         '<span class="sp-floor-hint__chev" aria-hidden="true">' +
         '<svg viewBox="0 0 12 12" width="12" height="12">' +
-        '<path d="M7.5 3L4.5 6l3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path d="M4.5 3L7.5 6l-3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
         '</svg></span></div></div>'
       );
     }
