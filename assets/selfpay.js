@@ -2553,12 +2553,13 @@
     el.style.transform = vx > 0.5 ? 'translateX(' + (-vx) + 'px)' : '';
   }
 
-  function animateFloorSettle(dir, rawPull, onDone) {
+  function animateFloorSettle(dir, rawPull, onDone, durationMs) {
     var s0 = $('#s0');
     var s16 = $('#s16');
     var dots = $('#spFloorDots');
     var visual = floorVisualPull(rawPull);
     var enter = dir === 'to-list';
+    var ms = durationMs != null ? durationMs : FLOOR_MS;
 
     if (dots) dots.classList.remove('is-on', 'is-split', 'is-armed');
 
@@ -2571,8 +2572,8 @@
       el.style.opacity = String(op);
       void el.offsetWidth;
       el.style.transition =
-        'transform ' + (FLOOR_MS / 1000) + 's ' + FLOOR_EASE +
-        ', opacity ' + (FLOOR_MS / 1000) + 's ' + FLOOR_EASE;
+        'transform ' + (ms / 1000) + 's ' + FLOOR_EASE +
+        ', opacity ' + (ms / 1000) + 's ' + FLOOR_EASE;
     }
 
     if (enter) {
@@ -2606,7 +2607,7 @@
     setTimeout(function () {
       clearFloorStyles();
       if (onDone) onDone();
-    }, FLOOR_MS + 20);
+    }, ms + 20);
   }
 
   function animateFloorCancel(dir, rawPull, onDone) {
@@ -2738,13 +2739,15 @@
       if (shouldGo) {
         function enterList() {
           var settleFrom = ui.floorMode === 'hint' ? 0 : last;
+          /* 文案版回弹后的 s16 移入按默认时长的一半（约 170ms） */
+          var settleMs = ui.floorMode === 'hint' ? Math.round(FLOOR_MS / 2) : FLOOR_MS;
           animateFloorSettle('to-list', settleFrom, function () {
             pull = 0;
             locking = false;
             disarmWatch();
             clearFloorStyles();
             go('s16');
-          });
+          }, settleMs);
         }
         if (ui.floorMode === 'hint') {
           /* 文案版：弹簧回弹归位后再吸满进 s16 */
