@@ -7,7 +7,7 @@
 <!-- R46perf：去掉 Google Fonts，避免外网阻塞首屏白屏；流水 CSS/JS 按需加载 -->
 <link rel="stylesheet" href="assets/v2.css?v=r2">
 <link rel="stylesheet" href="assets/v2-home-pay.css?v=r55">
-<link rel="stylesheet" href="assets/selfpay.css?v=r99">
+<link rel="stylesheet" href="assets/selfpay.css?v=r100">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -4123,18 +4123,6 @@
       <div class="sp-dialog__acts">
         <button type="button" class="sec" data-sp-close="spQuickConfirmMask">取消</button>
         <button type="button" class="danger" id="spQuickConfirmOk">确认切换</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 自助归档 · 未选项目/产品却点「完成归档」的分叉弹窗 -->
-  <div class="sp-mask" id="spEmptyArchiveMask">
-    <div class="sp-dialog" role="dialog" aria-labelledby="spEmptyArchiveT">
-      <div class="sp-dialog__t" id="spEmptyArchiveT">还没有项目/产品</div>
-      <div class="sp-dialog__b">可以先用快捷开单直接归档，账单不含项目明细；也可先选择项目/产品再归档。</div>
-      <div class="sp-dialog__acts">
-        <button type="button" class="sec" id="spEmptyArchiveQuick">快捷开单归档</button>
-        <button type="button" class="main" id="spEmptyArchivePick">选择项目/产品</button>
       </div>
     </div>
   </div>
@@ -9763,6 +9751,6 @@ html.capture-figma #toast { display:none !important; }
   } catch (e) {}
 })();
 </script>
-<script src="assets/selfpay.js?v=r102"></script>
+<script src="assets/selfpay.js?v=r103"></script>
 </body>
 </html>

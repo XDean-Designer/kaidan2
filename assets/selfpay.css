@@ -1665,8 +1665,16 @@
 
 /* 切快捷开单确认：盖过价目 sheet（z-index 110） */
 #spQuickConfirmMask { z-index: 130; }
-/* 未选项目归档分叉：同样盖过价目 sheet */
-#spEmptyArchiveMask { z-index: 130; }
+
+/*
+ * 「已添加」toast：锚定 s17 底栏上方（底栏 = 上垫 10 + 按钮 48 + 下垫 10 + safe-area）
+ * 距底栏顶再留 12，不挡中间内容区；其它 toast 仍用全局垂直居中
+ */
+#frame #toast.is-above-s17-bar {
+  top: auto;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  transform: none;
+}
 
 /* 猜你想加 */
 .sp-suggest {

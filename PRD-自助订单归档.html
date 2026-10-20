@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.36</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.37</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.36</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.37</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.36 · 2026-10-20</td></tr>
+<tr><td>文档版本</td><td>v1.37 · 2026-10-20</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -556,27 +556,21 @@
 <tr><td>数量</td><td>初值 1；范围 1–99；到 1「−」置灰，到 99「+」置灰</td></tr>
 <tr><td>底栏</td><td>白底 + 上发丝线；「取消」「确认添加」等宽 48 高；含 <code>env(safe-area-inset-bottom)</code>；未选行时「确认添加」禁用</td></tr>
 <tr><td>确认添加</td><td>写入明细并关 sheet；toast「已添加「{名}」×N」（N=1 省略 ×1）；同名不合并</td></tr>
+<tr><td>添加成功 toast</td><td><b>仅「已添加…」</b>：锚定 s17 底栏「完成归档」上方 12px、水平居中（<code>#toast.is-above-s17-bar</code>；<code>bottom: calc(80px + safe-area)</code>）。其它 toast 仍画布垂直居中</td></tr>
 <tr><td>切快捷确认</td><td>明细已有项目/产品时点「快捷开单」→ 弹确认框「切换为快捷开单 / 已选的项目/产品将被清空且不可恢复」，「取消」「确认切换」</td></tr>
 </tbody>
 </table>
 <p>Sheet 容器：白底；<code>max-height</code> 约 78%；升起动画同 addsheet。</p>
 <hr>
-<h3>5.5 未选项目点「完成归档」的弹窗</h3>
-<p>明细为空（<code>contentMode==='items'</code> 且无项目/产品）时点底栏「完成归档」，<b>不</b>拦成 toast，改为居中弹窗给两条出路。</p>
+<h3>5.5 未选项目点「完成归档」</h3>
+<p>明细为空（<code>contentMode==='items'</code> 且无项目/产品）时点底栏「完成归档」：</p>
 <table>
 <thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
-<tr><td>容器</td><td>复用 <code>.sp-dialog</code>（白底、r14、左右 32、垂直居中、文本居中）；遮罩 <code>rgba(0,0,0,.45)</code>；<code>z-index 130</code>（盖过价目 sheet 的 110）</td></tr>
-<tr><td>标题</td><td>「还没有项目/产品」17/600 <code>#1a1a1a</code></td></tr>
-<tr><td>正文</td><td>「可以先用快捷开单直接归档，账单不含项目明细；也可先选择项目/产品再归档。」13/<code>#929292</code>/行高 1.55</td></tr>
-<tr><td>左键</td><td><b>快捷开单归档</b>：灰底 <code>#F2F2F7</code> / <code>#1a1a1a</code>；h40 / r20 / 15 / 600</td></tr>
-<tr><td>右键</td><td><b>选择项目/产品</b>：红底 <code>#F32F41</code> / <code>#fff</code>（主按钮，推荐路径）；规格同左键</td></tr>
-<tr><td>布局</td><td>两键横排等宽（<code>flex:1</code> + gap 10），文案单行不折</td></tr>
-<tr><td>点「选择项目/产品」</td><td>关弹窗 → 打开价目 sheet（§5.4）</td></tr>
-<tr><td>点「快捷开单归档」</td><td>关弹窗 → <code>contentMode='quick'</code>、清空明细 → <b>继续走完整归档流程</b>（成功 toast「已归档」并退出）</td></tr>
-<tr><td>点遮罩空白</td><td>关弹窗，回到编辑页，<b>不归档</b>；无第三个「取消」按钮</td></tr>
+<tr><td>行为</td><td><b>直接按快捷开单归档</b>：置 <code>contentMode='quick'</code>、清空明细 → 走完整归档流程（成功 toast「已归档」并退出）</td></tr>
+<tr><td>弹窗</td><td><b>不弹窗</b>、不 toast 拦截；旧版分叉弹窗已废止</td></tr>
 </tbody>
 </table>
-<p class="reader-note"><b>例外</b>：<code>contentMode==='quick'</code> 时明细本就为空，属正常快捷归档，不弹此框。</p>
+<p class="reader-note"><code>contentMode==='quick'</code> 时明细本就为空，属同一路径。</p>
 <hr>
 <h2 id="s6-字段与状态"><span class="no">·</span>6. 字段与状态</h2>
 <h3>6.1 自助订单状态</h3>
@@ -674,6 +668,7 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.37</td><td>2026-10-20</td><td>§5.5 空明细直接快捷归档（删分叉弹窗）；「已添加」toast 锚定底栏上方。详见 md</td></tr>
 <tr><td>v1.36</td><td>2026-10-20</td><td>§5.3.14 业绩卡：卡头「员工业绩提成 \| 业绩 \| 提成」同行，无独立标题；空态保留卡头。详见 md</td></tr>
 <tr><td>v1.35</td><td>2026-10-20</td><td>气泡出现时数值条零位移（改遮挡）；新增 §5.5 未选项目归档分叉弹窗。详见 md</td></tr>
 <tr><td>v1.34</td><td>2026-10-20</td><td>修气泡常显不隐藏：`display:flex` 覆盖 `[hidden]`，补 `[hidden]{display:none}`。详见 md</td></tr>

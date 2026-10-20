@@ -1742,9 +1742,11 @@
     if (!slip || slip.status !== 'pending') return;
 
     if (ui.contentMode === 'items' && !ui.editItems.length) {
-      /* 未选项目/产品：给「快捷开单归档 / 选择项目产品」两个出口，而不是一句 toast */
-      openMask('spEmptyArchiveMask');
-      return;
+      /* 未选项目/产品：直接按快捷开单归档，不弹窗 */
+      ui.contentMode = 'quick';
+      ui.editItems = [];
+      ui.pricePick = null;
+      ui.perfStaffKey = '';
     }
     if (!hasAnyStaff()) {
       toast('未指定服务员工');
@@ -2040,9 +2042,19 @@
     closePriceSheet();
     ui.perfStaffKey = '';
     paintS17();
-    toast(qty > 1
+    toastAboveArchiveBar(qty > 1
       ? '已添加「' + pick.name + '」×' + qty
       : '已添加「' + pick.name + '」');
+  }
+  /** 「已添加」toast：锚定 s17 底栏「完成归档」上方，不挡中间内容区 */
+  function toastAboveArchiveBar(msg, ms) {
+    var t = document.getElementById('toast');
+    var dur = ms || 1400;
+    if (t) t.classList.add('is-above-s17-bar');
+    toast(msg, dur);
+    setTimeout(function () {
+      if (t) t.classList.remove('is-above-s17-bar');
+    }, dur + 80);
   }
   function openPriceSheet() {
     ui.priceTab = 'project';
@@ -3510,34 +3522,6 @@
     if (back) back.addEventListener('click', function () { closeComplete(); });
     var arch = $('#s17ArchiveBtn');
     if (arch) arch.addEventListener('click', archiveCurrent);
-
-    /* 未选项目/产品 → 完成归档的分叉弹窗 */
-    var emptyArchMask = $('#spEmptyArchiveMask');
-    if (emptyArchMask) {
-      emptyArchMask.addEventListener('click', function (e) {
-        if (e.target === emptyArchMask) closeMask('spEmptyArchiveMask');
-      });
-    }
-    var emptyArchQuick = $('#spEmptyArchiveQuick');
-    if (emptyArchQuick) {
-      emptyArchQuick.addEventListener('click', function () {
-        closeMask('spEmptyArchiveMask');
-        ui.contentMode = 'quick';
-        ui.editItems = [];
-        ui.pricePick = null;
-        ui.perfStaffKey = '';
-        paintS17();
-        /* 切快捷后重走归档：此时 contentMode 为 quick，不再触发本弹窗 */
-        archiveCurrent();
-      });
-    }
-    var emptyArchPick = $('#spEmptyArchivePick');
-    if (emptyArchPick) {
-      emptyArchPick.addEventListener('click', function () {
-        closeMask('spEmptyArchiveMask');
-        openPriceSheet();
-      });
-    }
     var perfCancel = $('#spPerfKeypadCancel');
     if (perfCancel) perfCancel.addEventListener('click', closePerfKeypad);
     var perfOk = $('#spPerfKeypadOk');
