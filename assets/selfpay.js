@@ -545,28 +545,44 @@
     if (assign) assignNextTint(assign, p, tintScopeOf(stId));
     syncPersonPerf(p, stId, it);
   }
-  /** 同项目卡（平均）/ 同工位行内按点击序上色；有已选则取最大色序+1 顺延；全未选中才从红起 */
+  /**
+   * 同项目卡（平均）/ 同工位行内按点击序上色。
+   * 用「轮转游标」_tintSeqMap[scope] 记录下一个待用色序：
+   * 1) 首次选人：全未选中从红起；已有选中则取最大色序 +1 顺延；
+   * 2) 之后从游标起找当前未被占用的色，轮转一圈；
+   * 3) 四色全被占用 → 按游标轮转取下一个（红→黄→绿→蓝→红…），
+   *    不再按「最大色序 +1」计算，避免 maxIdx 卡在 3 导致新选恒为红。
+   */
   function assignNextTint(assign, p, station) {
     if (!assign || !p || p.tintIdx != null) return;
     var scope = tintScopeOf(station);
     if (!assign._tintSeqMap) assign._tintSeqMap = {};
+    var N = BAR_TINTS.length;
     var others = listInTintScope(assign, scope).filter(function (x) {
       return x && x.active && x !== p;
     });
-    var seq;
-    if (!others.length) {
-      seq = 0;
-    } else {
-      var maxIdx = -1;
-      others.forEach(function (x) {
-        if (x.tintIdx != null && x.tintIdx > maxIdx) maxIdx = x.tintIdx;
-      });
-      /* 已有色则顺延；若已选尚无 tintIdx（极端），回退 map */
-      if (maxIdx >= 0) seq = maxIdx + 1;
-      else seq = assign._tintSeqMap[scope] || 0;
+    var used = {};
+    var maxIdx = -1;
+    others.forEach(function (x) {
+      if (x.tintIdx == null) return;
+      var i = ((Math.floor(Number(x.tintIdx)) % N) + N) % N;
+      used[i] = true;
+      if (Number(x.tintIdx) > maxIdx) maxIdx = Number(x.tintIdx);
+    });
+    var cursor = Number(assign._tintSeqMap[scope]);
+    if (assign._tintSeqMap[scope] == null || !isFinite(cursor)) {
+      cursor = others.length ? maxIdx + 1 : 0;
     }
-    p.tintIdx = seq % BAR_TINTS.length;
-    assign._tintSeqMap[scope] = seq + 1;
+    var start = ((Math.floor(cursor) % N) + N) % N;
+    var pickIdx = start;
+    for (var k = 0; k < N; k++) {
+      var cand = (start + k) % N;
+      if (!used[cand]) { pickIdx = cand; break; }
+      /* 一圈都被占用 → 保持轮转起点，不回头死循环 */
+      if (k === N - 1) pickIdx = start;
+    }
+    p.tintIdx = pickIdx;
+    assign._tintSeqMap[scope] = pickIdx + 1;
   }
   function ensureAssignTints(assign) {
     if (!assign) return;
