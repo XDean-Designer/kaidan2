@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.24</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.28</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.24</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.28</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.24 · 2026-10-19</td></tr>
+<tr><td>文档版本</td><td>v1.28 · 2026-10-20</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -477,20 +477,22 @@
 </tbody>
 </table>
 <hr>
-<h4>5.3.12 智能补全规则与开关</h4>
-<p><strong>何时跑</strong>：进入补全页且开关 <strong>开</strong>；或用户把开关从关拨到开。跑完 toast「已智能补全，请核对」。</p>
+<h4>5.3.12 智能补全规则</h4>
+<p><strong>何时跑</strong>：进入补全页即跑（恒开启；无顶栏开关）。<strong>不</strong>弹「已智能补全，请核对」toast。</p>
 <p><strong>补项目</strong>（仅明细模式且当前无明细时补 <strong>1</strong> 个）：</p>
 <ol>
 <li><strong>硬规则</strong>：候选售价必须 <strong>≥ 订单实付</strong> <code>paid</code>；否则剔除。  </li>
 <li>打分：<code>价格贴近×0.5 + 上次消费项命中×0.3 + 近30天热销名次×0.2 + 项目类型小加成</code>。  </li>
 <li>取最高 1 个写入；无合格候选则不补项目。</li>
 </ol>
-<p><strong>补员工</strong>：</p>
-<ul>
-<li><strong>平均</strong>：确保全员条存在；若无人 <code>active</code>，按「项目常用员工」偏好激活一人。  </li>
-<li><strong>工位</strong>：若目标项尚无任何人，向大工位推入 1 人（偏好表，否则默认林屿森）；点客默认关。  </li>
-<li>快捷模式：目标为订单级 <code>orderStaff</code>，基准金额=实付。</li>
-</ul>
+<p><strong>补员工</strong>（明细模式对<strong>每一条</strong>明细各跑一次；快捷模式对订单级 <code>orderStaff</code> 跑一次）：</p>
+<ol>
+<li><strong>已有配置不覆盖</strong>：该明细（或快捷单）已有任何已配置员工 → <strong>跳过</strong>。  </li>
+<li><strong>该顾客历史</strong>：已归档单中同一顾客上次同名项目/产品的员工配置，完整还原。  </li>
+<li><strong>全店项目历史</strong>：否则取该项目/产品最近一次归档配置，完整还原。  </li>
+<li><strong>操作员兜底</strong>：仍无命中 → 当前操作员（演示 <code>st0</code>「店员小陈」）；点客默认关。</li>
+</ol>
+<p>原型造数含若干 <code>status=done</code> 归档单供查询，不进待归档列表。细则以同目录 md 为准。</p>
 <p><strong>来源标记</strong>：由本规则自动写入的明细带 <code>smart: true</code>；卡片名称右侧追加小标签「智能补全」（§5.3.15）。手动添加、手动改过的明细无此标记。</p>
 <hr>
 <h4>5.3.13 备注卡</h4>
@@ -539,10 +541,15 @@
 <thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
 <tr><td>打开</td><td>明细「+ 添加项目/产品」或快捷「改为项目/产品」</td></tr>
 <tr><td>标题</td><td>「添加项目/产品」</td></tr>
-<tr><td>关闭</td><td>点遮罩关闭</td></tr>
-<tr><td>快捷开单</td><td>标题栏右侧保留（橙底闪电入口）→ 切到快捷模式并关 sheet</td></tr>
+<tr><td>关闭</td><td>点遮罩关闭 / 底栏「取消」（不写入）</td></tr>
+<tr><td>快捷开单</td><td>标题栏右侧保留（橙底闪电入口）→ 切到快捷模式并关 sheet，toast「已切换为快捷开单」</td></tr>
 <tr><td>猜你想加</td><td><strong>已删除</strong></td></tr>
-<tr><td>内容</td><td>项目/产品 Tab + 分组 + 列表；点「+」添加</td></tr>
+<tr><td>内容</td><td>项目/产品 Tab + 分组 + 列表</td></tr>
+<tr><td>行内加号</td><td>点行右「+」小圆钮 → 该行变<strong>步进器</strong> <code>− N +</code>；一次仅一行</td></tr>
+<tr><td>数量</td><td>初值 1；范围 1–99；到 1「−」置灰，到 99「+」置灰</td></tr>
+<tr><td>底栏</td><td>白底 + 上发丝线；「取消」「确认添加」等宽 48 高；含 <code>env(safe-area-inset-bottom)</code>；未选行时「确认添加」禁用</td></tr>
+<tr><td>确认添加</td><td>写入明细并关 sheet；toast「已添加「{名}」×N」（N=1 省略 ×1）；同名不合并</td></tr>
+<tr><td>切快捷确认</td><td>明细已有项目/产品时点「快捷开单」→ 弹确认框「切换为快捷开单 / 已选的项目/产品将被清空且不可恢复」，「取消」「确认切换」</td></tr>
 </tbody>
 </table>
 <p>Sheet 容器：白底；<code>max-height</code> 约 78%；升起动画同 addsheet。</p>
@@ -591,7 +598,7 @@
 <li>提成演示比例 10%（真实以门店提成设置为准，本功能不改设置模块）。  </li>
 <li>首页/列表按下单时间排序；首页最多 5 张；尽头右滑进列表；列表默认可看全部日期 pending。  </li>
 <li>选人 sheet 不展示本上下文已占用员工；无可选时 toast、不打开。  </li>
-<li>智能补全受顶栏开关控制；自动填入项售价不得低于订单实付。  </li>
+<li>智能补全恒开；自动填入项售价不得低于订单实付；员工按「顾客历史 → 项目历史 → 当前操作员」补全，已有配置不覆盖。  </li>
 <li>消费内容默认平均分配；工位模式为演示切换。</li>
 </ol>
 <hr>
@@ -601,7 +608,8 @@
 <li>首页卡流前 5；尽头右滑二楼进列表；列表左缘右滑回首页；点卡进 s17。  </li>
 <li>列表无 Tab；日期默认「全部」；筛选支付三档；筛选图标无灰圆底。  </li>
 <li>另入口：订单流水 → 流水订单 →「自助收银」进 s16；此路径返回回流水订单页（不回首页）；「门店流水 / 自助收银」形态沿用线上。  </li>
-<li>s17 六段卡；顶栏智能补全 Switch 默认开；关则不自动填；售价≥实付。  </li>
+<li>s17 六段卡；智能补全恒开、无顶栏开关、无核对 toast；售价≥实付。  </li>
+<li>智能补全员工：每项（或快捷整单）按顾客历史 → 项目历史 → 当前操作员；已有配置不覆盖；多人/点客/工位应完整还原。  </li>
 <li>默认平均分配全员条；工位模式三档 +「+」选人；点客绿标 85% 不透明；× 取消选择有效。  </li>
 <li><strong>未选中条只显示「姓名 + 空灰条」</strong>；点客钮 / % / 业绩框 / × 仅选中后出现。  </li>
 <li><strong>智能补全</strong>写入的明细，名称右侧显示「智能补全」小标签；手动添加项无标签。  </li>
@@ -620,7 +628,7 @@
 <tr><td>逻辑</td><td><code>assets/selfpay.js</code>、<code>assets/v2.js</code>（自助日期快捷）</td></tr>
 <tr><td>样式</td><td><code>assets/selfpay.css</code>、<code>assets/v2-home-pay.css</code>（<code>.vh-sp-strip-host</code>）</td></tr>
 <tr><td>二楼圆点</td><td><code>#spFloorDots</code></td></tr>
-<tr><td>智能补全开关</td><td><code>#s17SmartToggle</code> / <code>#s17SmartSwitch</code></td></tr>
+<tr><td>智能补全开关</td><td><strong>已删除</strong>（恒开）</td></tr>
 <tr><td>智能补全标签</td><td><code>.spf-icard__smart</code>（挂在 <code>.spf-icard__name</code> 内）</td></tr>
 <tr><td>散客性别 SVG</td><td><code>assets/gender/ic_guest_male.svg</code> · <code>ic_guest_female.svg</code></td></tr>
 <tr><td>恢复为散客图标</td><td><code>assets/ic_sp_restore_guest.svg</code>（Figma <code>270:81</code>）</td></tr>
@@ -642,6 +650,10 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.28</td><td>2026-10-20</td><td>§5.4 价目 sheet：步进器 + 底栏（取消/确认添加）+ toast + 切快捷确认框。本地未提交</td></tr>
+<tr><td>v1.27</td><td>2026-10-20</td><td>气泡×1.5+首行可露；业绩 sheet 标题/表头；sheet 去×；登录林屿森；业绩卡字阶。本地未提交</td></tr>
+<tr><td>v1.26</td><td>2026-10-20</td><td>§5.3.12 补员工：顾客同项 → 全店同项 → 当前操作员；每项补全且不覆盖；造数归档单。本地未提交</td></tr>
+<tr><td>v1.25</td><td>2026-10-20</td><td>主/次字色；消费顶栏贴名；数值条贴边块；重置散客橙图标。详见 md</td></tr>
 <tr><td>v1.24</td><td>2026-10-19</td><td>票卡下划线/字重/散客名；默认文案版；s16 117×143；s17 标题栏与消费顶栏等。详见 md</td></tr>
 <tr><td>v1.22</td><td>2026-10-19</td><td>首页 KPI：眼睛与业绩/提成大数字水平对齐</td></tr>
 <tr><td>v1.21</td><td>2026-10-19</td><td>自助归档金额前缀「¥」比数字小 2px。详见 md</td></tr>

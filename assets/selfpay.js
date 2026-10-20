@@ -5,8 +5,11 @@
 (function () {
   'use strict';
 
-  var ARCHIVER = '店员小陈';
+  var ARCHIVER = '林屿森';
+  /** 当前进入 s17 的操作员（无历史时默认填入） */
+  var CURRENT_OPERATOR_ID = 'st1';
   var PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+  var MINUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>';
   var CHEV_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   var HELP_ICON = '<img class="sp-help-btn__ic" src="assets/ic_sp_help.svg" alt="" width="16" height="16">';
   /** 微信式二楼：预览行程 / 触发阈值（px） */
@@ -31,7 +34,7 @@
     { id: 'junior', lab: '小工', pct: 75 }
   ];
   var STATION_PCT = { senior: 100, mid: 85, junior: 75 };
-  /** 演示店员工池（分工在单据内选）；>4 人时数值条折叠 */
+  /** 演示店员工池（分工在单据内选）；>4 人时数值条折叠；st1 林屿森=当前操作员 */
   var SP_DEMO_STAFF = [
     { id: 'st1', name: '林屿森', short: '森', avatar: 'assets/emp-avatars/man-a.jpg' },
     { id: 'st3', name: '阿Ken', short: 'Ken', avatar: 'assets/emp-avatars/man-b.jpg' },
@@ -43,7 +46,8 @@
   /** 选中色条按点击顺序循环：红→黄→绿→蓝（较淡）；pct 为更深可读色 */
   var BAR_TINTS = [
     { fill: '#FFB3B8', pct: '#B83A44' },
-    { fill: '#FFE08A', pct: '#9A7B12' },
+    /* 黄：pct 提高饱和度，避免手柄发灰 */
+    { fill: '#FFE08A', pct: '#C99600' },
     { fill: '#A8E0B8', pct: '#2F7A4F' },
     { fill: '#A8C8F0', pct: '#2F5F9E' }
   ];
@@ -128,12 +132,6 @@
 
   /* 演示提成方案：业绩 × 比例；sheet 可改成固定金额 */
   var COMMISSION_RATE = 0.1;
-  /* 项目→常用员工（智能补全 · 演示） */
-  var ITEM_STAFF_PREF = {
-    '洗剪吹': 'st1', '时尚洗吹': 'st1', '精致剪发': 'st3', '染发': 'st3',
-    '烫发': 'st3', '深层滋养': 'st2', '蛋白矫正': 'st1', '头皮护理': 'st2',
-    '洗头': 'st5', '挑染': 'st3', '漂发': 'st3'
-  };
 
   function seedSlips() {
     var t = todayKey();
@@ -322,6 +320,120 @@
         items: [],
         paid: 88, payments: [{ method: '微信', amount: 88 }],
         benefits: '', slipNo: 'SP202610120208', remark: '散客未填项目'
+      },
+      /* —— 归档历史（status=done，不进待归档列表；供智能补全员工规则查询） —— */
+      {
+        id: 'sp-arch-cxr-dye', seq: 71, isMember: true, status: 'done', dateKey: y, time: '15:10',
+        customerName: '陈昕然', gender: 'female', phone: '186****9033',
+        avatar: MEM_WX_AVATARS.f2,
+        items: [{
+          id: 'a1', name: '染发', type: 'project', price: 358, qty: 1,
+          assign: assignSenior(mkPerson('st3', '阿Ken', 'senior', { pct: 100, dianke: true }))
+        }],
+        paid: 358, payments: [{ method: '微信', amount: 358 }],
+        slipNo: 'SP202610140151', remark: '归档·陈昕然染发', archiver: ARCHIVER
+      },
+      {
+        id: 'sp-arch-hj-xjb', seq: 72, isMember: true, status: 'done', dateKey: y, time: '11:30',
+        customerName: '何静', gender: 'female', phone: '188****6655',
+        avatar: MEM_WX_AVATARS.f1,
+        items: [{
+          id: 'a2', name: '洗剪吹', type: 'project', price: 68, qty: 1,
+          assign: assignSenior(mkPerson('st1', '林屿森', 'senior', { pct: 100, dianke: true }))
+        }],
+        paid: 68, payments: [{ method: '会员卡', amount: 68 }],
+        slipNo: 'SP202610140113', remark: '归档·何静洗剪吹', archiver: ARCHIVER
+      },
+      {
+        id: 'sp-arch-sxm-deep', seq: 73, isMember: true, status: 'done', dateKey: y2, time: '16:00',
+        customerName: '苏晓萌', gender: 'female', phone: '151****2201',
+        avatar: MEM_WX_AVATARS.f4,
+        items: [{
+          id: 'a3', name: '深层滋养', type: 'project', price: 198, qty: 1,
+          assign: {
+            stations: {
+              senior: [],
+              mid: [mkPerson('st2', '何苏叶', 'mid', { pct: 85, dianke: true })],
+              junior: []
+            },
+            people: []
+          }
+        }],
+        paid: 198, payments: [{ method: '微信', amount: 198 }],
+        slipNo: 'SP202610130160', remark: '归档·苏晓萌深层滋养', archiver: ARCHIVER
+      },
+      {
+        id: 'sp-arch-zyx-wash', seq: 74, isMember: true, status: 'done', dateKey: y, time: '09:40',
+        customerName: '周雨欣', gender: 'female', phone: '159****4412',
+        avatar: MEM_WX_AVATARS.f3,
+        items: [{
+          id: 'a4', name: '时尚洗吹', type: 'project', price: 58, qty: 1,
+          assign: assignSenior(mkPerson('st1', '林屿森', 'senior', { pct: 100 }))
+        }],
+        paid: 58, payments: [{ method: '会员卡', amount: 58 }],
+        slipNo: 'SP202610140094', remark: '归档·周雨欣时尚洗吹', archiver: ARCHIVER
+      },
+      {
+        id: 'sp-arch-zza-cut', seq: 75, isMember: true, status: 'done', dateKey: y2, time: '13:20',
+        customerName: '周子昂', gender: 'male', phone: '137****2048',
+        avatar: MEM_WX_AVATARS.m1,
+        items: [{
+          id: 'a5', name: '精致剪发', type: 'project', price: 98, qty: 1,
+          assign: assignSenior(mkPerson('st3', '阿Ken', 'senior', { pct: 100 }))
+        }],
+        paid: 98, payments: [{ method: '微信', amount: 98 }],
+        slipNo: 'SP202610130132', remark: '归档·周子昂精致剪发', archiver: ARCHIVER
+      },
+      {
+        id: 'sp-arch-lxx-cut', seq: 76, isMember: true, status: 'done', dateKey: y, time: '18:05',
+        customerName: '林晓萱', gender: 'female', phone: '135****8820',
+        avatar: MEM_WX_AVATARS.f5,
+        items: [{
+          id: 'a6', name: '精致剪发', type: 'project', price: 98, qty: 1,
+          assign: assignSenior(mkPerson('st1', '林屿森', 'senior', { pct: 100, dianke: true }))
+        }],
+        paid: 98, payments: [{ method: '微信', amount: 98 }],
+        slipNo: 'SP202610140185', remark: '归档·林晓萱精致剪发', archiver: ARCHIVER
+      },
+      {
+        id: 'sp-arch-prod-mask', seq: 77, isMember: true, status: 'done', dateKey: y2, time: '10:15',
+        customerName: '何静', gender: 'female', phone: '188****6655',
+        avatar: MEM_WX_AVATARS.f1,
+        items: [{
+          id: 'a7', name: '剑琅柔顺发膜', type: 'product', price: 148, qty: 1,
+          assign: assignSenior(mkPerson('st5', '小周', 'senior', { pct: 100 }))
+        }],
+        paid: 148, payments: [{ method: '微信', amount: 148 }],
+        slipNo: 'SP202610130101', remark: '归档·发膜员工小周', archiver: ARCHIVER
+      },
+      {
+        id: 'sp-arch-perm-multi', seq: 78, isMember: true, status: 'done', dateKey: y, time: '12:00',
+        customerName: '陆思琪', gender: 'female', phone: '186****5511',
+        avatar: MEM_WX_AVATARS.f6,
+        items: [{
+          id: 'a8', name: '烫发', type: 'project', price: 398, qty: 1,
+          assign: {
+            stations: {
+              senior: [mkPerson('st3', '阿Ken', 'senior', { pct: 100, dianke: true })],
+              mid: [mkPerson('st2', '何苏叶', 'mid', { pct: 85 })],
+              junior: [mkPerson('st5', '小周', 'junior', { pct: 75 })]
+            },
+            people: []
+          }
+        }],
+        paid: 398, payments: [{ method: '会员卡', amount: 398 }],
+        slipNo: 'SP202610140120', remark: '归档·烫发三人配置', archiver: ARCHIVER
+      },
+      {
+        id: 'sp-arch-guest-wash', seq: 79, isMember: false, status: 'done', dateKey: y, time: '19:20',
+        customerName: '男散客', phone: '', guestGender: 'male',
+        avatar: GUEST_AVATAR.male,
+        items: [{
+          id: 'a9', name: '洗头', type: 'project', price: 28, qty: 1,
+          assign: assignSenior(mkPerson('st5', '小周', 'senior', { pct: 100 }))
+        }],
+        paid: 28, payments: [{ method: '微信', amount: 28 }],
+        slipNo: 'SP202610140192', remark: '归档·散客洗头', archiver: ARCHIVER
       }
     ];
   }
@@ -340,6 +452,8 @@
     cardsOpen: false,
     priceTab: 'project',
     priceGroup: '全部',
+    /** 价目 sheet 当前正在选数量的行：{ name, price, type, qty } */
+    pricePick: null,
     allocMode: 'average',
     pickCtx: null,
     pickDraft: {},
@@ -357,7 +471,9 @@
     perfKeypadTarget: null,
     smartComplete: true,
     /** 进 s16 手势：dots=圆点版 · hint=文案版（默认） */
-    floorMode: 'hint'
+    floorMode: 'hint',
+    /** 数值条样式：separate=分立 · stack=贴边块（默认） */
+    ibarStyle: 'stack'
   };
 
   function emptyAssign() {
@@ -467,7 +583,7 @@
     if (p && p.active && p.tintIdx != null) {
       return BAR_TINTS[p.tintIdx % BAR_TINTS.length];
     }
-    return { fill: '#E5E5EA', pct: '#8E8E93' };
+    return { fill: '#E5E5EA', pct: '#929292' };
   }
   function guestAvatarOf(gender) {
     return gender === 'female' ? GUEST_AVATAR.female : GUEST_AVATAR.male;
@@ -1018,9 +1134,20 @@
   function staffBarHtml(entry) {
     var p = entry.person;
     var on = !!p.active;
+    var stack = ui.ibarStyle === 'stack';
     var pct = on ? (Number(p.pct) || 0) : 0;
     var tint = barTintOf(p);
     var pctLeft = pctLabelLeft(pct);
+    /* 贴边块 · 未选中：仅姓名行，点名后再出数值条 */
+    if (stack && !on) {
+      return (
+        '<div class="spf-ibar is-nameonly" data-sp-ibar="' + escapeHtml(entry.ctx) + '">' +
+        '<div class="spf-ibar__track spf-ibar__track--name" data-sp-ibar-track="' +
+        escapeHtml(entry.ctx) + '">' +
+        '<div class="spf-ibar__nm">' + escapeHtml(p.name) + '</div>' +
+        '</div></div>'
+      );
+    }
     var xHtml = on
       ? '<button type="button" class="spf-ibar__x" data-sp-ibar-clear="' + escapeHtml(entry.ctx) +
         '" aria-label="清除">×</button>'
@@ -1087,8 +1214,13 @@
           escapeHtml(foldKey) + '">收起' + CHEV_SVG + '</button>';
       }
     }
-    return '<div class="spf-ibar-list" data-sp-ibar-fold="' + escapeHtml(foldKey) + '">' +
-      show.map(function (r) { return staffBarHtml(r); }).join('') + more + '</div>';
+    var stackCls = ui.ibarStyle === 'stack' ? ' is-stack' : '';
+    return (
+      '<div class="spf-ibar-fold" data-sp-ibar-fold="' + escapeHtml(foldKey) + '">' +
+      '<div class="spf-ibar-list' + stackCls + '">' +
+      show.map(function (r) { return staffBarHtml(r); }).join('') +
+      '</div>' + more + '</div>'
+    );
   }
   function stationCanAddMore(arr) {
     var used = {};
@@ -1146,11 +1278,13 @@
       '<div class="spf-icard__hd">' +
       '<button type="button" class="spf-icard__del" data-sp-del="' + idx + '" aria-label="删除">' +
       '<img src="assets/ic_sp_del_item.svg" alt="" width="20" height="20"></button>' +
+      '<div class="spf-icard__main">' +
       '<div class="spf-icard__name">' + escapeHtml(it.name) + '</div>' +
       '<span class="spf-icard__qty">×' + (it.qty || 1) + '</span>' +
       '<button type="button" class="spf-icard__sheet" data-sp-item-sheet="' + idx +
       '" aria-label="业绩提成">' +
       '<img class="spf-icard__sheet-ic" src="assets/ic_sp_staff_sheet.svg" alt="" width="18" height="18"></button>' +
+      '</div>' +
       (it.smart ? '<span class="spf-icard__smart">智能补全</span>' : '') +
       '<span class="spf-icard__price">' + yenHtml(it.price) + '</span>' +
       '</div>';
@@ -1173,10 +1307,9 @@
         '<span class="spf-cust__name">' + escapeHtml(custName) + '</span>' +
         '<span class="spf-sum__vip">会员</span>' +
         (slip.canRestoreGuest
-          ? '<button type="button" class="spf-restore-guest" data-sp-restore-guest>' +
-            '<span>重置为散客</span>' +
-            '<svg class="spf-restore-guest__chev" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">' +
-            '<path d="M4.5 3L7.5 6l-3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
+          ? '<button type="button" class="spf-restore-guest" data-sp-restore-guest aria-label="重置为散客">' +
+            '<img class="spf-restore-guest__ic" src="assets/ic_sp_restore_guest.svg" alt="" width="20" height="20">' +
+            '</button>'
           : '') +
         '</div>' +
         (slip.phone ? '<div class="spf-cust__phone">' + escapeHtml(slip.phone) + '</div>' : '') +
@@ -1311,11 +1444,6 @@
     });
     return best;
   }
-  function smartPickStaffId(itemName) {
-    var pref = ITEM_STAFF_PREF[itemName];
-    if (pref && SP_DEMO_STAFF.some(function (s) { return s.id === pref; })) return pref;
-    return 'st1';
-  }
   function pushStaffToAssign(assign, sid, station, dianke, it) {
     var stInfo = demoStaffById(sid);
     if (!stInfo) return false;
@@ -1339,6 +1467,166 @@
     }
     return true;
   }
+  /** 从 assign 抽出已配置员工（不依赖当前分配模式） */
+  function flattenAssignToStaff(assign) {
+    assign = assign || emptyAssign();
+    var list = [];
+    (assign.people || []).forEach(function (p) {
+      if (p && p.active) {
+        list.push({
+          id: p.id, name: p.name, dianke: !!p.dianke,
+          pct: Number(p.pct) || 0, station: 'senior', tintIdx: p.tintIdx
+        });
+      }
+    });
+    STATIONS.forEach(function (st) {
+      (assign.stations[st.id] || []).forEach(function (p) {
+        if (!p) return;
+        list.push({
+          id: p.id, name: p.name, dianke: !!p.dianke,
+          pct: p.pct != null ? Number(p.pct) : (STATION_PCT[st.id] || 100),
+          station: st.id, tintIdx: p.tintIdx
+        });
+      });
+    });
+    return list;
+  }
+  function assignHasConfiguredStaff(assign) {
+    return flattenAssignToStaff(assign).length > 0;
+  }
+  function slipTimeKey(slip) {
+    return String(slip && slip.dateKey || '') + 'T' + String(slip && slip.time || '00:00');
+  }
+  function sortSlipsNewestFirst(list) {
+    return (list || []).slice().sort(function (a, b) {
+      var ka = slipTimeKey(a);
+      var kb = slipTimeKey(b);
+      if (ka !== kb) return ka < kb ? 1 : -1;
+      return (Number(b.seq) || 0) - (Number(a.seq) || 0);
+    });
+  }
+  function customerHistoryKey(slip) {
+    if (!slip) return '';
+    if (slip.isMember) return 'm:' + String(slip.phone || slip.customerName || slip.id);
+    return 'g:' + String(slip.guestGender || 'male') + ':' + String(slip.phone || '');
+  }
+  function findItemAssignInSlip(slip, itemName) {
+    if (!slip || !itemName) return null;
+    var items = slip.items || [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i] && items[i].name === itemName && items[i].assign &&
+          flattenAssignToStaff(items[i].assign).length) {
+        return items[i].assign;
+      }
+    }
+    if (slip.contentMode === 'quick' && slip.orderStaff &&
+        flattenAssignToStaff(slip.orderStaff).length) {
+      return slip.orderStaff;
+    }
+    return null;
+  }
+  /**
+   * 智能补全员工配置优先级：
+   * 1) 该顾客上次购买本项目/产品的归档配置
+   * 2) 任意归档单中该项目/产品最近一次配置
+   * 3) null → 调用方填当前操作员
+   */
+  function findHistoryStaffAssign(slip, itemName) {
+    if (!itemName) return null;
+    var done = sortSlipsNewestFirst(slips.filter(function (s) {
+      return s && s.status === 'done' && s.id !== (slip && slip.id);
+    }));
+    var ck = customerHistoryKey(slip);
+    var i;
+    var a;
+    for (i = 0; i < done.length; i++) {
+      if (customerHistoryKey(done[i]) !== ck) continue;
+      a = findItemAssignInSlip(done[i], itemName);
+      if (a) return a;
+    }
+    for (i = 0; i < done.length; i++) {
+      a = findItemAssignInSlip(done[i], itemName);
+      if (a) return a;
+    }
+    return null;
+  }
+  function applyStaffConfigToAssign(targetAssign, sourceAssign, it) {
+    var staff = flattenAssignToStaff(sourceAssign);
+    if (!staff.length || !targetAssign) return false;
+    if (ui.allocMode === 'average') {
+      ensureAveragePeople(targetAssign, it);
+      (targetAssign.people || []).forEach(function (p) {
+        if (!p) return;
+        p.active = false;
+        p.dianke = false;
+        p.pct = 0;
+        p.tintIdx = null;
+        p.commissionFixed = null;
+      });
+      staff.forEach(function (s) {
+        var hit = (targetAssign.people || []).find(function (p) { return p && p.id === s.id; });
+        if (!hit) {
+          var info = demoStaffById(s.id);
+          hit = {
+            id: s.id,
+            name: (info && info.name) || s.name || s.id,
+            dianke: false,
+            active: false,
+            pct: 0
+          };
+          targetAssign.people.push(hit);
+        }
+        hit.active = true;
+        hit.dianke = !!s.dianke;
+        hit.pct = s.pct;
+        hit.tintIdx = s.tintIdx != null ? s.tintIdx : null;
+        hit.name = s.name || hit.name;
+        syncPersonPerf(hit, 'avg', it);
+      });
+      ensureAssignTints(targetAssign);
+    } else {
+      targetAssign.stations = { senior: [], mid: [], junior: [] };
+      targetAssign.people = [];
+      staff.forEach(function (s) {
+        var st = s.station && s.station !== 'avg' ? s.station : 'senior';
+        if (!targetAssign.stations[st]) targetAssign.stations[st] = [];
+        var person = {
+          id: s.id,
+          name: s.name,
+          dianke: !!s.dianke,
+          active: true,
+          pct: s.pct,
+          tintIdx: s.tintIdx
+        };
+        var info = demoStaffById(s.id);
+        if (info) person.name = info.name;
+        syncPersonPerf(person, st, it);
+        targetAssign.stations[st].push(person);
+      });
+      ensureAssignTints(targetAssign);
+    }
+    return true;
+  }
+  function fillOperatorFallback(targetAssign, it) {
+    if (ui.allocMode === 'average') {
+      ensureAveragePeople(targetAssign, it);
+      var hit = (targetAssign.people || []).find(function (p) {
+        return p && p.id === CURRENT_OPERATOR_ID;
+      }) || (targetAssign.people || [])[0];
+      if (hit) activatePerson(hit, 'senior', it, targetAssign);
+    } else {
+      pushStaffToAssign(targetAssign, CURRENT_OPERATOR_ID, 'senior', false, it);
+    }
+  }
+  /** 对单条明细按历史规则填员工；已有配置则不覆盖 */
+  function fillStaffForItem(it, slip) {
+    if (!it) return;
+    ensureItemAssign(it);
+    if (assignHasConfiguredStaff(it.assign)) return;
+    var hist = findHistoryStaffAssign(slip, it.name);
+    if (hist && applyStaffConfigToAssign(it.assign, hist, it)) return;
+    fillOperatorFallback(it.assign, it);
+  }
   function runSmartComplete(slip) {
     ui.smartComplete = true;
     if (ui.contentMode !== 'quick' && !ui.editItems.length) {
@@ -1355,30 +1643,16 @@
         });
       }
     }
-    var targetIt = null;
-    var targetAssign = null;
-    var prefixStation = 'senior';
     if (ui.contentMode === 'quick') {
-      targetIt = { price: slip.paid, qty: 1, name: '' };
-      targetAssign = ui.orderStaff;
-    } else if (ui.editItems.length) {
-      targetIt = ui.editItems[0];
-      ensureItemAssign(targetIt);
-      targetAssign = targetIt.assign;
-    }
-    if (targetAssign) {
-      if (ui.allocMode === 'average') {
-        ensureAveragePeople(targetAssign, targetIt);
-        if (!peopleFromAssign(targetAssign).some(function (p) { return p && p.active; })) {
-          var sidAvg = smartPickStaffId(targetIt.name || parseLastVisitName(slip));
-          var hit = (targetAssign.people || []).find(function (p) { return p.id === sidAvg; }) ||
-            (targetAssign.people || [])[0];
-          if (hit) activatePerson(hit, 'senior', targetIt, targetAssign);
+      var orderIt = { price: slip.paid, qty: 1, name: parseLastVisitName(slip) || '' };
+      if (!assignHasConfiguredStaff(ui.orderStaff)) {
+        var histQ = findHistoryStaffAssign(slip, orderIt.name);
+        if (!(histQ && applyStaffConfigToAssign(ui.orderStaff, histQ, orderIt))) {
+          fillOperatorFallback(ui.orderStaff, orderIt);
         }
-      } else if (!peopleFromAssign(targetAssign).length) {
-        var sid = smartPickStaffId(targetIt.name || parseLastVisitName(slip));
-        pushStaffToAssign(targetAssign, sid, prefixStation, false, targetIt);
       }
+    } else {
+      ui.editItems.forEach(function (it) { fillStaffForItem(it, slip); });
     }
   }
 
@@ -1646,16 +1920,30 @@
       return '<button type="button" class="v2-group-tab' + (name === g ? ' on' : '') +
         '" data-sp-pgroup="' + escapeHtml(name) + '">' + escapeHtml(name) + '</button>';
     }).join('');
+    var pick = ui.pricePick;
     var list = items.map(function (it) {
+      var isPicked = !!pick && pick.name === it.name &&
+        pick.type === (tab === 'product' ? 'product' : 'project');
+      var right = isPicked
+        ? '<div class="sp-step" data-sp-step>' +
+          '<button type="button" class="sp-step__btn' + (pick.qty <= 1 ? ' is-off' : '') +
+          '" data-sp-step-dec aria-label="减少数量"' + (pick.qty <= 1 ? ' disabled' : '') + '>' +
+          MINUS_SVG + '</button>' +
+          '<span class="sp-step__qty" data-sp-step-qty>' + (Number(pick.qty) || 1) + '</span>' +
+          '<button type="button" class="sp-step__btn' + (pick.qty >= 99 ? ' is-off' : '') +
+          '" data-sp-step-inc aria-label="增加数量"' + (pick.qty >= 99 ? ' disabled' : '') + '>' +
+          PLUS_SVG + '</button></div>'
+        : '<button type="button" class="v2-add-btn" data-sp-padd aria-label="添加">' +
+          PLUS_SVG + '</button>';
       return (
-        '<div class="v2-cat-item" data-sp-pname="' + escapeHtml(it.name) +
+        '<div class="v2-cat-item' + (isPicked ? ' is-picking' : '') +
+        '" data-sp-pname="' + escapeHtml(it.name) +
         '" data-sp-pprice="' + it.price +
         '" data-sp-pprod="' + (tab === 'product' ? '1' : '0') + '">' +
         '<div class="v2-cat-main"><div class="v2-cat-info"><div class="v2-cat-name">' +
         escapeHtml(it.name) + '</div><div class="v2-cat-price">' + yenHtml(it.price) +
         '</div></div>' +
-        '<div class="v2-cat-right"><button type="button" class="v2-add-btn" data-sp-padd aria-label="添加">' +
-        PLUS_SVG + '</button></div></div></div>'
+        '<div class="v2-cat-right">' + right + '</div></div></div>'
       );
     }).join('');
     body.innerHTML =
@@ -1665,23 +1953,86 @@
       gTabs + '</div></div></div></div>' +
       '<div class="v2-catalog">' + (list || '<div class="v2-cat-empty">暂无价目</div>') +
       '</div></div>';
+    syncPriceFoot();
+  }
+  function syncPriceFoot() {
+    var ok = $('#spPriceOk');
+    if (ok) ok.disabled = !ui.pricePick;
+  }
+  /** 步进器 ±：只改数量与按钮态，不重绘列表（避免滚动位置跳动） */
+  function stepPriceQty(delta) {
+    if (!ui.pricePick) return;
+    var n = Math.max(1, Math.min(99, (Number(ui.pricePick.qty) || 1) + delta));
+    ui.pricePick.qty = n;
+    var mask = $('#spPriceMask');
+    if (!mask) return;
+    var qtyEl = mask.querySelector('[data-sp-step-qty]');
+    if (qtyEl) qtyEl.textContent = n;
+    var dec = mask.querySelector('[data-sp-step-dec]');
+    var inc = mask.querySelector('[data-sp-step-inc]');
+    if (dec) {
+      dec.disabled = n <= 1;
+      dec.classList.toggle('is-off', n <= 1);
+    }
+    if (inc) {
+      inc.disabled = n >= 99;
+      inc.classList.toggle('is-off', n >= 99);
+    }
+    syncPriceFoot();
+  }
+  /** 底栏「确认添加」：把当前步进器行写入明细并关 sheet */
+  function confirmPricePick() {
+    var pick = ui.pricePick;
+    if (!pick) return;
+    var qty = Math.max(1, Number(pick.qty) || 1);
+    ui.contentMode = 'items';
+    ui.editItems.push({
+      id: 'x-' + Date.now(),
+      name: pick.name,
+      type: pick.type,
+      price: pick.price,
+      qty: qty,
+      assign: emptyAssign()
+    });
+    ui.pricePick = null;
+    closePriceSheet();
+    ui.perfStaffKey = '';
+    paintS17();
+    toast(qty > 1
+      ? '已添加「' + pick.name + '」×' + qty
+      : '已添加「' + pick.name + '」');
   }
   function openPriceSheet() {
     ui.priceTab = 'project';
     ui.priceGroup = '全部';
+    ui.pricePick = null;
     renderPriceSheet();
     openMask('spPriceMask');
   }
-  function closePriceSheet() { closeMask('spPriceMask'); }
+  function closePriceSheet() {
+    ui.pricePick = null;
+    closeMask('spPriceMask');
+  }
 
   function applyQuickMode() {
-    if (ui.contentMode === 'items' && ui.editItems.length) {
-      if (!window.confirm('切换为快捷开单将清空已选项目/产品，确定？')) return;
+    if (ui.contentMode === 'quick') {
+      closePriceSheet();
+      return;
     }
+    if (ui.editItems.length) {
+      openMask('spQuickConfirmMask');
+      return;
+    }
+    doQuickMode();
+  }
+  function doQuickMode() {
     ui.contentMode = 'quick';
     ui.editItems = [];
+    ui.pricePick = null;
+    closeMask('spQuickConfirmMask');
     closePriceSheet();
     paintS17();
+    toast('已切换为快捷开单');
   }
 
   function parseSlotCtx(raw) {
@@ -2013,6 +2364,17 @@
       btn.classList.toggle('on', btn.getAttribute('data-sp-floor') === ui.floorMode);
     });
   }
+  function setIbarStyle(mode) {
+    ui.ibarStyle = mode === 'separate' ? 'separate' : 'stack';
+    toast(ui.ibarStyle === 'stack' ? '演示：数值条 · 贴边块' : '演示：数值条 · 分立');
+    syncIbarStyleNav();
+    paintS17();
+  }
+  function syncIbarStyleNav() {
+    $all('.site-nav [data-sp-ibar-style]').forEach(function (btn) {
+      btn.classList.toggle('on', btn.getAttribute('data-sp-ibar-style') === ui.ibarStyle);
+    });
+  }
 
   function installDateHook() {
     if (window.__v2OnBillDateChange && window.__v2OnBillDateChange._spSelfpay) return;
@@ -2128,7 +2490,7 @@
       entries = listStaffEntries(ui.orderStaff, 'order', orderIt).filter(function (en) {
         return en.person && en.person.active;
       });
-      if (title) title.textContent = '快捷开单 · 业绩提成';
+      if (title) title.textContent = '快捷开单';
     } else {
       it = ui.editItems[itemIdx];
       if (!it) return;
@@ -2137,7 +2499,7 @@
       entries = listStaffEntries(it.assign, 'item|' + itemIdx, it).filter(function (en) {
         return en.person && en.person.active;
       });
-      if (title) title.textContent = it.name + ' · 业绩提成';
+      if (title) title.textContent = it.name || '业绩提成';
     }
     if (!body) return;
     if (!entries.length) {
@@ -2158,7 +2520,7 @@
       body.innerHTML =
         '<div class="sp-ipf-list">' +
         '<div class="sp-ipf-head" aria-hidden="true">' +
-        '<span class="sp-ipf-head__nm">员工</span>' +
+        '<span class="sp-ipf-head__nm">员工业绩提成</span>' +
         '<span class="sp-ipf-head__col">业绩</span>' +
         '<span class="sp-ipf-head__col">提成</span></div>' +
         entries.map(function (en) {
@@ -2193,7 +2555,7 @@
     ui.perfKeypadReplace = true;
     var head = $('#spPerfKeypadMask .sp-sheet__head');
     if (head) {
-      head.childNodes[0].textContent = field === 'commission' ? '修改提成' : '修改业绩';
+      head.textContent = field === 'commission' ? '修改提成' : '修改业绩';
     }
     renderPerfKeypadGrid();
     syncPerfKeypadDisplay();
@@ -2267,6 +2629,15 @@
     var pct = Number(p.pct) || 0;
     var tint = barTintOf(p);
     var ctxRaw = track.getAttribute('data-sp-ibar-track') || '';
+    /* 贴边块：未选仅姓名 → 选中时补齐色条 DOM，才能上色 */
+    if (p.active && !fill) {
+      if (root) root.classList.remove('is-nameonly');
+      track.classList.remove('spf-ibar__track--name');
+      fill = document.createElement('div');
+      fill.className = 'spf-ibar__fill';
+      if (nm) track.insertBefore(fill, nm);
+      else track.insertBefore(fill, track.firstChild);
+    }
     if (root) {
       root.classList.toggle('is-on', !!p.active);
       root.classList.toggle('is-dk', !!p.dianke);
@@ -2334,6 +2705,11 @@
       if (dkBtn) dkBtn.hidden = true;
       if (handle) handle.remove();
       if (bubble) bubble.hidden = true;
+    }
+    var fold = track.closest('.spf-ibar-fold');
+    if (fold) {
+      var anyBubble = !!fold.querySelector('.spf-ibar__bubble:not([hidden])');
+      fold.classList.toggle('is-bubble-space', anyBubble);
     }
     syncPerfOverviewCard();
   }
@@ -3170,8 +3546,9 @@
         bindMember(mem.getAttribute('data-sp-bind-member'));
         return;
       }
-      if (e.target.closest('#spMemberClose')) { closeMemberSheet(); return; }
-      if (e.target.closest('#spItemPerfClose') || e.target.closest('[data-sp-ipf-empty-ok]')) {
+      if (e.target.id === 'spFilterMask') { closeMask('spFilterMask'); return; }
+      if (e.target.id === 'spPerfKeypadMask') { closePerfKeypad(); return; }
+      if (e.target.closest('[data-sp-ipf-empty-ok]')) {
         closeItemPerfSheet();
         return;
       }
@@ -3189,33 +3566,38 @@
       if (pTab && $('#spPriceMask') && $('#spPriceMask').classList.contains('show')) {
         ui.priceTab = pTab.getAttribute('data-sp-ptab');
         ui.priceGroup = '全部';
+        ui.pricePick = null;
         renderPriceSheet();
         return;
       }
       var pGroup = e.target.closest('[data-sp-pgroup]');
       if (pGroup && $('#spPriceMask') && $('#spPriceMask').classList.contains('show')) {
         ui.priceGroup = pGroup.getAttribute('data-sp-pgroup');
+        ui.pricePick = null;
         renderPriceSheet();
         return;
       }
+      if (e.target.closest('[data-sp-step-dec]')) { stepPriceQty(-1); return; }
+      if (e.target.closest('[data-sp-step-inc]')) { stepPriceQty(1); return; }
+      if (e.target.closest('#spPriceCancel')) { closePriceSheet(); return; }
+      if (e.target.closest('#spPriceOk')) { confirmPricePick(); return; }
+      if (e.target.closest('#spQuickConfirmOk')) { doQuickMode(); return; }
       var padd = e.target.closest('[data-sp-padd]');
       if (padd && $('#spPriceMask') && $('#spPriceMask').classList.contains('show')) {
         var row = padd.closest('[data-sp-pname]');
         if (!row) return;
-        var addName = row.getAttribute('data-sp-pname') || '';
-        ui.contentMode = 'items';
-        ui.editItems.push({
-          id: 'x-' + Date.now(),
-          name: addName,
-          type: row.getAttribute('data-sp-pprod') === '1' ? 'product' : 'project',
+        ui.pricePick = {
+          name: row.getAttribute('data-sp-pname') || '',
           price: Number(row.getAttribute('data-sp-pprice')) || 0,
-          qty: 1,
-          assign: emptyAssign()
-        });
-        closePriceSheet();
-        ui.perfStaffKey = '';
-        paintS17();
-        toast('已添加「' + addName + '」');
+          type: row.getAttribute('data-sp-pprod') === '1' ? 'product' : 'project',
+          qty: 1
+        };
+        /* 重绘时保住滚动位置，避免点行后列表跳回顶部 */
+        var pbody = $('#spPriceBody');
+        var keepTop = pbody ? pbody.scrollTop : 0;
+        renderPriceSheet();
+        if (pbody) pbody.scrollTop = keepTop;
+        return;
       }
     });
 
@@ -3258,6 +3640,7 @@
     bind();
     syncAllocNav();
     syncFloorNav();
+    syncIbarStyleNav();
     renderHomeStrip();
     if ($('#s16') && $('#s16').classList.contains('active')) renderList();
     window.SelfPay = {
@@ -3283,6 +3666,10 @@
       closeItemPerfSheet: closeItemPerfSheet,
       setAllocMode: setAllocMode,
       setFloorMode: setFloorMode,
+      setIbarStyle: setIbarStyle,
+      syncAllocNav: syncAllocNav,
+      syncFloorNav: syncFloorNav,
+      syncIbarStyleNav: syncIbarStyleNav,
       openVoidConfirm: function () {},
       pendingCount: pendingCount,
       paintS17: paintS17,

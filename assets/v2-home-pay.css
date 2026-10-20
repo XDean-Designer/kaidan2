@@ -134,7 +134,7 @@
 .vh-kpi__fold {
   flex: none;
   width: 20px; height: 20px; border: 0; padding: 0; background: transparent; cursor: pointer;
-  color: #8E8E93; display: grid; place-items: center;
+  color: #929292; display: grid; place-items: center;
   -webkit-tap-highlight-color: transparent;
   transition: transform .2s ease;
 }
@@ -171,9 +171,9 @@
   background: #F7F8FC; border-radius: 12px; padding: 16px 4px;
 }
 .vh-kpi__sub-item { flex: 1; text-align: center; min-width: 0; }
-.vh-kpi__sub-lab { font-size: 13px; font-weight: 600; color: #666; line-height: 18px; }
+.vh-kpi__sub-lab { font-size: 13px; font-weight: 600; color: #929292; line-height: 18px; }
 .vh-kpi__sub-num {
-  margin-top: 6px; font-size: 20px; font-weight: 500; color: #333;
+  margin-top: 6px; font-size: 20px; font-weight: 500; color: #1A1A1A;
   font-variant-numeric: tabular-nums; line-height: 28px;
 }
 
@@ -245,7 +245,7 @@
   margin-bottom: 18px;
 }
 .vh-biz__m { flex: 1; min-width: 0; }
-.vh-biz__m-lab { font-size: 13px; color: #666; line-height: 18px; }
+.vh-biz__m-lab { font-size: 13px; color: #929292; line-height: 18px; }
 .vh-biz__m-num {
   margin-top: 4px; font-size: 20px; font-weight: 600; color: #1a1a1a;
   font-variant-numeric: tabular-nums; line-height: 28px;
@@ -367,7 +367,7 @@
 .pay-sheet .pay-row .box .pay-amt {
   flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
   font-family: inherit; font-size: 14px; font-weight: 500;
-  color: #666; font-variant-numeric: tabular-nums;
+  color: #929292; font-variant-numeric: tabular-nums;
   padding: 0; width: 100%;
 }
 .pay-sheet .pay-row .box.on .pay-amt { color: #1a1a1a; }
@@ -400,7 +400,7 @@
 .pay-sheet .pay-row--member .pay-mem-bot {
   display: flex; align-items: center; gap: 8px;
   height: 40px; padding: 0 16px; box-sizing: border-box;
-  font-size: 12px; font-weight: 500; color: #666; line-height: 17px;
+  font-size: 12px; font-weight: 500; color: #929292; line-height: 17px;
 }
 .pay-sheet .pay-row--member .pay-mem-bot .tag {
   width: 20px; height: 20px; border-radius: 2px; flex: none;
@@ -481,7 +481,7 @@ html.is-mobile .pay-sheet { bottom: var(--kb-h, 0px); }
   height: 60px; padding: 0 16px; box-sizing: border-box;
 }
 .pay-alloc__row .meta { min-width: 0; }
-.pay-alloc__row .lab { font-size: 12px; color: #666; line-height: 17px; }
+.pay-alloc__row .lab { font-size: 12px; color: #929292; line-height: 17px; }
 .pay-alloc__row .val {
   margin-top: 2px; margin-left: 8px;
   font-size: 16px; font-weight: 500; color: #1a1a1a; line-height: 22px;
