@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.29</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.30</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.29</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.30</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.29 · 2026-10-20</td></tr>
+<tr><td>文档版本</td><td>v1.30 · 2026-10-20</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -431,6 +431,7 @@
 <tr><td>× 清除</td><td>条内最右</td><td><strong>仅选中条</strong>；24 圆；底 <code>rgba(255,255,255,.72)</code>；字 <code>#636366</code></td></tr>
 </tbody>
 </table>
+<p class="reader-note"><strong>拖动气泡（v1.30）</strong>：仅在拖动中显示「业绩 ***」；宽 <strong>112px</strong>（含 padding，<code>border-box</code>）、高 <strong>29</strong>、文本居中、数字 <code>tabular-nums</code>。金额位数与小数位在拖动中变化时，气泡<b>宽高不得变化</b>。</p>
 <hr>
 <h4>5.3.8 员工数值条 · 交互逻辑（必还原）</h4>
 <table>
@@ -651,6 +652,7 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.30</td><td>2026-10-20</td><td>拖动气泡固定尺寸（112×29、居中），修宽度抖动。详见 md</td></tr>
 <tr><td>v1.29</td><td>2026-10-20</td><td>修复数值条配色：色序改轮转游标，超 4 人循环；不再全红。详见 md</td></tr>
 <tr><td>v1.28</td><td>2026-10-20</td><td>§5.4 价目 sheet：步进器 + 底栏（取消/确认添加）+ toast + 切快捷确认框。本地未提交</td></tr>
 <tr><td>v1.27</td><td>2026-10-20</td><td>气泡×1.5+首行可露；业绩 sheet 标题/表头；sheet 去×；登录林屿森；业绩卡字阶。本地未提交</td></tr>

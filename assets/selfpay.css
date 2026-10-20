@@ -2881,6 +2881,10 @@
   bottom: calc(100% + 9px);
   transform: translateX(-50%);
   z-index: 8;
+  /* 固定宽度：金额位数/小数位随拖动变化时，气泡尺寸不抖 */
+  width: 112px;
+  box-sizing: border-box;
+  text-align: center;
   padding: 4.5px 12px;
   border-radius: 9px;
   background: rgba(28, 28, 30, .92);
