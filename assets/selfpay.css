@@ -2093,17 +2093,11 @@
   user-select: none;
   -webkit-user-select: none;
 }
-#s17 .spf-card--perf .spf-card__h {
-  margin-bottom: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #1A1A1A;
-  letter-spacing: 0;
-}
 #s17 .spf-card--perf .spf-quick-tip {
   font-size: 13px;
   font-weight: 400;
   color: #929292;
+  padding-top: 10px;
 }
 #s17 .spf-ov {
   display: flex;
@@ -2118,17 +2112,23 @@
   gap: 8px;
   min-height: 40px;
 }
+/* 卡头：左「员工业绩提成」+ 右「业绩」「提成」同一行 */
 #s17 .spf-ov__head {
   padding: 0 0 8px;
   border-bottom: .5px solid rgba(60, 60, 67, .12);
   margin-bottom: 2px;
   min-height: 0;
 }
-#s17 .spf-ov__head .spf-ov__nm,
 #s17 .spf-ov__head .spf-ov__col {
   font-size: 12px;
   font-weight: 500;
   color: #929292;
+}
+#s17 .spf-ov__head .spf-ov__nm--title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1A1A1A;
+  letter-spacing: 0;
 }
 #s17 .spf-ov__nm {
   flex: 1;

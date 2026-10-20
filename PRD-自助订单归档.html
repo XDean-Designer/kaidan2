@@ -38,14 +38,14 @@
 </head>
 <body>
 <div class="sidebar">
-  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.35</div></div>
+  <div class="brand"><div class="t">PRD：自助订单归档</div><div class="s">商户端 · v1.36</div></div>
   <nav><a href="#s1-背景-目标-范围">1. 背景 / 目标 / 范围</a><a href="#s2-术语">2. 术语</a><a href="#s3-端到端流程">3. 端到端流程</a><a href="#s4-全局视觉与动效-token">4. 全局视觉与动效 Token</a><a href="#s5-页面规格">5. 页面规格</a><a href="#s6-字段与状态">6. 字段与状态</a><a href="#s7-业务规则-汇总">7. 业务规则（汇总）</a><a href="#s8-验收要点-p0">8. 验收要点（P0）</a><a href="#s9-原型文件映射-供-ai-还原">9. 原型文件映射（供 AI 还原）</a><a href="#s10-修订">10. 修订</a></nav>
 </div>
 <div class="main">
-<h1>PRD：自助订单归档 <span class="tag">v1.35</span></h1>
+<h1>PRD：自助订单归档 <span class="tag">v1.36</span></h1>
 <table>
 <thead><tr><th>字段</th><th>内容</th></tr></thead><tbody>
-<tr><td>文档版本</td><td>v1.35 · 2026-10-20</td></tr>
+<tr><td>文档版本</td><td>v1.36 · 2026-10-20</td></tr>
 <tr><td>产品名</td><td>自助订单归档</td></tr>
 <tr><td>交互原型（唯一可视依据）</td><td>同目录 <code>index.html</code>（画布 <strong>390×844</strong>，演示区默认 1.25×）</td></tr>
 <tr><td>样式实现</td><td><code>assets/selfpay.css</code> · <code>assets/v2-home-pay.css</code> · <code>assets/selfpay.js</code></td></tr>
@@ -508,11 +508,12 @@
 <p>位于 <strong>「消费内容」与「备注」之间</strong>，独立卡片；仅汇总展示，<strong>不可交互、不可修改</strong>。</p>
 <table>
 <thead><tr><th>项</th><th>规格</th></tr></thead><tbody>
-<tr><td>标题</td><td>「业绩提成」13/600/<code>#8E8E93</code>；<strong>无</strong>副标题</td></tr>
-<tr><td>表头</td><td>员工 / 业绩 / 提成；11 灰 <code>#AEAEB2</code>；底分割线 <code>.5px rgba(60,60,67,.12)</code></td></tr>
-<tr><td>数据行</td><td>姓名 14/500/<code>#636366</code>；业绩、提成右对齐 14/500/<code>#636366</code> tabular-nums；行底 <code>.5px rgba(60,60,67,.08)</code>，末行无</td></tr>
+<tr><td>卡头</td><td><strong>无独立标题行</strong>；表头三列同一行：「员工业绩提成」/「业绩」/「提成」；底分割线 <code>.5px rgba(60,60,67,.12)</code></td></tr>
+<tr><td>卡头字阶</td><td>左「员工业绩提成」15/600/<code>#1A1A1A</code>；右「业绩」「提成」12/500/<code>#929292</code></td></tr>
+<tr><td>数据行</td><td>姓名 15/500/<code>#1A1A1A</code>；业绩、提成右对齐 15/600/<code>#1A1A1A</code> tabular-nums；行底 <code>.5px rgba(60,60,67,.08)</code>，末行无；行高约 40</td></tr>
+<tr><td>空态</td><td><strong>仍显示卡头三列</strong>；下方灰字「选择员工后显示业绩与提成」13/400/<code>#929292</code></td></tr>
 <tr><td>汇总口径</td><td>按<strong>员工去重</strong>累加本单所有项目/产品（含快捷开单）中 <code>active</code> 员工的业绩与提成；提成取条上已算好的值（尊重单项 sheet 改过 / 固定值）</td></tr>
-<tr><td>过滤</td><td><strong>业绩为 0 的员工不展示</strong>；无任何行时显示灰字「选择员工后显示业绩与提成」</td></tr>
+<tr><td>过滤</td><td><strong>业绩为 0 的员工不展示</strong>；无任何行时仍显示卡头 + 灰字提示</td></tr>
 <tr><td>无合计行</td><td>不做总计</td></tr>
 <tr><td>只读观感</td><td>整卡 <code>pointer-events:none</code>；无按钮/箭头/按压态；数值用中性灰，不用可点金额的橙/红</td></tr>
 <tr><td>实时同步</td><td>条内任何变动（<strong>点选 / 拖动改占比 / 键盘改业绩或提成 / 选择员工 sheet 确认 / 删除项目</strong>）都必须立刻重算本卡；实现用「就地替换卡片 DOM」，不整页重绘、不跳滚动</td></tr>
@@ -673,6 +674,7 @@
 <h2 id="s10-修订"><span class="no">·</span>10. 修订</h2>
 <table>
 <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>v1.36</td><td>2026-10-20</td><td>§5.3.14 业绩卡：卡头「员工业绩提成 \| 业绩 \| 提成」同行，无独立标题；空态保留卡头。详见 md</td></tr>
 <tr><td>v1.35</td><td>2026-10-20</td><td>气泡出现时数值条零位移（改遮挡）；新增 §5.5 未选项目归档分叉弹窗。详见 md</td></tr>
 <tr><td>v1.34</td><td>2026-10-20</td><td>修气泡常显不隐藏：`display:flex` 覆盖 `[hidden]`，补 `[hidden]{display:none}`。详见 md</td></tr>
 <tr><td>v1.33</td><td>2026-10-20</td><td>气泡改「按住即显示、松手即隐藏」；按下不改值；补失焦/指针丢失兜底。详见 md</td></tr>

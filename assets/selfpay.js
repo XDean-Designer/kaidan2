@@ -849,16 +849,22 @@
     var rows = (ui.perfRows || []).filter(function (r) {
       return (Number(r.achievement) || 0) > 0;
     });
+    /* 卡标题并入表头最左列：「员工业绩提成 | 业绩 | 提成」同一行 */
+    var head =
+      '<div class="spf-ov__head" aria-hidden="true">' +
+      '<span class="spf-ov__nm spf-ov__nm--title">员工业绩提成</span>' +
+      '<span class="spf-ov__col">业绩</span>' +
+      '<span class="spf-ov__col">提成</span></div>';
     var body;
     if (!rows.length) {
-      body = '<div class="spf-quick-tip">选择员工后显示业绩与提成</div>';
+      body =
+        '<div class="spf-ov" aria-readonly="true">' +
+        head +
+        '<div class="spf-quick-tip">选择员工后显示业绩与提成</div></div>';
     } else {
       body =
         '<div class="spf-ov" aria-readonly="true">' +
-        '<div class="spf-ov__head" aria-hidden="true">' +
-        '<span class="spf-ov__nm">员工</span>' +
-        '<span class="spf-ov__col">业绩</span>' +
-        '<span class="spf-ov__col">提成</span></div>' +
+        head +
         rows.map(function (row) {
           var comm = Number(row.commission);
           if (!isFinite(comm)) comm = commissionOf(row.achievement);
@@ -871,11 +877,7 @@
         }).join('') +
         '</div>';
     }
-    return (
-      '<div class="spf-card spf-card--perf">' +
-      '<div class="spf-card__h">业绩提成</div>' +
-      body + '</div>'
-    );
+    return '<div class="spf-card spf-card--perf">' + body + '</div>';
   }
 
   function pendingCount() {
