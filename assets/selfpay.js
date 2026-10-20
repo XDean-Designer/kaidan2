@@ -1188,9 +1188,32 @@
       handleHtml + '</div>' +
       '<div class="spf-ibar__nm">' + escapeHtml(p.name) + '</div>' +
       pctHtml + dkHtml + xHtml +
-      '<div class="spf-ibar__bubble" hidden></div>' +
+      '<div class="spf-ibar__bubble" hidden>' + bubbleInnerHtml() + '</div>' +
       '</div></div>'
     );
+  }
+  /**
+   * 业绩气泡内部结构：固定槽位，拖动时「业绩」与「.」位置不动。
+   * 业绩 + 间隙 2 + 整数位右对齐(min 25) + 小数点 5 + 小数位 8（恒 1 位）
+   */
+  function bubbleInnerHtml() {
+    return '<span class="spf-ibar__bubble-lab">业绩</span>' +
+      '<span class="spf-ibar__bubble-int">0</span>' +
+      '<span class="spf-ibar__bubble-dot">.</span>' +
+      '<span class="spf-ibar__bubble-dec">0</span>';
+  }
+  /** 仅改数字文本；固定 1 位小数，整数/小数分槽，槽宽不变故位置不抖 */
+  function setBubbleAmount(bubble, amount) {
+    if (!bubble) return;
+    var v = Number(amount);
+    if (!isFinite(v)) v = 0;
+    var txt = (v < 0 ? '-' : '') + Math.abs(v).toFixed(1);
+    var dot = txt.indexOf('.');
+    var iEl = bubble.querySelector('.spf-ibar__bubble-int');
+    var fEl = bubble.querySelector('.spf-ibar__bubble-dec');
+    if (iEl) iEl.textContent = dot < 0 ? txt : txt.slice(0, dot);
+    if (fEl) fEl.textContent = dot < 0 ? '0' : txt.slice(dot + 1);
+    bubble.setAttribute('aria-label', '业绩 ' + txt);
   }
   /** 收起态：全部已选始终露出；未选可藏，并补足至少 3 条（已选≥3 则只露已选）；保持原序 */
   function foldCollapsedRows(rows) {
@@ -1717,7 +1740,8 @@
     if (!slip || slip.status !== 'pending') return;
 
     if (ui.contentMode === 'items' && !ui.editItems.length) {
-      toast('请添加项目/产品，或使用快捷开单');
+      /* 未选项目/产品：给「快捷开单归档 / 选择项目产品」两个出口，而不是一句 toast */
+      openMask('spEmptyArchiveMask');
       return;
     }
     if (!hasAnyStaff()) {
@@ -2705,12 +2729,13 @@
       if (!bubble) {
         bubble = document.createElement('div');
         bubble.className = 'spf-ibar__bubble';
+        bubble.innerHTML = bubbleInnerHtml();
         bubble.hidden = true;
         track.appendChild(bubble);
       }
       if (opts.showBubble) {
         bubble.hidden = false;
-        bubble.textContent = '业绩 ' + moneyTrim(p.achievement || 0);
+        setBubbleAmount(bubble, p.achievement || 0);
         bubble.style.left = Math.max(0, Math.min(100, pct)) + '%';
       } else {
         bubble.hidden = true;
@@ -2722,11 +2747,7 @@
       if (handle) handle.remove();
       if (bubble) bubble.hidden = true;
     }
-    var fold = track.closest('.spf-ibar-fold');
-    if (fold) {
-      var anyBubble = !!fold.querySelector('.spf-ibar__bubble:not([hidden])');
-      fold.classList.toggle('is-bubble-space', anyBubble);
-    }
+    /* 气泡绝对定位、允许遮挡相邻内容：不再给 fold 加顶留白，避免数值条位移 */
     syncPerfOverviewCard();
   }
 
@@ -3410,8 +3431,9 @@
         var useHandle = !!e.target.closest('[data-sp-ibar-handle]');
         if (!wasActive) {
           activatePerson(p, ctx.station === 'avg' ? 'senior' : ctx.station, it, assign);
-          paintBarDom(track, p);
         }
+        /* 按住即出气泡（不等拖动），位置与数值都取当前百分比 */
+        paintBarDom(track, p, { showBubble: true });
         var startX = e.clientX;
         var startPct = Number(p.pct) || 0;
         var moved = false;
@@ -3464,11 +3486,56 @@
         track.addEventListener('pointerup', onUp);
         track.addEventListener('pointercancel', onUp);
       });
+
+      /* 兜底：指针丢失 / 窗口失焦 / 页面隐藏时，强制收起所有气泡，避免残留 */
+      function hideBarBubbles(dropDrag) {
+        var host = $('#s17Scroll');
+        if (!host) return;
+        host.querySelectorAll('.spf-ibar__bubble:not([hidden])').forEach(function (b) { b.hidden = true; });
+        if (dropDrag) ui.dragBar = null;
+      }
+      window.addEventListener('blur', function () { hideBarBubbles(true); });
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) hideBarBubbles(true);
+      });
+      window.addEventListener('pointercancel', function () { hideBarBubbles(true); }, true);
+      /* 抬手后若气泡仍未收起（如指针捕获丢失）再补一次，不打断正常拖动收尾 */
+      window.addEventListener('pointerup', function () {
+        setTimeout(function () { if (!ui.dragBar) hideBarBubbles(false); }, 0);
+      }, true);
     }
     var back = $('#s17Back');
     if (back) back.addEventListener('click', function () { closeComplete(); });
     var arch = $('#s17ArchiveBtn');
     if (arch) arch.addEventListener('click', archiveCurrent);
+
+    /* 未选项目/产品 → 完成归档的分叉弹窗 */
+    var emptyArchMask = $('#spEmptyArchiveMask');
+    if (emptyArchMask) {
+      emptyArchMask.addEventListener('click', function (e) {
+        if (e.target === emptyArchMask) closeMask('spEmptyArchiveMask');
+      });
+    }
+    var emptyArchQuick = $('#spEmptyArchiveQuick');
+    if (emptyArchQuick) {
+      emptyArchQuick.addEventListener('click', function () {
+        closeMask('spEmptyArchiveMask');
+        ui.contentMode = 'quick';
+        ui.editItems = [];
+        ui.pricePick = null;
+        ui.perfStaffKey = '';
+        paintS17();
+        /* 切快捷后重走归档：此时 contentMode 为 quick，不再触发本弹窗 */
+        archiveCurrent();
+      });
+    }
+    var emptyArchPick = $('#spEmptyArchivePick');
+    if (emptyArchPick) {
+      emptyArchPick.addEventListener('click', function () {
+        closeMask('spEmptyArchiveMask');
+        openPriceSheet();
+      });
+    }
     var perfCancel = $('#spPerfKeypadCancel');
     if (perfCancel) perfCancel.addEventListener('click', closePerfKeypad);
     var perfOk = $('#spPerfKeypadOk');

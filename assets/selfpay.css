@@ -1506,6 +1506,7 @@
   cursor: pointer;
 }
 .sp-dialog__acts .sec { background: #F2F2F7; color: #1a1a1a; }
+.sp-dialog__acts .main { background: #F32F41; color: #fff; }
 .sp-dialog__acts .danger { background: #F32F41; color: #fff; }
 
 /* 日期 sheet（与开单日期同款）需盖过 s16 放大卡 */
@@ -1664,6 +1665,8 @@
 
 /* 切快捷开单确认：盖过价目 sheet（z-index 110） */
 #spQuickConfirmMask { z-index: 130; }
+/* 未选项目归档分叉：同样盖过价目 sheet */
+#spEmptyArchiveMask { z-index: 130; }
 
 /* 猜你想加 */
 .sp-suggest {
@@ -2690,10 +2693,7 @@
 #s17 .spf-card--items {
   overflow: visible;
 }
-/* 拖动出气泡时给列表顶留空，避免首行气泡贴题 */
-#s17 .spf-ibar-fold.is-bubble-space {
-  padding-top: 36px;
-}
+/* 气泡为绝对定位且允许遮挡相邻内容：不加顶留白，避免数值条整体位移 */
 #s17 .spf-ibar-list.is-stack .spf-ibar:first-child .spf-ibar__track {
   border-radius: 5px 5px 0 0;
 }
@@ -2878,23 +2878,44 @@
 }
 #s17 .spf-ibar__bubble {
   position: absolute;
-  bottom: calc(100% + 9px);
+  bottom: calc(100% + 8px);
   transform: translateX(-50%);
   z-index: 8;
-  /* 固定宽度：金额位数/小数位随拖动变化时，气泡尺寸不抖 */
-  width: 112px;
+  /* 固定尺寸：金额变化时气泡与内部文字位置均不抖 */
+  width: 88px;
+  height: 26px;
   box-sizing: border-box;
-  text-align: center;
-  padding: 4.5px 12px;
-  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  border-radius: 8px;
   background: rgba(28, 28, 30, .92);
   color: #fff;
-  font-size: 16.5px;
+  font-size: 14px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   pointer-events: none;
   line-height: 1.2;
+}
+/* hidden 必须真正隐藏：display:flex 会覆盖 UA 的 [hidden]{display:none} */
+#s17 .spf-ibar__bubble[hidden] { display: none; }
+/* 固定槽位：「业绩」与「.」在拖动中位置不变，只有数字内容变化 */
+#s17 .spf-ibar__bubble-lab { flex: 0 0 auto; }
+#s17 .spf-ibar__bubble-int {
+  flex: 0 0 auto;
+  min-width: 25px;
+  margin-left: 2px;
+  text-align: right;
+}
+#s17 .spf-ibar__bubble-dot {
+  flex: 0 0 5px;
+  text-align: center;
+}
+#s17 .spf-ibar__bubble-dec {
+  flex: 0 0 8px;
+  text-align: left;
 }
 #s17 .spf-ibar__bubble::after {
   content: '';
